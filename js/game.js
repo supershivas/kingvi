@@ -113,6 +113,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     create() {
       this.chunks = new Map();
       this.keys = new Set();
+      this.pad = { x: 0, y: 0, run: false };   // la croix, sur écran tactile
       this.ownPrints = [];
       this.stepCount = save.steps || 0;
       this.distance = save.distance || 0;
@@ -834,7 +835,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     update(time, delta) {
-      if (isPaused() || this.dead) this.keys.clear();
+      if (isPaused() || this.dead) { this.keys.clear(); this.pad = { x: 0, y: 0, run: false }; }
       this.invuln = Math.max(0, this.invuln - delta / 1000);
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
@@ -853,7 +854,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
-      this.running = (this.keys.has('ShiftLeft') || this.keys.has('ShiftRight')) && this.stamina > 0.02;
+      mx += this.pad.x; my += this.pad.y;
+      this.running = (this.keys.has('ShiftLeft') || this.keys.has('ShiftRight') || this.pad.run) && this.stamina > 0.02;
       this.moved = !!(mx || my) && !this.attacking && !this.dead;
       // La vie, pour l'interface (à un point, l'écran rougit)
       const life = this.dead ? 0 : this.hp;
@@ -1461,6 +1463,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     windPhase: () => weather.phase,
     dayPhase: () => daylightAt(dayClock()).phase,
     refreshDaylight: () => game.scene.getScene('island')?.applyDaylight(),
+    // La croix directionnelle : une direction (−1, 0, 1 sur chaque axe), courir ou non
+    setPad(x, y, run) { const sc = game.scene.getScene('island'); if (sc?.pad) sc.pad = { x, y, run }; },
   };
 }
 

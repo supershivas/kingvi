@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.18.0 — 2026-09-30
+- Sur écran tactile, une petite croix directionnelle en bas à gauche : on glisse le pouce pour marcher, tout au bord pour courir ; toucher l'écran frappe
+
 ## 1.17.0 — 2026-09-30
 - Une meute de loups attaque dans la grande clairière du bosquet sacré : ils encerclent, grondent et bondissent pour mordre
 - Certains arbres s'effondrent et certains rochers éclatent quand on les frappe ; une barre d'endurance pour frapper et courir

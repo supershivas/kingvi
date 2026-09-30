@@ -94,7 +94,9 @@ est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
 - Catégorie : **secondaire**.
-- Cible : **uniquement bureau** (bandeau refermable sur téléphone).
+- Cible : **uniquement bureau** (bandeau refermable sur téléphone), mais jouable au doigt : sur écran tactile,
+  une croix directionnelle (`#dpad`, `game.setPad(x, y, courir)` → `scene.pad`),
+  tout au bord pour courir ; toucher l'écran frappe.
 
 ## Stack
 

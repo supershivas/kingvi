@@ -1,9 +1,7 @@
 {
-  "version": "1.17.0",
+  "version": "1.18.0",
   "date": "2026-09-30",
   "changes": [
-    "Une meute de loups attaque dans la grande clairière du bosquet sacré : ils encerclent, grondent et bondissent pour mordre",
-    "Certains arbres s'effondrent et certains rochers éclatent quand on les frappe ; une barre d'endurance pour frapper et courir",
-    "À un point de vie, l'écran rougit ; l'écran tremble moins à chaque coup ; la cape ne bat plus à l'intérieur"
+    "Sur écran tactile, une petite croix directionnelle en bas à gauche : on glisse le pouce pour marcher, tout au bord pour courir ; toucher l'écran frappe"
   ]
 }

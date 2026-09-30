@@ -59,6 +59,31 @@ const game = createGame({
   onHealth: hp => $('screen').classList.toggle('hurt', hp === 1),
 });
 let resetting = false;
+
+// ── Croix directionnelle, sur écran tactile ──
+// Huit directions selon l'angle du pouce ; tout au bord de la croix, on court
+const touchScreen = matchMedia('(hover: none), (pointer: coarse)').matches;
+const dpad = $('dpad');
+(function setupPad() {
+  let id = null;
+  const knob = (x, y) => { dpad.style.setProperty('--kx', `${x}px`); dpad.style.setProperty('--ky', `${y}px`); };
+  const release = () => { id = null; knob(0, 0); dpad.classList.remove('run'); game.setPad(0, 0, false); };
+  const aim = e => {
+    const r = dpad.getBoundingClientRect(), R = r.width / 2;
+    const dx = e.clientX - r.left - R, dy = e.clientY - r.top - R, d = Math.hypot(dx, dy);
+    if (d < R * 0.22) { knob(dx, dy); dpad.classList.remove('run'); game.setPad(0, 0, false); return; }
+    const k = Math.min(1, (R - 22) / d);
+    knob(dx * k, dy * k);
+    const oct = Math.round(Math.atan2(dy, dx) / (Math.PI / 4));
+    const a = oct * Math.PI / 4, run = d > R * 0.92;
+    dpad.classList.toggle('run', run);
+    game.setPad(Math.round(Math.cos(a)), Math.round(Math.sin(a)), run);
+  };
+  dpad.addEventListener('pointerdown', e => { id = e.pointerId; dpad.setPointerCapture(id); aim(e); hideHint(); e.preventDefault(); });
+  dpad.addEventListener('pointermove', e => { if (e.pointerId === id) aim(e); });
+  for (const t of ['pointerup', 'pointercancel', 'lostpointercapture']) dpad.addEventListener(t, e => { if (e.pointerId === id) release(); });
+  window.addEventListener('blur', release);
+})();
 window.addEventListener('pagehide', () => { if (!resetting) game.save(); });
 
 // La consigne apparaît quand on entre dans le jeu, puis s'efface d'elle-même
@@ -69,6 +94,7 @@ let hintShown = false;
 function showHint() {
   if (hintShown) return;
   hintShown = true;
+  if (touchScreen) hint.textContent = 'Croix pour marcher, au bord pour courir · touchez pour frapper';
   hint.classList.remove('gone');
   setTimeout(hideHint, 9000);
   window.addEventListener('keydown', hideHint, { once: true });
@@ -154,6 +180,7 @@ function openTitle() {
   if (settings.open) settings.close();
   $('title-resume').hidden = !hasSave();
   title.hidden = false;
+  dpad.hidden = true;
   ($('title-resume').hidden ? $('title-new') : $('title-resume')).focus();
 }
 // Le noir s'ouvre depuis le centre, lentement d'abord, puis d'un coup
@@ -175,6 +202,7 @@ function openIris() {
 function closeTitle() {
   openIris();
   title.hidden = true;
+  dpad.hidden = !touchScreen;
   $('stage').querySelector('canvas')?.focus();
   showHint();
 }
