@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 — 2026-09-30
+- À mi-chemin, une statue géante de Freya, ensevelie, penchée et brisée
+- Cape plus courte et discrète ; cairns d'un seul tenant, tous de guingois
+- Labo : nouveaux loups, cerfs et biches, statue ; le menu reste en haut
+
 ## 1.2.0 — 2026-09-30
 - Arbres tous différents puis une forêt, gros rochers, nouveaux cairns, maison à l'échelle
 - Viking tout noir avec une cape qui bat au vent ; attaques vers le haut et le bas

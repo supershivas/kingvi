@@ -86,22 +86,33 @@ export function makeBoulder(r) {
   return { rows: toRows(g), ax: Math.floor(w / 2) };
 }
 
-// Cairn : pierres plates empilées, séparées par des lits de neige.
+// Cairn : pierres plates empilées d'un seul tenant, de guingois — jamais
+// symétrique (il penche d'un côté, chaque pierre est décalée et de largeur propre).
 export function makeCairn(r) {
+  const lean = (r() < 0.5 ? -1 : 1) * (0.3 + r() * 0.45);
+  const stones = [];
+  let w = 5 + Math.floor(r() * 3), c = 0;
   const layers = 3 + Math.floor(r() * 3);
-  const rows = [];
-  let w = 2 + Math.floor(r() * 2);
-  const out = [];
   for (let i = 0; i < layers; i++) {
-    out.push({ w, dx: Math.round((r() - 0.5) * 1.5) });
-    w += 1 + Math.floor(r() * 2);
+    stones.push({ w, h: 1 + (r() < 0.35 ? 1 : 0), c });
+    w = Math.max(3, w - Math.floor(r() * 2.2));
+    c += lean + (r() - 0.5) * 1.2;
   }
-  const W = w + 3, cx = Math.floor(W / 2);
-  out.forEach(({ w: lw, dx }, i) => {
-    const left = cx - Math.floor(lw / 2) + (i < layers - 1 ? dx : 0);
-    rows.push([...Array(W)].map((_, x) => (x >= left && x < left + lw ? 'b' : '.')).join(''));
-    // Un lit de neige entre deux pierres, sauf sous la dernière
-    if (i < layers - 1) rows.push([...Array(W)].map((_, x) => (x > left && x < left + lw - 1 ? 's' : '.')).join(''));
+  // Une pierre de faîte, petite, posée de travers
+  stones.push({ w: 1 + Math.floor(r() * 2), h: 1, c: c + lean });
+  const minX = Math.floor(Math.min(...stones.map(s => s.c - s.w / 2))) - 1;
+  const maxX = Math.ceil(Math.max(...stones.map(s => s.c + s.w / 2))) + 1;
+  const W = maxX - minX + 1;
+  const rows = [];
+  stones.forEach((s, i) => {
+    const left = Math.round(s.c - s.w / 2) - minX;
+    for (let k = 0; k < s.h; k++) {
+      const row = Array(W).fill('.');
+      for (let x = left; x < left + s.w; x++) row[x] = 'b';
+      // Joint entre deux pierres : une encoche au bord, pas une fente
+      if (k === 0 && i > 0 && s.w > 3) row[r() < 0.5 ? left : left + s.w - 1] = '.';
+      rows.unshift(row.join(''));
+    }
   });
-  return { rows, ax: cx };
+  return { rows, ax: Math.round(-minX) };
 }

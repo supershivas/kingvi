@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="labo-html">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -18,6 +18,8 @@
 </head>
 <body class="labo-page">
 
+<!-- En-tête et menu dans un même bloc collé en haut : ils restent visibles quand on défile -->
+<div class="labo-head">
 <header class="topbar safe-top">
   <a class="brand" href="./" title="Revenir au jeu">
     <span class="brand-mark"><i class="ti ti-sword" aria-hidden="true"></i></span>
@@ -39,8 +41,11 @@
   <a href="#arbres">Arbres</a>
   <a href="#rochers">Rochers et cairns</a>
   <a href="#maison">Maison</a>
+  <a href="#statue">Statue</a>
   <a href="#loups">Loups</a>
+  <a href="#cerfs">Cerfs et biches</a>
 </nav>
+</div>
 
 <main class="labo">
   <p class="labo-intro">Toutes les animations du jeu, chacune sur fond blanc (la neige) et sur fond noir
@@ -53,7 +58,9 @@
   <section id="arbres" class="labo-section"><h2>Arbres</h2><div class="demos"></div></section>
   <section id="rochers" class="labo-section"><h2>Rochers et cairns</h2><div class="demos"></div></section>
   <section id="maison" class="labo-section"><h2>Maison</h2><div class="demos"></div></section>
+  <section id="statue" class="labo-section"><h2>Statue de Freya</h2><div class="demos"></div></section>
   <section id="loups" class="labo-section"><h2>Loups</h2><div class="demos"></div></section>
+  <section id="cerfs" class="labo-section"><h2>Cerfs et biches</h2><div class="demos"></div></section>
 </main>
 
 <div id="toast" class="toast" role="status" hidden></div>

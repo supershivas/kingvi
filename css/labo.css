@@ -1,11 +1,13 @@
-/* Page labo : une longue page qui défile, sections accessibles par le menu. */
-body.labo-page { overflow: auto; display: block; background: #f0f0ec; }
-.labo-page .topbar { position: sticky; top: 0; }
+/* Page labo : une longue page qui défile, sections accessibles par le menu.
+   C'est le document qui défile (et non le body, comme dans le jeu) : l'en-tête
+   collé en haut marche ainsi dans tous les navigateurs. */
+html.labo-html { height: auto; }
+body.labo-page { height: auto; min-height: 100%; overflow: visible; display: block; background: #f0f0ec; }
+.labo-head { position: sticky; top: 0; z-index: 20; }
 .topbar-label { font-family: var(--font-mono); font-size: .8rem; color: var(--bar-muted); letter-spacing: .1em; text-transform: uppercase; }
 .labo-page .icon-btn { display: inline-grid; place-items: center; text-decoration: none; }
 
 .labo-nav {
-  position: sticky; top: 52px; z-index: 9;
   display: flex; gap: 4px; overflow-x: auto; padding: 0 12px;
   background: var(--bar-bg); border-bottom: 1px solid var(--bar-border);
 }
@@ -18,7 +20,7 @@ body.labo-page { overflow: auto; display: block; background: #f0f0ec; }
 
 .labo { max-width: 1200px; margin: 0 auto; padding: 24px 16px 80px; }
 .labo-intro { color: var(--text-secondary); margin-bottom: 8px; max-width: 70ch; }
-.labo-section { scroll-margin-top: 110px; padding-top: 24px; }
+.labo-section { scroll-margin-top: 104px; padding-top: 24px; }
 .labo-section h2 { font-family: var(--font-title); font-size: 1.5rem; margin-bottom: 12px; }
 
 .demos { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }

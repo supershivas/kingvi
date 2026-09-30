@@ -1,4 +1,5 @@
 import { makeTree, makeBoulder, makeCairn } from './trees.js';
+import { buildStatue } from './statue.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -112,6 +113,14 @@ function buildTrail() {
 }
 
 export const trail = buildTrail();
+
+// ── La statue de Freya, à mi-chemin, sur le bord nord de la piste ──
+const MID = trail[Math.floor(trail.length / 2)];
+export const STATUE_BASE = {
+  x: Math.round(MID.x + Math.sin(MID.heading) * 26),
+  y: Math.round(MID.y - Math.cos(MID.heading) * 26),
+};
+const STATUE_PARTS = buildStatue(STATUE_BASE, SEED);
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -292,6 +301,7 @@ export function forestDensity(x, y) {
   // Lisière irrégulière : la distance au rivage est déformée par un bruit lent
   const dx = x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
   if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
+  if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;   // clairière de la statue
   const sparse = dx > 300 ? 0.03 : 0;
   const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2350, 2700, dx));
   const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
@@ -318,7 +328,8 @@ export function objectsInChunk(cx, cy) {
   const x0 = cx * CHUNK, y0 = cy * CHUNK;
   const free = (x, y, trail) =>
     coast(x, y) < -0.03 && !nearTrail(x, y, trail) &&
-    Math.hypot(x - LANDING.shore, y - LANDING.y) > 60;
+    Math.hypot(x - LANDING.shore, y - LANDING.y) > 60 &&
+    Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80;
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
@@ -335,10 +346,17 @@ export function objectsInChunk(cx, cy) {
     }
   }
   for (const o of list) {
+    if (o.art) continue;
     const r = rng(o.seed);
     o.art = o.type === 'tree' ? makeTree(r, { big: o.big }) : o.type === 'boulder' ? makeBoulder(r) : makeCairn(r);
     o.w = o.art.rows[0].length;
     o.h = o.art.rows.length;
+  }
+  // La statue et ses éclats, dans le morceau où tombe leur pied
+  for (const o of STATUE_PARTS) {
+    if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
+      list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
+    }
   }
   objectCache.set(key, list);
   return list;
@@ -351,8 +369,11 @@ export function blocked(x, y) {
   for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
     for (const o of objectsInChunk(cx + i, cy + j)) {
       const dx = x - o.x, dy = y - o.y;
-      if (o.type === 'tree') { if (Math.abs(dx) <= 1.5 && dy <= 0.5 && dy >= -1.5) return true; }
-      else if (Math.abs(dx) < o.w / 2 - 0.5 && dy <= 0.5 && dy >= -o.h * 0.55) return true;
+      if (o.type === 'tree') { if (Math.abs(dx) <= 1.5 && dy <= 0.5 && dy >= -1.5) return true; continue; }
+      const foot = o.foot ?? o.h * 0.55;               // profondeur au sol ; 0 : on passe dessus
+      if (!foot) continue;
+      const left = -o.art.ax, right = o.w - o.art.ax;
+      if (dx > left + 0.5 && dx < right - 0.5 && dy <= 0.5 && dy >= -foot) return true;
     }
   }
   return false;

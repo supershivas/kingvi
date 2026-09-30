@@ -12,12 +12,14 @@ d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
 On accoste à l'ouest et on suit les traces vers l'est : quelques arbres, puis
-une forêt, puis, au bout (environ 3 minutes de marche), une maison dont la
-cheminée fume. Le viking est tout noir ; sa cape bat au vent.
+une forêt ; à mi-chemin, dans une clairière, une statue géante de Freya
+ensevelie, penchée et brisée ; au bout (environ 3 minutes de marche), une
+maison dont la cheminée fume. Le viking est tout noir ; sa cape bat au vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
-viking, cape, attaques, ambiances de vent, arbres, rochers, maison, loups.
+viking, cape, attaques, ambiances de vent, arbres, rochers, maison, statue,
+loups, cerfs et biches.
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, clic pour frapper vers le pointeur (droite, gauche, haut, bas). L'épée
@@ -55,8 +57,13 @@ est cachée et ne sort que pendant l'attaque.
 - `js/weather.js` — vent et neige (ambiances Bise, Rafales, Tempête,
   Tourbillons), partagés jeu/labo ; le joueur choisit dans les Réglages.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns.
-- `js/wolf.js` — loups (labo seulement pour l'instant) : trot, galop, arrêt,
-  flaire, hurle.
+- `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
+  silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
+- `js/deer.js` — cerfs (bois) et biches (labo) : marche, bond, arrêt,
+  broute, brame / alerte.
+- `js/statue.js` — la statue de Freya : pixels tirés d'une photo
+  (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
+  enfouis ; éclats et débris autour.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
   pierres levées, drakkar, maison (`makeHouse`), forêt (`forestDensity`,
   `objectsInChunk`, `blocked`).
@@ -83,8 +90,13 @@ est cachée et ne sort que pendant l'attaque.
   faisait léviter.
 - Il doit rester petit (environ 9 pixels de haut, écran d'environ 440 pixels
   de haut) et se lire comme une masse : pas de visage ni de détail.
-- Tout se mesure au viking : porte de la maison ≈ sa taille, loup ≈ 13 px de
-  long avec le garrot à mi-hauteur du viking. Vérifier dans le labo.
+- Tout se mesure au viking : porte de la maison ≈ sa taille, tête du loup à
+  la hauteur de son casque, statue ≈ dix fois sa taille. Vérifier dans le labo.
+- La cape est courte et discrète : au calme elle se confond avec le dos ; même
+  par grand vent elle ne dépasse que de quelques pixels (pas de cape de héros).
+- Les cairns sont d'un seul tenant et jamais symétriques.
+- Labo : c'est le document qui défile (pas le body comme dans le jeu), pour
+  que l'en-tête et le menu restent collés en haut partout.
 - Le corps est centré sur la colonne CX et l'origine du sprite est au milieu
   de cette colonne : le retournement ne décale rien, et la cape se place au
   pixel près (`placePlayer`).

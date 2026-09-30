@@ -8,6 +8,8 @@ import { createWeather, WEATHER_PRESETS } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
 import { HOUSE_ART, HOUSE_W, HOUSE_H, HOUSE_WINDOW, HOUSE_CHIMNEY, rng } from './world.js';
 import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
+import { buildStatue } from './statue.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -339,17 +341,18 @@ card('maison', {
 // ══ Loups ══
 for (const [key, anim] of Object.entries(WOLF_ANIMS)) {
   card('loups', {
-    title: anim.label, w: 40, h: 14,
+    title: anim.label, w: 58, h: 16,
     draw(ctx, pal, t) {
       const f = anim.frames[Math.floor(t * anim.fps) % anim.frames.length];
-      drawRows(ctx, pal, gridRows(f), 1, 12 - WOLF_GROUND);
-      drawRows(ctx, pal, gridRows(f), 21, 12 - WOLF_GROUND, true);
+      drawRows(ctx, pal, gridRows(f), 0, 14 - WOLF_GROUND);
+      drawRows(ctx, pal, gridRows(f), 20, 14 - WOLF_GROUND, true);
+      drawViking(ctx, pal, 'side-idle', 50, 14, { flip: true, wind: 0.3, clock: t });
     },
   });
 }
 card('loups', {
-  title: 'Une meute passe', about: 'Trois loups au trot, puis au galop ; le viking donne l\'échelle.', wide: true, w: 200, h: 44,
-  setup(s) { s.wolves = [0, 1, 2].map(i => ({ x: -20 - i * 18, y: 22 + i * 7, phase: i * 0.37 })); s.weather = createWeather('bise'); },
+  title: 'Une meute passe', about: 'Trois loups au trot, puis au galop ; le viking donne l\'échelle.', wide: true, w: 220, h: 52,
+  setup(s) { s.wolves = [0, 1, 2].map(i => ({ x: -24 - i * 24, y: 26 + i * 9, phase: i * 0.37 })); s.weather = createWeather('bise'); },
   draw(ctx, pal, t, dt, s, v) {
     const galop = (t % 12) > 6;
     const anim = galop ? WOLF_ANIMS.galop : WOLF_ANIMS.trot;
@@ -357,11 +360,48 @@ card('loups', {
       w.x += (galop ? 55 : 22) * dt;
       if (w.x > v.w + 10) w.x = -WOLF_W - Math.random() * 40;
     }
-    const all = [...s.wolves, { hero: true, y: 36 }].sort((a, b) => a.y - b.y);
+    const all = [...s.wolves, { hero: true, y: 42 }].sort((a, b) => a.y - b.y);
     for (const w of all) {
-      if (w.hero) { drawViking(ctx, pal, 'side-idle', 180, 36, { flip: true, wind: 0.3, clock: t }); continue; }
+      if (w.hero) { drawViking(ctx, pal, 'side-idle', 200, 42, { flip: true, wind: 0.3, clock: t }); continue; }
       const f = anim.frames[Math.floor((t + w.phase) * anim.fps) % anim.frames.length];
       drawRows(ctx, pal, gridRows(f), Math.round(w.x), w.y - WOLF_GROUND);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// ══ Cerfs et biches ══
+for (const [who, anims] of [['Cerf', STAG_ANIMS], ['Biche', DOE_ANIMS]]) {
+  for (const anim of Object.values(anims)) {
+    card('cerfs', {
+      title: `${who} — ${anim.label.toLowerCase()}`, w: 56, h: 16,
+      draw(ctx, pal, t) {
+        const f = anim.frames[Math.floor(t * anim.fps) % anim.frames.length];
+        drawRows(ctx, pal, gridRows(f), 0, 14 - DEER_GROUND);
+        drawRows(ctx, pal, gridRows(f), 19, 14 - DEER_GROUND, true);
+        drawViking(ctx, pal, 'side-idle', 48, 14, { flip: true, wind: 0.3, clock: t });
+      },
+    });
+  }
+}
+
+// ══ Statue ══
+card('statue', {
+  title: 'Freya, ensevelie, penchée, brisée',
+  about: 'À mi-chemin, au bord nord de la piste, dans une clairière. Environ dix fois la taille du viking ; la coiffe et un éclat d\'épaule gisent dans la neige.',
+  wide: true, w: 240, h: 100,
+  setup(s, v) {
+    s.parts = buildStatue({ x: 120, y: 84 }).map(o => ({ ...o, img: prerender(o.art.rows, v.pal) }));
+    s.weather = createWeather('rafales');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const hero = { hero: true, y: 92 };
+    const all = [...s.parts, hero].sort((a, b) => a.y - b.y);
+    for (const o of all) {
+      if (o.hero) drawViking(ctx, pal, walkFrame('side', t), 30 + Math.round((t * 12) % 180), 92, { clock: t, wind: 0.5 });
+      else ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
     }
     s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
     s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });

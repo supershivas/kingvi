@@ -238,26 +238,26 @@ export const CAPE_LEVELS = [0.15, 0.55, 1];
 export function capeGrid(strength, phase) {
   const g = Array.from({ length: CAPE_H }, () => Array(CAPE_W).fill(null));
   const p = phase / CAPE_PHASES * Math.PI * 2;
-  // Au calme elle pend le long du dos ; plus le vent forcit, plus elle se
-  // couche et s'allonge. C'est une étoffe : elle s'élargit vers le bas.
-  const len = 4 + strength * 6;
-  const slope = 2.4 * (1 - strength) + 0.15;
+  // Une cape courte, pas une cape de héros : au calme elle se confond avec le
+  // dos (à peine un pli qui dépasse) ; quand le vent forcit, elle se soulève
+  // de quelques pixels et claque.
+  const len = 0.6 + strength * 3.2;
+  const slope = 3.5 * (1 - strength) + 0.5;
   const norm = Math.sqrt(1 + slope * slope);
   for (let u = 0; u <= len; u += 0.25) {
     const t = u / len;
-    const wave = Math.sin(u * 1.1 - p) * (0.2 + 1.1 * strength) * t;
+    const wave = Math.sin(u * 1.4 - p) * (0.15 + 0.8 * strength) * t;
     const cx = u / norm, cy = u * slope / norm + wave;
-    const thick = 3 + t * (1 + 2 * strength);
+    const thick = 4 - t * 1.5;
     for (let k = 0; k < thick; k++) {
       const x = Math.round(cx), y = Math.round(cy + k);
       if (x >= 0 && y >= 0 && x < CAPE_W && y < CAPE_H) g[y][x] = 'b';
     }
   }
-  // Bord effiloché : un pixel qui claque, un temps sur deux
+  // Un coin qui claque, un temps sur deux, par grand vent
   if (strength > 0.5 && phase % 2 === 0) {
-    const x = Math.min(CAPE_W - 1, Math.round(len / norm) + 1);
-    const y = Math.round(len * slope / norm + 2);
-    if (y < CAPE_H) g[y][x] = 'b';
+    const x = Math.round(len / norm) + 1, y = Math.round(len * slope / norm) + 1;
+    if (x < CAPE_W && y < CAPE_H) g[y][x] = 'b';
   }
   return g;
 }
