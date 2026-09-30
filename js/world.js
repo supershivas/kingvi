@@ -312,6 +312,25 @@ for (const p of trail) {
   trailByChunk.get(key).push(p);
 }
 
+// Ils étaient deux : de la barque à la maison, une seconde piste marche à
+// côté de la première (sur sa gauche, à quelques pas, d'une allure à peine
+// décalée). Une seule ressort de la maison.
+export const companion = trail.filter(p => p.i < BLOOD_FROM - 2).map(p => {
+  const side = 4.5 + 1.6 * fbm(p.i / 30, 5, 181, 2);
+  const lag = 3.5;
+  return {
+    x: Math.round(p.x + Math.sin(p.heading) * side - Math.cos(p.heading) * lag + (hash(p.i, 1, 183) - 0.5)),
+    y: Math.round(p.y - Math.cos(p.heading) * side - Math.sin(p.heading) * lag + (hash(p.i, 2, 183) - 0.5)),
+    heading: p.heading, faint: p.faint || hash(p.i, 3, 185) < 0.15, gone: hash(p.i, 4, 187) < 0.25 * (1 - p.i / BLOOD_FROM),
+  };
+}).filter(p => !p.gone);
+const companionByChunk = new Map();
+for (const p of companion) {
+  const key = `${Math.floor(p.x / CHUNK)},${Math.floor(p.y / CHUNK)}`;
+  if (!companionByChunk.has(key)) companionByChunk.set(key, []);
+  companionByChunk.get(key).push(p);
+}
+
 // ── Petits motifs (b = sombre, s = neige, r = rouge) ──
 const ROCKS = [
   ['.bb.', 'bbbb'],
@@ -528,9 +547,14 @@ export function paintChunk(ctx, cx, cy, pal) {
   }
   if (r() < 0.035) { const at = place(3, 7); if (at) stamp(ctx, STONE, at.x, at.y, pal); }
 
-  // Les traces
-  const prints = trailByChunk.get(`${cx},${cy}`) || [];
+  // Les traces (et celles du compagnon, jusqu'à la maison)
   ctx.fillStyle = pal.b;
+  for (const p of companionByChunk.get(`${cx},${cy}`) || []) {
+    const lx = p.x - x0, ly = p.y - y0;
+    ctx.fillRect(lx, ly, 1, 1);
+    if (!p.faint) ctx.fillRect(lx + Math.round(Math.cos(p.heading)), ly + Math.round(Math.sin(p.heading)), 1, 1);
+  }
+  const prints = trailByChunk.get(`${cx},${cy}`) || [];
   for (const p of prints) {
     const lx = p.x - x0, ly = p.y - y0;
     if (p.blood) {

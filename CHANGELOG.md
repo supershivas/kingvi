@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.11.0 — 2026-09-30
+- Ils étaient deux : deux pistes jusqu'à la maison, une seule en ressort, et deux barques à l'arrivée
+- Labo : propositions de pontons, de seconde barque et d'une nécropole d'après Lindholm Høje
+
 ## 1.10.0 — 2026-09-30
 - La nuit, le viking sort une torche : halo de lumière et ombres portées
 - Un lac avec une barque et un îlot : dans la statue, une crypte et un coffre ; plus loin, une falaise et l'entrée d'une grotte

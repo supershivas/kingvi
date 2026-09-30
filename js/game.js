@@ -47,8 +47,8 @@ export function fitScreen(w, h) {
 // Emprise de la maison (on ne la traverse pas)
 // (vue de trois quarts : le toit représente la profondeur de la maison)
 // Emprise de la barque échouée (posée dans create)
-let boatRect = null;
-const inBoat = (x, y) => boatRect && x >= boatRect.x0 && x <= boatRect.x1 && y >= boatRect.y0 && y <= boatRect.y1;
+const boatRects = [];
+const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
 const walkable = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y);
 
 // Les intérieurs (la maison, la crypte de la statue du lac) sont posés loin en
@@ -117,7 +117,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
       // La barque sur laquelle il a accosté : poupe dans l'eau, proue sur la grève
       this.boatRest = { x: land.shore + 8 - BOAT_BOW.x, y: land.y - BOAT_WATERLINE };
-      boatRect = { x0: this.boatRest.x, x1: this.boatRest.x + BOAT_W - 2, y0: this.boatRest.y + 5, y1: this.boatRest.y + BOAT_H - 1 };
+      boatRects.length = 0;
+      boatRects.push({ x0: this.boatRest.x, x1: this.boatRest.x + BOAT_W - 2, y0: this.boatRest.y + 5, y1: this.boatRest.y + BOAT_H - 1 });
+      // L'autre barque (ils étaient deux) : tirée plus haut sur la grève, au
+      // nord, immobile (proposition A du labo)
+      let sx = land.shore;
+      const sy = land.y - 26;
+      while (isLand(sx, sy)) sx -= 2;
+      while (!isLand(sx, sy)) sx += 2;
+      const b2 = { x: sx + 14 - BOAT_BOW.x, y: sy - BOAT_WATERLINE };
+      this.add.image(b2.x, b2.y, 'boat-still').setOrigin(0, 0).setDepth(b2.y + BOAT_H);
+      boatRects.push({ x0: b2.x, x1: b2.x + BOAT_W - 2, y0: b2.y + 5, y1: b2.y + BOAT_H - 1 });
       this.boat = this.add.image(this.boatRest.x, this.boatRest.y, 'boat-still').setOrigin(0, 0).setDepth(this.boatRest.y + BOAT_H);
       this.foam = this.add.graphics().setDepth(this.boatRest.y + BOAT_H + 0.1);
       this.foamClock = 0;

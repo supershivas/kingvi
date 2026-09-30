@@ -22,6 +22,7 @@ import { buildStatueDoor } from './statue.js';
 import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
 import { ROWBOAT_FRAMES } from './boat.js';
 import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
+import * as PROPS from './props.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -616,6 +617,30 @@ card('lac', {
   },
 });
 
+// ══ Nécropole, d'après Lindholm Høje ══
+const NECRO = [
+  ['A', 'Navire de pierres', 'Une enceinte en forme de navire : un ovale aux deux bouts pointus, les pierres des étraves plus hautes. Certaines manquent.', () => PROPS.shipSetting(1, 64, 16)],
+  ['B', 'Triangle', 'Trois côtés de pierres basses, une pierre haute au sommet.', () => PROPS.triangleSetting(2, 30)],
+  ['C', 'Cercle', 'Un cercle de pierres, une grande pierre dressée au centre.', () => PROPS.stoneCircle(3, 14)],
+  ['D', 'Tertre et pierre runique', 'Un monticule enneigé, un anneau de pierres à sa base, une pierre gravée devant.', () => PROPS.mound(4, 44)],
+  ['E', 'Le champ des morts', 'Plusieurs navires, cercles et triangles sur une pente, des pierres isolées : la nécropole entière, à traverser.', () => PROPS.necropolis(5)],
+];
+for (const [tag, title, about, make] of NECRO) {
+  card('necropole', {
+    tag, title, about, wide: tag === 'E', w: tag === 'E' ? 240 : 120, h: tag === 'E' ? 90 : 50,
+    setup(s, v) { s.img = prerender(make(), v.pal); s.weather = createWeather('bise'); },
+    draw(ctx, pal, t, dt, s, v) {
+      const x0 = Math.round((v.w - s.img.width) / 2), y0 = v.h - s.img.height - 4;
+      ctx.drawImage(s.img, x0, y0);
+      // Le viking passe devant, pour l'échelle
+      drawViking(ctx, pal, walkFrame('side', t), 8 + Math.round((t * 12) % (v.w - 16)), v.h - 3, { clock: t, wind: 0.3 });
+      s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+      s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+      ctx.globalAlpha = 1;
+    },
+  });
+}
+
 // ══ Falaise ══
 card('falaise', {
   title: 'La falaise et la grotte', about: 'Au-delà du bout des traces, un mur de roc face au sud, plus d\'un kilomètre de large (en pixels), quinze à vingt fois la taille du viking : corniche de neige, vires enneigées, fissures ; au pied, la bouche noire d\'une grotte, des glaçons au linteau.',
@@ -791,6 +816,57 @@ card('barque', {
     drawViking(ctx, pal, 'side-idle', shore + 24, 37, { clock: t, wind: 0.3 });
   },
 });
+
+// ══ Accostage : pontons et seconde barque, à choisir ══
+// Le décor commun : la mer à gauche, la grève à droite, la barque du viking
+function landingScene(ctx, pal, t, s, v, shore) {
+  ctx.fillStyle = pal.b;
+  for (let y = 0; y < v.h; y++) ctx.fillRect(0, y, shore + Math.round(Math.sin(y * 0.3) * 2), 1);
+  const bx = shore + 6 - (BOAT_W - 2), by = 34 + (Math.sin(t * 1.3) > 0.35 ? 1 : 0);
+  const roll = Math.sin(t * 0.8 + 1);
+  ctx.drawImage(s.boat[roll > 0.55 ? 'right' : roll < -0.55 ? 'left' : 'still'], bx, by);
+}
+const PONTOONS = [
+  ['A', 'Ponton de planches', 'Sur pilotis, planches claires, joints sombres ; la barque vient s\'y ranger.', () => PROPS.jetty(64)],
+  ['B', 'Ponton rompu', 'Le même, abandonné : planches arrachées au large, pieux qui penchent.', () => PROPS.brokenJetty(64)],
+  ['C', 'Môle de pierres', 'Des pierres entassées, la neige dessus : plus ancien, plus lourd.', () => PROPS.stonePier(58)],
+  ['D', 'Pieux d\'amarrage', 'Pas de ponton : trois pieux dans l\'eau, une corde qui pend.', () => PROPS.mooringPosts(52)],
+];
+for (const [tag, title, about, make] of PONTOONS) {
+  card('accostage', {
+    tag, title, about, w: 200, h: 80,
+    setup(s, v) { s.boat = Object.fromEntries(Object.entries(BOAT_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)])); s.img = prerender(make(), v.pal); },
+    draw(ctx, pal, t, dt, s, v) {
+      const shore = 130;
+      ctx.fillStyle = pal.b;
+      for (let y = 0; y < v.h; y++) ctx.fillRect(0, y, shore + Math.round(Math.sin(y * 0.3) * 2), 1);
+      ctx.drawImage(s.img, shore + 6 - s.img.width, 12);
+      const bx = shore + 6 - (BOAT_W - 2), by = 40 + (Math.sin(t * 1.3) > 0.35 ? 1 : 0);
+      const roll = Math.sin(t * 0.8 + 1);
+      ctx.drawImage(s.boat[roll > 0.55 ? 'right' : roll < -0.55 ? 'left' : 'still'], bx, by);
+      drawViking(ctx, pal, 'side-idle', shore + 24, 50, { clock: t, wind: 0.3 });
+    },
+  });
+}
+const SECOND_BOATS = [
+  ['A', 'Une jumelle', 'La même barque, tirée plus haut sur la grève, de biais : ils sont arrivés à deux.', v => PROPS.twinBoat(BOAT_FRAMES.still), 'beach'],
+  ['B', 'Retournée', 'Quille en l\'air sur la neige, la neige sur le ventre : quelqu\'un ne comptait pas repartir.', v => PROPS.overturned(BOAT_FRAMES.still), 'beach'],
+  ['C', 'À demi coulée', 'Au large, seules l\'étrave et la poupe crèvent l\'eau.', v => PROPS.sunken(BOAT_FRAMES.still, BOAT_WATERLINE), 'sea'],
+  ['D', 'Une petite barque', 'Celle du lac, plus petite, tirée sur la grève, les rames dedans.', v => PROPS.skiff(ROWBOAT_FRAMES.empty), 'beach'],
+];
+for (const [tag, title, about, make, where] of SECOND_BOATS) {
+  card('accostage', {
+    tag, title, about, w: 200, h: 80,
+    setup(s, v) { s.boat = Object.fromEntries(Object.entries(BOAT_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)])); s.img = prerender(make(v), v.pal); },
+    draw(ctx, pal, t, dt, s, v) {
+      const shore = 130;
+      landingScene(ctx, pal, t, s, v, shore);
+      const bob = where === 'sea' && Math.sin(t * 1.1 + 2) > 0.4 ? 1 : 0;
+      ctx.drawImage(s.img, where === 'sea' ? 30 : shore - 4, where === 'sea' ? 12 + bob : 6);
+      drawViking(ctx, pal, 'side-idle', shore + 24, 60, { clock: t, wind: 0.3 });
+    },
+  });
+}
 
 // ══ Jour et nuit ══
 const DAY_SPEED = 60;

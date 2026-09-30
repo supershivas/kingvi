@@ -14,8 +14,10 @@ d'écran cathodique discret et un flou de maquette (en ellipse autour du
 héros), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On part de la grève ouest, près de la barque échouée qui flotte (des
-icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est : quelques arbres,
+On part de la grève ouest, près de la barque échouée qui flotte (une seconde
+barque tirée plus haut sur la grève : ils étaient deux ; des
+icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est (deux pistes côte à côte jusqu'à la maison,
+une seule en ressort) : quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
@@ -42,7 +44,8 @@ La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
 cape, attaques (8 directions), torche, intérieur de la maison, lac, crypte,
-falaise, vagues, icebergs, charognards,
+falaise, vagues, icebergs, charognards ; et des propositions à choisir
+(lettres A, B, C…) : pontons, seconde barque, nécropole d'après Lindholm Høje,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches.
 
@@ -93,6 +96,9 @@ est cachée et ne sort que pendant l'attaque.
 - `js/boat.js` — la barque (pixels tirés de l'image de référence, coque noire
   `k` sans liseré), ligne de flottaison, bords, roulis (`BOAT_FRAMES`) ; la
   petite barque du lac, vide ou avec le rameur (`ROWBOAT_FRAMES`).
+- `js/props.js` — propositions de décor pour le labo (pas encore dans le
+  jeu) : nécropole (navire de pierres, triangle, cercle, tertre, champ des
+  morts), pontons, seconde barque (jumelle, retournée, coulée, petite).
 - `js/crypt.js` — la crypte de la statue du lac (runes, ossements) et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
@@ -134,6 +140,8 @@ est cachée et ne sort que pendant l'attaque.
   `forestDensity`, `deepForest`, largeur de sente `p.lane`, `CLEARINGS`), statues et corbeaux placés le long de la
   piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
   Le lac (`LAKE`, `ISLET`, `inLake`) passe par `coast` (positif dans l'eau) ;
+  `companion` : la piste du second marcheur, décalée sur la gauche, jusqu'à
+  la porte de la maison (peinte avec les traces, sans toucher au tracé).
   `seaCoast` (la mer seule) sert au tracé et à l'accostage, pour que le lac ne
   les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : des tranches
   de 40 px, objets triés comme les autres, qui bloquent tout leur pied.
