@@ -1,0 +1,6 @@
+# Changelog
+
+## 1.0.0 — 2026-09-30
+- Première version : un viking accoste sur une île enneigée et suit des traces
+- Marche au clavier (ZQSD ou flèches), coup d'épée au clic
+- Effet écran cathodique discret, réglages, export JSON
