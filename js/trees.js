@@ -1,6 +1,6 @@
 /* Générateurs d'arbres et de gros rochers : chaque appel donne une forme
    unique, tirée du générateur `r` (fonction qui rend un nombre dans [0, 1[).
-   Résultat : { rows, ax } — lignes de pixels (b sombre, s neige, . vide)
+   Résultat : { rows, ax } — lignes de pixels (b sombre, k noir, s neige, . vide)
    et colonne d'ancrage ; la dernière ligne touche le sol. */
 
 function blank(w, h) { return Array.from({ length: h }, () => Array(w).fill('.')); }
@@ -62,27 +62,56 @@ export function makeTree(r, opts) {
 }
 
 // Gros rocher : bloc sombre, calotte de neige sur le dessus, contour marqué.
+// Gros rocher : un éclat de roc noir, anguleux, hérissé de pointes (deux ou
+// trois sommets aigus, des pans nets et des brèches). Les pans tournés vers
+// la droite sont un peu moins noirs ; à peine de neige, sur les replats.
 export function makeBoulder(r) {
   const w = Math.round(9 + r() * 16);
-  const h = Math.round(w * (0.45 + r() * 0.25));
-  const bumps = [r() * 6, r() * 6, 0.1 + r() * 0.15];
-  const inside = (x, y) => {
-    const nx = (x + 0.5 - w / 2) / (w / 2);
-    const ny = (y + 0.5 - h) / h;
-    const n = bumps[2] * Math.sin(nx * 5 + bumps[0]) + 0.08 * Math.sin(nx * 11 + bumps[1]);
-    return nx * nx + ny * ny < 1 + n && y < h;
-  };
-  const g = blank(w, h);
-  const snowline = h * (0.35 + r() * 0.25);
-  const snowWave = r() * 6;
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      if (!inside(x, y)) continue;
-      const edge = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || y === h - 1;
-      const snowy = y < snowline + Math.sin(x * 0.7 + snowWave) * 1.2;
-      g[y][x] = edge ? 'b' : snowy ? (r() < 0.04 ? 'b' : 's') : 'b';
-    }
+  const hMax = Math.round(w * (0.55 + r() * 0.4));
+  // Les sommets : position, hauteur, raideur (à gauche et à droite)
+  const np = 2 + (r() < 0.45 ? 1 : 0);
+  const peaks = Array.from({ length: np }, (_, i) => ({
+    x: (w - 1) * (0.15 + 0.7 * (i + r() * 0.8) / np),
+    h: hMax * (i === 0 || r() < 0.5 ? 0.6 + r() * 0.4 : 0.45 + r() * 0.3),
+    sl: 0.9 + r() * 1.8, sr: 0.9 + r() * 1.8,
+  }));
+  peaks[Math.floor(r() * peaks.length)].h = hMax;
+  const H = Math.ceil(Math.max(...peaks.map(p => p.h))) + 1;
+  const top = [], owner = [];
+  for (let x = 0; x < w; x++) {
+    let best = -1, who = 0;
+    peaks.forEach((p, i) => {
+      const d = x - p.x, v = p.h - Math.abs(d) * (d < 0 ? p.sl : p.sr);
+      if (v > best) { best = v; who = i; }
+    });
+    // les bords tombent à pic ; une brèche, parfois
+    const edge = Math.min(x + 1, w - x) * 1.6;
+    // d'un seul tenant : entre deux sommets, le creux ne descend pas trop bas
+    const inner = x > Math.min(...peaks.map(p => p.x)) && x < Math.max(...peaks.map(p => p.x));
+    let v = Math.min(inner ? Math.max(best, hMax * 0.4) : best, edge + 1);
+    if (r() < 0.12) v -= 1 + Math.floor(r() * 2);
+    top.push(Math.max(1, Math.round(v)));
+    owner.push(who);
   }
+  const g = blank(w, H);
+  for (let x = 0; x < w; x++) {
+    const t = H - top[x];
+    const p = peaks[owner[x]];
+    const lit = x > p.x;                               // le pan de droite
+    for (let y = t; y < H; y++) g[y][x] = lit && y < H - 1 ? 'b' : 'k';
+    // Une arête : le pan de gauche mord sur celui de droite, en biais
+    if (lit && x - p.x < 2 && t + 1 < H) g[t + 1][x] = 'k';
+    // Un grain de neige sur les replats (rares)
+    const flat = Math.abs(top[x] - (top[x - 1] ?? top[x])) === 0 && Math.abs(top[x] - (top[x + 1] ?? top[x])) === 0;
+    if (flat && r() < 0.35) g[t][x] = 's';
+  }
+  // Quelques fissures sombres dans les pans clairs
+  for (let k = 0; k < 2; k++) {
+    let x = Math.floor(r() * w), y = H - 1 - Math.floor(r() * 3);
+    for (let n = 0; n < 4 && g[y]?.[x] && g[y][x] !== '.'; n++) { g[y][x] = 'k'; y--; x += r() < 0.5 ? 1 : 0; }
+  }
+  // Sans lignes vides au-dessus
+  while (g.length > 1 && g[0].every(c => c === '.')) g.shift();
   return { rows: toRows(g), ax: Math.floor(w / 2) };
 }
 

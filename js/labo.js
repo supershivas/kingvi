@@ -16,7 +16,7 @@ import { buildStatue, buildStatueUpright } from './statue.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
 import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js';
 import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight } from './daylight.js';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow } from './daylight.js';
 import { createSea } from './sea.js';
 import { buildStatueDoor } from './statue.js';
 import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
@@ -180,7 +180,7 @@ card('cape', {
 
 // La torche : la nuit, un halo tramé autour de la flamme, des ombres portées
 card('nuit', {
-  title: 'La torche', about: 'Quand la nuit tombe, il sort une torche : le voile de nuit s\'ouvre en paliers tramés autour de la flamme (qui vacille), et arbres, rochers, le viking lui-même portent une ombre à l\'opposé.',
+  title: 'La torche', about: 'Quand la nuit tombe, il sort une torche : le voile de nuit s\'ouvre en paliers tramés autour de la flamme (qui vacille), et arbres, rochers, le viking lui-même portent une ombre à l\'opposé, tramée par les mêmes paliers que le halo.',
   wide: true, w: 220, h: 110,
   setup(s, v) {
     s.light = torchLight(1);
@@ -188,25 +188,14 @@ card('nuit', {
     const r = rng(33);
     s.trees = [[40, 50], [70, 92], [120, 40], [160, 88], [190, 55], [100, 70]].map(([x, y]) => {
       const art = makeTree(r, { big: true });
-      return { x, y, art, img: prerender(art.rows, v.pal) };
+      return { x, y, art, img: prerender(art.rows, v.pal), tree: true };
     });
+    // Et deux rochers, à l'ombre courte
+    for (const [x, y] of [[140, 64], [58, 80]]) { const art = makeBoulder(r); s.trees.push({ x, y, art, img: prerender(art.rows, v.pal) }); }
   },
   draw(ctx, pal, t, dt, s, v) {
     const k = (t % 16) / 8, u = k < 1 ? k : 2 - k, flip = k >= 1;
     const hx = Math.round(20 + u * 180), hy = 76, tx = hx + (flip ? -3 : 3), ty = hy - 8;
-    // Ombres portées, à l'opposé de la flamme
-    ctx.fillStyle = pal.b;
-    for (const o of s.trees) {
-      const dx = o.x - tx, dy = o.y - (hy + 1), d = Math.hypot(dx, dy);
-      if (d > 95) continue;
-      const ux = dx / d, uy = dy / d, len = Math.max(6, Math.min(60, o.art.rows.length * 24 / d));
-      ctx.globalAlpha = 0.55 * Math.min(1, 1.4 * (1 - d / 95));
-      ctx.beginPath();
-      ctx.moveTo(o.x - uy * 1.5, o.y + ux * 0.9); ctx.lineTo(o.x + uy * 1.5, o.y - ux * 0.9);
-      ctx.lineTo(o.x + ux * len + uy * 2.2, o.y + uy * len * 0.6 - ux * 1.5); ctx.lineTo(o.x + ux * len - uy * 2.2, o.y + uy * len * 0.6 + ux * 1.5);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
     const all = [...s.trees, { hero: true, y: hy }].sort((a, b) => a.y - b.y);
     for (const o of all) {
       if (o.hero) drawViking(ctx, pal, walkFrame('side', t), hx, hy, { clock: t, wind: 0.2, flip });
@@ -223,6 +212,18 @@ card('nuit', {
     vc.globalAlpha = 0.62; vc.fillStyle = pal.b; vc.fillRect(0, 0, v.w, v.h);
     vc.globalAlpha = 1; vc.globalCompositeOperation = 'destination-out';
     vc.drawImage(s.light, tx - s.light.width / 2, ty + 4 - s.light.height / 2);
+    // Les ombres portées, redessinées dans le voile, par paliers tramés comme
+    // le halo : jamais plus sombres que la nuit hors du halo (comme dans le jeu)
+    vc.globalCompositeOperation = 'source-over'; vc.fillStyle = pal.b;
+    const put = (px, py, a) => { vc.globalAlpha = 0.62 * a; vc.fillRect(px, py, 1, 1); };
+    const lx = tx, ly = hy + 1;
+    castShadow(put, hx, hy + 0.5, lx, ly, 1.5, 5);
+    for (const o of s.trees) {
+      const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly)), h = o.art.rows.length, w = o.art.rows[0].length;
+      if (o.tree) castShadow(put, o.x, o.y, lx, ly, 1.2, Math.max(5, Math.min(40, h * 18 / d)));
+      else castShadow(put, o.x + w / 2 - o.art.ax, o.y, lx, ly, Math.min(4, w * 0.22), Math.max(3, Math.min(10, h * 6 / d)));
+    }
+    vc.globalAlpha = 1;
     ctx.globalCompositeOperation = 'multiply';
     ctx.drawImage(s.veil, 0, 0);
     ctx.globalCompositeOperation = 'source-over';
@@ -365,7 +366,7 @@ card('attaques', {
     const period = 4.5, local = t % period, cycle = Math.floor(t / period), h1 = 0.4, h2 = 1.4;
     const broken = local > h2;
     if (!broken) ctx.drawImage(s.img, 28 - s.rock.ax, 31 - s.img.height);
-    else for (const p of s.pieces) { ctx.fillStyle = pal.s; ctx.fillRect(p.x + 1, p.y - p.h, p.w - 1, 1); ctx.fillStyle = pal.b; ctx.fillRect(p.x, p.y - p.h + 1, p.w, p.h); }
+    else for (const p of s.pieces) { ctx.fillStyle = pal.b; ctx.fillRect(p.x + 1, p.y - p.h, p.w - 1, 1); ctx.fillStyle = pal.k; ctx.fillRect(p.x, p.y - p.h + 1, p.w, p.h); }
     for (const [h, n] of [[h1, 8], [h2, 14]]) if (local >= h && s.cycle !== cycle * 2 + (h === h2 ? 1 : 0)) {
       s.cycle = cycle * 2 + (h === h2 ? 1 : 0);
       for (let k = 0; k < n; k++) { const a = (h === h2 ? 200 + Math.random() * 140 : 150 + Math.random() * 100) * Math.PI / 180, sp = 25 + Math.random() * 45; s.sparks.push({ x: 29, y: 27, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.1 + Math.random() * 0.25, age: 0, c: h === h2 ? (k % 2 ? 'b' : 's') : (k % 3 ? 'r' : 's') }); }
@@ -538,7 +539,7 @@ function row(section, title, about, make, button, sea = false) {
     },
   });
 }
-row('rochers', 'Gros rochers', 'Blocs sombres coiffés de neige ; le viking à droite donne l\'échelle.', makeBoulder, 'Autres rochers');
+row('rochers', 'Gros rochers', 'Éclats de roc noirs, anguleux, hérissés de pointes ; à peine de neige sur les replats. Le viking à droite donne l\'échelle.', makeBoulder, 'Autres rochers');
 row('rochers', 'Cairns (nouvelle forme)', 'Pierres plates empilées, séparées par des lits de neige.', makeCairn, 'Autres cairns');
 
 // ══ Maison ══
@@ -1194,3 +1195,38 @@ function toast(text) {
   setTimeout(() => { el.hidden = true; }, 3200);
 }
 startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
+
+// ══ Navigation : un thème à la fois (onglets), et son sous-menu ══
+// Les sections des autres thèmes sont cachées : leurs animations ne tournent
+// pas. L'adresse garde le thème (#betes) ou la section (#loups).
+(function themes() {
+  const tabs = [...document.querySelectorAll('.labo-tabs a')];
+  const sub = document.querySelector('.labo-nav');
+  const sections = [...document.querySelectorAll('.labo-section')];
+  const themeOf = id => sections.find(s => s.id === id)?.dataset.theme || (tabs.some(t => t.dataset.theme === id) ? id : null);
+  function open(theme, section) {
+    for (const t of tabs) {
+      const on = t.dataset.theme === theme;
+      t.classList.toggle('active', on);
+      if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
+    }
+    sub.replaceChildren(...sections.filter(s => s.dataset.theme === theme).map(s => {
+      const a = document.createElement('a');
+      a.href = `#${s.id}`; a.textContent = s.querySelector('h2').textContent;
+      return a;
+    }));
+    for (const s of sections) s.hidden = s.dataset.theme !== theme;
+    try { localStorage.setItem('kingvi:labo-theme', theme); } catch { /* rien */ }
+    if (section) document.getElementById(section)?.scrollIntoView();
+    else window.scrollTo(0, 0);
+  }
+  function route() {
+    const id = decodeURIComponent(location.hash.slice(1));
+    let saved = null;
+    try { saved = localStorage.getItem('kingvi:labo-theme'); } catch { /* rien */ }
+    const theme = themeOf(id) || themeOf(saved) || tabs[0].dataset.theme;
+    open(theme, sections.some(s => s.id === id) ? id : null);
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();

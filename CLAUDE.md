@@ -63,7 +63,9 @@ Une barre d'endurance au-dessus du viking (frapper et courir la vident,
 `.hurt`). Les secousses d'écran restent légères. À l'intérieur, la cape
 ne bat pas.
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
-tramés autour de lui, arbres et rochers portent une ombre à l'opposé.
+tramés autour de lui, arbres et rochers portent une ombre à l'opposé, tramée
+par les mêmes paliers que le halo (`castShadow` dans `daylight.js`, partagé
+jeu/labo).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; certains
 (pourris) s'effondrent au second coup, certains rochers fendus éclatent en
@@ -83,8 +85,10 @@ assombrie dans la forêt noire, tendue à l'approche de l'autre viking, à son
 comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
 secondes quand le guetteur s'efface (`audio.hush`).
 
-La page `labo.html` regroupe toutes les animations (menu en haut vers les
-sections), une vue par animation, sur la neige aux couleurs du jeu :
+La page `labo.html` regroupe toutes les animations, rangées par thèmes en
+onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son ; un
+seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
+thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
 cape, attaques (8 directions, arbre qui tombe, rocher qui éclate), torche, meute,
 grotte et roi mort, intérieur de la maison, lac, crypte,
@@ -124,7 +128,8 @@ est cachée et ne sort que pendant l'attaque.
 - `index.html` — en-tête, écran de jeu, écran d'accueil (`#title`),
   réglages (`<dialog>`, « Nouveau jeu » en premier), toast.
 - `labo.html`, `js/labo.js`, `css/labo.css` — le labo d'animations (canvas 2D,
-  mêmes modules que le jeu). Toute nouvelle animation y a sa carte ; une
+  mêmes modules que le jeu). Chaque section porte son thème
+  (`data-theme`) ; toute nouvelle section en a un. Toute nouvelle animation y a sa carte ; une
   section Son fait entendre la musique et chaque bruitage.
 - `js/main.js` — interface : écran d'accueil, nouveau jeu (efface
   `kingvi:save` et recharge, drapeau `kingvi:start` en sessionStorage pour
@@ -191,7 +196,8 @@ est cachée et ne sort que pendant l'attaque.
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
   joueur peut figer une ambiance dans les Réglages. Le nombre de flocons est
   plafonné quand on dézoome, et la neige s'installe en 2 s au lancement.
-- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns,
+- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (éclats
+  noirs `k`, anguleux, deux ou trois pointes, pans de droite en `b`), cairns,
   icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
   (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
   du morceau (1024 px de large) et en change ~22 fois par seconde

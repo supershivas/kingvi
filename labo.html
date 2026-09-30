@@ -33,58 +33,44 @@
   </div>
 </header>
 
-<nav class="labo-nav" aria-label="Sections du labo">
-  <a href="#carte">Carte</a>
-  <a href="#son">Son</a>
-  <a href="#barque">Barque</a>
-  <a href="#accostage">Ponton et 2ᵉ barque</a>
-  <a href="#nuit">Jour et nuit</a>
-  <a href="#viking">Viking</a>
-  <a href="#cape">Cape</a>
-  <a href="#attaques">Attaques</a>
-  <a href="#vent">Neige et vent</a>
-  <a href="#arbres">Arbres</a>
-  <a href="#rochers">Rochers et cairns</a>
-  <a href="#maison">Maison</a>
-  <a href="#interieur">Intérieur</a>
-  <a href="#mer">Mer</a>
-  <a href="#statue">Statue</a>
-  <a href="#lac">Lac</a>
-  <a href="#necropole">Nécropole</a>
-  <a href="#bosquet">Bosquet</a>
-  <a href="#falaise">Falaise</a>
-  <a href="#corbeaux">Corbeaux</a>
-  <a href="#loups">Loups</a>
-  <a href="#cerfs">Cerfs et biches</a>
+<!-- Les thèmes (onglets), puis les sections du thème ouvert -->
+<nav class="labo-tabs" aria-label="Thèmes du labo">
+  <a href="#ile" data-theme="ile"><i class="ti ti-map-2" aria-hidden="true"></i> L'île</a>
+  <a href="#rivage" data-theme="rivage"><i class="ti ti-sailboat" aria-hidden="true"></i> Le rivage</a>
+  <a href="#heros" data-theme="heros"><i class="ti ti-sword" aria-hidden="true"></i> Le viking</a>
+  <a href="#betes" data-theme="betes"><i class="ti ti-paw" aria-hidden="true"></i> Les bêtes</a>
+  <a href="#nature" data-theme="nature"><i class="ti ti-trees" aria-hidden="true"></i> Ciel et nature</a>
+  <a href="#ecoute" data-theme="ecoute"><i class="ti ti-volume" aria-hidden="true"></i> Son</a>
 </nav>
+<nav class="labo-nav" aria-label="Sections du thème"></nav>
 </div>
 
 <main class="labo">
-  <p class="labo-intro">Toutes les animations du jeu, sur la neige, aux couleurs du jeu.
-    Les propositions marquées d'une lettre sont à choisir.</p>
+  <p class="labo-intro">Toutes les animations du jeu, rangées par thème (onglets en haut),
+    sur la neige, aux couleurs du jeu. Les propositions marquées d'une lettre sont à choisir.</p>
 
-  <section id="carte" class="labo-section"><h2>Carte</h2><div class="demos"></div></section>
-  <section id="son" class="labo-section"><h2>Son</h2><div class="demos"></div></section>
-  <section id="barque" class="labo-section"><h2>Barque</h2><div class="demos"></div></section>
-  <section id="accostage" class="labo-section"><h2>Ponton et seconde barque (à choisir)</h2><div class="demos"></div></section>
-  <section id="nuit" class="labo-section"><h2>Jour et nuit</h2><div class="demos"></div></section>
-  <section id="viking" class="labo-section"><h2>Viking</h2><div class="demos"></div></section>
-  <section id="cape" class="labo-section"><h2>Cape au vent</h2><div class="demos"></div></section>
-  <section id="attaques" class="labo-section"><h2>Attaques</h2><div class="demos"></div></section>
-  <section id="vent" class="labo-section"><h2>Neige et vent</h2><div class="demos"></div></section>
-  <section id="arbres" class="labo-section"><h2>Arbres</h2><div class="demos"></div></section>
-  <section id="rochers" class="labo-section"><h2>Rochers et cairns</h2><div class="demos"></div></section>
-  <section id="maison" class="labo-section"><h2>Maison</h2><div class="demos"></div></section>
-  <section id="interieur" class="labo-section"><h2>Intérieur de la maison</h2><div class="demos"></div></section>
-  <section id="mer" class="labo-section"><h2>Mer</h2><div class="demos"></div></section>
-  <section id="statue" class="labo-section"><h2>Statue de Freya</h2><div class="demos"></div></section>
-  <section id="lac" class="labo-section"><h2>Le lac, l'îlot, la crypte</h2><div class="demos"></div></section>
-  <section id="necropole" class="labo-section"><h2>Nécropole, d'après Lindholm Høje (à choisir)</h2><div class="demos"></div></section>
-  <section id="bosquet" class="labo-section"><h2>Le bosquet sacré</h2><div class="demos"></div></section>
-  <section id="falaise" class="labo-section"><h2>La falaise</h2><div class="demos"></div></section>
-  <section id="corbeaux" class="labo-section"><h2>Corbeaux</h2><div class="demos"></div></section>
-  <section id="loups" class="labo-section"><h2>Loups</h2><div class="demos"></div></section>
-  <section id="cerfs" class="labo-section"><h2>Cerfs et biches</h2><div class="demos"></div></section>
+  <section id="carte" class="labo-section" data-theme="ile"><h2>Carte</h2><div class="demos"></div></section>
+  <section id="son" class="labo-section" data-theme="ecoute"><h2>Son</h2><div class="demos"></div></section>
+  <section id="barque" class="labo-section" data-theme="rivage"><h2>Barque</h2><div class="demos"></div></section>
+  <section id="accostage" class="labo-section" data-theme="rivage"><h2>Ponton et seconde barque (à choisir)</h2><div class="demos"></div></section>
+  <section id="nuit" class="labo-section" data-theme="nature"><h2>Jour et nuit</h2><div class="demos"></div></section>
+  <section id="viking" class="labo-section" data-theme="heros"><h2>Viking</h2><div class="demos"></div></section>
+  <section id="cape" class="labo-section" data-theme="heros"><h2>Cape au vent</h2><div class="demos"></div></section>
+  <section id="attaques" class="labo-section" data-theme="heros"><h2>Attaques</h2><div class="demos"></div></section>
+  <section id="vent" class="labo-section" data-theme="nature"><h2>Neige et vent</h2><div class="demos"></div></section>
+  <section id="arbres" class="labo-section" data-theme="nature"><h2>Arbres</h2><div class="demos"></div></section>
+  <section id="rochers" class="labo-section" data-theme="nature"><h2>Rochers et cairns</h2><div class="demos"></div></section>
+  <section id="maison" class="labo-section" data-theme="ile"><h2>Maison</h2><div class="demos"></div></section>
+  <section id="interieur" class="labo-section" data-theme="ile"><h2>Intérieur de la maison</h2><div class="demos"></div></section>
+  <section id="mer" class="labo-section" data-theme="rivage"><h2>Mer</h2><div class="demos"></div></section>
+  <section id="statue" class="labo-section" data-theme="ile"><h2>Statue de Freya</h2><div class="demos"></div></section>
+  <section id="lac" class="labo-section" data-theme="ile"><h2>Le lac, l'îlot, la crypte</h2><div class="demos"></div></section>
+  <section id="necropole" class="labo-section" data-theme="ile"><h2>Nécropole, d'après Lindholm Høje (à choisir)</h2><div class="demos"></div></section>
+  <section id="bosquet" class="labo-section" data-theme="ile"><h2>Le bosquet sacré</h2><div class="demos"></div></section>
+  <section id="falaise" class="labo-section" data-theme="ile"><h2>La falaise</h2><div class="demos"></div></section>
+  <section id="corbeaux" class="labo-section" data-theme="betes"><h2>Corbeaux</h2><div class="demos"></div></section>
+  <section id="loups" class="labo-section" data-theme="betes"><h2>Loups</h2><div class="demos"></div></section>
+  <section id="cerfs" class="labo-section" data-theme="betes"><h2>Cerfs et biches</h2><div class="demos"></div></section>
 </main>
 
 <div id="toast" class="toast" role="status" hidden></div>

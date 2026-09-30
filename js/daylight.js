@@ -45,3 +45,27 @@ export function torchLight(k = 1) {
   ctx.putImageData(img, 0, 0);
   return c;
 }
+
+// Une ombre portée par la torche : du pied de l'obstacle (x, y), à l'opposé de
+// la flamme (lx, ly), aplatie par la vue de biais. Comme le halo : des paliers
+// tramés (trois niveaux, ordonnés par la même trame), dense au pied, qui
+// s'effiloche au bout. `put(px, py, a)` : un pixel d'ombre, a = 1/3, 2/3 ou 1.
+export function castShadow(put, x, y, lx, ly, half, len, R = 90) {
+  const dx = x - lx, dy = (y - ly) / 0.6, d = Math.hypot(dx, dy);
+  if (d < 0.5 || d > R) return;
+  let vx = dx / d, vy = dy / d * 0.6;
+  const n = Math.hypot(vx, vy); vx /= n; vy /= n;
+  const fade = Math.min(1, 1.6 * (1 - d / R));
+  const reach = len + half * 2;
+  for (let py = Math.floor(y - reach); py <= y + reach; py++) {
+    for (let px = Math.floor(x - reach); px <= x + reach; px++) {
+      const ax = px + 0.5 - x, ay = py + 0.5 - y;
+      const along = ax * vx + ay * vy, across = Math.abs(-ax * vy + ay * vx);
+      const wide = half * (1 + 0.5 * along / len);
+      if (along < 0 || along > len || across > wide) continue;
+      const e = Math.min(1, 1.3 * fade * (1 - 0.75 * along / len) * (1 - 0.3 * across / wide));
+      const q = Math.min(3, Math.floor(e * e * (3 - 2 * e) * 3 + (BAYER[(py & 3) * 4 + (px & 3)] + 0.5) / 16));
+      if (q > 0) put(px, py, q / 3);
+    }
+  }
+}

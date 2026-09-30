@@ -1,4 +1,5 @@
-/* Page labo : une longue page qui défile, sections accessibles par le menu.
+/* Page labo : des thèmes en onglets (un seul affiché), chacun avec son
+   sous-menu de sections ; la page défile à l'intérieur du thème.
    C'est le document qui défile (et non le body, comme dans le jeu) : l'en-tête
    collé en haut marche ainsi dans tous les navigateurs. */
 html.labo-html { height: auto; }
@@ -7,9 +8,20 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .topbar-label { font-family: var(--font-mono); font-size: .8rem; color: var(--bar-muted); letter-spacing: .1em; text-transform: uppercase; }
 .labo-page .icon-btn { display: inline-grid; place-items: center; text-decoration: none; }
 
-.labo-nav {
+.labo-tabs {
   display: flex; gap: 4px; overflow-x: auto; padding: 0 12px;
-  background: var(--bar-bg); border-bottom: 1px solid var(--bar-border);
+  background: var(--bar-bg);
+}
+.labo-tabs a {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px;
+  color: var(--bar-muted); text-decoration: none; font-size: .9rem; font-weight: 500; white-space: nowrap;
+  border-bottom: 2px solid transparent;
+}
+.labo-tabs a:hover { color: var(--bar-fg); }
+.labo-tabs a.active { color: var(--bar-fg); border-bottom-color: var(--accent); }
+.labo-nav {
+  display: flex; min-height: 44px; gap: 4px; overflow-x: auto; padding: 0 12px;
+  background: linear-gradient(rgba(255,255,255,.05), rgba(255,255,255,.05)), var(--bar-bg); border-bottom: 1px solid var(--bar-border);
 }
 .labo-nav a {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
@@ -20,7 +32,8 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 
 .labo { max-width: 1200px; margin: 0 auto; padding: 24px 16px 80px; }
 .labo-intro { color: var(--text-secondary); margin-bottom: 8px; max-width: 70ch; }
-.labo-section { scroll-margin-top: 104px; padding-top: 24px; }
+.labo-section[hidden] { display: none; }
+.labo-section { scroll-margin-top: 150px; padding-top: 24px; }
 .labo-section h2 { font-family: var(--font-title); font-size: 1.5rem; margin-bottom: 12px; }
 
 .demos { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }

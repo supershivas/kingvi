@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.0 — 2026-09-30
+- Les rochers sont des éclats de roc noirs, anguleux, hérissés de pointes
+- La nuit, les ombres portées sont tramées par paliers, comme le halo de la torche
+- Le labo est rangé par thèmes, en onglets (l'île, le rivage, le viking, les bêtes, ciel et nature, son), chacun avec son sous-menu
+
 ## 1.19.0 — 2026-09-30
 - La grotte de la falaise est ouverte : une galerie dans le noir, à la torche, et au fond un roi mort sur son trône
 - Des pistes de loups autour de leur clairière ; blessé, on laisse du sang derrière soi, et la meute le suit si l'on revient

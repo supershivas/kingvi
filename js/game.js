@@ -15,7 +15,7 @@ import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FO
 import { BUNDLE, WATCHER } from './grove.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
 import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
-import { daylightAt, torchLight, TORCH_SIZES } from './daylight.js';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js';
 import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js';
 import { createFoe, drawPips, FOE_HP } from './foe.js';
 import { createFauna } from './fauna.js';
@@ -656,7 +656,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       for (let k = 0; k < n; k++) {
         const w = 2 + Math.floor(r() * 3), h = 1 + Math.floor(r() * 2);
         const key = `rockpiece-${w}-${h}`;
-        if (!this.textures.exists(key)) this.art(key, Array.from({ length: h + 1 }, (_, y) => (y === 0 ? '.' + 's'.repeat(w - 1) : 'b'.repeat(w))));
+        if (!this.textures.exists(key)) this.art(key, Array.from({ length: h + 1 }, (_, y) => (y === 0 ? '.' + 'b'.repeat(w - 1) : 'k'.repeat(w))));
         const x = Math.round(left + r() * (o.w - w)), y = Math.round(o.y - r() * 4 + 1);
         out.push(this.add.image(x, y, key).setOrigin(0, 1).setDepth(y));
       }
@@ -1073,25 +1073,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (lit < 0.05) return;
       sg.fillStyle(hex(palette.b), 1);
       const lx = tp.x, ly = this.pos.y + 1, R = 90;
-      const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-      const cast = (x, y, half, len) => {
-        const dx = x - lx, dy = (y - ly) / 0.6, d = Math.hypot(dx, dy);
-        if (d < 0.5 || d > R) return;
-        // Direction au sol (aplatie par la vue de biais)
-        let vx = dx / d, vy = dy / d * 0.6;
-        const n = Math.hypot(vx, vy); vx /= n; vy /= n;
-        const fade = Math.min(1, 1.6 * (1 - d / R));
-        const reach = len + half * 2;
-        for (let py = Math.floor(y - reach); py <= y + reach; py++) {
-          for (let px = Math.floor(x - reach); px <= x + reach; px++) {
-            const ax = px + 0.5 - x, ay = py + 0.5 - y;
-            const along = ax * vx + ay * vy, across = Math.abs(-ax * vy + ay * vx);
-            if (along < 0 || along > len || across > half * (1 + 0.5 * along / len)) continue;
-            const density = fade * (0.75 - 0.55 * along / len);
-            if ((BAYER[(py & 3) * 4 + (px & 3)] + 0.5) / 16 < density) sg.fillRect(px, py, 1, 1);
-          }
-        }
-      };
+      // Les pixels d'ombre, par paliers (comme le halo de la torche)
+      let alpha = -1;
+      const put = (px, py, a) => { if (a !== alpha) { alpha = a; sg.fillStyle(hex(palette.b), a); } sg.fillRect(px, py, 1, 1); };
+      const cast = (x, y, half, len) => castShadow(put, x, y, lx, ly, half, len, R);
       // Sa propre ombre : courte, du côté opposé à la torche
       if (!this.rowing) cast(this.pos.x, this.pos.y + 0.5, 1.5, 5);
       if (this.inside) return;
