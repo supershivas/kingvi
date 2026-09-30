@@ -59,7 +59,7 @@ const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate',
 export function cycleAt(seconds) {
   let t = ((seconds % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH;
   let i = 0;
-  while (t >= WEATHER_CYCLE[i][1]) { t -= WEATHER_CYCLE[i][1]; i++; }
+  while (i < WEATHER_CYCLE.length - 1 && t >= WEATHER_CYCLE[i][1]) { t -= WEATHER_CYCLE[i][1]; i++; }
   const [key, duration] = WEATHER_CYCLE[i];
   const next = WEATHER_CYCLE[(i + 1) % WEATHER_CYCLE.length][0];
   const k = Math.max(0, (t - (duration - BLEND)) / BLEND);

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.20.1 — 2026-09-30
+- Corrige un blocage : le jeu pouvait se figer (écran noir, flocons immobiles) en s'éloignant vite d'un endroit, après une mort ou une téléportation
+- Corrige la grotte : on peut désormais aller jusqu'au trône et en ressortir
+
 ## 1.20.0 — 2026-09-30
 - Les rochers sont des éclats de roc noirs, anguleux, hérissés de pointes
 - La nuit, les ombres portées sont tramées par paliers, comme le halo de la torche

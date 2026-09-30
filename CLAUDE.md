@@ -282,5 +282,14 @@ est cachée et ne sort que pendant l'attaque.
 - Fluidité : ne jamais dessiner pixel par pixel avec `fillRect` dans une
   boucle chaude (une planche de forêt noire, c'est 150 000 pixels) ; découper
   les gros travaux en générateurs ; ne pas dessiner hors de la vue.
+- Une image dont la texture a été retirée fait planter le rendu de Phaser,
+  et la boucle s'arrête : le jeu se fige (écran noir, flocons immobiles). Un
+  morceau abandonné en route défait ce qu'il a posé (`loadChunk` → `finally`),
+  et une texture se retire toujours par `dropTexture` (qui détruit d'abord les
+  images qui s'en servent). Filet de sécurité : la boucle du jeu attrape les
+  erreurs et note la dernière dans `kingvi:lastError`.
+- Un intérieur doit rester praticable de l'entrée au fond et retour (vérifier
+  par un parcours de la grille, comme pour la grotte : les poches sont reliées
+  par des boyaux).
 - `pagehide` sauvegarde la partie : pour tester une position, écrire la
   sauvegarde avant le chargement (sinon elle est écrasée).

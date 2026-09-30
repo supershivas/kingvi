@@ -17,7 +17,7 @@ const smooth = k => k * k * (3 - 2 * k);
 export function daylightAt(seconds) {
   let t = ((seconds % DAY_LENGTH) + DAY_LENGTH) % DAY_LENGTH;
   let i = 0;
-  while (t >= DAY_CYCLE[i][1]) { t -= DAY_CYCLE[i][1]; i++; }
+  while (i < DAY_CYCLE.length - 1 && t >= DAY_CYCLE[i][1]) { t -= DAY_CYCLE[i][1]; i++; }
   const [phase, duration] = DAY_CYCLE[i];
   const k = t / duration;
   const night = phase === 'aube' ? 1 - smooth(k) : phase === 'crepuscule' ? smooth(k) : phase === 'nuit' ? 1 : 0;

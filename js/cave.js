@@ -39,10 +39,15 @@ export const CAVE_ENTRY = { x: 100, y: 176 };
 
 // Distance au bord : < 1 dans la galerie. Le bord est rongé par le bruit.
 function caveD(x, y) {
+  // Chaque poche est reliée à la suivante par un boyau (d'une taille à l'autre)
   let best = 9;
-  for (const p of POCKETS) {
-    const dx = (x - p.x) / p.rx, dy = (y - p.y) / p.ry;
-    best = Math.min(best, Math.hypot(dx, dy));
+  for (let i = 0; i < POCKETS.length - 1; i++) {
+    const p = POCKETS[i], q = POCKETS[i + 1];
+    const sx = q.x - p.x, sy = q.y - p.y;
+    const t = Math.max(0, Math.min(1, ((x - p.x) * sx + (y - p.y) * sy) / (sx * sx + sy * sy)));
+    const cx = p.x + sx * t, cy = p.y + sy * t;
+    const rx = p.rx + (q.rx - p.rx) * t, ry = p.ry + (q.ry - p.ry) * t;
+    best = Math.min(best, Math.hypot((x - cx) / rx, (y - cy) / ry));
   }
   return best + (noise(x / 5, y / 4, 3) - 0.5) * 0.45 + (noise(x / 2, y / 2, 5) - 0.5) * 0.15;
 }
@@ -162,7 +167,9 @@ export const THRONE_FRAMES = {
 export const THRONE_FOOT = 17;                          // la ligne du bas de la marche
 
 export function caveWalkable(x, y) {
-  if (y > 182) return Math.abs(x - 100 + (y - 176) * 0.2) < 4;
+  // Le couloir de l'entrée, jusqu'au seuil
+  if (y > 172 && y < 190 && Math.abs(x - 100 + Math.max(0, y - 176) * 0.2) < 4) return true;
+  if (y > 182) return false;
   if (caveD(x, y) > 0.78 || inPool(x, y)) return false;
   if (Math.abs(x - THRONE.x) < 8 && y < THRONE.y + 3) return false;
   return !SPIKES.some(([sx, sy]) => Math.abs(x - sx - 0.5) < 2 && Math.abs(y - sy) < 2);

@@ -1315,7 +1315,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
           const [cx, cy] = key.split(',').map(Number);
           if (cx >= k0 && cx <= k1 && cy >= q0 && cy <= q1) continue;
           chunk.images.forEach(i => i.destroy());
-          chunk.textures.forEach(t => this.textures.remove(t));
+          chunk.textures.forEach(t => this.dropTexture(t));
           this.chunks.delete(key);
         }
       }
@@ -1334,16 +1334,42 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     // Un morceau, en plusieurs temps (générateur : chaque `yield` rend la main)
+    // Abandonnée en route (on s'est éloigné vite), la préparation défait ce
+    // qu'elle a déjà posé : une image restée sans sa texture fait planter le
+    // rendu, et le jeu se fige (écran noir, flocons immobiles)
     *loadChunk(cx, cy, key) {
+      const made = { images: [], textures: [] };
+      let done = false;
+      try {
+        const out = yield* this.buildChunk(cx, cy, key, made);
+        done = true;
+        return out;
+      } finally {
+        if (!done) {
+          made.images.forEach(i => i.destroy());
+          made.textures.forEach(t => this.dropTexture(t));
+        }
+      }
+    }
+
+    // Retire une texture, et d'abord toute image qui s'en sert encore
+    dropTexture(key) {
+      if (!this.textures.exists(key)) return;
+      for (const o of [...this.children.list]) if (o.texture?.key === key) o.destroy();
+      this.textures.remove(key);
+    }
+
+    *buildChunk(cx, cy, key, made) {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = CHUNK;
       yield* paintChunkSteps(canvas.getContext('2d'), cx, cy, palette);
       const groundKey = `chunk-${key}`;
       // (une préparation abandonnée a pu laisser ses textures)
-      for (const k of [groundKey, `objects-${key}`]) if (this.textures.exists(k)) this.textures.remove(k);
+      for (const k of [groundKey, `objects-${key}`]) this.dropTexture(k);
       this.textures.addCanvas(groundKey, canvas);
-      const images = [this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND)];
-      const textures = [groundKey];
+      const images = made.images, textures = made.textures;
+      textures.push(groundKey);
+      images.push(this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND));
 
       // Tous les objets du morceau dans une seule planche : un seul envoi à la
       // carte graphique. Les arbres y ont quatre images (penchés de −1 à +2
@@ -1489,6 +1515,21 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     banner: false,
     input: { mouse: { preventDefaultWheel: false } },
     disableContextMenu: true,
+  });
+  // Filet de sécurité : une erreur dans une image ne doit pas arrêter la
+  // boucle du jeu (sinon tout se fige). On la note (kingvi:lastError) et
+  // l'image suivante repart.
+  game.events.once('ready', () => {
+    const step = game.loop.callback;
+    let reported = 0;
+    game.loop.callback = (time, delta) => {
+      try { step(time, delta); } catch (e) {
+        if (reported++ < 3) {
+          console.error(e);
+          try { localStorage.setItem('kingvi:lastError', JSON.stringify({ at: new Date().toISOString(), message: String(e?.message || e), stack: String(e?.stack || '').slice(0, 1500) })); } catch { /* rien */ }
+        }
+      }
+    };
   });
 
   function sizeSky(f) {
