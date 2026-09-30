@@ -71,6 +71,79 @@ function showHint() {
   window.addEventListener('keydown', hideHint, { once: true });
 }
 
+// ── Le titre, en pixels : la gothique tracée petit, seuillée en un seul ton,
+// puis travaillée comme de la pierre sous la neige : croûte de neige sur le
+// haut des lettres, bas tramé d'ombre, éclats, glaçons qui pendent ──
+const TITLE = 'Kingvi Sno 7';
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+function hashTitle(x, y) {
+  let h = (x * 374761393 + y * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+async function drawTitle() {
+  const canvas = $('title-art');
+  const family = getComputedStyle(document.documentElement).getPropertyValue('--font-game-title').trim() || 'serif';
+  const font = `800 30px ${family}`;
+  try { await Promise.race([document.fonts.load(font, TITLE), new Promise(r => setTimeout(r, 1500))]); } catch { /* police de secours */ }
+  // 1. La silhouette des lettres, en un seul ton
+  const probe = document.createElement('canvas').getContext('2d');
+  probe.font = font;
+  const W = Math.ceil(probe.measureText(TITLE).width) + 8, H = 44;
+  const src = document.createElement('canvas');
+  src.width = W; src.height = H;
+  const sctx = src.getContext('2d');
+  sctx.font = font; sctx.fillStyle = '#000'; sctx.textBaseline = 'alphabetic';
+  sctx.fillText(TITLE, 4, 32);
+  const alpha = sctx.getImageData(0, 0, W, H).data;
+  const on = (x, y) => x >= 0 && y >= 0 && x < W && y < H && alpha[(y * W + x) * 4 + 3] > 110;
+  // 2. Les textures, pixel par pixel
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(W, H);
+  const rgb = hex => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+  const C = { s: rgb(palette.s), b: rgb(palette.b), k: rgb(palette.k) };
+  const set = (x, y, c) => { const i = (y * W + x) * 4; [img.data[i], img.data[i + 1], img.data[i + 2]] = C[c]; img.data[i + 3] = 255; };
+  // Hauteur de chaque pixel dans sa lettre (0 en haut de la colonne pleine)
+  for (let x = 0; x < W; x++) {
+    let depth = -1, run = 0;
+    for (let y = 0; y < H; y++) {
+      if (!on(x, y)) { depth = -1; continue; }
+      depth++;
+      run = 0; while (on(x, y + run)) run++;
+      const t = depth / (depth + run);                        // 0 haut → 1 bas du trait
+      let c = 's';
+      if (depth === 0 && hashTitle(x, y) < 0.85) c = 's';     // la croûte de neige
+      else if (t > 0.55 && (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < (t - 0.55) * 1.6) c = 'b';   // l'ombre, tramée
+      if (depth > 0 && hashTitle(x * 3, y * 7) < 0.06) c = 'b';                                        // éclats
+      set(x, y, c);
+    }
+  }
+  // Ombre portée, un pixel en dessous à droite, noire
+  for (let y = H - 2; y >= 0; y--) for (let x = W - 2; x >= 0; x--) {
+    if (on(x, y) && !on(x + 1, y + 1)) { const i = ((y + 1) * W + x + 1) * 4; if (!img.data[i + 3]) set(x + 1, y + 1, 'k'); }
+  }
+  // Glaçons : sous le bas des traits, de longueurs inégales
+  for (let x = 0; x < W; x++) for (let y = 0; y < H - 1; y++) {
+    if (!on(x, y) || on(x, y + 1) || hashTitle(x, y + 99) > 0.3) continue;
+    const len = 1 + Math.floor(hashTitle(x + 7, y) * 4);
+    for (let k = 1; k <= len && y + k < H; k++) if (!on(x, y + k)) set(x, y + k, k === len ? 'b' : 's');
+  }
+  ctx.putImageData(img, 0, 0);
+  sizeTitle();
+}
+// Agrandi d'un facteur entier de pixels de l'écran : net
+function sizeTitle() {
+  const canvas = $('title-art');
+  if (!canvas.width) return;
+  const dpr = window.devicePixelRatio || 1;
+  const k = Math.max(1, Math.floor(Math.min(innerWidth * 0.86 / canvas.width, innerHeight * 0.3 / canvas.height) * dpr));
+  canvas.style.width = `${canvas.width * k / dpr}px`;
+  canvas.style.height = `${canvas.height * k / dpr}px`;
+}
+window.addEventListener('resize', sizeTitle);
+drawTitle();
+
 // ── Écran d'accueil : nouveau jeu, reprendre, réglages ──
 const title = $('title');
 const hasSave = () => save.x != null;

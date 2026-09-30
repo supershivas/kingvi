@@ -235,8 +235,15 @@ export const CAVE = { x: 5232, w: 17, h: 15 };
 // plus haut ou plus bas que ses voisins ; rien n'y est droit
 const cliffStep = x => Math.floor((x - CLIFF.x0 + 60 * fbm(x / 200, 0, 193, 2)) / 130);
 export const cliffFoot = x => CLIFF.y + Math.round((hash(cliffStep(x), 1, 195) - 0.5) * 22 + 3 * fbm(x / 14, 0, 199, 2));
+// Le saut de hauteur d'un pan à l'autre : pas une arête franche, un
+// effondrement en gradins irréguliers sur une dizaine de pixels
+function cliffJump(x) {
+  let sum = 0;
+  for (let k = -6; k <= 6; k++) sum += (hash(cliffStep(x + k * 1.5), 2, 197) - 0.5) * 70;
+  return sum / 13 + 10 * fbm(x / 6, 0, 217, 3);
+}
 export const cliffHeight = x => Math.max(60, Math.round(135 + 38 * fbm(x / 160, 0, 131, 3) * 2 + 10 * fbm(x / 30, 0, 133, 2) * 2 +
-  (hash(cliffStep(x), 2, 197) - 0.5) * 70 +
+  cliffJump(x) +
   28 * smoothstep(CAVE.x - 160, CAVE.x, x) * (1 - smoothstep(CAVE.x, CAVE.x + 200, x))));
 const inCliff = (x, y, margin = 0) => {
   if (x < CLIFF.x0 - margin || x > CLIFF.x1 + margin) return false;

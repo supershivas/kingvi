@@ -124,13 +124,11 @@ body {
   cursor: default;
 }
 .title-screen[hidden] { display: none; }
-.title-name {
-  font-family: var(--font-game-title); font-weight: 800;
-  font-size: clamp(3rem, 11vw, 8.5rem); line-height: .9; letter-spacing: .04em;
-  color: var(--game-snow);
-  text-shadow: 0 .06em 0 var(--game-black), 0 0 .5em rgba(5,7,12,.6);
-}
-.title-sub { font-family: var(--font-game-title); font-weight: 500; font-size: 1.35rem; letter-spacing: .08em; opacity: .75; }
+.title-name { line-height: 0; }
+/* Le titre est dessiné en pixels (voir drawTitle, main.js) et agrandi d'un
+   facteur entier : net, sans lissage */
+.title-name canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .title-actions { display: flex; flex-direction: column; gap: 10px; min-width: 240px; margin-top: 10px; }
 .title-actions .btn-ghost { color: var(--game-snow); border-color: rgba(223,230,238,.35); }
 .title-actions .btn-ghost:hover { background: rgba(223,230,238,.1); color: var(--game-snow); }

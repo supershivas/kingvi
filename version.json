@@ -1,9 +1,8 @@
 {
-  "version": "1.12.0",
+  "version": "1.12.1",
   "date": "2026-09-30",
   "changes": [
-    "Écran d'accueil (nouveau jeu, reprendre, réglages) ; « Nouveau jeu » aussi en tête des réglages",
-    "Le champ des morts sur la route ; une falaise à décrochements, une grotte et une crypte sans formes géométriques ; la seconde barque a un mât",
-    "Loups plus petits et plus bestiaux ; ombres de nuit plus douces ; neige et image plus fluides"
+    "Le titre de l'accueil est en pixels : neige sur les lettres, ombre tramée, glaçons ; plus de sous-titre",
+    "Le sommet de la falaise s'effrite entre les pans, sans arêtes nettes"
   ]
 }

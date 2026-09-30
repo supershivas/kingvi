@@ -18,8 +18,10 @@ arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 (falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués
 (maison, barques, coffre) gardent quelques lignes, et encore, usées.
 
-Au lancement, un écran d'accueil : le nom en gothique étrange (Grenze
-Gotisch), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
+Au lancement, un écran d'accueil, sans sous-titre : le nom en gothique
+étrange (Grenze Gotisch), tracé petit puis pixelisé et texturé (croûte de
+neige, ombre tramée, éclats, glaçons ; `drawTitle` dans `main.js`, agrandi
+d'un facteur entier), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
 la partie), Réglages. Le nom dans l'en-tête y ramène.
 
 On part de la grève ouest, près de la barque échouée qui flotte (une seconde
@@ -164,7 +166,8 @@ est cachée et ne sort que pendant l'attaque.
   `seaCoast` (la mer seule) sert au tracé et à l'accostage, pour que le lac ne
   les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : des tranches
   de 20 px, objets triés comme les autres, qui bloquent tout leur pied ; des
-  pans (`cliffStep`) avancés ou reculés (`cliffFoot`), plus ou moins hauts.
+  pans (`cliffStep`) avancés ou reculés (`cliffFoot`), plus ou moins hauts ;
+  d'un pan à l'autre, le sommet s'effondre en gradins (`cliffJump`).
   Le champ des morts (`NECRO`) : une pierre par objet.
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT,
   écran d'accueil (`--font-game-title` : la gothique du titre, propre au jeu).

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.12.1 — 2026-09-30
+- Le titre de l'accueil est en pixels : neige sur les lettres, ombre tramée, glaçons ; plus de sous-titre
+- Le sommet de la falaise s'effrite entre les pans, sans arêtes nettes
+
 ## 1.12.0 — 2026-09-30
 - Écran d'accueil (nouveau jeu, reprendre, réglages) ; « Nouveau jeu » aussi en tête des réglages
 - Le champ des morts sur la route ; une falaise à décrochements, une grotte et une crypte sans formes géométriques ; la seconde barque a un mât
