@@ -1,6 +1,6 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
-import { WEATHER_PRESETS } from './weather.js';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -21,7 +21,10 @@ const palette = {
   r: css.getPropertyValue('--accent').trim(),
 };
 
-const prefs = { crt: true, tilt: true, wind: 'rafales', ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, wind: 'cycle', ...read(PREFS_KEY, {}) };
+// Le vent suit désormais un cycle naturel : on y bascule une fois ceux qui
+// avaient l'ancienne valeur par défaut (une ambiance fixe)
+if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
 let save = read(SAVE_KEY, {});
 
 // ── Toast ──
@@ -73,15 +76,20 @@ $('opt-crt').addEventListener('change', e => {
 
 // Vent : les ambiances à comparer (voir aussi le labo)
 const windSelect = $('opt-wind');
-for (const [key, p] of Object.entries(WEATHER_PRESETS)) {
+for (const [key, label] of [['cycle', CYCLE_LABEL], ...Object.entries(WEATHER_PRESETS).map(([k, p]) => [k, `Toujours : ${p.label.toLowerCase()}`])]) {
   const o = document.createElement('option');
-  o.value = key; o.textContent = p.label;
+  o.value = key; o.textContent = label;
   windSelect.append(o);
+}
+function describeWind() {
+  if (prefs.wind !== 'cycle') return WEATHER_PRESETS[prefs.wind]?.about || '';
+  const now = WEATHER_PRESETS[game.windPhase()]?.label;
+  return now ? `${CYCLE_ABOUT} En ce moment : ${now.toLowerCase()}.` : CYCLE_ABOUT;
 }
 function applyWind() {
   windSelect.value = prefs.wind;
-  $('wind-about').textContent = WEATHER_PRESETS[prefs.wind]?.about || '';
   game.setWind(prefs.wind);
+  $('wind-about').textContent = describeWind();
 }
 applyWind();
 windSelect.addEventListener('change', e => {
@@ -104,6 +112,7 @@ $('opt-tilt').addEventListener('change', e => {
 $('open-settings').addEventListener('click', async () => {
   game.save();
   $('stat-distance').textContent = (save.steps || 0).toLocaleString('fr-FR');
+  $('wind-about').textContent = describeWind();
   settings.showModal();
   renderVersions();
 });

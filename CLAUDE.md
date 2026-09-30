@@ -6,8 +6,8 @@
 
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
-couleurs (neige bleutée, bleu nuit ; le rouge de l'accent ne sert qu'au feu de la
-maison), avec du vent, un effet
+couleurs (neige bleutée, bleu nuit, et le rouge de l'accent, réservé aux repères
+du labo), avec un temps qui change selon un cycle naturel, un effet
 d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
@@ -52,15 +52,17 @@ est cachée et ne sort que pendant l'attaque.
 - `js/main.js` — interface : réglages, export, sauvegarde, mise à jour auto.
 - `js/game.js` — scène Phaser : sol par morceaux, objets debout triés en
   profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
-  cape (calque à part), attaque (traînée, impact), maison et fumée, échelle
+  cape (calque à part), attaque (traînée, impact), maison, échelle
   entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` : à incrémenter quand l'île change, les anciennes positions
   sauvegardées repartent alors du drakkar.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
   temps) et la traînée du coup.
-- `js/weather.js` — vent et neige (ambiances Bise, Rafales, Tempête,
-  Tourbillons), partagés jeu/labo ; le joueur choisit dans les Réglages.
+- `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
+  Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
+  (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
+  joueur peut figer une ambiance dans les Réglages.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns.
 - `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
   silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.

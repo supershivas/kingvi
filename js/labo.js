@@ -4,7 +4,7 @@ import { startUpdateCheck } from '../app-update.js';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
 } from './viking.js';
-import { createWeather, WEATHER_PRESETS } from './weather.js';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
@@ -220,9 +220,46 @@ attackDemo('Vers le haut', 'back', false);
 attackDemo('Vers le bas', 'front', false);
 
 // ══ Neige et vent ══
+// Le cycle naturel, accéléré : une frise en bas montre les phases et l'instant
+const CYCLE_SPEED = 20;
+card('vent', {
+  title: `Cycle naturel (accéléré ×${CYCLE_SPEED})`, about: CYCLE_ABOUT, wide: true, w: 240, h: 78,
+  setup(s) { s.weather = createWeather('cycle', { speed: CYCLE_SPEED }); },
+  draw(ctx, pal, t, dt, s, v) {
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h - 8 });
+    drawViking(ctx, pal, 'side-idle', 50, 50, { wind: Math.min(1, s.weather.wind / 140), clock: t });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+    // Frise : une case par phase, plus sombre quand le vent est fort ; curseur sur l'instant
+    const total = WEATHER_CYCLE.reduce((n, [, d]) => n + d, 0);
+    const strength = { calme: 0.1, bise: 0.3, rafales: 0.55, tempete: 0.95, tourbillons: 0.45 };
+    let x = 0;
+    WEATHER_CYCLE.forEach(([key, d], i) => {
+      const w = Math.round(d / total * v.w);
+      ctx.globalAlpha = 0.15 + 0.75 * strength[key];
+      ctx.fillStyle = pal.b;
+      ctx.fillRect(x, v.h - 6, w - 1, 6);
+      if (i === s.weather.cycle.index) {
+        const cx = x + Math.round(s.weather.cycle.t / d * w);
+        ctx.globalAlpha = 1; ctx.fillStyle = pal.r;
+        ctx.fillRect(cx, v.h - 8, 1, 8);
+      }
+      x += w;
+    });
+    ctx.globalAlpha = 1;
+    // Nom de la phase en cours, sous le titre de la carte
+    if (v.key === 'blanc') {
+      const label = s.label || (s.label = v.ctx.canvas.closest('.demo').querySelector('h3 span:last-child'));
+      const now = WEATHER_PRESETS[s.weather.phase].label;
+      const text = `Cycle naturel (accéléré ×${CYCLE_SPEED}) — ${now.toLowerCase()}`;
+      if (label.textContent !== text) label.textContent = text;
+    }
+  },
+});
+
 Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
   card('vent', {
-    title: p.label, tag: 'ABCD'[k], about: p.about, wide: true, w: 240, h: 70,
+    title: p.label, tag: 'ABCDE'[k], about: p.about, wide: true, w: 240, h: 70,
     setup(s) { s.weather = createWeather(key); },
     draw(ctx, pal, t, dt, s, v) {
       s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });

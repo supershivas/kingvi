@@ -8,6 +8,11 @@
    font tourner les flocons qui passent à leur portée. */
 
 export const WEATHER_PRESETS = {
+  calme: {
+    label: 'Calme',
+    about: 'Presque plus de vent : quelques flocons descendent sans hâte.',
+    base: 3, max: 9, sharp: 2, flakes: 260, turb: 3, fall: 7, vortexRate: 0, drifts: 6,
+  },
   bise: {
     label: 'Bise',
     about: 'Vent régulier, flocons épars, quelques traînées au sol.',
@@ -32,17 +37,64 @@ export const WEATHER_PRESETS = {
 
 const REF_AREA = 800 * 440;  // surface de référence pour le nombre de flocons
 
-export function createWeather(presetName = 'rafales') {
-  let P = WEATHER_PRESETS[presetName] || WEATHER_PRESETS.rafales;
+// ── Le temps qui passe : un cycle logique, d'environ 8 minutes ──
+// Le vent se lève, forcit en rafales, tourne à la tempête, retombe en
+// tourbillons, puis s'apaise. Chaque phase glisse vers la suivante pendant
+// BLEND secondes. Le cycle suit l'horloge réelle : il continue d'une session
+// à l'autre, sans recommencer au calme à chaque ouverture.
+export const WEATHER_CYCLE = [
+  ['calme', 70],
+  ['bise', 80],
+  ['rafales', 75],
+  ['tempete', 70],
+  ['rafales', 40],
+  ['tourbillons', 50],
+  ['bise', 60],
+];
+const BLEND = 18;
+const CYCLE_LENGTH = WEATHER_CYCLE.reduce((n, [, d]) => n + d, 0);
+const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate', 'drifts'];
+
+// État du cycle à l'instant `seconds` : paramètres mêlés, phase en cours, suivante.
+export function cycleAt(seconds) {
+  let t = ((seconds % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH;
+  let i = 0;
+  while (t >= WEATHER_CYCLE[i][1]) { t -= WEATHER_CYCLE[i][1]; i++; }
+  const [key, duration] = WEATHER_CYCLE[i];
+  const next = WEATHER_CYCLE[(i + 1) % WEATHER_CYCLE.length][0];
+  const k = Math.max(0, (t - (duration - BLEND)) / BLEND);
+  const ease = k * k * (3 - 2 * k);
+  const a = WEATHER_PRESETS[key], b = WEATHER_PRESETS[next];
+  const params = {};
+  for (const n of NUMERIC) params[n] = a[n] + (b[n] - a[n]) * ease;
+  return { params, phase: ease > 0.5 ? next : key, from: key, to: next, blend: ease, t, index: i };
+}
+
+export const CYCLE_LABEL = 'Cycle naturel';
+export const CYCLE_ABOUT = 'Le temps change de lui-même : calme, bise, rafales, tempête, tourbillons, '
+  + 'puis l\'accalmie. Un cycle dure environ 8 minutes.';
+
+// presetName : une ambiance fixe, ou 'cycle'. `speed` accélère le cycle (labo).
+export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
+  const fixed = name => WEATHER_PRESETS[name] || null;
+  let P = fixed(presetName) || cycleAt(Date.now() / 1000 * speed).params;
   const flakes = [], drifts = [], vortices = [];
   let t = Math.random() * 100;
   let view = { x: 0, y: 0, width: 800, height: 440 };
 
   const w = {
-    gust: 0, wind: P.base, preset: presetName,
-    setPreset(name) { P = WEATHER_PRESETS[name] || P; w.preset = name; },
+    gust: 0, wind: P.base, preset: presetName, phase: fixed(presetName) ? presetName : null,
+    setPreset(name) { w.preset = name; if (fixed(name)) { P = fixed(name); w.phase = name; } },
     update, draw,
   };
+  const followCycle = () => {
+    if (fixed(w.preset)) return;
+    const c = cycleAt(Date.now() / 1000 * speed);
+    P = c.params;
+    w.phase = c.phase;
+    w.cycle = c;
+  };
+  followCycle();
 
   function spawnFlake(f, where) {
     const v = view;
@@ -77,6 +129,7 @@ export function createWeather(presetName = 'rafales') {
     dt = Math.min(dt, 0.05);
     view = v;
     t += dt;
+    followCycle();
     w.gust = gustAt(t);
     w.wind = P.base + (P.max - P.base) * w.gust;
 

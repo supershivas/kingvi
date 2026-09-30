@@ -50,7 +50,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, wind = 'rafales' }) {
+export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle' }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -455,6 +455,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
     scene: () => game.scene.getScene('island'),
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),
+    windPhase: () => weather.phase,
   };
 }
 

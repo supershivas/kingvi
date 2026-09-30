@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.0 — 2026-09-30
+- Le temps change de lui-même : calme, bise, rafales, tempête, tourbillons, puis l'accalmie
+- Les transitions sont progressives et le cycle suit l'heure réelle (environ 8 minutes)
+- Réglages : « Cycle naturel » par défaut, ou une ambiance fixe ; labo : le cycle en accéléré
+
 ## 1.4.0 — 2026-09-30
 - Maj pour courir ; cerfs et biches au loin dans la forêt, qui s'enfuient à l'approche
 - Envol de corbeaux avant la forêt, forêt noire au cœur, grande statue droite à la sortie
