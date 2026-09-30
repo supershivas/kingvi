@@ -112,19 +112,21 @@ body {
 }
 .hint.gone { opacity: 0; }
 
-/* Tilt-shift : haut et bas de l'écran très flous, étroite bande nette au
-   milieu, comme une maquette photographiée de près. Deux couches par bord :
-   un flou fort près du bord, un flou doux qui rejoint la bande nette. */
-.tilt { position: absolute; left: 0; right: 0; height: 44%; pointer-events: none; display: none; }
+/* Flou de maquette, en ellipse autour du héros (la caméra le suit : il est au
+   centre). Net autour de lui, un flou doux puis un flou fort vers les bords.
+   Chaque couche est un flou plein écran, dévoilé par un masque radial. */
+.tilt { position: absolute; inset: 0; pointer-events: none; display: none; }
 .tilt-on .tilt { display: block; }
-.tilt-top { top: 0; }
-.tilt-bottom { bottom: 0; }
-.tilt.strong { -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); }
-.tilt.soft { -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
-.tilt-top.strong { -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 80%); mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 80%); }
-.tilt-top.soft { -webkit-mask-image: linear-gradient(to bottom, #000 40%, #000 75%, transparent 100%); mask-image: linear-gradient(to bottom, #000 40%, #000 75%, transparent 100%); }
-.tilt-bottom.strong { -webkit-mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 80%); mask-image: linear-gradient(to top, #000 0%, #000 35%, transparent 80%); }
-.tilt-bottom.soft { -webkit-mask-image: linear-gradient(to top, #000 40%, #000 75%, transparent 100%); mask-image: linear-gradient(to top, #000 40%, #000 75%, transparent 100%); }
+.tilt.soft {
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  -webkit-mask-image: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
+  mask-image: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
+}
+.tilt.strong {
+  -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
+  -webkit-mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, transparent 50%, #000 100%);
+  mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, transparent 50%, #000 100%);
+}
 
 /* Écran cathodique, discret : lignes de balayage alignées sur les pixels du jeu,
    et vignettage. --px est le facteur d'agrandissement (posé par le jeu). */

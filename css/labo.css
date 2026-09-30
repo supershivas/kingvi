@@ -29,9 +29,10 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .demo h3 { font-size: .95rem; font-weight: 600; display: flex; align-items: baseline; gap: 8px; }
 .demo h3 .tag { font-family: var(--font-mono); font-size: .75rem; color: var(--accent); }
 .demo p { font-size: .85rem; color: var(--text-muted); }
-.demo .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.demo .pair { display: grid; grid-template-columns: 1fr; gap: 8px; }
 .demo.wide .pair { grid-template-columns: 1fr; }
 .demo figure { display: flex; flex-direction: column; gap: 4px; }
+.demo figcaption:empty { display: none; }
 .demo figcaption { font-family: var(--font-mono); font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
 .demo canvas { width: 100%; height: auto; image-rendering: pixelated; border-radius: var(--radius-sm); display: block; }
 .demo .btn-ghost { align-self: flex-start; }

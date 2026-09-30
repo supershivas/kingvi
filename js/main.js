@@ -1,7 +1,7 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
 import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
-import { DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -23,7 +23,11 @@ const palette = {
   k: css.getPropertyValue('--game-black').trim(),   // le noir du dehors, vu de l'intérieur
 };
 
-const prefs = { crt: true, tilt: true, wind: 'cycle', dayFixed: null, ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, wind: 'cycle', dayOffset: 0, ...read(PREFS_KEY, {}) };
+// Ancien réglage (moment figé) : on repart de ce moment-là, et le temps s'écoule
+if (prefs.dayFixed != null) { prefs.dayOffset = prefs.dayFixed - Date.now() / 1000; delete prefs.dayFixed; write(PREFS_KEY, prefs); }
+// L'heure du jeu : l'horloge réelle, décalée si le joueur a choisi un autre moment
+const dayClock = () => Date.now() / 1000 + (prefs.dayOffset || 0);
 // Le vent suit désormais un cycle naturel : on y bascule une fois ceux qui
 // avaient l'ancienne valeur par défaut (une ambiance fixe)
 if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
@@ -49,7 +53,7 @@ const game = createGame({
   isPaused: () => settings.open,
   wind: prefs.wind,
   // Moment de la journée : l'heure réelle, ou celui choisi dans les Réglages
-  dayClock: () => (prefs.dayFixed ?? Date.now() / 1000),
+  dayClock,
 });
 window.addEventListener('pagehide', () => game.save());
 
@@ -102,30 +106,43 @@ windSelect.addEventListener('change', e => {
   applyWind();
 });
 
-// Moment de la journée : un curseur sur le cycle (aube, jour, crépuscule, nuit)
+// Moment de la journée : un curseur sur le cycle (aube, jour, crépuscule, nuit).
+// Il change l'heure du jeu, qui continue ensuite de s'écouler.
 const daySlider = $('opt-daytime');
 daySlider.max = String(DAY_LENGTH - 1);
-function dayNow() { return (prefs.dayFixed ?? Date.now() / 1000) % DAY_LENGTH; }
+const dayNow = () => ((dayClock() % DAY_LENGTH) + DAY_LENGTH) % DAY_LENGTH;
+// Heure affichée : le cycle ramené à 24 h (aube de 5 h à 7 h, jour jusqu'à 19 h,
+// crépuscule jusqu'à 21 h, nuit jusqu'à 5 h)
+const HOURS = { aube: [5, 2], jour: [7, 12], crepuscule: [19, 2], nuit: [21, 8] };
+function clockText(d) {
+  const [start, span] = HOURS[d.phase];
+  const len = DAY_CYCLE[d.index][1];
+  const minutes = Math.floor(((start + span * d.t / len) % 24) * 60);
+  return `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, '0')}`;
+}
 function syncDaytime() {
-  daySlider.value = String(Math.floor(dayNow()));
-  $('opt-dayauto').checked = prefs.dayFixed == null;
+  if (document.activeElement !== daySlider) daySlider.value = String(Math.floor(dayNow()));
+  const real = !prefs.dayOffset;
+  $('opt-dayauto').checked = real;
   const d = daylightAt(dayNow());
-  $('daytime-label').textContent = prefs.dayFixed == null
-    ? `${DAY_LABELS[d.phase]} — suit l'heure réelle (un cycle de 20 minutes)`
-    : `${DAY_LABELS[d.phase]} — figé`;
+  $('daytime-label').textContent = `${DAY_LABELS[d.phase]}, ${clockText(d)}` +
+    (real ? ' — suit l\'heure réelle (un jour dure 20 minutes)' : ' — le temps s\'écoule depuis le moment choisi');
 }
 daySlider.addEventListener('input', () => {
-  prefs.dayFixed = Number(daySlider.value);
+  const now = Date.now() / 1000;
+  prefs.dayOffset = Number(daySlider.value) - (now % DAY_LENGTH);
   write(PREFS_KEY, prefs);
   syncDaytime();
   game.refreshDaylight();
 });
 $('opt-dayauto').addEventListener('change', e => {
-  prefs.dayFixed = e.target.checked ? null : Math.floor(dayNow());
+  prefs.dayOffset = e.target.checked ? 0 : prefs.dayOffset || 0.001;
   write(PREFS_KEY, prefs);
   syncDaytime();
   game.refreshDaylight();
 });
+// L'heure avance sous les yeux quand les réglages sont ouverts
+setInterval(() => { if (settings.open) syncDaytime(); }, 1000);
 syncDaytime();
 
 function applyTilt() {

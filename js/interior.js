@@ -28,6 +28,17 @@ export const ROOM_BLOCKS = [
 ];
 // Le corps, au milieu de la pièce
 const BODY = { u: 0.5, v: 0.34 };
+// Un viking tombé, couché de tout son long, un bras jeté de côté (aussi pour
+// le combat : c'est ainsi que tombent les vaincus)
+export const CORPSE = [
+  '...bb.........',
+  '..bbbb....b...',
+  '..bbbbbbbbbbb.',
+  '.bbbbbbbbbbbbb',
+  '..bbbbbbbbb.bb',
+  '...bb....b....',
+  '..bb......bb..',
+];
 
 function rng(seed) {
   let a = seed >>> 0;
@@ -134,15 +145,6 @@ export function makeRoom() {
   }
 
   // Le corps : couché de tout son long, un bras jeté de côté
-  const CORPSE = [
-    '...bb.........',
-    '..bbbb....b...',
-    '..bbbbbbbbbbb.',
-    '.bbbbbbbbbbbbb',
-    '..bbbbbbbbb.bb',
-    '...bb....b....',
-    '..bb......bb..',
-  ];
   CORPSE.forEach((row, y) => [...row].forEach((c, x) => { if (c === 'b') put(bx - 7 + x, by - 3 + y, 'b'); }));
   put(bx - 5, by - 2, 's');                                  // un reflet sur le casque
 

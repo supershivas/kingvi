@@ -7,13 +7,15 @@
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
 couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le sang et les
-repères du labo ; un noir profond autour de l'intérieur de la maison), avec un temps qui change selon un cycle
+repères du labo ; un noir profond autour de l'intérieur de la maison et pour
+la coque de la barque), avec un temps qui change selon un cycle
 naturel, le jour et la nuit, un effet
-d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
+d'écran cathodique discret et un flou de maquette (en ellipse autour du
+héros), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On part de la grève ouest, près de la barque échouée qui flotte (quelques
-icebergs plats au large), et on suit les traces vers l'est : quelques arbres,
+On part de la grève ouest, près de la barque échouée qui flotte (des
+icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est : quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
@@ -22,12 +24,14 @@ Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
+Au bout des traces, un autre viking attend : il vient au contact et frappe ;
+trois coups de part et d'autre abattent. Mort, on repart de la barque.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
-sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
+sections), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
-cape, attaques, intérieur de la maison, icebergs,
+cape, attaques, intérieur de la maison, vagues, icebergs,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches.
 
@@ -47,8 +51,8 @@ est cachée et ne sort que pendant l'attaque.
   ne pas passer par un CDN : l'app doit charger même si le CDN tombe).
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
-  nombre de pas ; `kingvi:prefs` : effet CRT, tilt-shift, vent, moment de la
-  journée figé `dayFixed` ou `null` pour suivre l'heure). Récupérables via l'export JSON.
+  nombre de pas, `foeDead` ; `kingvi:prefs` : effet CRT, tilt-shift, vent,
+  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
 ## Structure
@@ -61,17 +65,23 @@ est cachée et ne sort que pendant l'attaque.
   profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
   cape (calque à part), attaque (traînée, impact), maison, échelle
   entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
-  `WORLD_VERSION` : à incrémenter quand l'île change, les anciennes positions
-  sauvegardées repartent alors de la barque. Voile de nuit : rectangle
+  `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
+  incrémenter quand l'île change, les anciennes positions sauvegardées
+  repartent alors de la barque. Voile de nuit : rectangle
   multiplié au-dessus de tout. L'intérieur de la maison est une pièce posée
   loin en mer (`ROOM_AT`), fond noir, profondeur `DEPTH_ROOM` au-dessus du
   dehors ; on y passe par un fondu (`goInside` / `goOutside`), caméra ×2.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
   temps) et la traînée du coup.
-- `js/boat.js` — la barque (pixels tirés de l'image de référence, liseré
-  clair pour la détacher de la mer sombre), ligne de flottaison, bords, roulis
-  (`BOAT_FRAMES`).
+- `js/boat.js` — la barque (pixels tirés de l'image de référence, coque noire
+  `k` sans liseré), ligne de flottaison, bords, roulis (`BOAT_FRAMES`).
+- `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
+  la grève puis se retirent (pixels du rivage mis en cache par carreau),
+  moutons au large. Dans le jeu, un calque `DEPTH_WAVES` redessiné ~8 fois/s.
+- `js/foe.js` — l'autre viking, au bout des traces : attente, approche,
+  attaque (il arme, puis `onStrike`), recul quand il est touché, `FOE_HP`
+  coups ; `hitAt` teste la pointe de la lame du héros. Tombé, il reste à terre.
 - `js/interior.js` — la pièce (sol repéré en u, v), meubles, corps, sang ;
   `roomWalkable`, `atRoomDoor`, `ROOM_ENTRY`.
 - `js/daylight.js` — jour et nuit (`DAY_CYCLE`, 20 min sur l'horloge réelle) :
@@ -83,8 +93,9 @@ est cachée et ne sort que pendant l'attaque.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns,
   icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
   (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
-  du morceau (1024 px de large) et en change ~11 fois par seconde
-  (`swayTrees`), selon la force du vent, les rafales et une vague d'ouest en est.
+  du morceau (1024 px de large) et en change ~22 fois par seconde
+  (`swayTrees`) : `treeWind` (quasi rien sous la bise), `treeLean`,
+  `treeFreq` (les petits arbres battent plus vite).
 - `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
   silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
@@ -118,7 +129,7 @@ est cachée et ne sort que pendant l'attaque.
 - Tout changement dans `world.js` qui consomme le générateur aléatoire
   (`rng`) ou touche au tracé déplace les traces et les objets : vérifier la
   carte de l'île (la piste doit atteindre son bout, sans se perdre dans la
-  forêt noire), et incrémenter `WORLD_VERSION` dans `game.js`.
+  forêt noire), et incrémenter `WORLD_VERSION` dans `world.js`.
 - Le viking doit peser sur la neige : son ombre est dessinée dans le sprite,
   sur la ligne même des pieds. Une ombre séparée, un pixel plus bas, le
   faisait léviter.

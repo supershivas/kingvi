@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.9.0 — 2026-09-30
+- Au bout des traces, un autre viking vous attend : le combat est prêt
+- La mer bouge : vagues sur la grève, moutons au large, plus d'icebergs
+- Le curseur change l'heure du jeu ; la téléportation du labo remarche
+- Les arbres ploient plus vite et presque pas sous la bise ; flou en ellipse autour du héros ; barque sans liseré blanc
+
 ## 1.8.0 — 2026-09-30
 - Les arbres ploient sous le vent : ils penchent quand il forcit et oscillent dans les rafales
 - La sente de la forêt noire est plus directe

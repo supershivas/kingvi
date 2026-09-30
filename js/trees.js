@@ -160,3 +160,20 @@ export function leanRows(rows, lean) {
     return padded.slice(0, row.length + LEAN_PAD + 2);
   });
 }
+
+// ── Le vent dans les arbres (partagé jeu et labo) ──
+// Par bise, presque rien ; ils ne ploient vraiment qu'au-delà d'un vent moyen.
+// `base` : inclinaison moyenne (vers l'est), `amp` : ampleur du ploiement.
+export function treeWind(wind, gust) {
+  const force = Math.min(1, wind / 150);
+  const strong = Math.max(0, force - 0.3) / 0.7;
+  return { base: strong * 1.4, amp: strong * (0.7 + 1.2 * gust) };
+}
+// Cadence propre à chaque arbre : vive, un peu plus lente pour les grands
+export const treeFreq = h => 6 + 40 / (h + 10);
+// Inclinaison à l'instant t : un ploiement rapide, parcouru par une vague
+// d'ouest en est, et un frémissement plus vif par-dessus.
+export function treeLean(t, tree, base, amp) {
+  const wave = Math.sin(t * tree.freq + tree.phase - tree.x * 0.03) + 0.35 * Math.sin(t * tree.freq * 2.3 + tree.phase * 1.7);
+  return Math.max(-1, Math.min(2, Math.round(base + wave * amp)));
+}

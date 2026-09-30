@@ -5,6 +5,9 @@ import { buildStatue, buildStatueUpright } from './statue.js';
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
    Le sol est peint par morceaux de CHUNK × CHUNK pixels, à la demande. */
 
+// Version du monde : une sauvegarde faite sur une autre île repart du rivage.
+// À incrémenter quand l'île change (tracé, objets).
+export const WORLD_VERSION = 6;
 export const WORLD = 6144;
 export const CHUNK = 256;
 export const CENTER = WORLD / 2;
@@ -493,7 +496,7 @@ export function objectsInChunk(cx, cy) {
       // En mer, pas trop loin des côtes : de rares icebergs plats
       const sea = coast(x, y);
       if (sea > 0.012) {
-        if (sea < 0.3 && r() < 0.0011 && coast(x - 22, y) > 0.01 && coast(x + 22, y) > 0.01 && coast(x, y - 12) > 0.01) {
+        if (sea < 0.4 && r() < 0.0032 && Math.hypot(x - LANDING.shore, y - LANDING.y) > 90 && !list.some(o => o.type === 'iceberg' && Math.abs(o.x - x) < 50 && Math.abs(o.y - y) < 24) && coast(x - 22, y) > 0.01 && coast(x + 22, y) > 0.01 && coast(x, y - 12) > 0.01) {
           list.push({ type: 'iceberg', x, y, seed: Math.floor(r() * 1e9) });
         }
         continue;

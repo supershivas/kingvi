@@ -7,7 +7,7 @@ import {
 import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
 import {
-  HOUSE_ART, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
+  HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
 } from './world.js';
 import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
@@ -15,17 +15,18 @@ import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
 import { ROOM, ROOM_ENTRY } from './interior.js';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows } from './trees.js';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
 import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH } from './daylight.js';
+import { createSea } from './sea.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
 const NIGHT = css.getPropertyValue('--game-night').trim();
 const RED = css.getPropertyValue('--accent').trim();
-const BLACK = '#0b0d14';
+const BLACK = css.getPropertyValue('--game-black').trim();
+// Une seule vue par animation : sur la neige, aux couleurs du jeu
 const PALETTES = {
-  blanc: { label: 'Fond blanc', bg: SNOW, b: NIGHT, s: SNOW, r: RED },
-  noir: { label: 'Fond noir (négatif)', bg: BLACK, b: SNOW, s: BLACK, r: RED },
+  blanc: { label: '', bg: SNOW, b: NIGHT, s: SNOW, r: RED, k: BLACK },
 };
 
 const FRAMES = Object.fromEntries(vikingFrames().map(f => [f.name, f]));
@@ -331,7 +332,7 @@ card('arbres', {
 });
 
 card('arbres', {
-  title: 'Arbres au vent', about: 'Ils penchent vers l\'est d\'autant plus que le vent forcit, et oscillent chacun à sa cadence (les grands plus lentement) ; les rafales passent sur la forêt comme une vague. Ici le cycle du vent, accéléré.',
+  title: 'Arbres au vent', about: 'Presque immobiles par calme et par bise ; au-delà, ils penchent vers l\'est et ploient vite, chacun à sa cadence, les rafales passant sur la forêt comme une vague. Ici le cycle du vent, accéléré.',
   wide: true, w: 240, h: 70,
   setup(s, v) {
     const r = rng(Math.floor(Math.random() * 1e9));
@@ -347,11 +348,10 @@ card('arbres', {
   },
   draw(ctx, pal, t, dt, s, v) {
     s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
-    const force = Math.min(1, s.weather.wind / 150);
-    const base = force * 1.5, amp = 0.35 + 1.1 * s.weather.gust + 0.4 * force;
+    const { base, amp } = treeWind(s.weather.wind, s.weather.gust);
     for (const tr of s.trees) {
-      const wave = Math.sin(t * (1.6 + 30 / (tr.h + 10)) + tr.phase - tr.x * 0.02);
-      const lean = Math.max(-1, Math.min(2, Math.round(base + wave * amp)));
+      tr.freq = tr.freq || treeFreq(tr.h);
+      const lean = treeLean(t, tr, base, amp);
       const img = tr.imgs[LEANS.indexOf(lean)];
       ctx.drawImage(img, tr.x - tr.ax, tr.y - img.height + 1);
     }
@@ -582,7 +582,7 @@ card('corbeaux', {
     let save = {};
     try { save = JSON.parse(localStorage.getItem('kingvi:save')) || {}; } catch { /* rien */ }
     try {
-      localStorage.setItem('kingvi:save', JSON.stringify({ ...save, world: 3, x, y, facing: 'side', flip: false }));
+      localStorage.setItem('kingvi:save', JSON.stringify({ ...save, world: WORLD_VERSION, x, y, facing: 'side', flip: false }));
     } catch { toast('Impossible d\'enregistrer la position.'); return; }
     location.href = './';
   });
@@ -590,7 +590,7 @@ card('corbeaux', {
 
 // ══ Barque ══
 card('barque', {
-  title: 'La barque flotte', about: 'D\'après l\'image de référence, échouée sur la grève : elle dodine, roule d\'un bord à l\'autre, l\'écume bat sa coque. Un liseré clair la détache de la mer sombre.',
+  title: 'La barque flotte', about: 'D\'après l\'image de référence, échouée sur la grève : elle dodine, roule d\'un bord à l\'autre, l\'écume bat sa coque. Pas de liseré : la coque sombre se pose sur l\'eau.',
   wide: true, w: 200, h: 60,
   setup(s, v) { s.imgs = Object.fromEntries(Object.entries(BOAT_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)])); },
   draw(ctx, pal, t, dt, s, v) {
@@ -602,8 +602,8 @@ card('barque', {
     ctx.drawImage(s.imgs[roll > 0.55 ? 'right' : roll < -0.55 ? 'left' : 'still'], bx, by);
     ctx.fillStyle = pal.s;
     for (const e of BOAT_EDGE) {
-      if (e.y < BOAT_WATERLINE - 1 || bx + e.x > shore) continue;
-      if (Math.sin(t * 4.2 + e.x * 0.7 + e.y) > 0.15) ctx.fillRect(bx + e.x, by + e.y, 1, 1);
+      if (e.y < BOAT_WATERLINE + 1 || bx + e.x > shore) continue;
+      if (Math.sin(t * 3.3 + e.x * 1.3 + e.y * 2.1) > 0.9) ctx.fillRect(bx + e.x, by + e.y, 1, 1);
     }
     drawViking(ctx, pal, 'side-idle', shore + 24, 37, { clock: t, wind: 0.3 });
   },
@@ -613,7 +613,7 @@ card('barque', {
 const DAY_SPEED = 60;
 card('nuit', {
   title: `Jour et nuit (accéléré ×${DAY_SPEED})`,
-  about: 'Aube, jour, crépuscule, nuit : 20 minutes calées sur l\'heure réelle (ou figées avec le curseur des Réglages). La nuit, un voile bleu nuit ; à l\'aube et au crépuscule, une lueur rouge rasante.',
+  about: 'Aube, jour, crépuscule, nuit : 20 minutes calées sur l\'heure réelle (le curseur des Réglages avance ou recule l\'heure du jeu). La nuit, un voile bleu nuit ; à l\'aube et au crépuscule, une lueur rouge rasante.',
   wide: true, w: 200, h: 86,
   setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.weather = createWeather('bise'); },
   draw(ctx, pal, t, dt, s, v) {
@@ -659,6 +659,27 @@ card('interieur', {
     const k = Math.min(1, (t % 10) / 5);
     const x = Math.round(ROOM_ENTRY.x + 24 * k), y = Math.round(ROOM_ENTRY.y - 12 * k);
     drawViking(ctx, pal, k < 1 ? walkFrame('side', t) : 'back-idle', x, y, { clock: t, wind: 0 });
+  },
+});
+
+// ══ Vagues ══
+card('mer', {
+  title: 'Les vagues', about: 'Les rouleaux arrivent sur la grève, s\'amincissent, s\'étalent en nappe puis se retirent ; pas tous ensemble le long de la côte. Au large, de rares moutons naissent, filent avec le vent et s\'éteignent.',
+  wide: true, w: 220, h: 80,
+  setup(s) {
+    const shoreX = y => 160 + 7 * Math.sin(y / 13) + 3 * Math.sin(y / 5 + 1);
+    s.coast = (x, y) => (shoreX(y) - x) * 0.0007;
+    s.sea = createSea(s.coast);
+    s.shoreX = shoreX;
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    ctx.fillStyle = pal.b;
+    for (let y = 0; y < v.h; y++) ctx.fillRect(0, y, Math.ceil(s.shoreX(y)), 1);
+    s.sea.draw({ x: 0, y: 0, w: v.w, h: v.h }, t, (x, y, a) => {
+      ctx.globalAlpha = a; ctx.fillStyle = pal.s; ctx.fillRect(x, y, 1, 1);
+    });
+    ctx.globalAlpha = 1;
+    drawViking(ctx, pal, 'side-idle', 190, 44, { clock: t, wind: 0.3 });
   },
 });
 

@@ -21,8 +21,9 @@ const BOAT_RAW = [
   '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
   '........bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
   '............bbbbbbbbbbbbbbbbbbbbbbbbbbbbb......',];
-// Un liseré clair tout autour de la coque : sur la mer sombre on la
-// distingue (reflet sur l'eau) ; sur la neige il se fond dans le blanc.
+// Une marge vide d'un pixel tout autour de la coque (les repères ci-dessous
+// en tiennent compte). Pas de liseré : la coque est noire (k), plus sombre que
+// la mer, et s'en détache sans contour.
 export const BOAT = (() => {
   const H = BOAT_RAW.length + 2, W = BOAT_RAW[0].length + 2;
   const at = (x, y) => BOAT_RAW[y - 1]?.[x - 1] && BOAT_RAW[y - 1][x - 1] !== '.';
@@ -30,8 +31,8 @@ export const BOAT = (() => {
   for (let y = 0; y < H; y++) {
     let row = '';
     for (let x = 0; x < W; x++) {
-      if (at(x, y)) row += BOAT_RAW[y - 1][x - 1];
-      else row += [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => at(x + dx, y + dy)) ? 's' : '.';
+      if (at(x, y)) row += BOAT_RAW[y - 1][x - 1] === 'b' ? 'k' : 's';
+      else row += '.';
     }
     rows.push(row);
   }
@@ -46,7 +47,7 @@ export const BOAT_BOW = { x: 46, y: 10 };
 // Pixels du bord de la coque, sous la flottaison : l'écume vient y battre.
 export const BOAT_EDGE = (() => {
   const out = [];
-  const at = (x, y) => BOAT[y]?.[x] === 'b';
+  const at = (x, y) => BOAT[y]?.[x] === 'k';
   for (let y = 7; y < BOAT_H; y++) {
     for (let x = 0; x < BOAT_W; x++) {
       if (!at(x, y)) continue;
