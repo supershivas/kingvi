@@ -15,7 +15,7 @@ import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
 import { ROOM, ROOM_ENTRY } from './interior.js';
-import { makeIceberg } from './trees.js';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows } from './trees.js';
 import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH } from './daylight.js';
 
 const css = getComputedStyle(document.documentElement);
@@ -327,6 +327,41 @@ card('arbres', {
     s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
     s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
     ctx.globalAlpha = 1;
+  },
+});
+
+card('arbres', {
+  title: 'Arbres au vent', about: 'Ils penchent vers l\'est d\'autant plus que le vent forcit, et oscillent chacun à sa cadence (les grands plus lentement) ; les rafales passent sur la forêt comme une vague. Ici le cycle du vent, accéléré.',
+  wide: true, w: 240, h: 70,
+  setup(s, v) {
+    const r = rng(Math.floor(Math.random() * 1e9));
+    s.trees = [];
+    for (let x = 6; x < v.w - 10;) {
+      const art = makeTree(r, { big: r() < 0.6 });
+      const imgs = LEANS.map(l => prerender(leanRows(art.rows, l), v.pal));
+      s.trees.push({ imgs, x: x + art.ax, y: 60 - (s.trees.length % 3) * 7, ax: art.ax + LEAN_PAD, h: art.rows.length, phase: r() * 6.28 });
+      x += art.rows[0].length - 2;
+    }
+    s.trees.sort((a, b) => a.y - b.y);
+    s.weather = createWeather('cycle', { speed: 20 });
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    const force = Math.min(1, s.weather.wind / 150);
+    const base = force * 1.5, amp = 0.35 + 1.1 * s.weather.gust + 0.4 * force;
+    for (const tr of s.trees) {
+      const wave = Math.sin(t * (1.6 + 30 / (tr.h + 10)) + tr.phase - tr.x * 0.02);
+      const lean = Math.max(-1, Math.min(2, Math.round(base + wave * amp)));
+      const img = tr.imgs[LEANS.indexOf(lean)];
+      ctx.drawImage(img, tr.x - tr.ax, tr.y - img.height + 1);
+    }
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+    if (v.key === 'blanc') {
+      const label = s.label || (s.label = v.ctx.canvas.closest('.demo').querySelector('h3 span:last-child'));
+      const text = `Arbres au vent — ${WEATHER_PRESETS[s.weather.phase].label.toLowerCase()}`;
+      if (label.textContent !== text) label.textContent = text;
+    }
   },
 });
 

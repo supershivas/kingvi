@@ -145,3 +145,18 @@ export function makeIceberg(r) {
   }
   return { rows: g.map(row => row.join('')), ax: Math.floor(w / 2) };
 }
+
+// Un arbre qui ploie : la cime glisse de `lean` pixels (négatif : contre le
+// vent), le pied ne bouge pas, et l'écart croît vers le haut. Toutes les
+// inclinaisons ont la même taille : une colonne de marge à gauche, deux à droite.
+export const LEANS = [-1, 0, 1, 2];
+export const LEAN_PAD = 1;
+export function leanRows(rows, lean) {
+  const H = rows.length;
+  return rows.map((row, y) => {
+    const k = H > 1 ? (H - 1 - y) / (H - 1) : 0;
+    const shift = Math.round(lean * Math.pow(k, 1.6));
+    const padded = '.'.repeat(LEAN_PAD + shift) + row + '.'.repeat(2 - shift + 0);
+    return padded.slice(0, row.length + LEAN_PAD + 2);
+  });
+}

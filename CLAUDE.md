@@ -16,12 +16,13 @@ On part de la grève ouest, près de la barque échouée qui flotte (quelques
 icebergs plats au large), et on suit les traces vers l'est : quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
-noir ; la sente y serpente, se resserre, s'ouvre en clairières), une grande
+noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
+clairières), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
-Le viking est tout noir ; sa cape bat au vent.
+Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
@@ -80,7 +81,10 @@ est cachée et ne sort que pendant l'attaque.
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
   joueur peut figer une ambiance dans les Réglages.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns,
-  icebergs plats.
+  icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
+  (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
+  du morceau (1024 px de large) et en change ~11 fois par seconde
+  (`swayTrees`), selon la force du vent, les rafales et une vague d'ouest en est.
 - `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
   silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,

@@ -14,11 +14,12 @@ import { daylightAt } from './daylight.js';
 import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor } from './interior.js';
 import { createFauna } from './fauna.js';
 import { createWeather } from './weather.js';
+import { LEANS, LEAN_PAD, leanRows } from './trees.js';
 
 const Phaser = window.Phaser;
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
-const WORLD_VERSION = 5;
+const WORLD_VERSION = 6;
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
 const RUN = 2.4;               // Maj enfoncée : il court
 const WALK_FPS = 7;
@@ -372,6 +373,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const front = houseFrontY(this.pos.x);
       this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
       this.updateChunks();
+      this.swayClock = (this.swayClock || 0) - delta;
+      if (this.swayClock <= 0 && !this.inside) { this.swayClock = 90; this.swayTrees(time); }
       this.drawSky(delta / 1000);
     }
 
@@ -485,33 +488,68 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const images = [this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND)];
       const textures = [groundKey];
 
-      // Tous les objets du morceau dans une seule planche : un seul envoi à la carte graphique
+      // Tous les objets du morceau dans une seule planche : un seul envoi à la
+      // carte graphique. Les arbres y ont quatre images (penchés de −1 à +2
+      // pixels à la cime) : le vent les fait passer de l'une à l'autre.
       const objs = objectsInChunk(cx, cy);
+      const swayers = [];
       if (objs.length) {
-        let x = 0, y = 0, rowH = 0;
-        const slots = objs.map(o => {
-          if (x + o.w > CHUNK) { x = 0; y += rowH + 1; rowH = 0; }
-          const slot = { x, y };
-          x += o.w + 1; rowH = Math.max(rowH, o.h);
-          return slot;
+        const ATLAS_W = 1024;
+        const pieces = [];
+        objs.forEach((o, i) => {
+          const variants = o.type === 'tree' ? LEANS.map(l => leanRows(o.art.rows, l)) : [o.art.rows];
+          variants.forEach((rows, v) => pieces.push({ i, v, rows, w: rows[0].length, h: rows.length }));
         });
+        let x = 0, y = 0, rowH = 0;
+        for (const p of pieces) {
+          if (x + p.w > ATLAS_W) { x = 0; y += rowH + 1; rowH = 0; }
+          p.x = x; p.y = y;
+          x += p.w + 1; rowH = Math.max(rowH, p.h);
+        }
         const atlas = document.createElement('canvas');
-        atlas.width = CHUNK; atlas.height = y + rowH + 1;
+        atlas.width = ATLAS_W; atlas.height = y + rowH + 1;
         const ctx = atlas.getContext('2d');
-        objs.forEach((o, i) => o.art.rows.forEach((row, ry) => [...row].forEach((ch, rx) => {
+        for (const p of pieces) p.rows.forEach((row, ry) => [...row].forEach((ch, rx) => {
           if (ch === '.') return;
           ctx.fillStyle = palette[ch];
-          ctx.fillRect(slots[i].x + rx, slots[i].y + ry, 1, 1);
-        })));
+          ctx.fillRect(p.x + rx, p.y + ry, 1, 1);
+        }));
         const objKey = `objects-${key}`;
         const tex = this.textures.addCanvas(objKey, atlas);
         textures.push(objKey);
+        for (const p of pieces) tex.add(`${p.i}-${p.v}`, 0, p.x, p.y, p.w, p.h);
         objs.forEach((o, i) => {
-          tex.add(i, 0, slots[i].x, slots[i].y, o.w, o.h);
-          images.push(this.add.image(o.x - o.art.ax, o.y + 1, objKey, i).setOrigin(0, 1).setDepth(o.y));
+          const tree = o.type === 'tree';
+          const rest = tree ? LEANS.indexOf(0) : 0;
+          const img = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
+            .setOrigin(0, 1).setDepth(o.y);
+          images.push(img);
+          if (tree) {
+            // Chaque arbre a sa cadence : les grands ploient plus lentement
+            swayers.push({ img, i, x: o.x, y: o.y, phase: (o.seed % 628) / 100, freq: 1.6 + 30 / (o.h + 10) });
+          }
         });
       }
-      return { images, textures };
+      return { images, textures, swayers };
+    }
+
+    // Les arbres ploient sous le vent : penchés vers l'est d'autant plus qu'il
+    // souffle fort, et ils oscillent, plus amplement dans les rafales.
+    swayTrees(time) {
+      const t = time / 1000;
+      const force = Math.min(1, weather.wind / 150);
+      const base = force * 1.5, amp = 0.35 + 1.1 * weather.gust + 0.4 * force;
+      const v = this.cameras.main.worldView;
+      for (const chunk of this.chunks.values()) {
+        for (const s of chunk.swayers) {
+          if (s.x < v.x - 30 || s.x > v.right + 30 || s.y < v.y - 10 || s.y > v.bottom + 60) continue;
+          // Le souffle passe sur la forêt comme une vague, d'ouest en est
+          const wave = Math.sin(t * s.freq + s.phase - s.x * 0.02);
+          const lean = Math.max(-1, Math.min(2, Math.round(base + wave * amp)));
+          const frame = `${s.i}-${LEANS.indexOf(lean)}`;
+          if (s.frame !== frame) { s.frame = frame; s.img.setFrame(frame); }
+        }
+      }
     }
 
     persist() {

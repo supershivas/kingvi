@@ -109,7 +109,7 @@ function buildTrail() {
   // Elles vont jusqu'à la porte de la maison, puis en ressortent vers l'est
   const waypoints = [
     { x: HOUSE_DOOR_OUT.x - 28, y: HOUSE_DOOR_OUT.y + 16 },
-    { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y, door: true, reach: 5 },
+    { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y, door: true, reach: 7 },
     { x: HOUSE.x + 14, y: HOUSE.y + 12 },
     { x: HOUSE.x + 62, y: HOUSE.y - 2 },
     { x: HOUSE.x + 950, y: HOUSE.y - 320, last: true },
@@ -130,10 +130,10 @@ function buildTrail() {
     let diff = Math.atan2(Math.sin(toTarget - heading), Math.cos(toTarget - heading));
     // Errance lente, attirée de loin par le but ; près d'un point de passage,
     // l'attraction l'emporte sur l'errance
-    // Dans la forêt noire, la piste hésite et serpente : la traversée s'allonge
+    // Dans la forêt noire, la piste hésite un peu (sans trop serpenter)
     const lost = deepForest(x, y);
     const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012 * (1 - 0.5 * lost);
-    heading += 0.09 * (1 + 3.8 * lost) * fbm(i / (40 - 18 * lost), 0, 42, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.05 * lost);
+    heading += 0.09 * (1 + 1.0 * lost) * fbm(i / (40 - 8 * lost), 0, 42, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.02 * lost);
     // Ne jamais marcher vers la mer
     if (coast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
       const toCenter = Math.atan2(CENTER - y, CENTER - x);

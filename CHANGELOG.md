@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 — 2026-09-30
+- Les arbres ploient sous le vent : ils penchent quand il forcit et oscillent dans les rafales
+- La sente de la forêt noire est plus directe
+
 ## 1.7.0 — 2026-09-30
 - On entre dans la maison par la porte : un corps, du sang ; les traces qui en ressortent saignent
 - La barque flotte au rivage (plus d'arrivée) ; quelques icebergs plats en mer ; les corbeaux s'envolent vite
