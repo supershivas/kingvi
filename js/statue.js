@@ -412,3 +412,39 @@ export function buildStatueUpright(base, seed = 7) {
   }
   return objects;
 }
+
+// La statue de l'îlot : Freya debout, plus petite (≈ 70 px), une porte
+// taillée dans le bas de sa robe, à la taille du viking. Noir derrière.
+export const DOOR = { w: 5, h: 9 };
+export function buildStatueDoor(base, seed = 7) {
+  const r = rng(seed * 2311);
+  const src = toGrid(FREYA_BIG);
+  const k = 0.6, H = Math.round(src.length * k), W = Math.round(src[0].length * k);
+  const scaled = Array.from({ length: H }, (_, y) => Array.from({ length: W }, (_, x) => src[Math.floor(y / k)]?.[Math.floor(x / k)] ?? null));
+  // Un socle plein sous la robe : la porte y est taillée
+  for (let y = H - 12; y < H; y++) {
+    const row = scaled[y];
+    const l = row.findIndex(c => c), rr = W - 1 - [...row].reverse().findIndex(c => c);
+    if (l < 0) continue;
+    for (let x = Math.max(0, l - 1); x <= Math.min(W - 1, rr + 1); x++) row[x] = row[x] || 'b';
+  }
+  const body = finish(smooth(scaled), H, r, 0.7);
+  const rows = body.rows.map(row => [...row]);
+  const h = rows.length, cx = Math.round(W / 2 - body.left);
+  // La porte : une arche noire, un linteau clair, le seuil enneigé
+  for (let y = h - DOOR.h; y < h; y++) {
+    for (let x = cx - 2; x <= cx + 2; x++) {
+      const top = y === h - DOOR.h;
+      if (top && Math.abs(x - cx) === 2) continue;       // arrondi de l'arche
+      if (rows[y]?.[x] !== undefined) rows[y][x] = 'k';
+    }
+  }
+  for (let x = cx - 3; x <= cx + 3; x++) if (rows[h - DOOR.h - 1]?.[x] !== undefined) rows[h - DOOR.h - 1][x] = 's';
+  if (rows[h - DOOR.h]) { rows[h - DOOR.h][cx - 3] = 's'; rows[h - DOOR.h][cx + 3] = 's'; }
+  return [{
+    type: 'statue', x: base.x, y: base.y,
+    art: { rows: rows.map(r => r.join('')), ax: cx },
+    foot: 10,
+    door: true,
+  }];
+}

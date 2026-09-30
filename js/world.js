@@ -1,5 +1,5 @@
 import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js';
-import { buildStatue, buildStatueUpright } from './statue.js';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -51,12 +51,29 @@ export function fbm(x, y, s, octaves = 4) {
   return v; // environ [-0.5, 0.5]
 }
 
-// Négatif sur l'île, positif en mer ; 0 sur le rivage.
-export function coast(x, y) {
+// ── Le lac, au sud de la piste, avant la forêt ; un îlot au milieu ──
+export const LAKE = { x: 1450, y: 3290, rx: 150, ry: 90 };
+export const ISLET = { x: 1450, y: 3290, rx: 30, ry: 19 };
+const PER_PX = 0.0007;                         // pente de la côte près du bord
+function lakeCoast(x, y) {
+  const dx = (x - LAKE.x) / LAKE.rx, dy = (y - LAKE.y) / LAKE.ry;
+  if (Math.abs(dx) > 1.6 || Math.abs(dy) > 1.6) return -1;
+  const a = Math.atan2(dy, dx), d = Math.hypot(dx, dy);
+  const edge = 1 + 0.1 * Math.sin(a * 3 + 1) + 0.05 * Math.sin(a * 7 + 2);
+  let c = (edge - d) * LAKE.ry * PER_PX;
+  const ix = (x - ISLET.x) / ISLET.rx, iy = (y - ISLET.y) / ISLET.ry, di = Math.hypot(ix, iy);
+  if (di < 2) c = Math.min(c, (di - 1 - 0.08 * Math.sin(Math.atan2(iy, ix) * 4)) * ISLET.ry * PER_PX);
+  return c;
+}
+export const inLake = (x, y) => lakeCoast(x, y) > 0;
+
+// Négatif sur l'île, positif en mer (et dans le lac) ; 0 sur le rivage.
+function seaCoast(x, y) {
   const dx = x - CENTER, dy = y - CENTER;
   const r = Math.sqrt(dx * dx + dy * dy) / RADIUS;
   return r - 1 + 0.55 * fbm(x / 900, y / 900, 3) + 0.1 * fbm(x / 140, y / 140, 5, 3);
 }
+export const coast = (x, y) => Math.max(seaCoast(x, y), lakeCoast(x, y));
 
 export const isLand = (x, y) => coast(x, y) < 0;
 
@@ -64,7 +81,7 @@ export const isLand = (x, y) => coast(x, y) < 0;
 export function landing() {
   const y = CENTER + 200;
   let x = CENTER;
-  while (coast(x, y) < 0) x -= 2;
+  while (seaCoast(x, y) < 0) x -= 2;
   return { shore: x, y };
 }
 
@@ -138,7 +155,7 @@ function buildTrail() {
     const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012 * (1 - 0.5 * lost);
     heading += 0.09 * (1 + 1.0 * lost) * fbm(i / (40 - 8 * lost), 0, 42, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.02 * lost);
     // Ne jamais marcher vers la mer
-    if (coast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
+    if (seaCoast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
       const toCenter = Math.atan2(CENTER - y, CENTER - x);
       diff = Math.atan2(Math.sin(toCenter - heading), Math.cos(toCenter - heading));
       heading += diff * 0.15;
@@ -203,6 +220,90 @@ const STATUE2_PARTS = buildStatueUpright(STATUE2_BASE, SEED);
 // ── Les corbeaux : posés près de la piste, avant la forêt ──
 const CROW_AT = trail.find(p => forestDx(p.x, p.y) > 880) || trail[Math.floor(trail.length * 0.25)];
 export const CROWS = off(CROW_AT, 14);
+
+// ── L'îlot du lac : une statue de Freya, une porte dans sa robe ──
+export const STATUE3_BASE = { x: ISLET.x, y: ISLET.y + 4 };
+const STATUE3_PARTS = buildStatueDoor(STATUE3_BASE, SEED);
+export const STATUE3_DOOR_OUT = { x: STATUE3_BASE.x, y: STATUE3_BASE.y + 3 };
+
+// ── La falaise, au-delà du bout des traces : un mur de roc gigantesque,
+// face au sud, et au pied, l'entrée d'une grotte ──
+export const CLIFF = { x0: 4480, x1: 5500, y: 2535 };
+export const CAVE = { x: 5232, w: 17, h: 15 };
+export const cliffHeight = x => Math.round(135 + 38 * fbm(x / 160, 0, 131, 3) * 2 + 10 * fbm(x / 30, 0, 133, 2) * 2 +
+  28 * smoothstep(CAVE.x - 160, CAVE.x, x) * (1 - smoothstep(CAVE.x, CAVE.x + 200, x)));
+const inCliff = (x, y, margin = 0) => x > CLIFF.x0 - margin && x < CLIFF.x1 + margin && y < CLIFF.y + margin && y > CLIFF.y - cliffHeight(Math.max(CLIFF.x0, Math.min(CLIFF.x1, x))) - 30 - margin;
+function buildCliff() {
+  const parts = [], SLICE = 40;
+  for (let x0 = CLIFF.x0; x0 < CLIFF.x1; x0 += SLICE) {
+    const w = Math.min(SLICE, CLIFF.x1 - x0);
+    const hs = Array.from({ length: w }, (_, i) => cliffHeight(x0 + i));
+    const H = Math.max(...hs) + 3;
+    const rows = [];
+    for (let y = 0; y < H; y++) {
+      let row = '';
+      for (let i = 0; i < w; i++) {
+        const wx = x0 + i, top = H - hs[i], depth = y - top;       // 0 : le rebord
+        if (depth < 0) { row += '.'; continue; }
+        // Les extrémités s'effondrent en éboulis
+        const end = Math.min(wx - CLIFF.x0, CLIFF.x1 - wx);
+        if (end < 30 && depth < (30 - end) * 3.5 * (0.7 + 0.6 * hash(wx, 7, 141))) { row += '.'; continue; }
+        const wy = CLIFF.y - (H - y);
+        // Corniche de neige en haut, qui déborde en festons
+        const cornice = 2 + Math.round(2 * valueNoise(wx / 4, 0, 143));
+        if (depth < cornice) { row += 's'; continue; }
+        // Vires enneigées : des bandes qui suivent la roche, en biais, interrompues
+        const band = wy + 12 * fbm(wx / 70, 0, 145, 2) + wx * 0.08;
+        const lane = Math.floor(band / 27), pos = band - lane * 27;
+        if (pos < 1.4 && valueNoise(wx / 14, lane * 3, 147) > 0.42) { row += 's'; continue; }
+        if (pos < 2.4 && valueNoise(wx / 14, lane * 3, 147) > 0.7) { row += 's'; continue; }
+        // Contreforts : des côtes verticales ; le flanc éclairé est tramé,
+        // plus ou moins haut
+        const rib = fbm(wx / 11, 0, 171, 2), slope = fbm((wx + 1) / 11, 0, 171, 2) - rib;
+        const reach = valueNoise(wx / 7, wy / 34, 173);
+        if (slope > 0.012 && reach > 0.45 && (wx + wy) % 2 === 0) { row += 's'; continue; }
+        if (slope > 0.03 && reach > 0.6) { row += 's'; continue; }
+        // Taches de neige collée, rares
+        if (fbm(wx / 18, wy / 12, 155, 2) > 0.27 && (wx + wy) % 2 === 0) { row += 's'; continue; }
+        row += 'b';
+      }
+      rows.push(row);
+    }
+    // La grotte : une bouche noire au pied, des glaçons pendus au linteau
+    if (CAVE.x + CAVE.w / 2 > x0 && CAVE.x - CAVE.w / 2 < x0 + w) {
+      for (let y = 0; y < CAVE.h; y++) {
+        // Pleine largeur en bas, voûtée en haut
+        const f = Math.max(0, y - (CAVE.h - 8)) / 8;
+        const half = CAVE.w / 2 * Math.sqrt(Math.max(0, 1 - f * f));
+        for (let i = 0; i < w; i++) {
+          const dx = x0 + i - CAVE.x;
+          if (Math.abs(dx) <= half) rows[H - 1 - y] = rows[H - 1 - y].slice(0, i) + 'k' + rows[H - 1 - y].slice(i + 1);
+        }
+      }
+      for (let i = 0; i < w; i++) {
+        const dx = x0 + i - CAVE.x;
+        if (Math.abs(dx) < CAVE.w / 2 - 1 && hash(dx, 1, 159) < 0.5) {
+          const len = 1 + Math.floor(hash(dx, 2, 161) * 3);
+          for (let k = 0; k < len; k++) {
+            const y = H - CAVE.h + 1 + k;
+            if (rows[y][i] === 'k') rows[y] = rows[y].slice(0, i) + 's' + rows[y].slice(i + 1);
+          }
+        }
+      }
+    }
+    parts.push({ type: 'cliff', x: x0, y: CLIFF.y, art: { rows, ax: 0 }, foot: H - 4 });
+  }
+  // Éboulis au pied
+  const r = rng(SEED * 163);
+  for (let i = 0; i < 70; i++) {
+    const x = Math.round(CLIFF.x0 + r() * (CLIFF.x1 - CLIFF.x0));
+    if (Math.abs(x - CAVE.x) < 16) continue;
+    const w = 1 + Math.floor(r() * 3);
+    parts.push({ type: 'rubble', x, y: CLIFF.y + 1 + Math.floor(r() * 6), art: { rows: [w > 2 ? '.' + 'b'.repeat(w - 1) : 'b'.repeat(w), 'b'.repeat(w)].slice(w > 1 ? 0 : 1), ax: 0 }, foot: 0 });
+  }
+  return parts;
+}
+export const CLIFF_PARTS = buildCliff();
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -326,7 +427,8 @@ export function paintChunk(ctx, cx, cy, pal) {
 
   // Un morceau loin de la côte est entièrement terre ou mer : pas de calcul fin
   const mid = coast(x0 + CHUNK / 2, y0 + CHUNK / 2);
-  const uniform = mid < -0.35 ? 'land' : mid > 0.35 ? 'sea' : null;
+  const lakeNear = x0 < LAKE.x + LAKE.rx * 1.3 && x0 + CHUNK > LAKE.x - LAKE.rx * 1.3 && y0 < LAKE.y + LAKE.ry * 1.3 && y0 + CHUNK > LAKE.y - LAKE.ry * 1.3;
+  const uniform = mid < -0.35 && !lakeNear ? 'land' : mid > 0.35 ? 'sea' : null;
 
   // Forêt noire : sol tramé de plus en plus sombre sous les arbres.
   // La piste y reste claire (couloir de 3 pixels autour de chaque pas).
@@ -487,7 +589,8 @@ export function objectsInChunk(cx, cy) {
     Math.hypot(x - LANDING.shore, y - LANDING.y) > 60 &&
     Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80 &&
     Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) > 80 &&
-    Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110;
+    Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110 &&
+    !inCliff(x, y, 8) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
@@ -496,7 +599,7 @@ export function objectsInChunk(cx, cy) {
       // En mer, pas trop loin des côtes : de rares icebergs plats
       const sea = coast(x, y);
       if (sea > 0.012) {
-        if (sea < 0.4 && r() < 0.0032 && Math.hypot(x - LANDING.shore, y - LANDING.y) > 90 && !list.some(o => o.type === 'iceberg' && Math.abs(o.x - x) < 50 && Math.abs(o.y - y) < 24) && coast(x - 22, y) > 0.01 && coast(x + 22, y) > 0.01 && coast(x, y - 12) > 0.01) {
+        if (sea < 0.4 && r() < 0.0032 && !inLake(x, y) && Math.hypot(x - LANDING.shore, y - LANDING.y) > 90 && !list.some(o => o.type === 'iceberg' && Math.abs(o.x - x) < 50 && Math.abs(o.y - y) < 24) && coast(x - 22, y) > 0.01 && coast(x + 22, y) > 0.01 && coast(x, y - 12) > 0.01) {
           list.push({ type: 'iceberg', x, y, seed: Math.floor(r() * 1e9) });
         }
         continue;
@@ -525,7 +628,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS]) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS]) {
     if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }

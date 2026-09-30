@@ -64,8 +64,9 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
 
   if (dead) die(1);
 
+  // (un accesseur : Object.assign en figerait la valeur)
+  Object.defineProperty(foe, 'alive', { get: () => foe.state !== 'dead' });
   return Object.assign(foe, {
-    get alive() { return foe.state !== 'dead'; },
 
     // Un coup du héros, dont la lame touche (x, y) : touché ?
     hitAt(x, y, dir) {
@@ -104,7 +105,8 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
         foe.vx *= 1 - 8 * dt;
         if (foe.stun <= 0) foe.state = 'engage';
       } else if (foe.state === 'engage') {
-        if (player.dead || player.inside) { foe.reset(); }
+        // On s'est enfui (ou on est mort) : il retourne à son poste
+        if (player.dead || player.inside || player.rowing || d > SIGHT * 2.2) { foe.reset(); }
         else {
           foe.flip = dx < 0;
           // Il se place à portée d'épée, à côté de nous, à la même hauteur

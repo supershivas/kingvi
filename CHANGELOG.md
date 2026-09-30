@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.10.0 — 2026-09-30
+- La nuit, le viking sort une torche : halo de lumière et ombres portées
+- Un lac avec une barque et un îlot : dans la statue, une crypte et un coffre ; plus loin, une falaise et l'entrée d'une grotte
+- Combats : zoom d'action, attaques en diagonale, plus de sang, corbeaux sur les cadavres ; zoom à la molette
+
 ## 1.9.0 — 2026-09-30
 - Au bout des traces, un autre viking vous attend : le combat est prêt
 - La mer bouge : vagues sur la grève, moutons au large, plus d'icebergs

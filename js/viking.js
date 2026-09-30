@@ -181,12 +181,61 @@ function backAttack(i) {
   return f;
 }
 
+// Diagonales (de profil, vers la droite) : vers le bas, on arme au-dessus de
+// l'épaule et l'on abat la lame en travers devant soi ; vers le haut, on arme
+// bas derrière et l'on fauche en remontant, la pointe au loin.
+function diagDownAttack(i) {
+  if (i === 0) {
+    const f = figure(SIDE_BODY, SIDE_HEM[3], SIDE_LEGS.crouch, { bob: 1, lean: -1 });
+    blade(f.g, CX - 1, GROUND - 6, -0.8, -0.8, 7);
+    return f;
+  }
+  if (i === 1) {
+    const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand, { bob: -1 });
+    blade(f.g, CX, GROUND - 8, 0.2, -1, 7);
+    return f;
+  }
+  if (i === 2) {
+    const f = figure(SIDE_BODY, SIDE_HEM[1], SIDE_LEGS.lunge, { bob: 1, lean: 1 });
+    blade(f.g, CX + 3, GROUND - 5, 0.75, 1, 8);
+    return f;
+  }
+  const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.crouch, { bob: 1 });
+  blade(f.g, CX + 2, GROUND - 3, 0.6, 1, 4);
+  return f;
+}
+
+function diagUpAttack(i) {
+  if (i === 0) {
+    const f = figure(SIDE_BODY, SIDE_HEM[3], SIDE_LEGS.crouch, { bob: 1, lean: -1 });
+    blade(f.g, CX - 1, GROUND - 4, -1, 0.45, 6);
+    return f;
+  }
+  if (i === 1) {
+    const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand, { bob: -1 });
+    blade(f.g, CX + 2, GROUND - 4, 1, 0.25, 6);
+    return f;
+  }
+  if (i === 2) {
+    const f = figure(SIDE_BODY, SIDE_HEM[1], SIDE_LEGS.lunge, { bob: 1, lean: 1 });
+    blade(f.g, CX + 3, GROUND - 7, 0.75, -1, 9);
+    return f;
+  }
+  const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.crouch, { bob: 1 });
+  blade(f.g, CX + 2, GROUND - 7, 0.5, -1, 4);
+  return f;
+}
+
 // Où la lame touche la neige, par rapport aux pieds (profil : vers la droite).
 export const IMPACT = {
   side: { x: 10, y: -1 },
   front: { x: 0, y: 4 },
   back: { x: 0, y: -16 },
+  diagdown: { x: 8, y: 4 },
+  diagup: { x: 8, y: -12 },
 };
+// Les diagonales se jouent de profil : marche et repos restent ceux du profil
+export const ATTACK_VIEWS = ['side', 'front', 'back', 'diagdown', 'diagup'];
 
 // Traînée du coup, en pixels relatifs aux pieds : { x, y, a (opacité) }.
 // Profil : un arc qui part de derrière, passe au-dessus et plonge devant.
@@ -207,6 +256,8 @@ export function smearPixels(view) {
     }
   };
   if (view === 'side') arc(2, -7, 5, 10, 5, 10, -150, 40);
+  else if (view === 'diagdown') arc(2, -6, 5, 10, 5, 10, -175, 70);
+  else if (view === 'diagup') arc(2, -7, 5, 10, 5, 9, 160, -65);
   else if (view === 'front') arc(0, -6, 3, 6, 7, 11, -95, 95);
   else arc(0, -8, 3, 6, 6, 10, 95, -95);
   return out;
@@ -225,6 +276,8 @@ export function vikingFrames() {
   push('back-idle', figure(BACK_BODY, BACK_HEM[0], FACING_LEGS.stand));
   for (let i = 0; i < 4; i++) push(`back-walk-${i}`, facingWalk(BACK_BODY, BACK_HEM, i));
   for (let i = 0; i < 4; i++) push(`back-attack-${i}`, backAttack(i));
+  for (let i = 0; i < 4; i++) push(`diagdown-attack-${i}`, diagDownAttack(i));
+  for (let i = 0; i < 4; i++) push(`diagup-attack-${i}`, diagUpAttack(i));
   return frames;
 }
 

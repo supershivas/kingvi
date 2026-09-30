@@ -25,19 +25,30 @@ Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
 Au bout des traces, un autre viking attend : il vient au contact et frappe ;
-trois coups de part et d'autre abattent. Mort, on repart de la barque.
+trois coups de part et d'autre abattent (zoom d'action, sang qui gicle, on
+saigne en marchant, les blessures se referment hors du combat). Mort, on
+repart de la barque. Quand on s'éloigne d'un cadavre, des corbeaux s'y
+abattent. Plus loin, une falaise gigantesque face au sud, et l'entrée d'une
+grotte (on n'y entre pas encore).
+Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
+marchant dessus, on rame, on descend en abordant une rive), un îlot, une
+Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
+coffre à ouvrir (clic près de lui).
+La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
+tramés autour de lui, arbres et rochers portent une ombre à l'opposé.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
-cape, attaques, intérieur de la maison, vagues, icebergs,
+cape, attaques (8 directions), torche, intérieur de la maison, lac, crypte,
+falaise, vagues, icebergs, charognards,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches.
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
-marcher, Maj pour courir, clic pour frapper vers le pointeur (droite, gauche,
-haut, bas). L'épée
+marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
+les diagonales se jouent de profil, lame en travers), molette pour zoomer. L'épée
 est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
@@ -51,7 +62,8 @@ est cachée et ne sort que pendant l'attaque.
   ne pas passer par un CDN : l'app doit charger même si le CDN tombe).
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
-  nombre de pas, `foeDead` ; `kingvi:prefs` : effet CRT, tilt-shift, vent,
+  nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
+  `chestOpen` ; `kingvi:prefs` : effet CRT, tilt-shift, vent,
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -63,19 +75,26 @@ est cachée et ne sort que pendant l'attaque.
 - `js/main.js` — interface : réglages, export, sauvegarde, mise à jour auto.
 - `js/game.js` — scène Phaser : sol par morceaux, objets debout triés en
   profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
-  cape (calque à part), attaque (traînée, impact), maison, échelle
-  entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
+  cape (calque à part), attaque (traînée, impact), maison. Le canevas a la
+  taille de l'écran ; la caméra agrandit d'un facteur entier au repos
+  (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
   incrémenter quand l'île change, les anciennes positions sauvegardées
-  repartent alors de la barque. Voile de nuit : rectangle
-  multiplié au-dessus de tout. L'intérieur de la maison est une pièce posée
-  loin en mer (`ROOM_AT`), fond noir, profondeur `DEPTH_ROOM` au-dessus du
-  dehors ; on y passe par un fondu (`goInside` / `goOutside`), caméra ×2.
+  repartent alors de la barque. Voile de nuit : une RenderTexture
+  multipliée au-dessus de tout, où la torche efface son halo (`updateNight`,
+  ombres portées redessinées ~16 fois/s). Les intérieurs (`INTERIORS` : la
+  maison, la crypte) sont des pièces posées loin en mer, fond noir, profondeur
+  `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
+  (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
-  (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
+  (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
+  `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6
   temps) et la traînée du coup.
 - `js/boat.js` — la barque (pixels tirés de l'image de référence, coque noire
-  `k` sans liseré), ligne de flottaison, bords, roulis (`BOAT_FRAMES`).
+  `k` sans liseré), ligne de flottaison, bords, roulis (`BOAT_FRAMES`) ; la
+  petite barque du lac, vide ou avec le rameur (`ROWBOAT_FRAMES`).
+- `js/crypt.js` — la crypte de la statue du lac (runes, ossements) et le
+  coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
   moutons au large. Dans le jeu, un calque `DEPTH_WAVES` redessiné ~8 fois/s.
@@ -85,7 +104,8 @@ est cachée et ne sort que pendant l'attaque.
 - `js/interior.js` — la pièce (sol repéré en u, v), meubles, corps, sang ;
   `roomWalkable`, `atRoomDoor`, `ROOM_ENTRY`.
 - `js/daylight.js` — jour et nuit (`DAY_CYCLE`, 20 min sur l'horloge réelle) :
-  `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule).
+  `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule) ; `torchLight`,
+  le halo tramé de la torche (partagé jeu/labo).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
   Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
@@ -101,16 +121,22 @@ est cachée et ne sort que pendant l'attaque.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
-  filent jusqu'à sortir de l'écran). Cerfs et biches codés mais retirés pour
+  filent jusqu'à sortir de l'écran), charognards sur le cadavre de l'autre
+  viking (`updateCarrion`). Cerfs et biches codés mais retirés pour
   le moment (`DEER_ENABLED = false`).
 - `js/statue.js` — la statue de Freya : pixels tirés d'une photo
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
-  enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite.
+  enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite ;
+  `buildStatueDoor` : celle de l'îlot, réduite, une porte dans la robe.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
   pierres levées, maison (`makeHouse`, `houseBlocked`, `houseFrontY`,
   `HOUSE_DOOR_OUT`), traces ensanglantées après la porte (`p.blood`), forêt (`forestDx` : bandes à lisière irrégulière,
   `forestDensity`, `deepForest`, largeur de sente `p.lane`, `CLEARINGS`), statues et corbeaux placés le long de la
   piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
+  Le lac (`LAKE`, `ISLET`, `inLake`) passe par `coast` (positif dans l'eau) ;
+  `seaCoast` (la mer seule) sert au tracé et à l'accostage, pour que le lac ne
+  les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : des tranches
+  de 40 px, objets triés comme les autres, qui bloquent tout leur pied.
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
   `scripts/sync-design-system.sh`. Ne pas les modifier ici.
@@ -142,6 +168,8 @@ est cachée et ne sort que pendant l'attaque.
 - Les cairns sont d'un seul tenant et jamais symétriques.
 - Labo : c'est le document qui défile (pas le body comme dans le jeu), pour
   que l'en-tête et le menu restent collés en haut partout.
+- JS : un accesseur (`get x()`) passé dans `Object.assign` est évalué une
+  fois et figé ; utiliser `Object.defineProperty` (bug de `foe.alive`).
 - Le corps est centré sur la colonne CX et l'origine du sprite est au milieu
   de cette colonne : le retournement ne décale rien, et la cape se place au
   pixel près (`placePlayer`).

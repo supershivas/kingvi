@@ -14,10 +14,14 @@ import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
-import { ROOM, ROOM_ENTRY } from './interior.js';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js';
 import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH } from './daylight.js';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight } from './daylight.js';
 import { createSea } from './sea.js';
+import { buildStatueDoor } from './statue.js';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
+import { ROWBOAT_FRAMES } from './boat.js';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -170,6 +174,57 @@ card('cape', {
   },
 });
 
+// La torche : la nuit, un halo tramé autour de la flamme, des ombres portées
+card('nuit', {
+  title: 'La torche', about: 'Quand la nuit tombe, il sort une torche : le voile de nuit s\'ouvre en paliers tramés autour de la flamme (qui vacille), et arbres, rochers, le viking lui-même portent une ombre à l\'opposé.',
+  wide: true, w: 220, h: 110,
+  setup(s, v) {
+    s.light = torchLight(1);
+    s.veil = document.createElement('canvas'); s.veil.width = v.w; s.veil.height = v.h;
+    const r = rng(33);
+    s.trees = [[40, 50], [70, 92], [120, 40], [160, 88], [190, 55], [100, 70]].map(([x, y]) => {
+      const art = makeTree(r, { big: true });
+      return { x, y, art, img: prerender(art.rows, v.pal) };
+    });
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const k = (t % 16) / 8, u = k < 1 ? k : 2 - k, flip = k >= 1;
+    const hx = Math.round(20 + u * 180), hy = 76, tx = hx + (flip ? -3 : 3), ty = hy - 8;
+    // Ombres portées, à l'opposé de la flamme
+    ctx.fillStyle = pal.b;
+    for (const o of s.trees) {
+      const dx = o.x - tx, dy = o.y - (hy + 1), d = Math.hypot(dx, dy);
+      if (d > 95) continue;
+      const ux = dx / d, uy = dy / d, len = Math.max(6, Math.min(60, o.art.rows.length * 24 / d));
+      ctx.globalAlpha = 0.55 * Math.min(1, 1.4 * (1 - d / 95));
+      ctx.beginPath();
+      ctx.moveTo(o.x - uy * 1.5, o.y + ux * 0.9); ctx.lineTo(o.x + uy * 1.5, o.y - ux * 0.9);
+      ctx.lineTo(o.x + ux * len + uy * 2.2, o.y + uy * len * 0.6 - ux * 1.5); ctx.lineTo(o.x + ux * len - uy * 2.2, o.y + uy * len * 0.6 + ux * 1.5);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    const all = [...s.trees, { hero: true, y: hy }].sort((a, b) => a.y - b.y);
+    for (const o of all) {
+      if (o.hero) drawViking(ctx, pal, walkFrame('side', t), hx, hy, { clock: t, wind: 0.2, flip });
+      else ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
+    }
+    // La flamme
+    ctx.fillStyle = pal.b; ctx.fillRect(tx, ty + 1, 1, 3);
+    ctx.fillStyle = pal.r; ctx.fillRect(tx - (Math.floor(t * 12) % 2), ty - 1, 2, 1); ctx.fillRect(tx, ty - 2 - (Math.floor(t * 12) % 2), 1, 1);
+    ctx.fillStyle = pal.s; ctx.fillRect(tx, ty, 1, 1);
+    // Le voile de nuit, percé par la lumière, multiplié sur la scène
+    const vc = s.veil.getContext('2d');
+    vc.globalCompositeOperation = 'source-over';
+    vc.clearRect(0, 0, v.w, v.h);
+    vc.globalAlpha = 0.62; vc.fillStyle = pal.b; vc.fillRect(0, 0, v.w, v.h);
+    vc.globalAlpha = 1; vc.globalCompositeOperation = 'destination-out';
+    vc.drawImage(s.light, tx - s.light.width / 2, ty + 4 - s.light.height / 2);
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.drawImage(s.veil, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+  },
+});
+
 // ══ Attaques ══
 const ATTACK_TIMES = [0, 0.26, 0.315, 0.635, 0.795];
 function attackDemo(title, view, flip) {
@@ -177,7 +232,8 @@ function attackDemo(title, view, flip) {
     title, w: 40, h: 36,
     setup(s) { s.dust = []; s.cycle = -1; },
     draw(ctx, pal, t, dt, s) {
-      const fx = view === 'side' ? (flip ? 26 : 14) : 18, fy = view === 'back' ? 31 : view === 'front' ? 20 : 24;
+      const profile = view !== 'front' && view !== 'back';
+      const fx = profile ? (flip ? 26 : 14) : 18, fy = view === 'back' || view === 'diagup' ? 31 : view === 'front' || view === 'diagdown' ? 22 : 24;
       const period = 1.8, local = t % period, cycle = Math.floor(t / period);
       let i = ATTACK_TIMES.findIndex((tt, k) => local >= tt && local < (ATTACK_TIMES[k + 1] ?? 99));
       const dir = flip ? -1 : 1;
@@ -205,7 +261,9 @@ function attackDemo(title, view, flip) {
       }
       if (local > 0.315) {
         ctx.globalAlpha = Math.max(0, 0.9 - (local - 0.315) / 1.4); ctx.fillStyle = pal.b;
-        if (view === 'side') ctx.fillRect(flip ? ix - 3 : ix - 2, iy, 6, 1); else ctx.fillRect(ix, iy - 2, 1, 5);
+        if (view === 'side') ctx.fillRect(flip ? ix - 3 : ix - 2, iy, 6, 1);
+        else if (profile) for (let k = -2; k <= 2; k++) ctx.fillRect(ix + k * dir, iy + Math.round(k * 0.7) * (view === 'diagdown' ? 1 : -1), 1, 1);
+        else ctx.fillRect(ix, iy - 2, 1, 5);
       }
       for (const d of s.dust) {
         d.age += dt; d.vy += 60 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
@@ -214,7 +272,7 @@ function attackDemo(title, view, flip) {
       }
       s.dust = s.dust.filter(d => d.age < d.life);
       ctx.globalAlpha = 1;
-      const frame = i >= 0 && i < 4 ? `${view}-attack-${i}` : `${view}-idle`;
+      const frame = i >= 0 && i < 4 ? `${view}-attack-${i}` : `${profile ? 'side' : view}-idle`;
       drawViking(ctx, pal, frame, fx, fy, { flip, clock: t });
     },
   });
@@ -223,6 +281,10 @@ attackDemo('Vers la droite', 'side', false);
 attackDemo('Vers la gauche', 'side', true);
 attackDemo('Vers le haut', 'back', false);
 attackDemo('Vers le bas', 'front', false);
+attackDemo('En bas à droite', 'diagdown', false);
+attackDemo('En haut à droite', 'diagup', false);
+attackDemo('En bas à gauche', 'diagdown', true);
+attackDemo('En haut à gauche', 'diagup', true);
 
 // ══ Neige et vent ══
 // Le cycle naturel, accéléré : une frise en bas montre les phases et l'instant
@@ -493,6 +555,89 @@ card('statue', {
   },
 });
 
+// ══ Lac ══
+card('lac', {
+  title: 'Le lac, la barque, l\'îlot', about: 'Au sud de la piste, avant la forêt. On monte dans la barque en marchant dessus, on rame (Maj pour ramer plus fort), on descend en abordant une rive. Sur l\'îlot, une Freya plus petite, une porte taillée dans sa robe.',
+  wide: true, w: 260, h: 160,
+  setup(s, v) {
+    const L = { x: 130, y: 112, rx: 118, ry: 42 }, I = { x: 150, y: 110, rx: 24, ry: 11 };
+    s.coast = (x, y) => {
+      const dx = (x - L.x) / L.rx, dy = (y - L.y) / L.ry;
+      let c = (1 - Math.hypot(dx, dy)) * L.ry * 0.0007;
+      const di = Math.hypot((x - I.x) / I.rx, (y - I.y) / I.ry);
+      return Math.min(c, (di - 1) * I.ry * 0.0007);
+    };
+    s.sea = createSea(s.coast);
+    s.water = document.createElement('canvas');
+    s.water.width = v.w; s.water.height = v.h;
+    const wc = s.water.getContext('2d');
+    wc.fillStyle = v.pal.b;
+    for (let y = 0; y < v.h; y++) for (let x = 0; x < v.w; x++) if (s.coast(x, y) > 0) wc.fillRect(x, y, 1, 1);
+    s.statue = buildStatueDoor({ x: I.x, y: I.y + 2 }).map(o => ({ ...o, img: prerender(o.art.rows, v.pal) }));
+    s.boats = Object.fromEntries(Object.entries(ROWBOAT_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)]));
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    ctx.drawImage(s.water, 0, 0);
+    s.sea.draw({ x: 0, y: 0, w: v.w, h: v.h }, t, (x, y, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal.s; ctx.fillRect(x, y, 1, 1); });
+    ctx.globalAlpha = 1;
+    for (const o of s.statue) ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
+    // La barque traverse, aller et retour
+    const k = (t % 16) / 8, go = k < 1, u = go ? k : 2 - k;
+    const bx = Math.round(40 + u * 60), by = Math.round(120 + Math.sin(u * 3) * 4);
+    const img = s.boats[`row${[0, 1, 2, 1][Math.floor(t * 4.5) % 4]}`];
+    ctx.save();
+    if (!go) { ctx.translate(bx * 2, 0); ctx.scale(-1, 1); }
+    ctx.drawImage(img, bx - Math.round(img.width / 2), by - Math.round(img.height * 0.7));
+    ctx.restore();
+  },
+});
+
+card('lac', {
+  title: 'La crypte, le coffre', about: 'Dans la statue : une salle de pierre, des runes, des ossements, et au fond un coffre. On l\'ouvre en cliquant près de lui (ou en le poussant) : il s\'entrouvre, s\'ouvre, des éclats montent.',
+  wide: true, w: 120, h: 90,
+  setup(s, v) { s.room = prerender(CRYPT, v.pal); s.chest = Object.fromEntries(Object.entries(CHEST_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)])); },
+  draw(ctx, pal, t, dt, s, v) {
+    ctx.drawImage(s.room, 0, 0);
+    const k = t % 9;
+    const walk = Math.min(1, k / 3), x = CRYPT_ENTRY.x, y = Math.round(CRYPT_ENTRY.y - (CRYPT_ENTRY.y - CHEST.y - 8) * walk);
+    const state = k < 3.4 ? 'closed' : k < 3.8 ? 'ajar' : 'open';
+    const img = s.chest[state];
+    ctx.drawImage(img, CHEST.x - Math.floor(img.width / 2), CHEST.y + 1 - img.height);
+    if (state === 'open') {
+      for (let i = 0; i < 8; i++) {
+        const age = (k - 3.8 - i * 0.12);
+        if (age < 0 || age > 1.4) continue;
+        ctx.globalAlpha = 1 - age / 1.4; ctx.fillStyle = i % 4 ? pal.s : pal.r;
+        ctx.fillRect(CHEST.x - 4 + ((i * 5) % 9), Math.round(CHEST.y - 4 - age * 14), 1, 1);
+      }
+      ctx.globalAlpha = 1;
+    }
+    drawViking(ctx, pal, walk < 1 ? walkFrame('back', t) : 'back-idle', x, y, { clock: t, wind: 0 });
+  },
+});
+
+// ══ Falaise ══
+card('falaise', {
+  title: 'La falaise et la grotte', about: 'Au-delà du bout des traces, un mur de roc face au sud, plus d\'un kilomètre de large (en pixels), quinze à vingt fois la taille du viking : corniche de neige, vires enneigées, fissures ; au pied, la bouche noire d\'une grotte, des glaçons au linteau.',
+  wide: true, w: 300, h: 220,
+  setup(s, v) {
+    s.x0 = CAVE.x - 150;
+    s.parts = CLIFF_PARTS.filter(o => o.x + o.art.rows[0].length > s.x0 && o.x < s.x0 + 300).map(o => ({ ...o, img: prerender(o.art.rows, v.pal) }));
+    s.weather = createWeather('bise');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const dy = v.h - 12 - CLIFF.y;
+    const all = [...s.parts, { hero: true, y: CLIFF.y + 9 }].sort((a, b) => a.y - b.y);
+    for (const o of all) {
+      if (o.hero) drawViking(ctx, pal, walkFrame('side', t), 20 + Math.round((t * 12) % 260), v.h - 3, { clock: t, wind: 0.3 });
+      else ctx.drawImage(o.img, o.x - s.x0 - o.art.ax, o.y + dy - o.img.height + 1);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
 // ══ Corbeaux ══
 const CROW = {
   sit0: ['.bb.', 'bbbb', '.b..'], sit1: ['....', 'bbb.', '..bb'],
@@ -523,6 +668,41 @@ card('corbeaux', {
   },
 });
 
+card('corbeaux', {
+  title: 'Les charognards', about: 'Quand le viking s\'éloigne d\'un cadavre, des corbeaux arrivent de loin, un à un, et s\'y posent pour picorer ; s\'il revient, ils s\'envolent.',
+  wide: true, w: 200, h: 70,
+  setup(s, v) { s.corpse = prerender(CORPSE, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    const period = 12, local = t % period, cx = 100, cy = 56;
+    ctx.fillStyle = pal.r;
+    for (const [x, y] of [[-6, 1], [-3, 2], [2, 1], [5, 2], [8, 1], [-1, 2]]) ctx.fillRect(cx + x, cy + y, 2, 1);
+    ctx.drawImage(s.corpse, cx - 7, cy - 6);
+    if (!s.birds || local < s.last) {
+      s.birds = [...Array(5)].map((_, i) => ({ lx: cx + Math.round((Math.random() - 0.5) * 22), ly: cy + Math.round((Math.random() - 0.5) * 6), sx: 230 + Math.random() * 40, sy: -10 - Math.random() * 20, delay: 0.5 + i * 0.7, ph: Math.random() * 3, vx: 30 + Math.random() * 30 }));
+    }
+    s.last = local;
+    // Le viking s'en va, puis revient (vers la 8e seconde)
+    const back = local > 7.5;
+    const hx = Math.round(back ? 190 - Math.min(1, (local - 7.5) / 3) * 80 : 120 + Math.min(1, local / 2) * 70);
+    drawViking(ctx, pal, (local < 2 || (back && local < 10.5)) ? walkFrame('side', t) : 'side-idle', hx, 60, { clock: t, wind: 0.3, flip: back });
+    const scared = back && hx < 150;
+    for (const b of s.birds) {
+      const k = local - b.delay;
+      if (k < 0) continue;
+      const arrive = Math.min(1, k / 2.2);
+      let x = b.sx + (b.lx - b.sx) * arrive, y = b.sy + (b.ly - b.sy) * (1 - (1 - arrive) * (1 - arrive));
+      if (scared) {
+        if (!b.flee) b.flee = local;
+        const f = local - b.flee;
+        x = b.lx - b.vx * f; y = b.ly - 40 * f;
+        drawRows(ctx, pal, CROW.fly[Math.floor((t + b.ph) * 12) % 4], Math.round(x), Math.round(y) - 3, true);
+      } else if (arrive < 1) drawRows(ctx, pal, CROW.fly[Math.floor((t + b.ph) * 12) % 4], Math.round(x), Math.round(y) - 3, true);
+      else drawRows(ctx, pal, (t + b.ph) % 1.1 < 0.9 ? CROW.sit0 : CROW.sit1, Math.round(x), Math.round(y) - 3, b.lx > cx);
+    }
+    if (local < 1) s.birds.forEach(b => { b.flee = null; });
+  },
+});
+
 // ══ Carte de l'île : cliquer pour s'y téléporter ══
 (function islandMap() {
   const section = document.querySelector('#carte .demos');
@@ -536,7 +716,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D barque · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison';
+  legend.textContent = 'Traces · D barque · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · L lac et îlot';
   el.append(legend);
   section.append(el);
 
@@ -557,7 +737,10 @@ card('corbeaux', {
   ctx.fillStyle = NIGHT;
   for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
   const L = landing();
-  const marks = [['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y]];
+  const marks = [['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['L', LAKE.x, LAKE.y]];
+  // La falaise : un trait sombre à son pied
+  ctx.fillStyle = NIGHT;
+  ctx.fillRect(Math.floor(CLIFF.x0 / S), Math.floor(CLIFF.y / S) - 1, Math.ceil((CLIFF.x1 - CLIFF.x0) / S), 2);
   ctx.font = '9px "DM Mono", monospace';
   for (const [label, x, y] of marks) {
     ctx.fillStyle = NIGHT; ctx.fillRect(x / S - 2, y / S - 2, 5, 5);

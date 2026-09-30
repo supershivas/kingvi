@@ -70,3 +70,36 @@ function roll(dir) {
   });
 }
 export const BOAT_FRAMES = { still: BOAT, left: roll(-1), right: roll(1) };
+
+// ── La barque du lac : petite, vue de biais, proue vers la droite. Vide, ou
+// le viking assis dedans qui rame (trois temps : rames devant, au milieu,
+// derrière). k coque, s bancs enneigés, b le viking et les rames.
+const ROWBOAT_HULL = [
+  '...kkkkkkkkkkk...',
+  '.kksssksssksssskk',
+  'kkssssksssksssskk',
+  '.kkkkkkkkkkkkkkk.',
+  '...kkkkkkkkkkk...',
+];
+function rowboat(t) {
+  const W = ROWBOAT_HULL[0].length + 4, H = ROWBOAT_HULL.length + 6;
+  const g = Array.from({ length: H }, () => Array(W).fill('.'));
+  const put = (x, y, c) => { if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
+  const line = (x0, y0, x1, y1) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 0; i <= n; i++) put(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), 'b');
+  };
+  ROWBOAT_HULL.forEach((row, y) => [...row].forEach((c, x) => { if (c !== '.') put(x + 2, y + 4, c); }));
+  if (t != null) {
+    // Les rames : pelle loin derrière, au milieu, puis ramenée (la barque file vers la droite)
+    const reach = [3, 5, 7][t], dip = t === 1 ? 1 : 0;
+    line(10, 3, reach, 1 - dip + 1);                     // rame du fond
+    line(10, 5, reach, 10 - dip);                        // rame de devant, par-dessus le bord
+    // Le viking assis : une masse, le casque, les épaules
+    for (const [x, y] of [[10, 0], [11, 0], [9, 1], [10, 1], [11, 1], [12, 1], [9, 2], [10, 2], [11, 2], [12, 2], [9, 3], [10, 3], [11, 3], [12, 3], [10, 4], [11, 4]]) put(x, y, 'b');
+  }
+  return g.map(r => r.join(''));
+}
+export const ROWBOAT_FRAMES = { empty: rowboat(null), row0: rowboat(0), row1: rowboat(1), row2: rowboat(2) };
+export const ROWBOAT_W = ROWBOAT_FRAMES.empty[0].length;
+export const ROWBOAT_H = ROWBOAT_FRAMES.empty.length;

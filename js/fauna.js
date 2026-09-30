@@ -1,5 +1,6 @@
 /* Les bêtes du jeu : cerfs et biches dans la forêt (toujours loin, ils
-   s'enfuient à l'approche) et un envol de corbeaux avant la forêt. */
+   s'enfuient à l'approche), un envol de corbeaux avant la forêt, et les
+   charognards qui s'abattent sur un cadavre quand on s'en éloigne. */
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_H, DEER_GROUND } from './deer.js';
 import { paintFrames } from './viking.js';
 import { isLand, blocked, forestDensity, deepForest, CROWS } from './world.js';
@@ -175,11 +176,80 @@ export function createFauna(scene, palette) {
     }
   }
 
+  // ── Charognards : quand on s'éloigne d'un cadavre, des corbeaux s'y
+  // abattent ; ils repartent si l'on revient ──
+  const carrion = [];
+  let carrionWait = 3;
+
+  function updateCarrion(dt, player, running, corpse) {
+    carrionWait -= dt;
+    const d = corpse ? Math.hypot(corpse.x - player.x, corpse.y - player.y) : Infinity;
+    if (corpse && !carrion.length && carrionWait <= 0 && d > 85) {
+      // Ils arrivent de loin, du côté opposé au viking, un par un
+      const n = 4 + Math.floor(Math.random() * 4);
+      const from = Math.sign(corpse.x - player.x) || 1;
+      for (let k = 0; k < n; k++) {
+        const land = { x: corpse.x + Math.round((Math.random() - 0.5) * 22), y: corpse.y + Math.round((Math.random() - 0.5) * 8) };
+        const sx = corpse.x + from * (220 + Math.random() * 120), sy = corpse.y - 160 - Math.random() * 80;
+        const sprite = scene.add.sprite(sx, sy, 'crow', 'fly0').setOrigin(0.5, 1).setDepth(1e6 - 3).setFlipX(from > 0);
+        sprite.play('crow-fly'); sprite.anims.timeScale = 0.7 + Math.random() * 0.4;
+        carrion.push({ sprite, land, state: 'come', delay: k * (0.5 + Math.random() * 0.9), speed: 55 + Math.random() * 25, vx: 0, vy: 0, life: 0 });
+        sprite.setVisible(false);
+      }
+    }
+    const scare = d < (running ? 70 : 45);
+    for (let i = carrion.length - 1; i >= 0; i--) {
+      const c = carrion[i], s = c.sprite;
+      if (scare && c.state !== 'flee') {
+        c.state = 'flee'; c.delay = Math.random() * 0.4; c.life = 0;
+        c.vx = (Math.sign(s.x - player.x) || 1) * (50 + Math.random() * 40); c.vy = -(60 + Math.random() * 30);
+        s.setVisible(true);
+        if (s.anims.currentAnim?.key !== 'crow-fly') s.play('crow-fly');
+        s.setFlipX(c.vx < 0).setDepth(1e6 - 3);
+        carrionWait = 12;
+      }
+      if (c.state === 'come') {
+        c.delay -= dt;
+        if (c.delay > 0) continue;
+        s.setVisible(true);
+        const dx = c.land.x - s.x, dy = c.land.y - s.y, dist = Math.hypot(dx, dy);
+        // Il plane en cercle un peu, puis se pose
+        const step = Math.min(dist, c.speed * dt * Math.min(1, 0.3 + dist / 60));
+        s.x += dx / (dist || 1) * step + Math.sin(c.life * 3) * 0.4;
+        s.y += dy / (dist || 1) * step;
+        c.life += dt;
+        s.setFlipX(dx < 0);
+        if (dist < 1.5) {
+          c.state = 'eat';
+          s.setPosition(c.land.x, c.land.y).setDepth(c.land.y);
+          s.anims.play({ key: 'crow-peck', startFrame: Math.floor(Math.random() * 2) });
+          s.anims.timeScale = 0.9 + Math.random() * 1.1;
+          s.setFlipX(corpse ? c.land.x > corpse.x : false);
+        }
+      } else if (c.state === 'eat') {
+        // De temps en temps, il sautille autour du corps
+        if (Math.random() < dt * 0.25) {
+          const nx = s.x + (Math.random() < 0.5 ? -2 : 2);
+          if (corpse && Math.abs(nx - corpse.x) < 13) { s.x = nx; s.setFlipX(nx > corpse.x); }
+        }
+      } else if (c.state === 'flee') {
+        c.delay -= dt;
+        if (c.delay > 0) continue;
+        c.life += dt;
+        c.vy *= 1 - 0.2 * dt;
+        s.x += c.vx * dt; s.y += c.vy * dt;
+        const v = scene.cameras.main.worldView;
+        if (s.x < v.x - 20 || s.x > v.right + 20 || s.y < v.y - 20 || c.life > 12) { s.destroy(); carrion.splice(i, 1); }
+      }
+    }
+  }
+
   return {
-    update(dt, player, running, wind) {
+    update(dt, player, running, wind, corpse = null) {
       // Cerfs et biches : retirés du jeu pour le moment (ils restent dans le labo)
       if (DEER_ENABLED) updateDeer(dt, player, running);
       updateCrows(dt, player, running, wind);
+      updateCarrion(dt, player, running, corpse);
     },
   };
 }

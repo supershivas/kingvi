@@ -1,9 +1,9 @@
 {
-  "version": "1.9.0",
+  "version": "1.10.0",
   "date": "2026-09-30",
   "changes": [
-    "Au bout des traces, un autre viking vous attend : le combat est prêt",
-    "La mer bouge : vagues sur la grève, moutons au large, plus d'icebergs",
-    "Le curseur change l'heure du jeu ; la téléportation du labo remarche"
+    "La nuit, le viking sort une torche : halo de lumière et ombres portées",
+    "Un lac avec une barque et un îlot : dans la statue, une crypte et un coffre ; plus loin, une falaise et l'entrée d'une grotte",
+    "Combats : zoom d'action, attaques en diagonale, plus de sang, corbeaux sur les cadavres ; zoom à la molette"
   ]
 }
