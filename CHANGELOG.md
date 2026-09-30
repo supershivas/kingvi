@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 — 2026-09-30
+- La barque du début, d'après l'image : elle accoste, dodine, l'écume bat sa coque
+- Cycle jour et nuit (20 minutes, sur l'heure réelle) : aube, jour, crépuscule, nuit ; le feu s'allume à la maison
+- Forêt noire plus longue à traverser : la sente serpente, se resserre, s'ouvre en clairières
+
 ## 1.5.0 — 2026-09-30
 - Le temps change de lui-même : calme, bise, rafales, tempête, tourbillons, puis l'accalmie
 - Les transitions sont progressives et le cycle suit l'heure réelle (environ 8 minutes)

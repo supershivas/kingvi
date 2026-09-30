@@ -7,12 +7,14 @@ import {
 import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
 import {
-  HOUSE_ART, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
+  HOUSE_ART, HOUSE_GLOW, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
 } from './world.js';
 import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
+import { BOAT, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH } from './daylight.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -496,7 +498,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D drakkar · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison';
+  legend.textContent = 'Traces · D barque · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison';
   el.append(legend);
   section.append(el);
 
@@ -547,6 +549,82 @@ card('corbeaux', {
     location.href = './';
   });
 })();
+
+// ══ Barque ══
+card('barque', {
+  title: 'La barque accoste', about: 'D\'après l\'image de référence. Elle glisse vers la grève en laissant un sillage en V, dodine d\'un pixel, l\'écume bat sa coque ; puis le viking saute à terre. Un liseré clair la détache de la mer sombre.',
+  wide: true, w: 200, h: 60,
+  setup(s, v) { s.img = prerender(BOAT, v.pal); s.wake = []; },
+  draw(ctx, pal, t, dt, s, v) {
+    const shore = 130;
+    // La mer à gauche, la grève à droite
+    ctx.fillStyle = pal.b;
+    for (let y = 0; y < v.h; y++) ctx.fillRect(0, y, shore + Math.round(Math.sin(y * 0.3) * 2), 1);
+    const period = 11, local = t % period;
+    const k = Math.min(1, local / 7), ease = 1 - (1 - k) ** 3;
+    const bx = Math.round(shore + 6 - (BOAT_W - 2) - 150 * (1 - ease));
+    const by = 24 + (Math.sin(t * (k < 1 ? 12 : 4.5)) > 0.4 ? 1 : 0);
+    if (k < 0.97 && Math.random() < dt * 14) for (const side of [-1, 1]) s.wake.push({ x: bx + 1, y: by + BOAT_WATERLINE + side * 2, side, age: 0 });
+    for (const w of s.wake) {
+      w.age += dt;
+      ctx.globalAlpha = Math.max(0, 0.9 * (1 - w.age / 1.8)); ctx.fillStyle = pal.s;
+      ctx.fillRect(Math.round(w.x), Math.round(w.y + w.side * 7 * Math.min(1, w.age / 1.2)), 2, 1);
+    }
+    s.wake = s.wake.filter(w => w.age < 1.8);
+    ctx.globalAlpha = 1;
+    ctx.drawImage(s.img, bx, by);
+    ctx.fillStyle = pal.s;
+    for (const e of BOAT_EDGE) {
+      if (e.y < BOAT_WATERLINE - 1 || bx + e.x > shore) continue;
+      if (Math.sin(t * 4.2 + e.x * 0.7 + e.y) > 0.15) ctx.fillRect(bx + e.x, by + e.y, 1, 1);
+    }
+    if (local > 7.3) {
+      const hop = local < 7.65 ? Math.round(Math.sin((local - 7.3) / 0.35 * Math.PI) * 5) : 0;
+      drawViking(ctx, pal, 'side-idle', shore + 24, 37 - hop, { clock: t, wind: 0.3 });
+    }
+  },
+});
+
+// ══ Jour et nuit ══
+const DAY_SPEED = 60;
+card('nuit', {
+  title: `Jour et nuit (accéléré ×${DAY_SPEED})`,
+  about: 'Aube, jour, crépuscule, nuit : 20 minutes calées sur l\'heure réelle. La nuit, un voile bleu nuit ; à l\'aube et au crépuscule, une lueur rouge rasante ; le feu s\'allume à la fenêtre de la maison.',
+  wide: true, w: 200, h: 86,
+  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.glow = prerender(HOUSE_GLOW, v.pal); s.weather = createWeather('bise'); },
+  draw(ctx, pal, t, dt, s, v) {
+    const d = daylightAt(t * DAY_SPEED);
+    const h = v.h - 8;
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: h });
+    ctx.drawImage(s.img, 70, 74 - HOUSE_H + 1);
+    drawViking(ctx, pal, 'side-idle', 40, 76, { clock: t, wind: 0.3 });
+    s.weather.draw((x, y, w, hh, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, hh); });
+    // Voile de nuit (multiplié) et lueur rasante
+    ctx.globalAlpha = d.night * 0.5; ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = NIGHT; ctx.fillRect(0, 0, v.w, h);
+    ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = d.dusk * 0.08;
+    ctx.fillStyle = pal.r; ctx.fillRect(0, 0, v.w, h);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = d.night * (0.7 + Math.random() * 0.3);
+    ctx.drawImage(s.glow, 70, 74 - HOUSE_H + 1);
+    ctx.globalAlpha = 1;
+    // Frise des phases, curseur sur l'instant
+    let x = 0;
+    for (const [key, dur] of DAY_CYCLE) {
+      const w = Math.round(dur / DAY_LENGTH * v.w);
+      ctx.fillStyle = pal.b; ctx.globalAlpha = key === 'nuit' ? 0.9 : key === 'jour' ? 0.15 : 0.5;
+      ctx.fillRect(x, v.h - 6, w - 1, 6);
+      x += w;
+    }
+    const cur = ((t * DAY_SPEED) % DAY_LENGTH) / DAY_LENGTH * v.w;
+    ctx.globalAlpha = 1; ctx.fillStyle = pal.r; ctx.fillRect(Math.round(cur), v.h - 8, 1, 8);
+    if (v.key === 'blanc') {
+      const label = s.label || (s.label = v.ctx.canvas.closest('.demo').querySelector('h3 span:last-child'));
+      const text = `Jour et nuit (accéléré ×${DAY_SPEED}) — ${DAY_LABELS[d.phase].toLowerCase()}`;
+      if (label.textContent !== text) label.textContent = text;
+    }
+  },
+});
 
 requestAnimationFrame(loop);
 

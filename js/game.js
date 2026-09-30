@@ -7,15 +7,17 @@ import {
 } from './viking.js';
 import {
   WORLD, CHUNK, isLand, landing, paintChunk, objectsInChunk, blocked,
-  DRAKKAR, HOUSE, HOUSE_ART, houseBlocked, houseFrontY,
+  HOUSE, HOUSE_ART, HOUSE_GLOW, houseBlocked, houseFrontY, coast,
 } from './world.js';
+import { BOAT, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE } from './boat.js';
+import { daylightAt } from './daylight.js';
 import { createFauna } from './fauna.js';
 import { createWeather } from './weather.js';
 
 const Phaser = window.Phaser;
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
-const WORLD_VERSION = 3;
+const WORLD_VERSION = 4;
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
 const RUN = 2.4;               // Maj enfoncée : il court
 const WALK_FPS = 7;
@@ -35,7 +37,10 @@ export function fitScreen(w, h) {
 
 // Emprise de la maison (on ne la traverse pas)
 // (vue de trois quarts : le toit représente la profondeur de la maison)
-const walkable = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y);
+// Emprise de la barque échouée (posée dans create)
+let boatRect = null;
+const inBoat = (x, y) => boatRect && x >= boatRect.x0 && x <= boatRect.x1 && y >= boatRect.y0 && y <= boatRect.y1;
+const walkable = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y);
 
 // Le point praticable le plus proche (une sauvegarde ou une téléportation
 // peut tomber sur un tronc ou dans la maison)
@@ -83,8 +88,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const start = (save.x != null && nearestWalkable(save.x, save.y)) || this.spawn;
       this.pos = { x: start.x, y: start.y };
 
-      // Le drakkar sur lequel il a accosté, proue dans l'eau, à l'ouest
-      this.add.image(land.shore - 4, land.y, 'drakkar').setDepth(DEPTH_BOAT);
+      // La barque sur laquelle il a accosté : poupe dans l'eau, proue sur la grève
+      this.boatRest = { x: land.shore + 8 - BOAT_BOW.x, y: land.y - BOAT_WATERLINE };
+      boatRect = { x0: this.boatRest.x, x1: this.boatRest.x + BOAT_W - 2, y0: this.boatRest.y + 5, y1: this.boatRest.y + BOAT_H - 1 };
+      this.boat = this.add.image(this.boatRest.x, this.boatRest.y, 'boat').setOrigin(0, 0).setDepth(this.boatRest.y + BOAT_H);
+      this.foam = this.add.graphics().setDepth(this.boatRest.y + BOAT_H + 0.1);
+      this.wake = [];
+      this.foamClock = 0;
 
       // La maison, vers le bout des traces
       this.house = this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1).setDepth(HOUSE.y);
@@ -128,7 +138,89 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       });
 
       this.time.addEvent({ delay: 4000, loop: true, callback: () => this.persist() });
+
+      // Jour et nuit : un voile bleu nuit (multiplié) et, à l'aube et au
+      // crépuscule, une lueur rouge ; la nuit, le feu s'allume à la fenêtre
+      const cover = c => this.add.rectangle(-200, -200, 5000, 4000, hex(c)).setOrigin(0, 0).setScrollFactor(0);
+      this.shade = cover(palette.b).setBlendMode(Phaser.BlendModes.MULTIPLY).setDepth(DEPTH_SKY + 5).setAlpha(0);
+      this.tint = cover(palette.r).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 6).setAlpha(0);
+      this.houseGlow = this.add.image(HOUSE.x, HOUSE.y + 1, 'house-glow').setOrigin(0.5, 1).setDepth(DEPTH_SKY + 7).setAlpha(0);
+      this.applyDaylight();
+      this.time.addEvent({ delay: 250, loop: true, callback: () => this.applyDaylight() });
+
+      // Première arrivée : la barque accoste avant qu'il ne pose le pied à terre
+      if (start === this.spawn) this.startArrival();
       this.updateChunks(true);
+    }
+
+    applyDaylight() {
+      const d = daylightAt(Date.now() / 1000);
+      this.daylight = d;
+      this.shade.setAlpha(d.night * 0.5);
+      this.tint.setAlpha(d.dusk * 0.08);
+      this.houseGlow.setAlpha(d.night * (0.7 + Math.random() * 0.3));
+      sky.style.filter = d.night > 0.01 ? `brightness(${(1 - 0.5 * d.night).toFixed(2)})` : '';
+    }
+
+    // ── La barque ──
+    startArrival() {
+      this.arrival = { t: 0, dur: 8, next: 0 };
+      this.player.setVisible(false);
+      this.cape.setVisible(false);
+      this.cameras.main.startFollow(this.boat, true, 0.06, 0.06, -BOAT_W / 2, -BOAT_H / 2);
+    }
+
+    finishArrival() {
+      this.arrival = null;
+      this.pos = { ...this.spawn };
+      this.player.setVisible(true);
+      this.cape.setVisible(true);
+      this.facing = 'side'; this.flip = false;
+      this.player.setFrame('side-idle').setFlipX(false);
+      // Il saute sur la grève
+      this.hop = { h: 0 };
+      this.tweens.add({ targets: this.hop, h: 5, duration: 170, yoyo: true, ease: 'Quad.easeOut',
+        onComplete: () => { this.hop = null; this.dust.explode(6, Math.round(this.pos.x), Math.round(this.pos.y)); } });
+      this.cameras.main.startFollow(this.player, true, 0.035, 0.035);
+      this.persist();
+    }
+
+    updateBoat(dt, time) {
+      let x = this.boatRest.x;
+      // Elle dodine d'un pixel, plus vite quand elle avance
+      let bob = Math.sin(time / 700) > 0.55 ? 1 : 0;
+      const a = this.arrival;
+      if (a) {
+        a.t += dt;
+        const k = Math.min(1, a.t / a.dur), ease = 1 - (1 - k) ** 3;
+        x = this.boatRest.x - 170 * (1 - ease);
+        bob = Math.sin(time / 260) > 0 ? 1 : 0;
+        // Sillage : de l'écume qui s'ouvre en V derrière la poupe
+        a.next -= dt;
+        if (a.next <= 0 && k < 0.97) {
+          a.next = 0.08;
+          for (const side of [-1, 1]) {
+            const m = this.add.rectangle(Math.round(x) + 1, this.boatRest.y + BOAT_WATERLINE + side * 2, 2, 1, hex(palette.s), 0.9)
+              .setOrigin(0, 0).setDepth(DEPTH_BOAT);
+            this.tweens.add({ targets: m, y: m.y + side * 7, alpha: 0, duration: 1800, ease: 'Quad.easeOut', onComplete: () => m.destroy() });
+          }
+        }
+        if (k >= 1) this.finishArrival();
+      }
+      this.boat.setPosition(Math.round(x), this.boatRest.y + bob);
+      // Écume qui bat la coque, là où elle est dans l'eau
+      this.foamClock -= dt;
+      if (this.foamClock <= 0) {
+        this.foamClock = 0.18;
+        this.foam.clear();
+        this.foam.fillStyle(hex(palette.s), 0.85);
+        const bx = this.boat.x, by = this.boat.y;
+        for (const e of BOAT_EDGE) {
+          if (e.y < BOAT_WATERLINE - 1) continue;
+          if (coast(bx + e.x, by + e.y) <= 0) continue;
+          if (Math.sin(time / 240 + e.x * 0.7 + e.y) > 0.15) this.foam.fillRect(bx + e.x, by + e.y, 1, 1);
+        }
+      }
     }
 
     makeTextures() {
@@ -153,8 +245,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         }));
         this.textures.addCanvas(key, c);
       };
-      art('drakkar', DRAKKAR);
+      art('boat', BOAT);
       art('house', HOUSE_ART);
+      art('house-glow', HOUSE_GLOW);
       art('dust', ['b']);
     }
 
@@ -182,7 +275,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     // Le sprite est posé sur un demi-pixel : son origine est au milieu d'une
     // colonne, ses bords tombent ainsi sur des pixels entiers.
     placePlayer() {
-      const px = Math.round(this.pos.x), py = Math.round(this.pos.y);
+      const px = Math.round(this.pos.x), py = Math.round(this.pos.y) - Math.round(this.hop?.h || 0);
       this.player.setPosition(px + 0.5, py).setDepth(this.pos.y);
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
       const a = this.capeAnchor[this.player.frame.name];
@@ -272,6 +365,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
     update(time, delta) {
       if (isPaused()) this.keys.clear();
+      this.updateBoat(delta / 1000, time);
+      if (this.arrival) {
+        // Une touche écourte l'arrivée
+        if (this.keys.size) { this.arrival.t = this.arrival.dur; this.keys.clear(); }
+        this.updateChunks();
+        this.drawSky(delta / 1000);
+        return;
+      }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
@@ -411,8 +512,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.attacking = false;
       this.placePlayer();
       this.cameras.main.centerOn(this.spawn.x, this.spawn.y);
+      this.startArrival();
       this.updateChunks(true);
-      this.persist();
     }
   }
 
@@ -456,6 +557,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),
     windPhase: () => weather.phase,
+    dayPhase: () => daylightAt(Date.now() / 1000).phase,
   };
 }
 

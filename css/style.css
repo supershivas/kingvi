@@ -165,6 +165,7 @@ body {
 
 .stats .stat-value { font-family: var(--font-mono); font-size: 1.4rem; margin-right: 8px; }
 .stats .stat-label { color: var(--text-muted); font-size: .9rem; }
+.stats .hint-text { color: var(--text-muted); font-size: .8rem; margin-top: 6px; }
 
 .btn-primary, .btn-ghost {
   min-height: var(--tap); padding: 0 18px;

@@ -65,13 +65,36 @@ export function landing() {
   return { shore: x, y };
 }
 
+const LANDING = landing();
+const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+// Distance au rivage d'accostage, déformée par un bruit lent : c'est elle qui
+// dessine les bandes (arbres isolés, forêt, forêt noire) à lisière irrégulière.
+export function forestDx(x, y) {
+  return x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
+}
+
+// La forêt profonde, si dense qu'elle est noire : 0 (dehors) → 1 (cœur).
+export function deepForest(x, y) {
+  const dx = forestDx(x, y);
+  return smoothstep(1880, 2000, dx) * (1 - smoothstep(2780, 2920, dx));
+}
+
+function rawForest(x, y) {
+  const dx = forestDx(x, y);
+  const sparse = dx > 300 ? 0.03 : 0;
+  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2850, 3150, dx));
+  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
+  return Math.max(sparse, core * Math.max(0, patchy), deepForest(x, y));
+}
+
 // ── La maison, vers le bout des traces ──
-export const HOUSE = { x: CENTER + 650, y: CENTER - 120 };
+export const HOUSE = { x: CENTER + 1150, y: CENTER - 120 };
 
 // ── Les traces : une piste de pas qui traverse l'île, passe devant la
 // maison et continue plus loin vers l'est ──
 const STRIDE = 7;
-const TRAIL_STEPS = 1500;
+const TRAIL_STEPS = 2400;
 
 function buildTrail() {
   const { shore, y: ly } = landing();
@@ -100,8 +123,10 @@ function buildTrail() {
     let diff = Math.atan2(Math.sin(toTarget - heading), Math.cos(toTarget - heading));
     // Errance lente, attirée de loin par le but ; près d'un point de passage,
     // l'attraction l'emporte sur l'errance
-    const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012;
-    heading += 0.09 * fbm(i / 40, 0, 42, 3) + pull * diff + (r() - 0.5) * 0.03;
+    // Dans la forêt noire, la piste hésite et serpente : la traversée s'allonge
+    const lost = deepForest(x, y);
+    const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012 * (1 - 0.5 * lost);
+    heading += 0.09 * (1 + 3.8 * lost) * fbm(i / (40 - 18 * lost), 0, 42, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.05 * lost);
     // Ne jamais marcher vers la mer
     if (coast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
       const toCenter = Math.atan2(CENTER - y, CENTER - x);
@@ -124,30 +149,22 @@ function buildTrail() {
 }
 
 export const trail = buildTrail();
-trail.forEach((p, i) => { p.i = i; });
+// Largeur de la sente autour de chaque pas : elle s'élargit et se resserre
+trail.forEach((p, i) => { p.i = i; p.lane = 2 + 3.5 * Math.max(0, 0.5 + 1.6 * fbm(i / 14, 3, 91, 2)); });
 
-const LANDING = landing();
-const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-
-// Distance au rivage d'accostage, déformée par un bruit lent : c'est elle qui
-// dessine les bandes (arbres isolés, forêt, forêt noire) à lisière irrégulière.
-export function forestDx(x, y) {
-  return x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
-}
-
-// La forêt profonde, si dense qu'elle est noire : 0 (dehors) → 1 (cœur).
-export function deepForest(x, y) {
-  const dx = forestDx(x, y);
-  return smoothstep(1880, 2000, dx) * (1 - smoothstep(2330, 2450, dx));
-}
-
-function rawForest(x, y) {
-  const dx = forestDx(x, y);
-  const sparse = dx > 300 ? 0.03 : 0;
-  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2350, 2700, dx));
-  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
-  return Math.max(sparse, core * Math.max(0, patchy), deepForest(x, y));
-}
+// ── Clairières semées le long de la piste, dans la forêt noire ──
+export const CLEARINGS = (() => {
+  const r = rng(SEED * 211), out = [];
+  let next = 0;
+  trail.forEach((p, i) => {
+    if (i < next || deepForest(p.x, p.y) < 0.6) return;
+    const side = (r() - 0.5) * 24;
+    out.push({ x: Math.round(p.x + Math.sin(p.heading) * side), y: Math.round(p.y - Math.cos(p.heading) * side), r: 12 + r() * 24, seed: r() * 100 });
+    next = i + 12 + Math.floor(r() * 16);
+  });
+  return out;
+})();
+const inClearing = (x, y, margin = 0) => CLEARINGS.some(c => Math.hypot(x - c.x, y - c.y) < c.r + margin);
 
 const off = (p, d) => ({ x: Math.round(p.x + Math.sin(p.heading) * d), y: Math.round(p.y - Math.cos(p.heading) * d) });
 
@@ -189,31 +206,6 @@ const ROCKS = [
   ['..bb...', '.bbbb.b', 'bbbbbbb'],
 ];
 const STONE = ['.b.', 'bsb', 'bbb', 'bsb', 'bbb', 'bsb', 'bbb']; // pierre levée gravée
-// Drakkar échoué, dessiné debout puis couché : proue vers le large (ouest)
-const DRAKKAR_UPRIGHT = [
-  '...b...',
-  '..bbb..',
-  '..bsb..',
-  '.bs.sb.',
-  'bbs.sbb',
-  '.bs.sb.',
-  'bbs.sbb',
-  '.bs.sb.',
-  'bbsrsbb',
-  '.bsrsb.',
-  'bbsrsbb',
-  '.bs.sb.',
-  'bbs.sbb',
-  '.bs.sb.',
-  'bbs.sbb',
-  '.bs.sb.',
-  '..bsb..',
-  '..bbb..',
-  '...b...',
-  '...b...',
-];
-
-export const DRAKKAR = [...DRAKKAR_UPRIGHT[0]].map((_, x) => DRAKKAR_UPRIGHT.map(row => row[x]).join(''));
 
 // La maison, vue de haut et de biais (d'après l'image de référence) : un grand
 // toit enneigé en losange, dont le faîtage court en diagonale, et sous lui
@@ -279,9 +271,13 @@ function makeHouse() {
   };
   frame(0.62, 0.74, 4, WALL);                                // porte
   frame(0.2, 0.3, 5, 9);                                     // fenêtre
+  // Vitre : sombre le jour, le feu s'y allume la nuit (calque HOUSE_GLOW)
+  for (let t = 0.215; t < 0.29; t += 0.01) for (let h = 6; h <= 8; h++) put(...along(t, h), 'w');
   return g.map(row => row.join(''));
 }
-export const HOUSE_ART = makeHouse();
+const HOUSE_RAW = makeHouse();
+export const HOUSE_ART = HOUSE_RAW.map(r => r.replace(/w/g, 'b'));
+export const HOUSE_GLOW = HOUSE_RAW.map(r => r.replace(/[^w]/g, '.').replace(/w/g, 'r'));
 
 const HOUSE_LEFT = HOUSE.x - HOUSE_W / 2, HOUSE_TOP = HOUSE.y + 1 - HOUSE_H;
 // On ne traverse pas la maison
@@ -326,16 +322,17 @@ export function paintChunk(ctx, cx, cy, pal) {
   if (corners.some(([x, y]) => deepForest(x0 + x, y0 + y) > 0)) {
     deep = new Float32Array((CHUNK / 4 + 1) ** 2);
     for (let j = 0; j <= CHUNK / 4; j++) for (let i = 0; i <= CHUNK / 4; i++) deep[j * (CHUNK / 4 + 1) + i] = deepForest(x0 + i * 4, y0 + j * 4);
-    // Couloir continu : on suit la piste d'un pas au suivant. 2 = cœur clair,
-    // 1 = bord à demi tramé
-    corridor = new Uint8Array(CHUNK * CHUNK);
-    const mark = (x, y) => {
-      for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
-        const d2 = dx * dx + dy * dy;
-        if (d2 > 16) continue;
+    // Couloir : pour chaque pixel, son « ouverture » (1 au milieu de la sente,
+    // 0 à distance). Le bord est ensuite déchiqueté par du bruit.
+    corridor = new Float32Array(CHUNK * CHUNK);
+    const mark = (x, y, lane) => {
+      const R = Math.ceil(lane + 3);
+      for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+        const d = Math.hypot(dx, dy);
+        if (d > lane + 3) continue;
         const lx = Math.round(x) - x0 + dx, ly = Math.round(y) - y0 + dy;
         if (lx < 0 || ly < 0 || lx >= CHUNK || ly >= CHUNK) continue;
-        const v = d2 <= 5 ? 2 : 1;
+        const v = 1 - d / (lane + 3);
         if (corridor[ly * CHUNK + lx] < v) corridor[ly * CHUNK + lx] = v;
       }
     };
@@ -343,7 +340,21 @@ export function paintChunk(ctx, cx, cy, pal) {
       for (const p of trailByChunk.get(`${cx + i},${cy + j}`) || []) {
         const q = trail[p.i + 1] || p;
         const n = Math.max(1, Math.ceil(Math.hypot(q.x - p.x, q.y - p.y) / 2));
-        for (let k = 0; k <= n; k++) mark(p.x + (q.x - p.x) * k / n, p.y + (q.y - p.y) * k / n);
+        for (let k = 0; k <= n; k++) mark(p.x + (q.x - p.x) * k / n, p.y + (q.y - p.y) * k / n, p.lane + (q.lane - p.lane) * k / n);
+      }
+    }
+    // Clairières : bord déchiqueté (le rayon varie avec l'angle)
+    for (const c of CLEARINGS) {
+      if (c.x + c.r + 8 < x0 || c.x - c.r - 8 > x0 + CHUNK || c.y + c.r + 8 < y0 || c.y - c.r - 8 > y0 + CHUNK) continue;
+      const R = Math.ceil(c.r + 8);
+      for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) {
+        const lx = c.x - x0 + dx, ly = c.y - y0 + dy;
+        if (lx < 0 || ly < 0 || lx >= CHUNK || ly >= CHUNK) continue;
+        const a = Math.atan2(dy, dx);
+        const edge = c.r * (1 + 0.22 * Math.sin(a * 3 + c.seed) + 0.12 * Math.sin(a * 7 + c.seed * 2));
+        const d = Math.hypot(dx, dy);
+        const v = Math.max(0, Math.min(1, 1 - (d - edge * 0.6) / (edge * 0.4 + 6)));
+        if (corridor[ly * CHUNK + lx] < v) corridor[ly * CHUNK + lx] = v;
       }
     }
   }
@@ -363,7 +374,14 @@ export function paintChunk(ctx, cx, cy, pal) {
           dark = ridge > 0.3 && hash(wx, wy, 9) < 0.06;
           if (!dark) dark = hash(wx, wy, 13) < 0.00012;
         }
-        const lane = deep ? corridor[y * CHUNK + x] : 0;
+        // Ouverture bruitée : bords de sente déchiquetés, trouées irrégulières
+        let lane = 0;
+        if (deep && corridor[y * CHUNK + x] > 0) {
+          const n = valueNoise(wx / 5, wy / 5, 57) + 0.5 * valueNoise(wx / 2, wy / 2, 59);
+          const o = corridor[y * CHUNK + x] * 1.35 + (n - 0.75) * 0.9;
+          lane = o > 0.72 ? 2 : o > 0.45 ? 1 : 0;
+          if (lane === 2 && hash(wx, wy, 61) < 0.05) lane = 0;   // aiguilles tombées
+        }
         if (deep && lane < 2) {
           const k = deep[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)] * (lane ? 0.45 : 1);
           if (k > 0 && (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < k * 1.15) dark = true;
@@ -420,6 +438,7 @@ export function forestDensity(x, y) {
   if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
   if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;
   if (Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) < 120) return 0;
+  if (inClearing(x, y, 3)) return 0;
   return rawForest(x, y);
 }
 
@@ -427,7 +446,9 @@ function nearTrail(x, y, dist) {
   const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
   for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
     for (const p of trailByChunk.get(`${cx + i},${cy + j}`) || []) {
-      if (Math.abs(p.x - x) < dist && Math.abs(p.y - y) < dist) return true;
+      // La sente est plus ou moins large : les arbres s'écartent d'autant
+      const d = Math.max(dist, (p.lane || 0) + 4);
+      if (Math.abs(p.x - x) < d && Math.abs(p.y - y) < d) return true;
     }
   }
   return false;

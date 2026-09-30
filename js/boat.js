@@ -1,0 +1,59 @@
+/* La barque du début, d'après l'image de référence : vue de haut et de biais,
+   poupe à gauche, proue à droite (vers l'est, la terre). b coque sombre,
+   s bancs, bordés clairs et neige posée. Elle mesure environ 46 × 18 pixels. */
+
+const BOAT_RAW = [
+  '................ssssssss..s....................',
+  '..........bbb..sssssssss...s...................',
+  '...bb....bbbbbbbbbbbbbbs...ss.s................',
+  '..bbbbbbbssssbbbbbbbbbbbbbbbbssssss............',
+  'bbsssssssbbbbbbbbbbbbssbbbbbbbbbbbss...........',
+  '.bbbsssbbbbbbbbbbbbbsssssbsssbbbbbbb...s.......',
+  '.bbbbbbbsssbbbbbsssssbbbbbbbbbbsssbbsbbb.......',
+  '..bbbbbbbbbssssssssbbbbbbbbbbbbbbbbbsssbbb.s...',
+  '...bbbbbbbbbbbbbsssssbbbbbbbbbbbbssssssssb...b.',
+  '...bbbbbbbbbbbbbbbbbbbbbsssssssssssssssssbbbbb.',
+  '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...',
+  '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb....',
+  '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb...',
+  '.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.b...',
+  '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb......',
+  '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
+  '........bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
+  '............bbbbbbbbbbbbbbbbbbbbbbbbbbbbb......',];
+// Un liseré clair tout autour de la coque : sur la mer sombre on la
+// distingue (reflet sur l'eau) ; sur la neige il se fond dans le blanc.
+export const BOAT = (() => {
+  const H = BOAT_RAW.length + 2, W = BOAT_RAW[0].length + 2;
+  const at = (x, y) => BOAT_RAW[y - 1]?.[x - 1] && BOAT_RAW[y - 1][x - 1] !== '.';
+  const rows = [];
+  for (let y = 0; y < H; y++) {
+    let row = '';
+    for (let x = 0; x < W; x++) {
+      if (at(x, y)) row += BOAT_RAW[y - 1][x - 1];
+      else row += [[-1, 0], [1, 0], [0, -1], [0, 1]].some(([dx, dy]) => at(x + dx, y + dy)) ? 's' : '.';
+    }
+    rows.push(row);
+  }
+  return rows;
+})();
+export const BOAT_W = BOAT[0].length;
+export const BOAT_H = BOAT.length;
+// Ligne de flottaison (en pixels du motif) et pointe de la proue
+export const BOAT_WATERLINE = 13;
+export const BOAT_BOW = { x: 46, y: 10 };
+
+// Pixels du bord de la coque, sous la flottaison : l'écume vient y battre.
+export const BOAT_EDGE = (() => {
+  const out = [];
+  const at = (x, y) => BOAT[y]?.[x] === 'b';
+  for (let y = 7; y < BOAT_H; y++) {
+    for (let x = 0; x < BOAT_W; x++) {
+      if (!at(x, y)) continue;
+      for (const [dx, dy] of [[-1, 0], [1, 0], [0, 1]]) {
+        if (!at(x + dx, y + dy)) out.push({ x: x + dx, y: y + dy });
+      }
+    }
+  }
+  return out;
+})();

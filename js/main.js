@@ -1,6 +1,7 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
 import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
+import { DAY_LABELS } from './daylight.js';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -113,6 +114,7 @@ $('open-settings').addEventListener('click', async () => {
   game.save();
   $('stat-distance').textContent = (save.steps || 0).toLocaleString('fr-FR');
   $('wind-about').textContent = describeWind();
+  $('daytime').textContent = `Jour et nuit suivent l'heure (un cycle de 20 minutes). En ce moment : ${DAY_LABELS[game.dayPhase()].toLowerCase()}.`;
   settings.showModal();
   renderVersions();
 });

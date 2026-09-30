@@ -6,22 +6,26 @@
 
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
-couleurs (neige bleutée, bleu nuit, et le rouge de l'accent, réservé aux repères
-du labo), avec un temps qui change selon un cycle naturel, un effet
+couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le feu à la fenêtre
+la nuit et les repères du labo), avec un temps qui change selon un cycle
+naturel, le jour et la nuit, un effet
 d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On accoste à l'ouest et on suit les traces vers l'est : quelques arbres, une
+On accoste à l'ouest (la barque glisse jusqu'à la grève, puis le viking saute
+à terre) et on suit les traces vers l'est : quelques arbres, une
 volée de corbeaux qui s'envole à l'approche, la forêt (cerfs et biches au
 loin, qui s'enfuient), une statue géante de Freya ensevelie, penchée et
-brisée, puis la forêt noire (si dense que le sol est noir ; la piste y reste
-un couloir de neige), une grande Freya debout à la sortie, la maison (vue de
-biais, sans fumée) ; les traces passent devant et continuent vers l'est.
+brisée, puis la forêt noire, longue à traverser (si dense que le sol est
+noir ; la sente y serpente, se resserre, s'ouvre en clairières), une grande
+Freya debout à la sortie, la maison (vue de biais, sans fumée) ; les traces
+passent devant et continuent vers l'est.
 Le viking est tout noir ; sa cape bat au vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
-carte de l'île (un clic y téléporte le viking), viking, cape, attaques,
+carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
+cape, attaques,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches.
 
@@ -55,10 +59,15 @@ est cachée et ne sort que pendant l'attaque.
   cape (calque à part), attaque (traînée, impact), maison, échelle
   entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` : à incrémenter quand l'île change, les anciennes positions
-  sauvegardées repartent alors du drakkar.
+  sauvegardées repartent alors de la barque (arrivée rejouée). Voile de nuit :
+  rectangle multiplié au-dessus de tout, feu de la fenêtre au-dessus du voile.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
   temps) et la traînée du coup.
+- `js/boat.js` — la barque (pixels tirés de l'image de référence, liseré
+  clair pour la détacher de la mer sombre), ligne de flottaison, bords.
+- `js/daylight.js` — jour et nuit (`DAY_CYCLE`, 20 min sur l'horloge réelle) :
+  `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
   Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
@@ -74,9 +83,9 @@ est cachée et ne sort que pendant l'attaque.
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
   enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
-  pierres levées, drakkar, maison (`makeHouse`, `houseBlocked`,
+  pierres levées, maison (`makeHouse`, `HOUSE_GLOW`, `houseBlocked`,
   `houseFrontY`), forêt (`forestDx` : bandes à lisière irrégulière,
-  `forestDensity`, `deepForest`), statues et corbeaux placés le long de la
+  `forestDensity`, `deepForest`, largeur de sente `p.lane`, `CLEARINGS`), statues et corbeaux placés le long de la
   piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
@@ -94,8 +103,9 @@ est cachée et ne sort que pendant l'attaque.
 - Les déplacements lisent `event.code` (touches physiques), pas `event.key` :
   ZQSD en AZERTY et WASD en QWERTY marchent sans rien configurer.
 - Tout changement dans `world.js` qui consomme le générateur aléatoire
-  (`rng`) déplace les traces et les objets : vérifier la carte de l'île
-  après coup, et incrémenter `WORLD_VERSION` dans `game.js`.
+  (`rng`) ou touche au tracé déplace les traces et les objets : vérifier la
+  carte de l'île (la piste doit atteindre son bout, sans se perdre dans la
+  forêt noire), et incrémenter `WORLD_VERSION` dans `game.js`.
 - Le viking doit peser sur la neige : son ombre est dessinée dans le sprite,
   sur la ligne même des pieds. Une ombre séparée, un pixel plus bas, le
   faisait léviter.
