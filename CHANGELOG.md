@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.16.0 — 2026-09-30
+- La musique suit le moment : calme sur la grève, sourde dans la forêt noire, tendue à l'approche de l'ennemi, à son comble au combat
+- Réglages : curseurs pour la musique, les bruitages et le son du vent (plus discret par défaut)
+
 ## 1.15.0 — 2026-09-30
 - Frapper un arbre le fait trembler et tomber sa neige ; frapper un rocher fait jaillir des étincelles, la lame rebondit
 - Accueil sur fond noir ; en entrant dans le jeu, le noir s'ouvre depuis le centre

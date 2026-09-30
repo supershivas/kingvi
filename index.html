@@ -73,15 +73,20 @@
       <i class="ti ti-refresh" aria-hidden="true"></i> <span>Nouveau jeu</span>
     </button>
 
-    <label class="toggle">
-      <input id="opt-music" type="checkbox"/>
-      <span>Musique</span>
-    </label>
+    <div class="field-select">
+      <label for="opt-music">Musique</label>
+      <input id="opt-music" type="range" min="0" max="100" step="5"/>
+    </div>
 
-    <label class="toggle">
-      <input id="opt-sfx" type="checkbox"/>
-      <span>Bruitages (vent, corbeaux, épée)</span>
-    </label>
+    <div class="field-select">
+      <label for="opt-sfx">Bruitages (corbeaux, épée…)</label>
+      <input id="opt-sfx" type="range" min="0" max="100" step="5"/>
+    </div>
+
+    <div class="field-select">
+      <label for="opt-windvol">Son du vent</label>
+      <input id="opt-windvol" type="range" min="0" max="100" step="5"/>
+    </div>
 
     <label class="toggle">
       <input id="opt-crt" type="checkbox"/>
@@ -94,7 +99,7 @@
     </label>
 
     <label class="field-select">
-      <span>Vent</span>
+      <span>Météo (vent et neige)</span>
       <select id="opt-wind"></select>
       <span class="hint-text" id="wind-about"></span>
     </label>

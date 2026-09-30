@@ -61,7 +61,12 @@ sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 Le son est synthétisé (aucun fichier) : une deep techno contemplative et
 changeante, le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
 l'épée (fendre l'air, neige, chair), le coffre. Il démarre au premier geste du
-joueur ; Musique et Bruitages se coupent dans les Réglages.
+joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
+La musique suit l'humeur du moment (`musicMood` dans `game.js` →
+`audio.setMood({ energy, dark, muffled })`) : calme sur la grève, sourde et
+assombrie dans la forêt noire, tendue à l'approche de l'autre viking, à son
+comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
+secondes quand le guetteur s'efface (`audio.hush`).
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), une vue par animation, sur la neige aux couleurs du jeu :
@@ -90,7 +95,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen`, `watcherGone` ; `kingvi:prefs` : effet CRT, tilt-shift, vent, `music`, `sfx`,
+  `chestOpen`, `watcherGone` ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -124,9 +129,10 @@ est cachée et ne sort que pendant l'attaque.
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
 - `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
-  de 16 mesures (`arrangement`), grosse caisse, charleston, basse, accords dub
+  de 16 mesures (`arrangement`, qui dépend de l'énergie entendue), grosse caisse, charleston, basse, accords dub
   (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
-  'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence')`, `audio.wind(force, rafale, abrité)`).
+  'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence')`, `audio.wind(force, rafale, abrité)`, sur son propre canal) ;
+  niveaux `audio.setVolume('music' | 'sfx' | 'wind', 0 → 1).
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
   `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6

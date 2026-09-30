@@ -17,8 +17,15 @@ const CHORDS = [
 ];
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 
-let ctx = null, master, musicBus, sfxBus, reverb, delay, noise;
-let musicOn = true, sfxOn = true;
+let ctx = null, master, musicBus, musicFilter, sfxBus, reverb, delay, noise;
+// L'humeur voulue par le jeu (0 → 1) et celle qu'on entend, qui la rejoint
+// en douceur : énergie (du silence au combat), ombre, étouffement
+const mood = { energy: 0.35, dark: 0, muffled: 0 };
+const heard = { energy: 0.35, dark: 0, muffled: 0 };
+let duckUntil = 0;
+// Les niveaux (0 → 1), réglés par le joueur ; le vent a le sien
+const vol = { music: 0.7, sfx: 0.8, wind: 0.35 };
+let windBus;
 let windGain, windFilter, whistleGain, whistleFilter;
 let nextStep = 0, stepIndex = 0, timer = null;
 
@@ -48,8 +55,13 @@ function build() {
   master.threshold.value = -18; master.ratio.value = 3;
   const out = ctx.createGain(); out.gain.value = 1.5;
   master.connect(out).connect(ctx.destination);
-  musicBus = ctx.createGain(); musicBus.gain.value = musicOn ? 0.55 : 0; musicBus.connect(master);
-  sfxBus = ctx.createGain(); sfxBus.gain.value = sfxOn ? 0.8 : 0; sfxBus.connect(master);
+  musicBus = ctx.createGain(); musicBus.gain.value = 0.8 * vol.music;
+  // Le filtre de l'humeur : il assombrit la musique dans la forêt noire et
+  // l'étouffe à l'intérieur
+  musicFilter = ctx.createBiquadFilter(); musicFilter.type = 'lowpass'; musicFilter.frequency.value = 6000; musicFilter.Q.value = 0.7;
+  musicBus.connect(musicFilter).connect(master);
+  sfxBus = ctx.createGain(); sfxBus.gain.value = vol.sfx; sfxBus.connect(master);
+  windBus = ctx.createGain(); windBus.gain.value = vol.wind; windBus.connect(master);
   // Réverbération et écho dub (croche pointée, retour filtré)
   reverb = makeReverb();
   const revOut = ctx.createGain(); revOut.gain.value = 0.5;
@@ -69,11 +81,11 @@ function buildWind() {
   const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
   windFilter = ctx.createBiquadFilter(); windFilter.type = 'bandpass'; windFilter.frequency.value = 400; windFilter.Q.value = 0.7;
   windGain = ctx.createGain(); windGain.gain.value = 0;
-  src.connect(windFilter).connect(windGain).connect(sfxBus);
+  src.connect(windFilter).connect(windGain).connect(windBus);
   const src2 = ctx.createBufferSource(); src2.buffer = noise; src2.loop = true; src2.playbackRate.value = 0.7;
   whistleFilter = ctx.createBiquadFilter(); whistleFilter.type = 'bandpass'; whistleFilter.frequency.value = 1400; whistleFilter.Q.value = 9;
   whistleGain = ctx.createGain(); whistleGain.gain.value = 0;
-  src2.connect(whistleFilter).connect(whistleGain).connect(sfxBus);
+  src2.connect(whistleFilter).connect(whistleGain).connect(windBus);
   src.start(); src2.start();
 }
 
@@ -141,33 +153,60 @@ function pad(t, chord, dur, v) {
   }
 }
 
-// Ce qui joue dans chaque phrase : l'entrée, la montée, le plein, la respiration
+// Ce qui joue dans chaque phrase : l'entrée, la montée, le plein, la respiration.
+// L'énergie du moment (le lieu, le danger) décide de ce qui peut jouer : au
+// calme, la nappe et quelques accords ; en marche, la grosse caisse ; près de
+// l'ennemi, la basse et le charleston ; au combat, tout, plus dense, plus clair.
 function arrangement(bar) {
+  const e = heard.energy;
   const phrase = Math.floor(bar / 16) % 6;
-  return [
-    { kick: 0, hats: 0, bass: 0, stab: 0.6, pad: 1 },
-    { kick: 1, hats: 0, bass: 0, stab: 0.8, pad: 1 },
-    { kick: 1, hats: 1, bass: 1, stab: 1, pad: 0.6 },
-    { kick: 1, hats: 1, bass: 1, stab: 1, pad: 1 },
-    { kick: 0, hats: 0.5, bass: 1, stab: 0.7, pad: 1 },
-    { kick: 1, hats: 1, bass: 1, stab: 1, pad: 0.4 },
-  ][phrase];
+  const breath = e < 0.85 && (phrase === 0 || phrase === 4);   // les respirations (sauf au combat)
+  const lvl = (from, to) => Math.max(0, Math.min(1, (e - from) / (to - from)));
+  return {
+    kick: breath ? 0 : lvl(0.3, 0.5),
+    hats: breath ? lvl(0.6, 0.9) * 0.5 : lvl(0.55, 0.8),
+    fast: lvl(0.85, 1),                                          // charleston en doubles croches
+    bass: lvl(0.22, 0.45),
+    stab: 0.5 + 0.5 * lvl(0.1, 0.7),
+    stabs2: lvl(0.8, 1),                                         // accords plus serrés
+    pad: 1 - 0.7 * lvl(0.6, 1),
+  };
 }
 
 function scheduleStep(t, i) {
   const bar = Math.floor(i / 16), s = i % 16;
-  const A = arrangement(bar), chord = CHORDS[Math.floor(bar / 4) % CHORDS.length];
+  if (ctx.currentTime < duckUntil) return;                      // un silence (une présence)
+  const A = arrangement(bar);
+  // Dans l'ombre, les accords descendent d'un ton, plus sourds
+  const chord = CHORDS[Math.floor(bar / 4) % CHORDS.length].map(n => n - (heard.dark > 0.6 ? 2 : 0));
   if (A.kick && s % 4 === 0) kick(t, A.kick);
   if (A.hats && s % 4 === 2) hat(t, A.hats, s === 14 && bar % 2 === 1);
   if (A.hats && (s === 7 || s === 15) && Math.random() < 0.4) hat(t, A.hats * 0.5);
+  if (A.fast && s % 2 === 1) hat(t, A.fast * 0.45);
   if (A.bass && [3, 6, 11, 14].includes(s)) bass(t, chord[0] + (s === 11 && bar % 4 === 3 ? 7 : 0), A.bass);
+  if (A.fast && [0, 8].includes(s)) bass(t, chord[0], A.fast * 0.8);
   // Les accords : peu, à des places qui changent d'une mesure à l'autre
   const stabs = [[6], [3, 10], [6, 14], [0, 11]][bar % 4];
-  if (A.stab && stabs.includes(s)) stab(t, chord, A.stab, 1400 + 900 * Math.sin(bar * 0.4));
+  const bright = (1400 + 900 * Math.sin(bar * 0.4)) * (1 - 0.5 * heard.dark) * (1 + 0.6 * A.stabs2);
+  if (A.stab && stabs.includes(s)) stab(t, chord, A.stab, bright);
+  if (A.stabs2 && [2, 9, 13].includes(s) && Math.random() < 0.7) stab(t, chord, A.stabs2 * 0.7, bright);
   if (A.pad && s === 0 && bar % 2 === 0) pad(t, chord, BEAT * 8, A.pad);
 }
 
+// L'humeur entendue rejoint la voulue : vite quand le danger monte, lentement
+// quand il retombe ; le filtre suit
+function followMood() {
+  const up = mood.energy > heard.energy;
+  // (appelé toutes les 25 ms : ~1,5 s pour monter, ~6 s pour redescendre)
+  heard.energy += (mood.energy - heard.energy) * (up ? 0.017 : 0.004);
+  heard.dark += (mood.dark - heard.dark) * 0.006;
+  heard.muffled += (mood.muffled - heard.muffled) * 0.03;
+  const cut = 600 + 7000 * (1 - 0.75 * heard.dark) * (1 - 0.85 * heard.muffled) * (0.55 + 0.45 * heard.energy);
+  musicFilter.frequency.setTargetAtTime(cut, ctx.currentTime, 0.3);
+}
+
 function scheduler() {
+  followMood();
   while (nextStep < ctx.currentTime + 0.15) {
     scheduleStep(nextStep, stepIndex);
     nextStep += STEP * (stepIndex % 2 ? 0.94 : 1.06);   // un léger swing
@@ -257,14 +296,15 @@ export const audio = {
       timer = setInterval(scheduler, 25);
     }
   },
-  setMusic(on) {
-    musicOn = on;
-    if (ctx) musicBus.gain.setTargetAtTime(on ? 0.55 : 0, ctx.currentTime, 0.4);
+  // Les niveaux : musique, bruitages, vent (0 → 1)
+  setVolume(kind, v) {
+    vol[kind] = v;
+    if (!ctx) return;
+    const bus = { music: musicBus, sfx: sfxBus, wind: windBus }[kind];
+    bus.gain.setTargetAtTime(kind === 'music' ? 0.8 * v : v, ctx.currentTime, 0.2);
   },
-  setSfx(on) {
-    sfxOn = on;
-    if (ctx) sfxBus.gain.setTargetAtTime(on ? 0.8 : 0, ctx.currentTime, 0.2);
-  },
+  setMusic(on) { this.setVolume('music', on ? (vol.music || 0.7) : 0); },
+  get silent() { return !vol.music && !vol.sfx && !vol.wind; },
   // Le vent : sa force (pixels/s, 0 → ~200) et les rafales (0 → 1) ; `muffled`
   // (0 → 1) : à l'abri (1, dans une pièce), sous les arbres de la forêt noire
   wind(force, gust, muffled = 0) {
@@ -275,8 +315,12 @@ export const audio = {
     whistleGain.gain.setTargetAtTime(Math.max(0, k - 0.45) * 0.12 * (0.4 + gust), t, 0.3);
     whistleFilter.frequency.setTargetAtTime(1100 + 900 * gust, t, 0.3);
   },
+  // L'humeur du moment, voulue par le jeu : { energy, dark, muffled } (0 → 1)
+  setMood(m) { Object.assign(mood, m); },
+  // Un silence de quelques secondes (la musique retient son souffle)
+  hush(seconds) { if (ctx) duckUntil = ctx.currentTime + seconds; },
   play(name, opts) {
-    if (!ctx || !sfxOn || ctx.state !== 'running') return;
+    if (!ctx || !vol.sfx || ctx.state !== 'running') return;
     SOUNDS[name]?.(opts);
   },
 };

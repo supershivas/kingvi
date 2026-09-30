@@ -714,7 +714,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.updateZoom(delta / 1000);
       // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
       this.windSound = (this.windSound || 0) - delta;
-      if (this.windSound <= 0) { this.windSound = 200; audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7); }
+      if (this.windSound <= 0) {
+        this.windSound = 200;
+        audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7);
+        audio.setMood(this.musicMood());
+      }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
@@ -770,6 +774,26 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.drawSky(delta / 1000);
     }
 
+    // La musique suit le moment : le lieu, la nuit, le danger
+    musicMood() {
+      const f = this.foe, now = this.time.now;
+      const dFoe = Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y);
+      const deep = this.inside ? 0 : deepForest(this.pos.x, this.pos.y);
+      const night = this.daylight?.night || 0;
+      // (le silence d'après ne vaut que pour un combat de cette partie-ci)
+      if (f.alive) { this.foeSeenAlive = true; this.foeDownAt = null; } else if (this.foeSeenAlive && this.foeDownAt == null) this.foeDownAt = now;
+      let energy;
+      if (this.dead) energy = 0.05;                                         // on est tombé
+      else if (f.alive && f.engaged && dFoe < 140) energy = 1;              // le combat
+      else if (f.alive && dFoe < 320) energy = 0.55 + 0.4 * (1 - dFoe / 320);   // il est là, on le sent
+      else if (this.foeDownAt != null && now - this.foeDownAt < 25000) energy = 0.12;   // après : le silence
+      else if (this.inside) energy = 0.15;
+      else if (deep > 0.3) energy = 0.2 + 0.1 * (1 - deep);                 // la forêt noire : sourde
+      else energy = 0.4 + (this.running ? 0.12 : 0) + (this.rowing ? -0.15 : 0);
+      energy *= 1 - 0.25 * night;
+      return { energy, dark: Math.min(1, deep + 0.4 * night), muffled: this.inside ? 1 : 0 };
+    }
+
     // Les offrandes tournent au vent ; le guetteur s'efface quand on approche
     updateGrove(time) {
       if (Math.abs(this.pos.x - GROVE_TREE.x) > 400 || Math.abs(this.pos.y - GROVE_TREE.y) > 300) return;
@@ -786,6 +810,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (Math.hypot(this.pos.x - WATCHER_AT.x, this.pos.y - WATCHER_AT.y) < 64 && !this.inside) {
         w.fading = true;
         audio.play('presence');
+        audio.hush(6);                                     // la musique retient son souffle
         // Il vacille, revient, et n'est plus là
         const steps = [0.2, 1, 0.1, 0.7, 0.05, 0.3, 0];
         steps.forEach((a, i) => this.time.delayedCall(90 + i * 170 + Math.random() * 60, () => w.setAlpha(a)));

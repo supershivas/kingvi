@@ -210,17 +210,22 @@ $('home').addEventListener('click', e => {
 });
 
 // ── Le son : il ne peut démarrer qu'après un geste du joueur ──
-audio.setMusic(prefs.music);
-audio.setSfx(prefs.sfx);
-const unlockAudio = () => { if (prefs.music || prefs.sfx) audio.unlock(); };
+// Les niveaux (0 → 100) ; les anciens réglages (musique / bruitages
+// coupés) deviennent un niveau nul
+if (prefs.musicVol == null) prefs.musicVol = prefs.music === false ? 0 : 70;
+if (prefs.sfxVol == null) prefs.sfxVol = prefs.sfx === false ? 0 : 80;
+if (prefs.windVol == null) prefs.windVol = prefs.sfx === false ? 0 : 35;
+const LEVELS = [['opt-music', 'musicVol', 'music'], ['opt-sfx', 'sfxVol', 'sfx'], ['opt-windvol', 'windVol', 'wind']];
+for (const [, key, kind] of LEVELS) audio.setVolume(kind, prefs[key] / 100);
+const unlockAudio = () => { if (!audio.silent) audio.unlock(); };
 window.addEventListener('pointerdown', unlockAudio);
 window.addEventListener('keydown', unlockAudio);
-for (const [id, key, set] of [['opt-music', 'music', on => audio.setMusic(on)], ['opt-sfx', 'sfx', on => audio.setSfx(on)]]) {
-  $(id).checked = prefs[key];
-  $(id).addEventListener('change', e => {
-    prefs[key] = e.target.checked;
+for (const [id, key, kind] of LEVELS) {
+  $(id).value = String(prefs[key]);
+  $(id).addEventListener('input', e => {
+    prefs[key] = Number(e.target.value);
     write(PREFS_KEY, prefs);
-    set(prefs[key]);
+    audio.setVolume(kind, prefs[key] / 100);
     unlockAudio();
   });
 }

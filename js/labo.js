@@ -809,7 +809,7 @@ card('corbeaux', {
 (function sounds() {
   const el = document.createElement('article');
   el.className = 'demo wide';
-  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures (nappe seule, la grosse caisse entre, la basse, les accords dub dans l\'écho, une respiration…), le vent qui suit la météo, les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
+  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures, qui suit l\'humeur du moment : calme sur la grève, sourde et assombrie dans la forêt noire, tendue à l\'approche de l\'autre viking, à son comble au combat, étouffée à l\'intérieur, muette un instant quand le guetteur s\'efface. Le vent suit la météo ; les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
   const box = el.querySelector('.sound-buttons');
   let music = false;
   const add = (label, icon, fn) => {
@@ -830,6 +830,14 @@ card('corbeaux', {
     else audio.wind(0, 0);
     b.querySelector('span').textContent = windOn ? 'Couper le vent' : 'Vent (tempête)';
   });
+  // L'humeur : le jeu la règle selon le lieu et le danger ; ici, à la main
+  for (const [label, icon, m] of [
+    ['Humeur : grève', 'sun', { energy: 0.4, dark: 0, muffled: 0 }],
+    ['Humeur : forêt noire', 'trees', { energy: 0.22, dark: 0.9, muffled: 0 }],
+    ['Humeur : il approche', 'alert-triangle', { energy: 0.75, dark: 0.2, muffled: 0 }],
+    ['Humeur : combat', 'swords', { energy: 1, dark: 0, muffled: 0 }],
+    ['Humeur : à l\'intérieur', 'home', { energy: 0.15, dark: 0.3, muffled: 1 }],
+  ]) add(label, icon, () => { if (!music) { music = true; audio.setMusic(true); } audio.setMood(m); });
   add('Corbeaux', 'feather', () => audio.play('caw', { n: 3 }));
   add('Coup d\'épée', 'sword', () => audio.play('swing'));
   add('Dans la neige', 'snowflake', () => audio.play('snow'));
