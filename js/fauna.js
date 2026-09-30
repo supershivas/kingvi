@@ -182,19 +182,26 @@ export function createFauna(scene, palette) {
   }
 
   // ── Charognards : quand on s'éloigne d'un cadavre, des corbeaux s'y
-  // abattent ; ils repartent si l'on revient ──
-  const carrion = [];
-  let carrionWait = 3;
+  // abattent ; ils repartent si l'on revient. Une volée par cadavre (l'autre
+  // viking, les loups : `small`, moins de corbeaux, plus serrés) ──
+  const flocks = new Map();
+  function flockFor(corpse) {
+    const key = `${Math.round(corpse.x)},${Math.round(corpse.y)}`;
+    if (!flocks.has(key)) flocks.set(key, { carrion: [], wait: 3 + Math.random() * 4 });
+    return flocks.get(key);
+  }
 
-  function updateCarrion(dt, player, running, corpse) {
-    carrionWait -= dt;
+  function updateCarrion(dt, player, running, corpse, flock) {
+    const carrion = flock.carrion;
+    flock.wait -= dt;
     const d = corpse ? Math.hypot(corpse.x - player.x, corpse.y - player.y) : Infinity;
-    if (corpse && !carrion.length && carrionWait <= 0 && d > 85) {
+    const spread = corpse?.small ? 10 : 22;
+    if (corpse && !carrion.length && flock.wait <= 0 && d > 85 && d < 330) {
       // Ils arrivent de loin, du côté opposé au viking, un par un
-      const n = 4 + Math.floor(Math.random() * 4);
+      const n = corpse.small ? 2 + Math.floor(Math.random() * 3) : 4 + Math.floor(Math.random() * 4);
       const from = Math.sign(corpse.x - player.x) || 1;
       for (let k = 0; k < n; k++) {
-        const land = { x: corpse.x + Math.round((Math.random() - 0.5) * 22), y: corpse.y + Math.round((Math.random() - 0.5) * 8) };
+        const land = { x: corpse.x + Math.round((Math.random() - 0.5) * spread), y: corpse.y + Math.round((Math.random() - 0.5) * 8) };
         const sx = corpse.x + from * (220 + Math.random() * 120), sy = corpse.y - 160 - Math.random() * 80;
         const sprite = scene.add.sprite(sx, sy, 'crow', 'fly0').setOrigin(0.5, 1).setDepth(1e6 - 3).setFlipX(from > 0);
         sprite.play('crow-fly'); sprite.anims.timeScale = 0.7 + Math.random() * 0.4;
@@ -212,7 +219,7 @@ export function createFauna(scene, palette) {
         s.setVisible(true);
         if (s.anims.currentAnim?.key !== 'crow-fly') s.play('crow-fly');
         s.setFlipX(c.vx < 0).setDepth(1e6 - 3);
-        carrionWait = 12;
+        flock.wait = 12;
       }
       if (c.state === 'come') {
         c.delay -= dt;
@@ -239,7 +246,7 @@ export function createFauna(scene, palette) {
         // De temps en temps, il sautille autour du corps
         if (Math.random() < dt * 0.25) {
           const nx = s.x + (Math.random() < 0.5 ? -2 : 2);
-          if (corpse && Math.abs(nx - corpse.x) < 13) { s.x = nx; s.setFlipX(nx > corpse.x); }
+          if (corpse && Math.abs(nx - corpse.x) < spread * 0.6) { s.x = nx; s.setFlipX(nx > corpse.x); }
         }
       } else if (c.state === 'flee') {
         c.delay -= dt;
@@ -254,11 +261,12 @@ export function createFauna(scene, palette) {
   }
 
   return {
-    update(dt, player, running, wind, corpse = null) {
+    // corpses : [{ x, y, small }]
+    update(dt, player, running, wind, corpses = []) {
       // Cerfs et biches : retirés du jeu pour le moment (ils restent dans le labo)
       if (DEER_ENABLED) updateDeer(dt, player, running);
       updateCrows(dt, player, running, wind);
-      updateCarrion(dt, player, running, corpse);
+      for (const c of corpses) updateCarrion(dt, player, running, c, flockFor(c));
     },
   };
 }

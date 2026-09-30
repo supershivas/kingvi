@@ -25,6 +25,7 @@ import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 import * as PROPS from './props.js';
 import { audio } from './audio.js';
 import { makeGroveTree, BUNDLE, WATCHER } from './grove.js';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -332,6 +333,50 @@ card('attaques', {
   },
 });
 
+// Certains arbres sont pourris : au second coup, ils s'effondrent ; certains
+// rochers sont fendus : au second coup, ils éclatent, les morceaux restent
+function swing(local, hits) {
+  for (const h of hits) { const k = local - h + 0.315; if (k >= 0 && k < 0.8) { const i = ATTACK_TIMES.findIndex((tt, j) => k >= tt && k < (ATTACK_TIMES[j + 1] ?? 99)); return i >= 0 && i < 4 ? `side-attack-${i}` : 'side-idle'; } }
+  return 'side-idle';
+}
+card('attaques', {
+  title: 'Un arbre pourri s\'effondre', about: 'Un arbre sur quatre : il tremble au premier coup, tombe au second, à l\'opposé du viking, et reste couché (on l\'enjambe).', w: 60, h: 36,
+  setup(s, v) { const r = rng(12); s.tree = makeTree(r, { big: true }); s.img = prerender(s.tree.rows, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    const period = 5, local = t % period, h1 = 0.4, h2 = 1.4;
+    const fall = Math.max(0, Math.min(1, (local - h2) / 0.9));
+    const shake = local > h1 && local < h1 + 0.6 ? Math.round(Math.sin((local - h1) * 40) * (1 - (local - h1) / 0.6)) : 0;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(27.5, 31);
+    ctx.rotate(fall * fall * Math.PI / 2);
+    ctx.drawImage(s.img, -s.tree.ax - 0.5 + shake, -s.img.height + 1);
+    ctx.restore();
+    drawViking(ctx, pal, local < 3.8 ? swing(local, [h1, h2]) : 'side-idle', 17, 31, { clock: t });
+  },
+});
+card('attaques', {
+  title: 'Un rocher fendu éclate', about: 'Un gros rocher sur trois : des étincelles au premier coup, il éclate au second, et ses morceaux restent au pied.', w: 44, h: 36,
+  setup(s, v) {
+    const r = rng(21); s.rock = makeBoulder(r); s.img = prerender(s.rock.rows, v.pal); s.sparks = []; s.cycle = -1;
+    s.pieces = Array.from({ length: 5 }, (_, k) => ({ x: 22 + Math.round((r() - 0.3) * s.img.width), w: 2 + Math.floor(r() * 3), h: 1 + Math.floor(r() * 2), y: 31 - Math.floor(r() * 3) }));
+  },
+  draw(ctx, pal, t, dt, s) {
+    const period = 4.5, local = t % period, cycle = Math.floor(t / period), h1 = 0.4, h2 = 1.4;
+    const broken = local > h2;
+    if (!broken) ctx.drawImage(s.img, 28 - s.rock.ax, 31 - s.img.height);
+    else for (const p of s.pieces) { ctx.fillStyle = pal.s; ctx.fillRect(p.x + 1, p.y - p.h, p.w - 1, 1); ctx.fillStyle = pal.b; ctx.fillRect(p.x, p.y - p.h + 1, p.w, p.h); }
+    for (const [h, n] of [[h1, 8], [h2, 14]]) if (local >= h && s.cycle !== cycle * 2 + (h === h2 ? 1 : 0)) {
+      s.cycle = cycle * 2 + (h === h2 ? 1 : 0);
+      for (let k = 0; k < n; k++) { const a = (h === h2 ? 200 + Math.random() * 140 : 150 + Math.random() * 100) * Math.PI / 180, sp = 25 + Math.random() * 45; s.sparks.push({ x: 29, y: 27, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.1 + Math.random() * 0.25, age: 0, c: h === h2 ? (k % 2 ? 'b' : 's') : (k % 3 ? 'r' : 's') }); }
+    }
+    drawViking(ctx, pal, local < 3 ? swing(local, [h1, h2]) : 'side-idle', 17, 31, { clock: t });
+    for (const p of s.sparks) { p.age += dt; p.vy += 180 * dt; p.x += p.vx * dt; p.y += p.vy * dt; ctx.globalAlpha = Math.max(0, 1 - p.age / p.life); ctx.fillStyle = pal[p.c]; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
+    ctx.globalAlpha = 1;
+    s.sparks = s.sparks.filter(p => p.age < p.life);
+  },
+});
+
 // ══ Neige et vent ══
 // Le cycle naturel, accéléré : une frise en bas montre les phases et l'instant
 const CYCLE_SPEED = 20;
@@ -544,6 +589,57 @@ card('loups', {
   },
 });
 
+// La meute attaque : elle tourne autour du viking ; l'un gronde, bondit,
+// file au-delà et reprend sa place. Des pistes de loups sur la neige.
+card('loups', {
+  title: 'La meute attaque', about: 'Dans la grande clairière du bosquet : quatre loups sortent de la forêt noire, encerclent le viking, grondent et bondissent l\'un après l\'autre pour mordre. Deux coups en abattent un. Autour, leurs pistes dans la neige.', wide: true, w: 160, h: 80,
+  setup(s) {
+    const r = rng(8);
+    s.prints = [];
+    for (let k = 0; k < 4; k++) {
+      const a0 = r() * 6.28, x0 = 80 + Math.cos(a0) * 90, y0 = 44 + Math.sin(a0) * 50;
+      for (let i = 0; i < 30; i++) { const f = i / 30, w = Math.sin(f * 7 + k) * 5; s.prints.push([Math.round(x0 + (80 - x0) * f + w + (i % 2)), Math.round(y0 + (44 - y0) * f + (i % 2))]); }
+    }
+    s.wolves = [0, 1, 2, 3].map(i => ({ a: i * Math.PI / 2 + 0.4, x: 0, y: 0, state: 'circle', timer: 0, vx: 0, vy: 0, flip: false }));
+    s.clock = 1.5; s.next = 0;
+  },
+  draw(ctx, pal, t, dt, s) {
+    ctx.fillStyle = pal.b; ctx.globalAlpha = 0.6;
+    for (const [x, y] of s.prints) ctx.fillRect(x, y, 1, 1);
+    ctx.globalAlpha = 1;
+    const hx = 80, hy = 46;
+    s.clock -= dt;
+    if (s.clock <= 0) { const w = s.wolves[s.next++ % 4]; w.state = 'crouch'; w.timer = 0.6; s.clock = 2.4; }
+    let heroFrame = 'side-idle', heroFlip = false;
+    for (const w of s.wolves) {
+      w.timer -= dt;
+      if (w.state === 'circle') {
+        w.a += dt * 0.55;
+        const tx = hx + Math.cos(w.a) * 30, ty = hy + Math.sin(w.a) * 17;
+        const dx = tx - w.x, dy = ty - w.y, d = Math.hypot(dx, dy);
+        if (d > 0.5) { const st = Math.min(d, (d > 10 ? 58 : 30) * dt); w.x += dx / d * st; w.y += dy / d * st; w.flip = dx < 0; }
+        w.anim = d > 10 ? 'galop' : 'trot';
+      } else if (w.state === 'crouch') {
+        w.anim = 'grogne'; w.flip = hx < w.x;
+        if (w.timer <= 0) { const dx = hx - w.x, dy = hy - w.y, d = Math.hypot(dx, dy); w.vx = dx / d * 125; w.vy = dy / d * 125; w.timer = (d + 8) / 125; w.state = 'lunge'; }
+      } else if (w.state === 'lunge') {
+        w.anim = 'bond'; w.x += w.vx * dt; w.y += w.vy * dt; w.flip = w.vx < 0;
+        heroFlip = w.vx > 0;
+        const k = 0.35 - w.timer;
+        heroFrame = k < 0 ? 'side-idle' : `side-attack-${Math.min(3, Math.floor(k / 0.1))}`;
+        if (w.timer <= 0) { w.state = 'circle'; w.a = Math.atan2((w.y - hy) / 17, (w.x - hx) / 30); }
+      }
+    }
+    const all = [...s.wolves, { hero: true, y: hy }].sort((a, b) => a.y - b.y);
+    for (const w of all) {
+      if (w.hero) { drawViking(ctx, pal, heroFrame, hx, hy, { flip: heroFlip, wind: 0.2, clock: t }); continue; }
+      const anim = WOLF_ANIMS[w.anim || 'trot'];
+      const f = anim.frames[Math.floor(t * anim.fps) % anim.frames.length];
+      drawRows(ctx, pal, gridRows(f), Math.round(w.x) - 8, Math.round(w.y) - WOLF_GROUND, w.flip);
+    }
+  },
+});
+
 // ══ Cerfs et biches ══
 for (const [who, anims] of [['Cerf', STAG_ANIMS], ['Biche', DOE_ANIMS]]) {
   for (const anim of Object.values(anims)) {
@@ -737,6 +833,28 @@ card('falaise', {
     s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
     s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
     ctx.globalAlpha = 1;
+  },
+});
+
+card('falaise', {
+  title: 'Dans la grotte', about: 'On y entre par la bouche au pied de la falaise. Il y fait toujours nuit : la torche s\'allume. Une galerie qui serpente, une mare gelée, des stalagmites, des ossements de plus en plus nombreux ; au fond, un roi mort sur son trône, l\'épée sur les genoux. Quand on s\'approche, sa tête tombe et la couronne roule à ses pieds.',
+  wide: true, w: CAVE_W, h: CAVE_H,
+  setup(s, v) {
+    s.room = prerender(CAVE_ROOM, v.pal);
+    s.throne = Object.fromEntries(Object.entries(THRONE_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)]));
+    // Le chemin du viking, de l'entrée au trône
+    s.path = [[100, 176], [96, 164], [84, 150], [74, 138], [82, 122], [104, 110], [126, 98], [118, 86], [104, 74], [100, 62]];
+  },
+  draw(ctx, pal, t, dt, s) {
+    ctx.fillStyle = pal.k; ctx.fillRect(0, 0, CAVE_W, CAVE_H);
+    ctx.drawImage(s.room, 0, 0);
+    const k = t % 16, n = s.path.length - 1, f = Math.min(n, k / 10 * n), i = Math.min(n - 1, Math.floor(f)), u = f - i;
+    const x = Math.round(s.path[i][0] + (s.path[i + 1][0] - s.path[i][0]) * u), y = Math.round(s.path[i][1] + (s.path[i + 1][1] - s.path[i][1]) * u);
+    const img = s.throne[k > 11 ? 'bowed' : 'seated'];
+    ctx.drawImage(img, THRONE.x - Math.floor(img.width / 2), THRONE.y - THRONE_FOOT);
+    const dx = s.path[i + 1][0] - s.path[i][0], dy = s.path[i + 1][1] - s.path[i][1];
+    const view = f >= n ? 'back' : Math.abs(dx) > Math.abs(dy) ? 'side' : dy < 0 ? 'back' : 'front';
+    drawViking(ctx, pal, f >= n ? 'back-idle' : walkFrame(view, t), x, y, { flip: dx < 0, clock: t, wind: 0 });
   },
 });
 

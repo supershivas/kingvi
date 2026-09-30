@@ -39,7 +39,9 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
     };
   });
 
-  const pack = { state: 'idle', wolves, lungeClock: 0, heard: false };
+  // scent : on s'est enfui en saignant ; si l'on revient, ils sortent plus tôt,
+  // sur la piste de sang, et poursuivent plus loin
+  const pack = { state: 'idle', wolves, lungeClock: 0, heard: false, scent: false };
 
   function play(w, key) {
     const k = `wolf-${key}`;
@@ -120,8 +122,11 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
       if (!pack.heard && !away && dDen < radius + 150 && alive().length) { pack.heard = true; scene.onPackSound('howl', { n: 3 }); }
       if (dDen > radius + 400) pack.heard = false;
 
-      if (pack.state === 'idle' && !away && dDen < radius * 0.8 && alive().length) {
+      const reach = pack.scent ? radius + 140 : radius * 0.8;
+      if (pack.state === 'idle' && !away && dDen < reach && alive().length) {
         pack.state = 'hunt';
+        pack.chase = pack.scent ? radius * 4 : radius * 2.6;
+        pack.scent = false;
         pack.lungeClock = 2.4;
         scene.onPackSound('howl', { n: 2 });
         for (const w of alive()) {
@@ -130,7 +135,11 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
           w.sprite.setVisible(true).setAlpha(1);
         }
       }
-      if (pack.state === 'hunt' && (away || dDen > radius * 2.6)) scatter();
+      if (pack.state === 'hunt' && (away || dDen > pack.chase)) {
+        // Blessé, on laisse du sang derrière soi : ils s'en souviendront
+        if (!player.dead && player.hp < player.maxHp) pack.scent = true;
+        scatter();
+      }
 
       // Un seul bondit à la fois ; les autres tournent
       if (pack.state === 'hunt') {

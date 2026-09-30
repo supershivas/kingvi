@@ -8,9 +8,10 @@ import {
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
-  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN,
+  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT,
 } from './world.js';
 import { createPack } from './pack.js';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js';
 import { BUNDLE, WATCHER } from './grove.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
 import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
@@ -72,6 +73,12 @@ const INTERIORS = {
     at: { x: 400, y: 400 }, key: 'crypt', w: CRYPT_W, h: CRYPT_H, entry: CRYPT_ENTRY,
     walk: cryptWalkable, atDoor: atCryptDoor, door: STATUE3_DOOR_OUT, radius: 5,
     exit: { x: STATUE3_DOOR_OUT.x, y: STATUE3_DOOR_OUT.y + 6 }, enterFacing: 'back',
+  },
+  // La grotte, au pied de la falaise : il y fait toujours nuit
+  cave: {
+    at: { x: 300, y: 1000 }, key: 'cave', w: CAVE_W, h: CAVE_H, entry: CAVE_ENTRY,
+    walk: caveWalkable, atDoor: atCaveDoor, door: CAVE_DOOR_OUT, radius: 5, dark: true,
+    exit: { x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 6 }, enterFacing: 'back',
   },
 };
 // La barque du lac flotte là où l'eau est assez profonde pour sa coque
@@ -175,6 +182,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.chest = this.add.image(C.at.x + CHEST.x, C.at.y + CHEST.y + 1, this.chestOpen ? 'chest-open' : 'chest-closed')
         .setOrigin(0.5, 1).setDepth(DEPTH_ROOM + C.at.y + CHEST.y).setVisible(false);
 
+      // Le roi mort, au fond de la grotte
+      const V = INTERIORS.cave;
+      this.kingBowed = !!save.kingBowed;
+      this.throne = this.add.image(V.at.x + THRONE.x + 0.5, V.at.y + THRONE.y + 1, this.kingBowed ? 'throne-bowed' : 'throne-seated')
+        .setOrigin(0.5, (THRONE_FOOT + 1) / THRONE_FRAMES.seated.length).setDepth(DEPTH_ROOM + V.at.y + THRONE.y).setVisible(false);
+
       // La barque du lac : on y monte en marchant dessus, on rame, on en
       // descend en abordant une rive
       this.rowing = false;
@@ -275,6 +288,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const end = trail.at(-1);
       const post = nearestWalkable(Math.round(end.x + Math.cos(end.heading) * 18), Math.round(end.y + Math.sin(end.heading) * 18)) || { x: end.x, y: end.y };
       this.hp = FOE_HP;
+      this.maxHp = FOE_HP;
       this.invuln = 0;
       this.stamina = 1;
       // Arbres abattus, rochers brisés : « x,y » → sens de la chute
@@ -287,6 +301,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         bleed: (x, y, n) => this.bleed(x, y, n),
       });
       // ── La meute, dans la grande clairière du bosquet ──
+      this.wolfTracks();
       this.onPackSound = (name, opts) => audio.play(name, opts);
       this.pack = createPack(this, palette, {
         den: WOLF_DEN, radius: WOLF_DEN.r, isLand, dead: save.wolvesDead || [],
@@ -407,6 +422,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       art('house', HOUSE_ART);
       art('room', ROOM);
       art('crypt', CRYPT);
+      art('cave', CAVE_ROOM);
+      for (const [k, rows] of Object.entries(THRONE_FRAMES)) art(`throne-${k}`, rows);
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
       art('blood', ['r']);
@@ -646,6 +663,30 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       return out;
     }
 
+    // Autour de la grande clairière, des pistes de loups : elles sortent de la
+    // forêt noire, errent, se croisent, et vont toutes vers le milieu
+    wolfTracks() {
+      let a = 4242;
+      const r = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
+      const g = this.add.graphics().setDepth(DEPTH_MARKS).fillStyle(hex(palette.b), 0.7);
+      const D = WOLF_DEN;
+      for (let k = 0; k < 6; k++) {
+        const a0 = r() * Math.PI * 2, a1 = a0 + (r() - 0.5) * 2.2;
+        const p0 = { x: D.x + Math.cos(a0) * (D.r + 70 + r() * 60), y: D.y + Math.sin(a0) * (D.r + 50 + r() * 40) };
+        const p1 = { x: D.x + Math.cos(a1) * D.r * 0.25 * r(), y: D.y + Math.sin(a1) * D.r * 0.2 * r() };
+        const len = Math.hypot(p1.x - p0.x, p1.y - p0.y), n = Math.floor(len / 3);
+        const wob = 6 + r() * 10, ph = r() * 6, nx = -(p1.y - p0.y) / len, ny = (p1.x - p0.x) / len;
+        for (let i = 0; i < n; i++) {
+          const t = i / n, w = Math.sin(t * 7 + ph) * wob * Math.sin(t * Math.PI);
+          const side = i % 2 ? 1 : -1;
+          const x = Math.round(p0.x + (p1.x - p0.x) * t + nx * (w + side * 0.8));
+          const y = Math.round(p0.y + (p1.y - p0.y) * t + ny * (w + side * 0.8));
+          if (r() < 0.12 || !isLand(x, y)) continue;         // effacée par le vent
+          g.fillRect(x, y, 1, 1);
+        }
+      }
+    }
+
     // Un arbre frappé tremble, et sa neige tombe
     shakeTree(o, dir) {
       for (const chunk of this.chunks.values()) {
@@ -878,6 +919,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
           this.checkDoor(mx, my);
           this.checkBoat(mx, my);
           if (this.inside === 'crypt' && my < 0 && !this.chestOpen && this.nearChest()) this.openChest();
+          if (this.inside === 'cave' && !this.kingBowed && this.nearKing()) this.bowKing();
           this.drip(this.pos.x, this.pos.y, delta / 1000, this.hp);
           this.distance += step;
 
@@ -898,7 +940,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, delta / 1000, this.foe.hp);
       if (!this.inside) this.pack.update(delta / 1000, this);
       drawPips(this.playerPips, this.pos.x, this.pos.y, this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
-      if (!this.inside) this.fauna.update(delta / 1000, this.pos, this.running, weather.wind, this.foe.alive ? null : this.foe.pos);
+      if (!this.inside) {
+        const corpses = this.pack.deadList.map(w => ({ x: w.x, y: w.y, small: true }));
+        if (!this.foe.alive) corpses.push(this.foe.pos);
+        this.fauna.update(delta / 1000, this.pos, this.running, weather.wind, corpses);
+      }
       // Devant ou derrière la maison, selon le pied de ses murs
       const front = houseFrontY(this.pos.x);
       this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
@@ -970,7 +1016,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     updateNight(dt, time) {
-      const night = this.daylight?.night || 0, t = time / 1000;
+      // Dans la grotte, il fait toujours nuit (la torche est allumée)
+      const dark = INTERIORS[this.inside]?.dark, night = dark ? 1 : this.daylight?.night || 0, t = time / 1000;
       const want = night > 0.4 && !this.dead ? 1 : 0;
       this.torchOn += (want - this.torchOn) * Math.min(1, dt * 1.5);
       if (Math.abs(this.torchOn - want) < 0.01) this.torchOn = want;
@@ -979,7 +1026,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const tp = this.torchPoint();
       // Le voile de nuit, percé autour de la torche
       const v = this.cameras.main.worldView, rt = this.shade;
-      const veil = night * 0.62;
+      const veil = night * (dark ? 0.72 : 0.62);
       // En plein jour, le voile est vide : on ne le touche pas (il coûte cher)
       rt.setVisible(veil > 0.005);
       if (veil > 0.005) {
@@ -1103,6 +1150,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         this.inside = key;
         I.image.setVisible(true); I.black.setVisible(true);
         if (key === 'crypt') this.chest.setVisible(true);
+        if (key === 'cave') this.throne.setVisible(true);
         this.facing = I.enterFacing; this.flip = false; this.player.setFlipX(false);
         this.player.setFrame(`${this.facing}-idle`);
       });
@@ -1115,7 +1163,28 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         I.armed = false;
         I.image.setVisible(false); I.black.setVisible(false);
         this.chest.setVisible(false);
+        this.throne.setVisible(false);
         this.facing = 'front'; this.flip = false;
+      });
+    }
+
+    // ── La grotte : le roi mort ──
+    nearKing() {
+      const C = INTERIORS.cave.at;
+      return nearThrone(this.pos.x - C.x, this.pos.y - C.y);
+    }
+
+    // On s'approche : un souffle, la musique se tait, sa tête tombe et la
+    // couronne roule à ses pieds
+    bowKing() {
+      this.kingBowed = true;
+      audio.play('presence');
+      audio.hush(9);
+      this.time.delayedCall(1300, () => {
+        this.throne.setTexture('throne-bowed');
+        audio.play('clang');
+        this.cameras.main.shake(60, 0.0015);
+        this.persist();
       });
     }
 
@@ -1394,6 +1463,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
+        kingBowed: this.kingBowed,
         wrecked: Object.fromEntries(this.wrecked),
         facing: this.facing, flip: this.flip,
         steps: this.stepCount, distance: Math.round(this.distance),

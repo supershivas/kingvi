@@ -334,6 +334,13 @@ function buildCliff() {
   return parts;
 }
 export const CLIFF_PARTS = buildCliff();
+// Le seuil de la grotte : au pied du pan de falaise où elle s'ouvre
+export const CAVE_DOOR_OUT = (() => {
+  const x0 = CLIFF.x0 + Math.floor((CAVE.x - CLIFF.x0) / 20) * 20;
+  let bottom = 0;
+  for (let x = x0; x < x0 + 20; x++) bottom = Math.max(bottom, cliffFoot(x));
+  return { x: CAVE.x, y: bottom + 2 };
+})();
 
 // ── Le champ des morts (d'après Lindholm Høje) : des navires, cercles et
 // triangles de pierres levées, au nord de la piste, à une demi-minute de la

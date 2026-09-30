@@ -37,7 +37,9 @@ noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
 clairières ; à mi-chemin, le bosquet sacré, dans une grande clairière : un arbre mort chargé
 d'offrandes qui tournent au vent, une meute de quatre loups qui sort de la forêt
 quand on y entre (hurlement au loin avant ; ils encerclent, grondent, bondissent
-l'un après l'autre pour mordre ; deux coups en abattent un), et plus loin un guetteur, grande silhouette
+l'un après l'autre pour mordre ; deux coups en abattent un ; leurs pistes errent
+autour de la clairière ; si l'on s'enfuit en saignant, ils suivent le sang :
+au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent`), et plus loin un guetteur, grande silhouette
 encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
@@ -47,8 +49,11 @@ Au bout des traces, un autre viking attend : il vient au contact et frappe ;
 trois coups de part et d'autre abattent (zoom d'action, sang qui gicle, on
 saigne en marchant, les blessures se referment hors du combat). Mort, on
 repart de la barque. Quand on s'éloigne d'un cadavre, des corbeaux s'y
-abattent. Plus loin, une falaise gigantesque face au sud, faite de pans
-avancés ou reculés, et l'entrée d'une grotte (on n'y entre pas encore).
+abattent (l'autre viking, et les loups tués). Plus loin, une falaise gigantesque face au sud, faite de pans
+avancés ou reculés, et l'entrée d'une grotte : on y entre (il y fait toujours
+nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
+ossements, et au fond un roi mort sur son trône : quand on approche, sa tête
+tombe et sa couronne roule à ses pieds (`kingBowed`).
 Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
@@ -81,7 +86,8 @@ secondes quand le guetteur s'efface (`audio.hush`).
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
-cape, attaques (8 directions), torche, intérieur de la maison, lac, crypte,
+cape, attaques (8 directions, arbre qui tombe, rocher qui éclate), torche, meute,
+grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
 (lettres A, B, C…) : pontons, seconde barque, nécropole d'après Lindholm Høje,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
@@ -108,7 +114,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen`, `watcherGone`, `wrecked` (arbres abattus, rochers brisés),
+  `chestOpen`, `watcherGone`, `kingBowed`, `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
@@ -139,7 +145,7 @@ est cachée et ne sort que pendant l'attaque.
   multipliée au-dessus de tout, masquée en plein jour, où la torche efface son
   halo ; les ombres portées (pixels tramés) y sont redessinées : elles ne sont
   jamais plus sombres que la nuit hors du halo (`updateNight`). Les intérieurs (`INTERIORS` : la
-  maison, la crypte) sont des pièces posées loin en mer, fond noir, profondeur
+  maison, la crypte, la grotte — `dark` : toujours nuit) sont des pièces posées loin en mer, fond noir, profondeur
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
 - `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
@@ -165,6 +171,10 @@ est cachée et ne sort que pendant l'attaque.
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
+- `js/cave.js` — la grotte : poches de galerie (`POCKETS`) au bord rongé de
+  bruit, paroi, glaçons, mare gelée, stalagmites, ossements ; le trône
+  (`THRONE_FRAMES` : assis, tête tombée) ; `caveWalkable`, `atCaveDoor`,
+  `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
   moutons au large. Dans le jeu, un calque `DEPTH_WAVES` redessiné ~8 fois/s.
@@ -199,8 +209,8 @@ est cachée et ne sort que pendant l'attaque.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
-  filent jusqu'à sortir de l'écran), charognards sur le cadavre de l'autre
-  viking (`updateCarrion`). Cerfs et biches codés mais retirés pour
+  filent jusqu'à sortir de l'écran), charognards, une volée par cadavre
+  (l'autre viking, les loups : `updateCarrion`, `flockFor`). Cerfs et biches codés mais retirés pour
   le moment (`DEER_ENABLED = false`).
 - `js/statue.js` — la statue de Freya : pixels tirés d'une photo
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,

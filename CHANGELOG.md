@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.19.0 — 2026-09-30
+- La grotte de la falaise est ouverte : une galerie dans le noir, à la torche, et au fond un roi mort sur son trône
+- Des pistes de loups autour de leur clairière ; blessé, on laisse du sang derrière soi, et la meute le suit si l'on revient
+- Les corbeaux s'abattent aussi sur les loups tués ; le labo montre l'arbre qui tombe, le rocher qui éclate, la meute et la grotte
+
 ## 1.18.0 — 2026-09-30
 - Sur écran tactile, une petite croix directionnelle en bas à gauche : on glisse le pouce pour marcher, tout au bord pour courir ; toucher l'écran frappe
 
