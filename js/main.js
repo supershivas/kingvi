@@ -50,24 +50,72 @@ const game = createGame({
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
-  isPaused: () => settings.open,
+  isPaused: () => settings.open || !$('title').hidden,
   wind: prefs.wind,
   // Moment de la journée : l'heure réelle, ou celui choisi dans les Réglages
   dayClock,
 });
-window.addEventListener('pagehide', () => game.save());
+let resetting = false;
+window.addEventListener('pagehide', () => { if (!resetting) game.save(); });
 
-// La consigne s'efface d'elle-même, puis dès le premier pas
+// La consigne apparaît quand on entre dans le jeu, puis s'efface d'elle-même
+// (ou dès le premier pas)
 const hint = $('hint');
 const hideHint = () => hint.classList.add('gone');
-setTimeout(hideHint, 9000);
-window.addEventListener('keydown', hideHint, { once: true });
+let hintShown = false;
+function showHint() {
+  if (hintShown) return;
+  hintShown = true;
+  hint.classList.remove('gone');
+  setTimeout(hideHint, 9000);
+  window.addEventListener('keydown', hideHint, { once: true });
+}
 
-// ── En-tête : le nom ramène au jeu et referme les réglages ──
+// ── Écran d'accueil : nouveau jeu, reprendre, réglages ──
+const title = $('title');
+const hasSave = () => save.x != null;
+function openTitle() {
+  if (settings.open) settings.close();
+  $('title-resume').hidden = !hasSave();
+  title.hidden = false;
+  ($('title-resume').hidden ? $('title-new') : $('title-resume')).focus();
+}
+function closeTitle() {
+  title.hidden = true;
+  $('stage').querySelector('canvas')?.focus();
+  showHint();
+}
+// Nouveau jeu : s'il y a une partie, un second clic confirme (elle est effacée)
+function armNewGame(button) {
+  let armed = null;
+  button.addEventListener('click', () => {
+    if (!hasSave() || armed) { newGame(); return; }
+    const label = button.querySelector('span'), before = label.textContent;
+    label.textContent = 'Effacer la partie en cours ?';
+    button.classList.add('confirm');
+    armed = setTimeout(() => { label.textContent = before; button.classList.remove('confirm'); armed = null; }, 4000);
+  });
+}
+function newGame() {
+  resetting = true;
+  try { localStorage.removeItem(SAVE_KEY); sessionStorage.setItem('kingvi:start', '1'); } catch { /* rien */ }
+  location.reload();
+}
+armNewGame($('title-new'));
+armNewGame($('new-game'));
+$('title-resume').addEventListener('click', closeTitle);
+$('title-settings').addEventListener('click', () => $('open-settings').click());
+title.addEventListener('keydown', e => { if (e.key === 'Escape' && hasSave()) closeTitle(); });
+// Après « Nouveau jeu », on entre directement dans la partie
+let startNow = false;
+try { startNow = sessionStorage.getItem('kingvi:start') === '1'; sessionStorage.removeItem('kingvi:start'); } catch { /* rien */ }
+if (startNow) closeTitle(); else openTitle();
+
+// ── En-tête : le nom ramène à l'écran d'accueil et referme les réglages ──
 $('home').addEventListener('click', e => {
   e.preventDefault();
-  if (settings.open) settings.close();
-  $('stage').querySelector('canvas')?.focus();
+  game.save();
+  openTitle();
 });
 
 // ── Réglages ──

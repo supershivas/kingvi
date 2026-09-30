@@ -1,6 +1,7 @@
 /* La barque du début, d'après l'image de référence : vue de haut et de biais,
    poupe à gauche, proue à droite (vers l'est, la terre). b coque sombre,
-   s bancs, bordés clairs et neige posée. Elle mesure environ 46 × 18 pixels. */
+   s bancs, bordés clairs et neige posée. Dessinée à 46 × 18 pixels, elle est
+   réduite (BOAT_SCALE) : la barque ne doit pas écraser le viking. */
 
 const BOAT_RAW = [
   '................ssssssss..s....................',
@@ -21,17 +22,37 @@ const BOAT_RAW = [
   '..bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
   '........bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.......',
   '............bbbbbbbbbbbbbbbbbbbbbbbbbbbbb......',];
+// Réduction : chaque pixel de l'image réduite prend la teinte dominante du
+// bloc qu'il couvre (les bancs clairs gagnent à égalité, pour rester lisibles)
+const BOAT_SCALE = 0.72;
+function shrink(rows, k) {
+  const H = Math.round(rows.length * k), W = Math.round(rows[0].length * k);
+  return Array.from({ length: H }, (_, y) => {
+    let row = '';
+    for (let x = 0; x < W; x++) {
+      const n = { '.': 0, b: 0, s: 0 };
+      for (let j = Math.floor(y / k); j < Math.ceil((y + 1) / k); j++) for (let i = Math.floor(x / k); i < Math.ceil((x + 1) / k); i++) {
+        const c = rows[j]?.[i];
+        if (c) n[c]++;
+      }
+      row += n['.'] > n.b + n.s ? '.' : n.s >= n.b ? 's' : 'b';
+    }
+    return row;
+  });
+}
+const RAW = shrink(BOAT_RAW, BOAT_SCALE);
+
 // Une marge vide d'un pixel tout autour de la coque (les repères ci-dessous
 // en tiennent compte). Pas de liseré : la coque est noire (k), plus sombre que
 // la mer, et s'en détache sans contour.
 export const BOAT = (() => {
-  const H = BOAT_RAW.length + 2, W = BOAT_RAW[0].length + 2;
-  const at = (x, y) => BOAT_RAW[y - 1]?.[x - 1] && BOAT_RAW[y - 1][x - 1] !== '.';
+  const H = RAW.length + 2, W = RAW[0].length + 2;
+  const at = (x, y) => RAW[y - 1]?.[x - 1] && RAW[y - 1][x - 1] !== '.';
   const rows = [];
   for (let y = 0; y < H; y++) {
     let row = '';
     for (let x = 0; x < W; x++) {
-      if (at(x, y)) row += BOAT_RAW[y - 1][x - 1] === 'b' ? 'k' : 's';
+      if (at(x, y)) row += RAW[y - 1][x - 1] === 'b' ? 'k' : 's';
       else row += '.';
     }
     rows.push(row);
@@ -41,14 +62,14 @@ export const BOAT = (() => {
 export const BOAT_W = BOAT[0].length;
 export const BOAT_H = BOAT.length;
 // Ligne de flottaison (en pixels du motif) et pointe de la proue
-export const BOAT_WATERLINE = 13;
-export const BOAT_BOW = { x: 46, y: 10 };
+export const BOAT_WATERLINE = Math.round(12 * BOAT_SCALE) + 1;
+export const BOAT_BOW = { x: Math.round(45 * BOAT_SCALE) + 1, y: Math.round(9 * BOAT_SCALE) + 1 };
 
 // Pixels du bord de la coque, sous la flottaison : l'écume vient y battre.
 export const BOAT_EDGE = (() => {
   const out = [];
   const at = (x, y) => BOAT[y]?.[x] === 'k';
-  for (let y = 7; y < BOAT_H; y++) {
+  for (let y = Math.round(7 * BOAT_SCALE); y < BOAT_H; y++) {
     for (let x = 0; x < BOAT_W; x++) {
       if (!at(x, y)) continue;
       for (const [dx, dy] of [[-1, 0], [1, 0], [0, 1]]) {
@@ -64,12 +85,33 @@ export const BOAT_EDGE = (() => {
 function roll(dir) {
   return BOAT.map((row, y) => {
     if (y >= BOAT_WATERLINE - 3) return row;
-    const shift = y < 6 ? dir : 0;
+    const shift = y < Math.round(6 * BOAT_SCALE) ? dir : 0;
     if (!shift) return row;
     return shift > 0 ? '.' + row.slice(0, -1) : row.slice(1) + '.';
   });
 }
 export const BOAT_FRAMES = { still: BOAT, left: roll(-1), right: roll(1) };
+
+// La seconde barque : la même, vue sous un angle un peu différent (cisaillée,
+// la proue relevée), un mât sans voile, tirée sur la grève
+export const BOAT2 = (() => {
+  const H = BOAT.length, W = BOAT[0].length, MAST = 15;
+  const out = Array.from({ length: H + MAST + 3 }, () => Array(W + 6).fill('.'));
+  BOAT.forEach((row, y) => [...row].forEach((c, x) => {
+    if (c === '.') return;
+    const nx = x + 3 + Math.round((y - H / 2) * -0.3), ny = y + MAST + Math.round((W - x) * 0.09);
+    if (out[ny]?.[nx] !== undefined) out[ny][nx] = c;
+  }));
+  // Le mât : planté un peu en avant du milieu, noir, la neige sur la pomme,
+  // une vergue courte, nue
+  const mx = Math.round(W * 0.52) + 3;
+  let base = out.findIndex(r => r[mx] !== '.');
+  for (let y = 1; y < base + 2; y++) out[y][mx] = y === 1 ? 's' : 'k';
+  for (const dx of [-2, -1, 1, 2]) out[4][mx + dx] = 'k';
+  const top = out.findIndex(r => r.some(c => c !== '.'));
+  return out.slice(top).map(r => r.join(''));
+})();
+export const BOAT2_KEEL = { x: 3, y: BOAT2.length - 3 };   // la poupe, côté mer
 
 // ── La barque du lac : petite, vue de biais, proue vers la droite. Vide, ou
 // le viking assis dedans qui rame (trois temps : rames devant, au milieu,

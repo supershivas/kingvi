@@ -20,7 +20,7 @@ import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight } from './day
 import { createSea } from './sea.js';
 import { buildStatueDoor } from './statue.js';
 import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
-import { ROWBOAT_FRAMES } from './boat.js';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js';
 import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 import * as PROPS from './props.js';
 
@@ -849,7 +849,7 @@ for (const [tag, title, about, make] of PONTOONS) {
   });
 }
 const SECOND_BOATS = [
-  ['A', 'Une jumelle', 'La même barque, tirée plus haut sur la grève, de biais : ils sont arrivés à deux.', v => PROPS.twinBoat(BOAT_FRAMES.still), 'beach'],
+  ['A', 'Une jumelle, mâtée (dans le jeu)', 'La même barque, vue sous un autre angle, un mât sans voile ; tirée tout entière sur la grève : ils sont arrivés à deux.', v => BOAT2, 'beach'],
   ['B', 'Retournée', 'Quille en l\'air sur la neige, la neige sur le ventre : quelqu\'un ne comptait pas repartir.', v => PROPS.overturned(BOAT_FRAMES.still), 'beach'],
   ['C', 'À demi coulée', 'Au large, seules l\'étrave et la poupe crèvent l\'eau.', v => PROPS.sunken(BOAT_FRAMES.still, BOAT_WATERLINE), 'sea'],
   ['D', 'Une petite barque', 'Celle du lac, plus petite, tirée sur la grève, les rames dedans.', v => PROPS.skiff(ROWBOAT_FRAMES.empty), 'beach'],
@@ -862,7 +862,7 @@ for (const [tag, title, about, make, where] of SECOND_BOATS) {
       const shore = 130;
       landingScene(ctx, pal, t, s, v, shore);
       const bob = where === 'sea' && Math.sin(t * 1.1 + 2) > 0.4 ? 1 : 0;
-      ctx.drawImage(s.img, where === 'sea' ? 30 : shore - 4, where === 'sea' ? 12 + bob : 6);
+      ctx.drawImage(s.img, where === 'sea' ? 30 : shore + 4, where === 'sea' ? 12 + bob : Math.max(0, 22 - s.img.height));
       drawViking(ctx, pal, 'side-idle', shore + 24, 60, { clock: t, wind: 0.3 });
     },
   });

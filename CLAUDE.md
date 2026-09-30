@@ -13,11 +13,21 @@ naturel, le jour et la nuit, un effet
 d'écran cathodique discret et un flou de maquette (en ellipse autour du
 héros), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
+**Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
+arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
+(falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués
+(maison, barques, coffre) gardent quelques lignes, et encore, usées.
+
+Au lancement, un écran d'accueil : le nom en gothique étrange (Grenze
+Gotisch), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
+la partie), Réglages. Le nom dans l'en-tête y ramène.
 
 On part de la grève ouest, près de la barque échouée qui flotte (une seconde
-barque tirée plus haut sur la grève : ils étaient deux ; des
+barque, mâtée sans voile, vue sous un autre angle, halée sur la grève : le
+sillon de sa quille court jusqu'à l'eau ; ils étaient deux ; des
 icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est (deux pistes côte à côte jusqu'à la maison,
-une seule en ressort) : quelques arbres,
+une seule en ressort) : le champ des morts (navires, cercles et triangles de
+pierres levées, d'après Lindholm Høje), quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
@@ -30,8 +40,8 @@ Au bout des traces, un autre viking attend : il vient au contact et frappe ;
 trois coups de part et d'autre abattent (zoom d'action, sang qui gicle, on
 saigne en marchant, les blessures se referment hors du combat). Mort, on
 repart de la barque. Quand on s'éloigne d'un cadavre, des corbeaux s'y
-abattent. Plus loin, une falaise gigantesque face au sud, et l'entrée d'une
-grotte (on n'y entre pas encore).
+abattent. Plus loin, une falaise gigantesque face au sud, faite de pans
+avancés ou reculés, et l'entrée d'une grotte (on n'y entre pas encore).
 Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
@@ -72,20 +82,25 @@ est cachée et ne sort que pendant l'attaque.
 
 ## Structure
 
-- `index.html` — en-tête, écran de jeu, réglages (`<dialog>`), toast.
+- `index.html` — en-tête, écran de jeu, écran d'accueil (`#title`),
+  réglages (`<dialog>`, « Nouveau jeu » en premier), toast.
 - `labo.html`, `js/labo.js`, `css/labo.css` — le labo d'animations (canvas 2D,
   mêmes modules que le jeu). Toute nouvelle animation y a sa carte.
-- `js/main.js` — interface : réglages, export, sauvegarde, mise à jour auto.
+- `js/main.js` — interface : écran d'accueil, nouveau jeu (efface
+  `kingvi:save` et recharge, drapeau `kingvi:start` en sessionStorage pour
+  entrer directement), réglages, export, sauvegarde, mise à jour auto.
 - `js/game.js` — scène Phaser : sol par morceaux, objets debout triés en
   profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
   cape (calque à part), attaque (traînée, impact), maison. Le canevas a la
-  taille de l'écran ; la caméra agrandit d'un facteur entier au repos
+  taille de l'écran en pixels physiques (`devicePixelRatio`, zoom Phaser
+  1/dpr) ; la caméra agrandit d'un facteur entier de pixels physiques au repos
   (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
   incrémenter quand l'île change, les anciennes positions sauvegardées
   repartent alors de la barque. Voile de nuit : une RenderTexture
-  multipliée au-dessus de tout, où la torche efface son halo (`updateNight`,
-  ombres portées redessinées ~16 fois/s). Les intérieurs (`INTERIORS` : la
+  multipliée au-dessus de tout, masquée en plein jour, où la torche efface son
+  halo ; les ombres portées (pixels tramés) y sont redessinées : elles ne sont
+  jamais plus sombres que la nuit hors du halo (`updateNight`). Les intérieurs (`INTERIORS` : la
   maison, la crypte) sont des pièces posées loin en mer, fond noir, profondeur
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
@@ -93,13 +108,15 @@ est cachée et ne sort que pendant l'attaque.
   (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
   `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6
   temps) et la traînée du coup.
-- `js/boat.js` — la barque (pixels tirés de l'image de référence, coque noire
-  `k` sans liseré), ligne de flottaison, bords, roulis (`BOAT_FRAMES`) ; la
+- `js/boat.js` — la barque (pixels tirés de l'image de référence, réduite par
+  `BOAT_SCALE`, coque noire `k` sans liseré), la seconde (`BOAT2` : cisaillée,
+  un mât), ligne de flottaison, bords, roulis (`BOAT_FRAMES`) ; la
   petite barque du lac, vide ou avec le rameur (`ROWBOAT_FRAMES`).
-- `js/props.js` — propositions de décor pour le labo (pas encore dans le
-  jeu) : nécropole (navire de pierres, triangle, cercle, tertre, champ des
-  morts), pontons, seconde barque (jumelle, retournée, coulée, petite).
-- `js/crypt.js` — la crypte de la statue du lac (runes, ossements) et le
+- `js/props.js` — décor à choisir dans le labo : nécropole (navire de
+  pierres, triangle, cercle, tertre, champ des morts — E est dans le jeu :
+  `necropolisStones`, `stoneArt`), pontons, seconde barque.
+- `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
+  cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
@@ -115,15 +132,17 @@ est cachée et ne sort que pendant l'attaque.
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
   Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
-  joueur peut figer une ambiance dans les Réglages.
+  joueur peut figer une ambiance dans les Réglages. Le nombre de flocons est
+  plafonné quand on dézoome, et la neige s'installe en 2 s au lancement.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns,
   icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
   (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
   du morceau (1024 px de large) et en change ~22 fois par seconde
   (`swayTrees`) : `treeWind` (quasi rien sous la bise), `treeLean`,
   `treeFreq` (les petits arbres battent plus vite).
-- `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
-  silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
+- `js/wolf.js` — loups (labo seulement pour l'instant) : petits, trapus,
+  voûtés, la tête plus basse que le garrot (pas de chien de dessin animé) ;
+  trot, galop, arrêt, grogne, flaire, hurle, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
@@ -144,8 +163,11 @@ est cachée et ne sort que pendant l'attaque.
   la porte de la maison (peinte avec les traces, sans toucher au tracé).
   `seaCoast` (la mer seule) sert au tracé et à l'accostage, pour que le lac ne
   les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : des tranches
-  de 40 px, objets triés comme les autres, qui bloquent tout leur pied.
-- `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.
+  de 20 px, objets triés comme les autres, qui bloquent tout leur pied ; des
+  pans (`cliffStep`) avancés ou reculés (`cliffFoot`), plus ou moins hauts.
+  Le champ des morts (`NECRO`) : une pierre par objet.
+- `css/style.css` — tokens en variables CSS, composants partagés, effet CRT,
+  écran d'accueil (`--font-game-title` : la gothique du titre, propre au jeu).
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
   `scripts/sync-design-system.sh`. Ne pas les modifier ici.
 
@@ -153,6 +175,8 @@ est cachée et ne sort que pendant l'attaque.
 
 - Les trois couleurs du jeu (`--game-snow`, `--game-night`, et `--accent`)
   sont propres à l'app : ce sont des couleurs de jeu, pas d'interface.
+- La police gothique du titre (Grenze Gotisch, Google Fonts) est propre au
+  jeu (`--font-game-title`), hors des tokens du design system.
 - Pas de mode sombre : le jeu a sa propre palette (facultatif pour une app
   secondaire).
 
@@ -181,5 +205,8 @@ est cachée et ne sort que pendant l'attaque.
 - Le corps est centré sur la colonne CX et l'origine du sprite est au milieu
   de cette colonne : le retournement ne décale rien, et la cape se place au
   pixel près (`placePlayer`).
+- Rendu en pixels physiques : sans cela, sur un écran à 125 % (ou autre
+  densité fractionnaire), les lignes du CRT et les pixels du jeu tombent entre
+  deux pixels de l'écran et dessinent des bandes claires horizontales.
 - `pagehide` sauvegarde la partie : pour tester une position, écrire la
   sauvegarde avant le chargement (sinon elle est écrasée).

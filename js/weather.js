@@ -79,7 +79,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
   const fixed = name => WEATHER_PRESETS[name] || null;
   let P = fixed(presetName) || cycleAt(Date.now() / 1000 * speed).params;
   const flakes = [], drifts = [], vortices = [];
-  let t = Math.random() * 100;
+  let t = Math.random() * 100, t0 = null;
   let view = { x: 0, y: 0, width: 800, height: 440 };
 
   const w = {
@@ -133,10 +133,16 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     w.gust = gustAt(t);
     w.wind = P.base + (P.max - P.base) * w.gust;
 
-    const wanted = Math.round(P.flakes * (v.width * v.height) / REF_AREA);
+    // Autant de flocons par pixel du monde, mais plafonnés quand on dézoome
+    // (au-delà, la densité baisse un peu : ça ne se voit pas, et ça coûte cher)
+    const area = Math.min(1.8, (v.width * v.height) / REF_AREA);
+    // Au lancement, la neige s'installe en deux secondes (pas d'averse d'un coup)
+    const ramp = Math.min(1, t0 === null ? 0 : (t - t0) / 2);
+    if (t0 === null) t0 = t;
+    const wanted = Math.round(P.flakes * area * ramp);
     while (flakes.length < wanted) flakes.push(spawnFlake({}, 'anywhere'));
     flakes.length = Math.min(flakes.length, wanted);
-    const wantedDrifts = Math.round(P.drifts * (v.width * v.height) / REF_AREA);
+    const wantedDrifts = Math.round(P.drifts * area);
     while (drifts.length < wantedDrifts) drifts.push(spawnDrift({}, true));
     drifts.length = Math.min(drifts.length, wantedDrifts);
 

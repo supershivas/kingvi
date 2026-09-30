@@ -39,6 +39,8 @@
   --game-snow:  #dfe6ee;
   --game-night: #1f2a44;
   --game-black: #05070c;
+  /* Le titre du jeu : une gothique étrange (propre au jeu) */
+  --font-game-title: 'Grenze Gotisch', 'Old English Text MT', 'Luminari', serif;
 }
 
 html, body { height: 100%; }
@@ -111,6 +113,29 @@ body {
   transition: opacity 2.5s ease;
 }
 .hint.gone { opacity: 0; }
+
+/* ── Écran d'accueil : le titre en gothique, posé sur l'île qui vit derrière ── */
+.title-screen {
+  position: absolute; inset: 0; z-index: 5;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: 24px 16px; text-align: center;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(31,42,68,.55), rgba(5,7,12,.88));
+  color: var(--game-snow);
+  cursor: default;
+}
+.title-screen[hidden] { display: none; }
+.title-name {
+  font-family: var(--font-game-title); font-weight: 800;
+  font-size: clamp(3rem, 11vw, 8.5rem); line-height: .9; letter-spacing: .04em;
+  color: var(--game-snow);
+  text-shadow: 0 .06em 0 var(--game-black), 0 0 .5em rgba(5,7,12,.6);
+}
+.title-sub { font-family: var(--font-game-title); font-weight: 500; font-size: 1.35rem; letter-spacing: .08em; opacity: .75; }
+.title-actions { display: flex; flex-direction: column; gap: 10px; min-width: 240px; margin-top: 10px; }
+.title-actions .btn-ghost { color: var(--game-snow); border-color: rgba(223,230,238,.35); }
+.title-actions .btn-ghost:hover { background: rgba(223,230,238,.1); color: var(--game-snow); }
+.btn-ghost.confirm { border-color: var(--accent); color: var(--accent); }
+.title-actions .btn-ghost.confirm { color: var(--game-snow); background: var(--accent); }
 
 /* Flou de maquette, en ellipse autour du héros (la caméra le suit : il est au
    centre). Net autour de lui, un flou doux puis un flou fort vers les bords.

@@ -1,5 +1,6 @@
 import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js';
 import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -230,68 +231,89 @@ export const STATUE3_DOOR_OUT = { x: STATUE3_BASE.x, y: STATUE3_BASE.y + 3 };
 // face au sud, et au pied, l'entrée d'une grotte ──
 export const CLIFF = { x0: 4480, x1: 5500, y: 2535 };
 export const CAVE = { x: 5232, w: 17, h: 15 };
-export const cliffHeight = x => Math.round(135 + 38 * fbm(x / 160, 0, 131, 3) * 2 + 10 * fbm(x / 30, 0, 133, 2) * 2 +
-  28 * smoothstep(CAVE.x - 160, CAVE.x, x) * (1 - smoothstep(CAVE.x, CAVE.x + 200, x)));
-const inCliff = (x, y, margin = 0) => x > CLIFF.x0 - margin && x < CLIFF.x1 + margin && y < CLIFF.y + margin && y > CLIFF.y - cliffHeight(Math.max(CLIFF.x0, Math.min(CLIFF.x1, x))) - 30 - margin;
+// Décrochements : la falaise est faite de pans, chacun avancé ou reculé,
+// plus haut ou plus bas que ses voisins ; rien n'y est droit
+const cliffStep = x => Math.floor((x - CLIFF.x0 + 60 * fbm(x / 200, 0, 193, 2)) / 130);
+export const cliffFoot = x => CLIFF.y + Math.round((hash(cliffStep(x), 1, 195) - 0.5) * 22 + 3 * fbm(x / 14, 0, 199, 2));
+export const cliffHeight = x => Math.max(60, Math.round(135 + 38 * fbm(x / 160, 0, 131, 3) * 2 + 10 * fbm(x / 30, 0, 133, 2) * 2 +
+  (hash(cliffStep(x), 2, 197) - 0.5) * 70 +
+  28 * smoothstep(CAVE.x - 160, CAVE.x, x) * (1 - smoothstep(CAVE.x, CAVE.x + 200, x))));
+const inCliff = (x, y, margin = 0) => {
+  if (x < CLIFF.x0 - margin || x > CLIFF.x1 + margin) return false;
+  const cx = Math.max(CLIFF.x0, Math.min(CLIFF.x1, x)), f = cliffFoot(cx);
+  return y < f + margin && y > f - cliffHeight(cx) - 30 - margin;
+};
 function buildCliff() {
-  const parts = [], SLICE = 40;
+  const parts = [], SLICE = 20;
   for (let x0 = CLIFF.x0; x0 < CLIFF.x1; x0 += SLICE) {
     const w = Math.min(SLICE, CLIFF.x1 - x0);
-    const hs = Array.from({ length: w }, (_, i) => cliffHeight(x0 + i));
-    const H = Math.max(...hs) + 3;
+    const fy = Array.from({ length: w }, (_, i) => cliffFoot(x0 + i));
+    const ty = fy.map((f, i) => f - cliffHeight(x0 + i));
+    const bottom = Math.max(...fy), top0 = Math.min(...ty) - 3, H = bottom - top0 + 1;
     const rows = [];
     for (let y = 0; y < H; y++) {
       let row = '';
+      const wy = top0 + y;
       for (let i = 0; i < w; i++) {
-        const wx = x0 + i, top = H - hs[i], depth = y - top;       // 0 : le rebord
-        if (depth < 0) { row += '.'; continue; }
+        const wx = x0 + i, depth = wy - ty[i];                     // 0 : le rebord
+        if (depth < 0 || wy > fy[i]) { row += '.'; continue; }
         // Les extrémités s'effondrent en éboulis
         const end = Math.min(wx - CLIFF.x0, CLIFF.x1 - wx);
         if (end < 30 && depth < (30 - end) * 3.5 * (0.7 + 0.6 * hash(wx, 7, 141))) { row += '.'; continue; }
-        const wy = CLIFF.y - (H - y);
         // Corniche de neige en haut, qui déborde en festons
         const cornice = 2 + Math.round(2 * valueNoise(wx / 4, 0, 143));
         if (depth < cornice) { row += 's'; continue; }
+        // L'arête d'un pan : là où la falaise avance, son flanc prend la lumière
+        // (l'arête ondule et se perd par endroits : pas un trait vertical)
+        const ws = wx + Math.round(5 * fbm(wy / 14, wx / 50, 211, 2) * 2);
+        const st = cliffStep(ws), prev = cliffStep(ws - 1), next = cliffStep(ws + 2);
+        if ((st !== prev || st !== next) && (wx + wy) % 2 === 0 && valueNoise(wx / 3, wy / 9, 213) > 0.3) { row += 's'; continue; }
         // Vires enneigées : des bandes qui suivent la roche, en biais, interrompues
-        const band = wy + 12 * fbm(wx / 70, 0, 145, 2) + wx * 0.08;
+        const band = wy + 12 * fbm(wx / 70, 0, 145, 2) + 3 * fbm(wx / 9, wy / 30, 207, 2) + wx * 0.08;
         const lane = Math.floor(band / 27), pos = band - lane * 27;
         if (pos < 1.4 && valueNoise(wx / 14, lane * 3, 147) > 0.42) { row += 's'; continue; }
         if (pos < 2.4 && valueNoise(wx / 14, lane * 3, 147) > 0.7) { row += 's'; continue; }
-        // Contreforts : des côtes verticales ; le flanc éclairé est tramé,
-        // plus ou moins haut
-        const rib = fbm(wx / 11, 0, 171, 2), slope = fbm((wx + 1) / 11, 0, 171, 2) - rib;
+        // Contreforts : des côtes verticales ; le flanc éclairé est tramé
+        // (la côte ondule en descendant : jamais une ligne droite)
+        const warp = wx + 7 * fbm(wy / 12, wx / 40, 209, 2) * 2;
+        const rib = fbm(warp / 11, 0, 171, 2), slope = fbm((warp + 1) / 11, 0, 171, 2) - rib;
         const reach = valueNoise(wx / 7, wy / 34, 173);
         if (slope > 0.012 && reach > 0.45 && (wx + wy) % 2 === 0) { row += 's'; continue; }
-        if (slope > 0.03 && reach > 0.6) { row += 's'; continue; }
-        // Taches de neige collée, rares
+        if (slope > 0.03 && reach > 0.6 && hash(wx, wy, 215) < 0.75) { row += 's'; continue; }
+        // Taches de neige collée, rares ; neige amassée au pied
         if (fbm(wx / 18, wy / 12, 155, 2) > 0.27 && (wx + wy) % 2 === 0) { row += 's'; continue; }
+        if (fy[i] - wy < 2 && hash(wx, wy, 203) < 0.5) { row += 's'; continue; }
         row += 'b';
       }
       rows.push(row);
     }
-    // La grotte : une bouche noire au pied, des glaçons pendus au linteau
-    if (CAVE.x + CAVE.w / 2 > x0 && CAVE.x - CAVE.w / 2 < x0 + w) {
-      for (let y = 0; y < CAVE.h; y++) {
-        // Pleine largeur en bas, voûtée en haut
-        const f = Math.max(0, y - (CAVE.h - 8)) / 8;
-        const half = CAVE.w / 2 * Math.sqrt(Math.max(0, 1 - f * f));
+    // La grotte : une bouche noire, irrégulière, penchée, au pied du pan
+    const cf = cliffFoot(CAVE.x);
+    if (CAVE.x + CAVE.w > x0 && CAVE.x - CAVE.w < x0 + w) {
+      for (let k = 0; k <= CAVE.h; k++) {
+        const wy = cf - k, y = wy - top0;
+        if (y < 0 || y >= H) continue;
+        const f = k / CAVE.h;
+        // Plus large en bas, voûte cabossée, le côté droit plus haut
+        const half = CAVE.w / 2 * Math.pow(Math.max(0, 1 - f * f * f), 0.6) * (0.85 + 0.35 * valueNoise(k / 2.5, 0, 205));
+        const cx = CAVE.x + 2 * f + Math.sin(k * 0.7) * 0.8;
         for (let i = 0; i < w; i++) {
-          const dx = x0 + i - CAVE.x;
-          if (Math.abs(dx) <= half) rows[H - 1 - y] = rows[H - 1 - y].slice(0, i) + 'k' + rows[H - 1 - y].slice(i + 1);
+          const dx = x0 + i - cx;
+          const lim = dx > 0 ? half * (1 + 0.15 * f) : half;
+          if (Math.abs(dx) <= lim && rows[y][i] !== '.') rows[y] = rows[y].slice(0, i) + 'k' + rows[y].slice(i + 1);
         }
       }
+      // Glaçons au linteau, de longueurs inégales
       for (let i = 0; i < w; i++) {
-        const dx = x0 + i - CAVE.x;
-        if (Math.abs(dx) < CAVE.w / 2 - 1 && hash(dx, 1, 159) < 0.5) {
-          const len = 1 + Math.floor(hash(dx, 2, 161) * 3);
-          for (let k = 0; k < len; k++) {
-            const y = H - CAVE.h + 1 + k;
-            if (rows[y][i] === 'k') rows[y] = rows[y].slice(0, i) + 's' + rows[y].slice(i + 1);
-          }
-        }
+        const wx = x0 + i;
+        if (Math.abs(wx - CAVE.x) > CAVE.w / 2 || hash(wx, 1, 159) > 0.45) continue;
+        let y = rows.findIndex((r, yy) => r[i] === 'k' && yy + top0 > cf - CAVE.h - 2);
+        if (y < 0) continue;
+        const len = 1 + Math.floor(hash(wx, 2, 161) * 4);
+        for (let k = 0; k < len && rows[y + k]?.[i] === 'k'; k++) rows[y + k] = rows[y + k].slice(0, i) + 's' + rows[y + k].slice(i + 1);
       }
     }
-    parts.push({ type: 'cliff', x: x0, y: CLIFF.y, art: { rows, ax: 0 }, foot: H - 4 });
+    parts.push({ type: 'cliff', x: x0, y: bottom, art: { rows, ax: 0 }, foot: H - 4 });
   }
   // Éboulis au pied
   const r = rng(SEED * 163);
@@ -299,11 +321,21 @@ function buildCliff() {
     const x = Math.round(CLIFF.x0 + r() * (CLIFF.x1 - CLIFF.x0));
     if (Math.abs(x - CAVE.x) < 16) continue;
     const w = 1 + Math.floor(r() * 3);
-    parts.push({ type: 'rubble', x, y: CLIFF.y + 1 + Math.floor(r() * 6), art: { rows: [w > 2 ? '.' + 'b'.repeat(w - 1) : 'b'.repeat(w), 'b'.repeat(w)].slice(w > 1 ? 0 : 1), ax: 0 }, foot: 0 });
+    parts.push({ type: 'rubble', x, y: cliffFoot(x) + 1 + Math.floor(r() * 6), art: { rows: [w > 2 ? '.' + 'b'.repeat(w - 1) : 'b'.repeat(w), 'b'.repeat(w)].slice(w > 1 ? 0 : 1), ax: 0 }, foot: 0 });
   }
   return parts;
 }
 export const CLIFF_PARTS = buildCliff();
+
+// ── Le champ des morts (d'après Lindholm Høje) : des navires, cercles et
+// triangles de pierres levées, au nord de la piste, à une demi-minute de la
+// barque. Chaque pierre est un objet (triée, elle cache ou non le viking).
+const NECRO_AT = trail.find(p => p.x > LANDING.shore + 560) || trail[50];
+export const NECRO = { x: Math.round(NECRO_AT.x - NECRO_W / 2), y: Math.round(NECRO_AT.y - 38 - NECRO_H) };
+const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
+  type: 'stone', x: NECRO.x + x, y: NECRO.y + y, art: stoneArt(h, SEED * 31 + i), foot: 1,
+}));
+const inNecro = (x, y, m = 0) => x > NECRO.x - m && x < NECRO.x + NECRO_W + m && y > NECRO.y - m && y < NECRO.y + NECRO_H + m;
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -614,7 +646,7 @@ export function objectsInChunk(cx, cy) {
     Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80 &&
     Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) > 80 &&
     Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110 &&
-    !inCliff(x, y, 8) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
+    !inCliff(x, y, 8) && !inNecro(x, y, 12) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
@@ -652,7 +684,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS]) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS]) {
     if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }

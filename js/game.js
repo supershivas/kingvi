@@ -10,7 +10,7 @@ import {
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT,
 } from './world.js';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES } from './boat.js';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
 import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
 import { daylightAt, torchLight, TORCH_SIZES } from './daylight.js';
 import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js';
@@ -36,12 +36,14 @@ const DEPTH_GROUND = -1000, DEPTH_WAVES = -600, DEPTH_MARKS = -500, DEPTH_BOAT =
 const DEPTH_ROOM = 5e5;
 
 // Taille interne et facteur d'agrandissement entier, pour des pixels nets.
-// Le canevas a la taille de l'écran ; c'est la caméra qui agrandit, d'un
-// facteur entier au repos (pixels nets). La molette et le combat changent ce
-// facteur : on passe en douceur d'un entier à l'autre.
+// Le canevas a la taille de l'écran en pixels physiques (densité comprise :
+// 125 %, Retina…) ; c'est la caméra qui agrandit, d'un facteur entier de
+// pixels physiques au repos : pixels nets, lignes du CRT alignées, pas de
+// moiré. La molette et le combat changent ce facteur, en douceur.
 export function fitScreen(w, h) {
-  const zoom = Math.max(1, Math.round(h / TARGET_HEIGHT));
-  return { zoom, width: Math.ceil(w), height: Math.ceil(h) };
+  const dpr = window.devicePixelRatio || 1;
+  const zoom = Math.max(1, Math.round(h * dpr / TARGET_HEIGHT));
+  return { zoom, dpr, width: Math.ceil(w * dpr), height: Math.ceil(h * dpr) };
 }
 
 // Emprise de la maison (on ne la traverse pas)
@@ -119,15 +121,26 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.boatRest = { x: land.shore + 8 - BOAT_BOW.x, y: land.y - BOAT_WATERLINE };
       boatRects.length = 0;
       boatRects.push({ x0: this.boatRest.x, x1: this.boatRest.x + BOAT_W - 2, y0: this.boatRest.y + 5, y1: this.boatRest.y + BOAT_H - 1 });
-      // L'autre barque (ils étaient deux) : tirée plus haut sur la grève, au
-      // nord, immobile (proposition A du labo)
+      // L'autre barque (ils étaient deux) : un mât sans voile, un autre angle ;
+      // tirée tout entière sur la grève, au nord. Le sillon de sa quille court
+      // jusqu'à l'eau, des pas l'accompagnent.
       let sx = land.shore;
-      const sy = land.y - 26;
+      const sy = land.y - 30;
       while (isLand(sx, sy)) sx -= 2;
       while (!isLand(sx, sy)) sx += 2;
-      const b2 = { x: sx + 14 - BOAT_BOW.x, y: sy - BOAT_WATERLINE };
-      this.add.image(b2.x, b2.y, 'boat-still').setOrigin(0, 0).setDepth(b2.y + BOAT_H);
-      boatRects.push({ x0: b2.x, x1: b2.x + BOAT_W - 2, y0: b2.y + 5, y1: b2.y + BOAT_H - 1 });
+      const b2 = { x: sx + 16, y: sy - BOAT2.length + 4 };
+      this.add.image(b2.x, b2.y, 'boat2').setOrigin(0, 0).setDepth(b2.y + BOAT2.length - 2);
+      boatRects.push({ x0: b2.x + 4, x1: b2.x + BOAT2[0].length - 6, y0: b2.y + BOAT2.length - 12, y1: b2.y + BOAT2.length - 2 });
+      const keel = this.add.graphics().setDepth(DEPTH_MARKS);
+      const kx = b2.x + BOAT2_KEEL.x + 2, ky = b2.y + BOAT2_KEEL.y;
+      for (let x = sx - 4; x < kx; x++) {
+        const y = Math.round(ky + (x - kx) * 0.12);
+        // Deux lèvres de neige repoussée, le creux entre elles
+        keel.fillStyle(hex(palette.b), 0.55); keel.fillRect(x, y - 1, 1, 1);
+        keel.fillStyle(hex(palette.b), 0.35); if ((x * 7) % 5) keel.fillRect(x, y + 1, 1, 1);
+        // Les pas de ceux qui la halaient, de part et d'autre
+        if (x % 5 === 0) { keel.fillStyle(hex(palette.b), 0.7); keel.fillRect(x, y + (x % 10 ? 4 : -4), 1, 1); }
+      }
       this.boat = this.add.image(this.boatRest.x, this.boatRest.y, 'boat-still').setOrigin(0, 0).setDepth(this.boatRest.y + BOAT_H);
       this.foam = this.add.graphics().setDepth(this.boatRest.y + BOAT_H + 0.1);
       this.foamClock = 0;
@@ -179,13 +192,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       cam.setBounds(0, 0, WORLD, WORLD);
       cam.setRoundPixels(true);
       cam.startFollow(this.player, true, 0.035, 0.035);
+      cam.centerOn(this.pos.x, this.pos.y);          // pas de long travelling au lancement
       // Zoom : base (taille de l'écran), molette (±), combat, intérieur (×2)
-      this.zoom = { base: fit.zoom, wheel: 0, fight: 0, current: fit.zoom };
+      this.zoom = { base: fit.zoom, dpr: fit.dpr, wheel: 0, fight: 0, current: fit.zoom };
       cam.setZoom(fit.zoom);
       this.input.on('wheel', (p, over, dx, dy) => {
         if (isPaused()) return;
-        const z = this.zoom;
-        z.wheel = Math.max(Math.max(1, z.base - 1) - z.base, Math.min(2, z.wheel + (dy > 0 ? -1 : 1)));
+        // Un cran : un pixel physique de plus ou de moins par pixel du jeu
+        // (deux sur un écran à haute densité)
+        const z = this.zoom, step = Math.max(1, Math.round(z.dpr));
+        const min = Math.max(1, z.base - step) - z.base, max = 2 * step;
+        z.wheel = Math.max(min, Math.min(max, z.wheel + (dy > 0 ? -step : step)));
       });
       cam.setBackgroundColor(palette.b);
 
@@ -242,7 +259,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.glow = this.add.image(0, 0, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setAlpha(0);
       this.torchOn = 0;
       this.flame = this.add.graphics();
-      this.shadows = this.add.graphics().setDepth(DEPTH_MARKS + 2);
+      // Les ombres portées ne sont pas affichées telles quelles : elles sont
+      // redessinées dans le voile de nuit (la lumière n'y passe pas)
+      this.shadows = this.make.graphics({}, false);
       this.shadowClock = 0;
       this.tint = cover(palette.r).setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 6).setAlpha(0);
       this.applyDaylight();
@@ -297,7 +316,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       z.inside = this.inside;
       z.current += (target - z.current) * k;
       if (cam.zoom !== z.current) cam.setZoom(z.current);
-      const px = `${Math.max(1, Math.round(z.current))}px`;
+      // Les lignes du CRT : une par pixel du jeu, en pixels physiques
+      const px = `${Math.max(1, Math.round(z.current)) / z.dpr}px`;
       if (px !== this.lastPx) { this.lastPx = px; parent.style.setProperty('--px', px); }
     }
 
@@ -335,6 +355,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         this.textures.addCanvas(key, c);
       };
       for (const [k, rows] of Object.entries(BOAT_FRAMES)) art(`boat-${k}`, rows);
+      art('boat2', BOAT2);
       art('house', HOUSE_ART);
       art('room', ROOM);
       art('crypt', CRYPT);
@@ -662,15 +683,21 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const tp = this.torchPoint();
       // Le voile de nuit, percé autour de la torche
       const v = this.cameras.main.worldView, rt = this.shade;
-      rt.setPosition(Math.floor(v.x) - 300, Math.floor(v.y) - 300);
-      rt.clear();
       const veil = night * 0.62;
+      // En plein jour, le voile est vide : on ne le touche pas (il coûte cher)
+      rt.setVisible(veil > 0.005);
       if (veil > 0.005) {
+        rt.setPosition(Math.floor(v.x) - 300, Math.floor(v.y) - 300);
+        rt.clear();
         rt.fill(hex(palette.b), veil);
         if (lit > 0.01) {
           const size = flick > 1.04 ? 2 : flick < 0.96 ? 0 : 1;
           this.lightStamp.setTexture(`torchlight${size}`).setPosition(Math.round(tp.x - rt.x), Math.round(tp.y + 4 - rt.y)).setAlpha(Math.min(1, this.torchOn * 1.1));
           rt.erase(this.lightStamp);
+          // Là où un obstacle arrête la lumière, la nuit revient : jamais plus
+          // sombre qu'hors du halo
+          this.shadows.setAlpha(veil);
+          rt.draw(this.shadows, -rt.x, -rt.y);
         }
       }
       this.glow.setPosition(tp.x, tp.y + 3).setScale(0.55 * flick, 0.38 * flick).setAlpha(0.1 * lit);
@@ -690,39 +717,51 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         // Une escarbille, de temps en temps
         if (k % 7 === 0) { g.fillStyle(hex(palette.r), 0.7 * this.torchOn); g.fillRect(tp.x + (k % 3) - 1, tp.y - 4 - (k % 4), 1, 1); }
       }
-      // Les ombres, portées à l'opposé de la flamme
+      // Les ombres, portées à l'opposé de la flamme : des pixels tramés, plus
+      // denses au pied de l'obstacle, qui s'effilochent au bout
       this.shadowClock -= dt;
       if (this.shadowClock > 0) return;
       this.shadowClock = 0.06;
       const sg = this.shadows;
       sg.clear();
       if (lit < 0.05) return;
-      sg.setDepth((this.inside ? DEPTH_ROOM : 0) + DEPTH_MARKS + 2);
-      const lx = tp.x, ly = this.pos.y + 1, R = 95;
-      const cast = (x, y, half, height, alpha = 1, fixed = 0) => {
-        const dx = x - lx, dy = y - ly, d = Math.hypot(dx, dy);
+      sg.fillStyle(hex(palette.b), 1);
+      const lx = tp.x, ly = this.pos.y + 1, R = 90;
+      const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+      const cast = (x, y, half, len) => {
+        const dx = x - lx, dy = (y - ly) / 0.6, d = Math.hypot(dx, dy);
         if (d < 0.5 || d > R) return;
-        const ux = dx / d, uy = dy / d, len = fixed || Math.max(6, Math.min(60, height * 24 / d)) * flick;
-        const a = 0.55 * lit * Math.min(1, 1.4 * (1 - d / R)) * alpha;
-        sg.fillStyle(hex(palette.b), Math.min(0.6, a));
-        sg.fillPoints([
-          { x: x - uy * half, y: y + ux * half * 0.6 },
-          { x: x + uy * half, y: y - ux * half * 0.6 },
-          { x: x + ux * len + uy * half * 1.5, y: y + uy * len * 0.6 - ux * half },
-          { x: x + ux * len - uy * half * 1.5, y: y + uy * len * 0.6 + ux * half },
-        ], true);
+        // Direction au sol (aplatie par la vue de biais)
+        let vx = dx / d, vy = dy / d * 0.6;
+        const n = Math.hypot(vx, vy); vx /= n; vy /= n;
+        const fade = Math.min(1, 1.6 * (1 - d / R));
+        const reach = len + half * 2;
+        for (let py = Math.floor(y - reach); py <= y + reach; py++) {
+          for (let px = Math.floor(x - reach); px <= x + reach; px++) {
+            const ax = px + 0.5 - x, ay = py + 0.5 - y;
+            const along = ax * vx + ay * vy, across = Math.abs(-ax * vy + ay * vx);
+            if (along < 0 || along > len || across > half * (1 + 0.5 * along / len)) continue;
+            const density = fade * (0.75 - 0.55 * along / len);
+            if ((BAYER[(py & 3) * 4 + (px & 3)] + 0.5) / 16 < density) sg.fillRect(px, py, 1, 1);
+          }
+        }
       };
       // Sa propre ombre : courte, du côté opposé à la torche
-      if (!this.rowing) cast(this.pos.x, this.pos.y + 0.5, 1.5, 0, 1, 6);
+      if (!this.rowing) cast(this.pos.x, this.pos.y + 0.5, 1.5, 5);
       if (this.inside) return;
-      if (Math.hypot(this.foe.pos.x - lx, this.foe.pos.y - ly) < R && this.foe.alive) cast(this.foe.pos.x, this.foe.pos.y, 2, 9);
+      if (this.foe.alive && Math.hypot(this.foe.pos.x - lx, this.foe.pos.y - ly) < R) cast(this.foe.pos.x, this.foe.pos.y, 1.5, 8);
       const cx = Math.floor(this.pos.x / CHUNK), cy = Math.floor(this.pos.y / CHUNK);
       for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx + i, cy + j)) {
           if (o.type === 'iceberg' || o.type === 'cliff' || o.type === 'rubble') continue;
           if (Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
-          const half = o.type === 'tree' ? 1.5 : Math.min(8, (o.w || 6) * 0.3);
-          cast(o.x + (o.type === 'tree' ? 0 : (o.w || 0) / 2 - (o.art?.ax || 0)), o.y, half, o.h || 10);
+          const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly));
+          if (o.type === 'tree') cast(o.x, o.y, 1.2, Math.max(5, Math.min(40, (o.h || 10) * 18 / d)));
+          else {
+            // Rochers, cairns, statues : une ombre courte et discrète, à leur pied
+            const w = o.w || 6, mid = o.x + w / 2 - (o.art?.ax || 0);
+            cast(mid, o.y, Math.min(4, w * 0.22), Math.max(3, Math.min(10, (o.h || 8) * 6 / d)));
+          }
         }
       }
     }
@@ -1024,7 +1063,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     pixelArt: true,
     roundPixels: true,
     backgroundColor: palette.b,
-    scale: { mode: Phaser.Scale.NONE },
+    scale: { mode: Phaser.Scale.NONE, zoom: 1 / fit.dpr },
     scene: Island,
     banner: false,
     input: { mouse: { preventDefaultWheel: false } },
@@ -1033,8 +1072,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
   function sizeSky(f) {
     sky.width = f.width; sky.height = f.height;
-    sky.style.width = `${f.width}px`;
-    sky.style.height = `${f.height}px`;
+    sky.style.width = `${f.width / f.dpr}px`;
+    sky.style.height = `${f.height / f.dpr}px`;
   }
   sizeSky(fit);
   parent.append(sky);
@@ -1042,10 +1081,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
   function resize() {
     const r = parent.getBoundingClientRect();
     const f = fitScreen(r.width, r.height);
+    game.scale.setZoom(1 / f.dpr);
     game.scale.resize(f.width, f.height);
     sizeSky(f);
     const scene = game.scene.getScene('island');
-    if (scene?.zoom) scene.zoom.base = f.zoom;
+    if (scene?.zoom) { scene.zoom.base = f.zoom; scene.zoom.dpr = f.dpr; }
   }
   window.addEventListener('resize', resize);
 

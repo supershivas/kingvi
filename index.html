@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
 <link rel="stylesheet" href="css/style.css"/>
 <link rel="stylesheet" href="mobile.css"/>
@@ -42,7 +42,22 @@
   <div class="tilt soft" aria-hidden="true"></div>
   <div class="tilt strong" aria-hidden="true"></div>
   <div class="crt-layer" aria-hidden="true"></div>
-  <p id="hint" class="hint">ZQSD pour marcher · Maj pour courir · clic pour frapper · molette pour zoomer</p>
+  <section id="title" class="title-screen" aria-labelledby="title-name">
+    <h1 id="title-name" class="title-name">Kingvi Sno 7</h1>
+    <p class="title-sub">Une île sous la neige. Des traces. Suis-les.</p>
+    <div class="title-actions">
+      <button id="title-resume" class="btn-primary" type="button">
+        <i class="ti ti-player-play" aria-hidden="true"></i> Reprendre
+      </button>
+      <button id="title-new" class="btn-ghost" type="button">
+        <i class="ti ti-refresh" aria-hidden="true"></i> <span>Nouveau jeu</span>
+      </button>
+      <button id="title-settings" class="btn-ghost" type="button">
+        <i class="ti ti-settings" aria-hidden="true"></i> Réglages
+      </button>
+    </div>
+  </section>
+  <p id="hint" class="hint gone">ZQSD pour marcher · Maj pour courir · clic pour frapper · molette pour zoomer</p>
 </main>
 
 <dialog id="settings" class="modal" aria-labelledby="settings-title">
@@ -53,6 +68,10 @@
         <i class="ti ti-x" aria-hidden="true"></i>
       </button>
     </div>
+
+    <button id="new-game" class="btn-ghost" type="button">
+      <i class="ti ti-refresh" aria-hidden="true"></i> <span>Nouveau jeu</span>
+    </button>
 
     <label class="toggle">
       <input id="opt-crt" type="checkbox"/>

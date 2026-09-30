@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.0 — 2026-09-30
+- Écran d'accueil (nouveau jeu, reprendre, réglages) ; « Nouveau jeu » aussi en tête des réglages
+- Le champ des morts sur la route ; une falaise à décrochements, une grotte et une crypte sans formes géométriques ; la seconde barque a un mât
+- Loups plus petits et plus bestiaux ; ombres de nuit plus douces ; neige et image plus fluides
+
 ## 1.11.0 — 2026-09-30
 - Ils étaient deux : deux pistes jusqu'à la maison, une seule en ressort, et deux barques à l'arrivée
 - Labo : propositions de pontons, de seconde barque et d'une nécropole d'après Lindholm Høje
