@@ -1,28 +1,30 @@
-/* Sprite du viking : une masse, pas un détail. Casque sombre, lourde cape
-   rouge qui tombe jusqu'aux chevilles, pas de visage. L'épée est cachée sous
-   la cape ; elle n'apparaît que pendant l'attaque.
-   Couleurs : b (bleu nuit), r (rouge), h (ombre au sol, bleu nuit transparent).
-   Chaque image fait FRAME_W × FRAME_H ; les pieds touchent la ligne GROUND. */
+/* Sprite du viking : une masse noire, pas un détail. Casque, lourd manteau
+   jusqu'aux chevilles, pas de visage. L'épée est cachée ; elle n'apparaît que
+   pendant l'attaque. La cape est un calque à part (capeFrames), qui bat au vent.
+   Couleurs : b (bleu nuit), s (neige, pour la lame sur le corps),
+   h (ombre au sol, bleu nuit transparent).
+   Chaque image fait FRAME_W × FRAME_H ; les pieds touchent la ligne GROUND.
+   Le corps est centré sur la colonne CX : un retournement horizontal ne le
+   décale pas (origine au milieu de la colonne CX). */
 
 export const FRAME_W = 32;
-export const FRAME_H = 24;
-export const CX = 15;      // colonne d'ancrage (le pied avant, de profil)
-export const GROUND = 19;  // ligne des pieds
+export const FRAME_H = 26;
+export const CX = 15;
+export const GROUND = 20;
+export const ORIGIN_X = (CX + 0.5) / FRAME_W;
+export const ORIGIN_Y = (GROUND + 1) / FRAME_H;
 
-// Profil tourné vers la droite (la gauche s'obtient par miroir).
-// Colonne 3 du motif = CX. Le haut du corps est décalé par `bob` (−1 : monte).
+// Profil tourné vers la droite (la gauche s'obtient par miroir). Colonne 3 = CX.
 const SIDE_BODY = [
-  '..bb...',
-  '.bbbb..',
-  'rrbbb..',
-  'rrrrb..',
-  'rrrrb..',
-  'rrrrb..',
-  'rrrrr..',
+  '...bb..',
+  '..bbbb.',
+  '.bbbbb.',
+  '.bbbbb.',
+  '.bbbbb.',
+  '.bbbbb.',
+  '.bbbbb.',
 ];
-// Ourlet de la cape : il traîne en arrière et balance à chaque pas.
-const SIDE_HEM = ['.rrrr..', 'rrrr...', '.rrrr..', 'rrrrr..'];
-// Jambes (dernière ligne = sol), une variante par temps du cycle.
+const SIDE_HEM = ['..bbbb.', '.bbbb..', '..bbbb.', '.bbbbb.'];
 const SIDE_LEGS = {
   stand: ['..b.b..'],
   contact: ['.b...b.'],
@@ -33,36 +35,31 @@ const SIDE_LEGS = {
 
 const FRONT_BODY = [
   '..bbb..',
-  '.rbbbr.',
-  'rrbbbrr',
-  'rrbbbrr',
-  'rrbbbrr',
-  'rrbbbrr',
+  '.bbbbb.',
+  'bbbbbbb',
+  'bbbbbbb',
+  'bbbbbbb',
+  '.bbbbb.',
 ];
-const FRONT_HEM = ['.rbbbr.', 'rrbbbr.', '.rbbbr.', '.rbbbrr'];
-const BACK_BODY = [
-  '..bbb..',
-  '.rbbbr.',
-  'rrrrrrr',
-  'rrrrrrr',
-  'rrrrrrr',
-  'rrrrrrr',
-];
-const BACK_HEM = ['.rrrrr.', 'rrrrrr.', '.rrrrr.', '.rrrrrr'];
+const FRONT_HEM = ['.bbbbb.', 'bbbbbb.', '.bbbbb.', '.bbbbbb'];
+const BACK_BODY = FRONT_BODY;
+const BACK_HEM = FRONT_HEM;
 const FACING_LEGS = {
   stand: ['..b.b..'],
   liftL: ['..b.b..', '....b..'],
   liftR: ['..b.b..', '..b....'],
+  wide: ['.b...b.'],
 };
 
 function grid() {
   return Array.from({ length: FRAME_H }, () => Array(FRAME_W).fill(null));
 }
 
-function stamp(g, rows, x0, y0) {
+function stamp(g, rows, x0, y0, onlyEmpty = false) {
   rows.forEach((row, y) => [...row].forEach((c, x) => {
     const gx = x0 + x, gy = y0 + y;
     if (c === '.' || gx < 0 || gy < 0 || gx >= FRAME_W || gy >= FRAME_H) return;
+    if (onlyEmpty && g[gy][gx] && g[gy][gx] !== 'h') return;
     g[gy][gx] = c;
   }));
 }
@@ -74,6 +71,7 @@ function shadow(g, from, to) {
 }
 
 // Corps + ourlet + jambes. `lean` décale le haut du corps horizontalement.
+// Renvoie aussi les bords du haut du corps, pour y accrocher la cape.
 function figure(body, hem, legs, { bob = 0, lean = 0 } = {}) {
   const g = grid();
   const x0 = CX - 3;
@@ -82,16 +80,25 @@ function figure(body, hem, legs, { bob = 0, lean = 0 } = {}) {
   stamp(g, [hem], x0 + lean, bodyTop + body.length);
   // Les jambes en dernier : les pieds restent visibles même accroupi
   stamp(g, legs, x0, GROUND - legs.length + 1);
-  shadow(g, CX - 4, CX + 3);
-  return g;
+  shadow(g, CX - 4, CX + 4);
+  const row = body[2];
+  const cape = {
+    west: x0 + lean + row.indexOf('b'),
+    east: x0 + lean + row.lastIndexOf('b'),
+    y: bodyTop + 2,  // l'épaule, sous le casque
+  };
+  return { g, cape };
 }
 
-// L'épée : une lame de 7 pixels, tracée de la main vers la pointe.
-function blade(g, x0, y0, dx, dy, len = 7) {
+// L'épée : une lame tracée de la main vers la pointe.
+// `behind` : cachée par le corps (on ne dessine que hors de la silhouette).
+function blade(g, x0, y0, dx, dy, len = 7, behind = false) {
   for (let i = 0; i <= len; i++) {
     const x = Math.round(x0 + dx * i), y = Math.round(y0 + dy * i);
     if (x < 0 || y < 0 || x >= FRAME_W || y >= FRAME_H) continue;
-    g[y][x] = g[y][x] && g[y][x] !== 'h' ? 's' : 'b';
+    const under = g[y][x] && g[y][x] !== 'h';
+    if (under && behind) continue;
+    g[y][x] = under ? 's' : 'b';
   }
 }
 
@@ -105,51 +112,168 @@ function facingWalk(body, hems, i) {
   return figure(body, hems[i], legs, { bob: i % 2 ? -1 : 0 });
 }
 
-// Attaque, de profil : on arme loin derrière, on frappe fort vers l'avant,
-// la lame s'écrase dans la neige devant lui, puis retourne sous la cape.
+// ── Attaques : on arme loin derrière, on frappe fort, la lame s'écrase ──
+// Profil (vers la droite) : la pointe finit dans la neige devant lui.
 function sideAttack(i) {
   if (i === 0) {
-    // Armé : il se ramasse en arrière, la lame dressée derrière lui
-    const g = figure(SIDE_BODY, SIDE_HEM[3], SIDE_LEGS.crouch, { bob: 1, lean: -1 });
-    blade(g, CX - 2, GROUND - 5, -0.55, -1, 7);
-    return g;
+    const f = figure(SIDE_BODY, SIDE_HEM[3], SIDE_LEGS.crouch, { bob: 1, lean: -1 });
+    blade(f.g, CX - 1, GROUND - 5, -0.55, -1, 7);
+    return f;
   }
   if (i === 1) {
-    // Sommet du geste : la lame au-dessus de la tête
-    const g = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand, { bob: -1 });
-    blade(g, CX, GROUND - 6, 0.35, -1, 7);
-    return g;
+    const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand, { bob: -1 });
+    blade(f.g, CX + 1, GROUND - 7, 0.35, -1, 7);
+    return f;
   }
   if (i === 2) {
-    // Impact : fente en avant, la pointe dans la neige
-    const g = figure(SIDE_BODY, SIDE_HEM[1], SIDE_LEGS.lunge, { bob: 1, lean: 1 });
-    blade(g, CX + 2, GROUND - 4, 1, 0.55, 7);
-    return g;
+    const f = figure(SIDE_BODY, SIDE_HEM[1], SIDE_LEGS.lunge, { bob: 1, lean: 1 });
+    blade(f.g, CX + 3, GROUND - 4, 1, 0.55, 7);
+    return f;
   }
-  // Retour : la lame remonte et disparaît sous la cape
-  const g = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.crouch, { bob: 1 });
-  blade(g, CX + 1, GROUND - 3, 1, 0.4, 3);
-  return g;
+  const f = figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.crouch, { bob: 1 });
+  blade(f.g, CX + 2, GROUND - 3, 1, 0.4, 3);
+  return f;
+}
+
+// Face (vers le bas de l'écran) : lame levée derrière la tête, passage sur le
+// côté, puis elle plonge vers nous et se plante devant ses pieds.
+function frontAttack(i) {
+  if (i === 0) {
+    const f = figure(FRONT_BODY, FRONT_HEM[3], FACING_LEGS.wide, { bob: 1 });
+    blade(f.g, CX + 2, GROUND - 7, 0.25, -1, 7, true);
+    return f;
+  }
+  if (i === 1) {
+    const f = figure(FRONT_BODY, FRONT_HEM[0], FACING_LEGS.stand, { bob: -1 });
+    blade(f.g, CX + 4, GROUND - 6, 1, 0.1, 6);
+    return f;
+  }
+  if (i === 2) {
+    const f = figure(FRONT_BODY, FRONT_HEM[1], FACING_LEGS.wide, { bob: 1 });
+    blade(f.g, CX, GROUND - 4, 0, 1, 8);
+    return f;
+  }
+  const f = figure(FRONT_BODY, FRONT_HEM[0], FACING_LEGS.wide, { bob: 1 });
+  blade(f.g, CX + 1, GROUND - 3, 0.3, 1, 4);
+  return f;
+}
+
+// Dos (vers le haut de l'écran) : lame basse derrière lui (vers nous),
+// passage sur le côté, puis elle s'abat devant lui, au-delà de sa tête.
+function backAttack(i) {
+  if (i === 0) {
+    const f = figure(BACK_BODY, BACK_HEM[3], FACING_LEGS.wide, { bob: 1 });
+    blade(f.g, CX + 3, GROUND - 4, 0.3, 1, 5);
+    return f;
+  }
+  if (i === 1) {
+    const f = figure(BACK_BODY, BACK_HEM[0], FACING_LEGS.stand, { bob: -1 });
+    blade(f.g, CX + 4, GROUND - 7, 1, -0.15, 6);
+    return f;
+  }
+  if (i === 2) {
+    const f = figure(BACK_BODY, BACK_HEM[1], FACING_LEGS.wide, { bob: 1 });
+    blade(f.g, CX, GROUND - 5, 0, -1, 11, true);
+    return f;
+  }
+  const f = figure(BACK_BODY, BACK_HEM[0], FACING_LEGS.wide, { bob: 1 });
+  blade(f.g, CX + 1, GROUND - 7, 0.2, -1, 4, true);
+  return f;
+}
+
+// Où la lame touche la neige, par rapport aux pieds (profil : vers la droite).
+export const IMPACT = {
+  side: { x: 10, y: -1 },
+  front: { x: 0, y: 4 },
+  back: { x: 0, y: -16 },
+};
+
+// Traînée du coup, en pixels relatifs aux pieds : { x, y, a (opacité) }.
+// Profil : un arc qui part de derrière, passe au-dessus et plonge devant.
+// Face et dos : un arc vertical qui passe par le côté droit.
+export function smearPixels(view) {
+  const out = [];
+  const arc = (cx, cy, rx0, rx1, ry0, ry1, from, to) => {
+    for (let a = from; from < to ? a <= to : a >= to; a += from < to ? 3 : -3) {
+      const t = Math.abs(a - from) / Math.abs(to - from);
+      const rad = a * Math.PI / 180;
+      const steps = 4;
+      for (let k = 0; k <= steps; k++) {
+        // Bords pleins, cœur en pointillé : l'arc a l'air de vibrer
+        if (k > 0 && k < steps && (k + Math.round(a / 3)) % 2) continue;
+        const rx = rx0 + (rx1 - rx0) * k / steps, ry = ry0 + (ry1 - ry0) * k / steps;
+        out.push({ x: Math.round(cx + Math.cos(rad) * rx), y: Math.round(cy + Math.sin(rad) * ry), a: 0.15 + 0.65 * t });
+      }
+    }
+  };
+  if (view === 'side') arc(2, -7, 5, 10, 5, 10, -150, 40);
+  else if (view === 'front') arc(0, -6, 3, 6, 7, 11, -95, 95);
+  else arc(0, -8, 3, 6, 6, 10, 95, -95);
+  return out;
 }
 
 // Toutes les images, dans l'ordre de la planche.
 export function vikingFrames() {
   const frames = [];
-  frames.push({ name: 'side-idle', grid: figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand) });
-  for (let i = 0; i < 4; i++) frames.push({ name: `side-walk-${i}`, grid: sideWalk(i) });
-  for (let i = 0; i < 4; i++) frames.push({ name: `side-attack-${i}`, grid: sideAttack(i) });
-  frames.push({ name: 'front-idle', grid: figure(FRONT_BODY, FRONT_HEM[0], FACING_LEGS.stand) });
-  for (let i = 0; i < 4; i++) frames.push({ name: `front-walk-${i}`, grid: facingWalk(FRONT_BODY, FRONT_HEM, i) });
-  frames.push({ name: 'back-idle', grid: figure(BACK_BODY, BACK_HEM[0], FACING_LEGS.stand) });
-  for (let i = 0; i < 4; i++) frames.push({ name: `back-walk-${i}`, grid: facingWalk(BACK_BODY, BACK_HEM, i) });
+  const push = (name, f) => frames.push({ name, grid: f.g, cape: f.cape });
+  push('side-idle', figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand));
+  for (let i = 0; i < 4; i++) push(`side-walk-${i}`, sideWalk(i));
+  for (let i = 0; i < 4; i++) push(`side-attack-${i}`, sideAttack(i));
+  push('front-idle', figure(FRONT_BODY, FRONT_HEM[0], FACING_LEGS.stand));
+  for (let i = 0; i < 4; i++) push(`front-walk-${i}`, facingWalk(FRONT_BODY, FRONT_HEM, i));
+  for (let i = 0; i < 4; i++) push(`front-attack-${i}`, frontAttack(i));
+  push('back-idle', figure(BACK_BODY, BACK_HEM[0], FACING_LEGS.stand));
+  for (let i = 0; i < 4; i++) push(`back-walk-${i}`, facingWalk(BACK_BODY, BACK_HEM, i));
+  for (let i = 0; i < 4; i++) push(`back-attack-${i}`, backAttack(i));
   return frames;
 }
 
-// Peint la planche dans un canvas : une ligne de FRAME_W × FRAME_H par image.
-export function paintSheet(canvas, palette) {
-  const frames = vikingFrames();
-  canvas.width = FRAME_W * frames.length;
-  canvas.height = FRAME_H;
+// ── La cape, calque à part, qui flotte toujours sous le vent (vers l'est) ──
+// Trois forces de vent × CAPE_PHASES temps. Le pixel (0, 0) est l'épaule.
+export const CAPE_W = 14;
+export const CAPE_H = 12;
+export const CAPE_PHASES = 6;
+export const CAPE_LEVELS = [0.15, 0.55, 1];
+
+export function capeGrid(strength, phase) {
+  const g = Array.from({ length: CAPE_H }, () => Array(CAPE_W).fill(null));
+  const p = phase / CAPE_PHASES * Math.PI * 2;
+  // Au calme elle pend le long du dos ; plus le vent forcit, plus elle se
+  // couche et s'allonge. C'est une étoffe : elle s'élargit vers le bas.
+  const len = 4 + strength * 6;
+  const slope = 2.4 * (1 - strength) + 0.15;
+  const norm = Math.sqrt(1 + slope * slope);
+  for (let u = 0; u <= len; u += 0.25) {
+    const t = u / len;
+    const wave = Math.sin(u * 1.1 - p) * (0.2 + 1.1 * strength) * t;
+    const cx = u / norm, cy = u * slope / norm + wave;
+    const thick = 3 + t * (1 + 2 * strength);
+    for (let k = 0; k < thick; k++) {
+      const x = Math.round(cx), y = Math.round(cy + k);
+      if (x >= 0 && y >= 0 && x < CAPE_W && y < CAPE_H) g[y][x] = 'b';
+    }
+  }
+  // Bord effiloché : un pixel qui claque, un temps sur deux
+  if (strength > 0.5 && phase % 2 === 0) {
+    const x = Math.min(CAPE_W - 1, Math.round(len / norm) + 1);
+    const y = Math.round(len * slope / norm + 2);
+    if (y < CAPE_H) g[y][x] = 'b';
+  }
+  return g;
+}
+
+export function capeFrames() {
+  const frames = [];
+  CAPE_LEVELS.forEach((s, level) => {
+    for (let i = 0; i < CAPE_PHASES; i++) frames.push({ name: `cape-${level}-${i}`, grid: capeGrid(s, i) });
+  });
+  return frames;
+}
+
+// Peint une planche : les images côte à côte, chacune de w × h.
+export function paintFrames(canvas, frames, w, h, palette) {
+  canvas.width = w * frames.length;
+  canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   frames.forEach((f, i) => {
@@ -157,9 +281,13 @@ export function paintSheet(canvas, palette) {
       if (!c) return;
       ctx.globalAlpha = c === 'h' ? 0.3 : 1;
       ctx.fillStyle = palette[c === 'h' ? 'b' : c];
-      ctx.fillRect(i * FRAME_W + x, y, 1, 1);
+      ctx.fillRect(i * w + x, y, 1, 1);
     }));
   });
   ctx.globalAlpha = 1;
-  return frames.map((f, i) => ({ name: f.name, x: i * FRAME_W }));
+  return frames.map((f, i) => ({ ...f, x: i * w }));
+}
+
+export function paintSheet(canvas, palette) {
+  return paintFrames(canvas, vikingFrames(), FRAME_W, FRAME_H, palette);
 }

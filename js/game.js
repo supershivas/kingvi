@@ -1,19 +1,29 @@
-/* La scène Phaser : sol par morceaux, viking, empreintes, vent et neige,
-   maison au bout des traces. */
-import { paintSheet, FRAME_W, FRAME_H, CX, GROUND } from './viking.js';
-import { WORLD, CHUNK, isLand, landing, paintChunk, DRAKKAR, HOUSE, HOUSE_ART } from './world.js';
+/* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
+   empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
+   (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
+import {
+  paintSheet, paintFrames, capeFrames, smearPixels, IMPACT,
+  FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
+} from './viking.js';
+import {
+  WORLD, CHUNK, isLand, landing, paintChunk, objectsInChunk, blocked,
+  DRAKKAR, HOUSE, HOUSE_ART, HOUSE_W, HOUSE_H, HOUSE_WINDOW, HOUSE_CHIMNEY,
+} from './world.js';
+import { createWeather } from './weather.js';
 
 const Phaser = window.Phaser;
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
-const WORLD_VERSION = 2;
+const WORLD_VERSION = 3;
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
 const WALK_FPS = 7;
 const OWN_PRINTS_MAX = 500;
 const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
 const TARGET_HEIGHT = 440;     // hauteur visée de l'écran, en pixels du jeu
-const FLAKES = 220;
-const DRIFTS = 60;
+
+// Profondeurs : le sol et ce qui y est tracé sont sous tout ; les objets
+// debout (arbres, rochers, maison, viking) sont triés par la ligne de leurs pieds.
+const DEPTH_GROUND = -1000, DEPTH_MARKS = -500, DEPTH_BOAT = -400, DEPTH_SKY = 1e6;
 
 // Taille interne et facteur d'agrandissement entier, pour des pixels nets.
 export function fitScreen(w, h) {
@@ -22,16 +32,22 @@ export function fitScreen(w, h) {
 }
 
 // Emprise de la maison (on ne la traverse pas)
-const HOUSE_W = HOUSE_ART[0].length, HOUSE_H = HOUSE_ART.length;
+// (vue de trois quarts : le toit représente la profondeur de la maison)
 const inHouse = (x, y) =>
-  Math.abs(x - HOUSE.x) <= HOUSE_W / 2 + 1 && y <= HOUSE.y + 1 && y >= HOUSE.y - HOUSE_H + 4;
-const walkable = (x, y) => isLand(x, y) && !inHouse(x, y);
+  Math.abs(x - HOUSE.x) <= HOUSE_W / 2 - 4 && y <= HOUSE.y + 1 && y >= HOUSE.y - 30;
+const walkable = (x, y) => isLand(x, y) && !inHouse(x, y) && !blocked(x, y);
 
-export function createGame({ parent, palette, save, onSave, isPaused }) {
+export function createGame({ parent, palette, save, onSave, isPaused, wind = 'rafales' }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
   if (save.world !== WORLD_VERSION) save = { steps: save.steps };
+
+  const weather = createWeather(wind);
+  // Calque du vent et de la neige, posé sur le jeu, à la même échelle
+  const sky = document.createElement('canvas');
+  sky.className = 'sky';
+  const skyCtx = sky.getContext('2d');
 
   class Island extends Phaser.Scene {
     constructor() { super('island'); }
@@ -40,42 +56,48 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       this.chunks = new Map();
       this.keys = new Set();
       this.ownPrints = [];
+      this.smoke = [];
       this.stepCount = save.steps || 0;
       this.distance = save.distance || 0;
       this.attacking = false;
       this.facing = save.facing || 'side';
       this.flip = !!save.flip;
-      this.wind = 10;
+      this.capeClock = 0;
 
       this.makeTextures();
 
       const land = landing();
       this.spawn = { x: land.shore + 30, y: land.y };
       const start = save.x != null && walkable(save.x, save.y) ? save : this.spawn;
+      this.pos = { x: start.x, y: start.y };
 
       // Le drakkar sur lequel il a accosté, proue dans l'eau, à l'ouest
-      this.add.image(land.shore - 4, land.y, 'drakkar').setDepth(1);
+      this.add.image(land.shore - 4, land.y, 'drakkar').setDepth(DEPTH_BOAT);
 
       // La maison, au bout des traces, et la fumée de son feu
-      this.house = this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1);
-      this.chimney = { x: HOUSE.x - HOUSE_W / 2 + 11.5, y: HOUSE.y - HOUSE_H };
-      this.time.addEvent({ delay: 650, loop: true, callback: () => this.puff() });
-      this.windowGlow = this.add.rectangle(HOUSE.x - HOUSE_W / 2 + 3, HOUSE.y, 2, 2, hex(palette.r))
-        .setOrigin(0, 1);
-      this.time.addEvent({ delay: 140, loop: true, callback: () => this.windowGlow.setAlpha(0.55 + Math.random() * 0.45) });
+      this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1).setDepth(HOUSE.y);
+      const left = HOUSE.x - HOUSE_W / 2, top = HOUSE.y + 1 - HOUSE_H;
+      this.chimney = { x: left + HOUSE_CHIMNEY.x + 1.5, y: top + HOUSE_CHIMNEY.y };
+      this.time.addEvent({ delay: 500, loop: true, callback: () => this.puff() });
+      // Le feu derrière les deux carreaux de la fenêtre : il vacille
+      const W = HOUSE_WINDOW;
+      const panes = [0, 3].map(dx => this.add.rectangle(left + W.x + dx, top + W.y, 2, W.h, hex(palette.r))
+        .setOrigin(0, 0).setDepth(HOUSE.y + 0.1));
+      this.time.addEvent({ delay: 140, loop: true, callback: () => panes.forEach(p => p.setAlpha(0.5 + Math.random() * 0.5)) });
 
-      this.player = this.add.sprite(start.x, start.y, 'viking', `${this.facing}-idle`)
-        .setOrigin(CX / FRAME_W, (GROUND + 1) / FRAME_H)
-        .setFlipX(this.flip)
-        .setDepth(5);
+      this.cape = this.add.image(0, 0, 'cape', 'cape-0-0').setOrigin(0, 0);
+      this.player = this.add.sprite(0, 0, 'viking', `${this.facing}-idle`)
+        .setOrigin(ORIGIN_X, ORIGIN_Y)
+        .setFlipX(this.flip);
       this.makeAnimations();
       this.player.on('animationupdate', (anim, frame) => this.onFrame(anim, frame));
       this.player.on('animationcomplete', anim => {
         if (anim.key.includes('attack')) {
           this.attacking = false;
-          this.player.setFrame('side-idle');
+          this.player.setFrame(`${this.facing}-idle`);
         }
       });
+      this.placePlayer();
 
       const cam = this.cameras.main;
       cam.setBounds(0, 0, WORLD, WORLD);
@@ -83,7 +105,10 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       cam.startFollow(this.player, true, 0.035, 0.035);
       cam.setBackgroundColor(palette.b);
 
-      this.makeWeather();
+      this.dust = this.add.particles(0, 0, 'dust', {
+        lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 },
+        gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
+      }).setDepth(DEPTH_SKY - 1);
 
       window.addEventListener('keydown', e => {
         if (isPaused()) return;
@@ -93,7 +118,7 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       window.addEventListener('blur', () => this.keys.clear());
 
       this.input.on('pointerdown', p => {
-        if (!isPaused() && p.button === 0) this.attack(p.worldX);
+        if (!isPaused() && p.button === 0) this.attack(p.worldX, p.worldY);
       });
 
       this.time.addEvent({ delay: 4000, loop: true, callback: () => this.persist() });
@@ -104,7 +129,13 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       const sheet = document.createElement('canvas');
       const frames = paintSheet(sheet, palette);
       const tex = this.textures.addCanvas('viking', sheet);
-      frames.forEach(f => tex.add(f.name, 0, f.x, 0, FRAME_W, FRAME_H));
+      this.capeAnchor = {};
+      frames.forEach(f => { tex.add(f.name, 0, f.x, 0, FRAME_W, FRAME_H); this.capeAnchor[f.name] = f.cape; });
+
+      const capeSheet = document.createElement('canvas');
+      const capes = paintFrames(capeSheet, capeFrames(), CAPE_W, CAPE_H, palette);
+      const ctex = this.textures.addCanvas('cape', capeSheet);
+      capes.forEach(f => ctex.add(f.name, 0, f.x, 0, CAPE_W, CAPE_H));
 
       const art = (key, rows) => {
         const c = document.createElement('canvas');
@@ -118,7 +149,6 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       };
       art('drakkar', DRAKKAR);
       art('house', HOUSE_ART);
-      art('flake', ['s']);
       art('dust', ['b']);
       art('puff', ['bb', 'bb']);
     }
@@ -130,114 +160,56 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
           frames: [0, 1, 2, 3].map(i => ({ key: 'viking', frame: `${view}-walk-${i}` })),
           frameRate: WALK_FPS, repeat: -1,
         });
+        // Armé long (on sent la charge), coup très bref, impact tenu, retour
+        this.anims.create({
+          key: `${view}-attack`,
+          frames: [
+            { key: 'viking', frame: `${view}-attack-0`, duration: 260 },
+            { key: 'viking', frame: `${view}-attack-1`, duration: 55 },
+            { key: 'viking', frame: `${view}-attack-2`, duration: 320 },
+            { key: 'viking', frame: `${view}-attack-3`, duration: 160 },
+          ],
+          frameRate: 10, repeat: 0,
+        });
       }
-      // Armé long (on sent la charge), coup très bref, impact tenu, retour
-      this.anims.create({
-        key: 'side-attack',
-        frames: [
-          { key: 'viking', frame: 'side-attack-0', duration: 260 },
-          { key: 'viking', frame: 'side-attack-1', duration: 55 },
-          { key: 'viking', frame: 'side-attack-2', duration: 320 },
-          { key: 'viking', frame: 'side-attack-3', duration: 160 },
-        ],
-        frameRate: 10, repeat: 0,
-      });
     }
 
-    // ── Vent et neige ──
-    makeWeather() {
-      // Deux sortes de flocons : clairs (vus sur la mer et le viking)
-      // et ombrés (vus sur la neige). Ils vivent dans le monde et défilent quand on marche.
-      this.flakes = [];
-      for (let i = 0; i < FLAKES; i++) {
-        const dark = i % 2 === 0;
-        const f = this.add.image(0, 0, dark ? 'dust' : 'flake').setDepth(10);
-        f.dark = dark;
-        this.placeFlake(f, 'anywhere');
-        this.flakes.push(f);
-      }
-      // Poudrerie : longues traînées de neige soufflée au ras du sol
-      this.drifts = [];
-      for (let i = 0; i < DRIFTS; i++) {
-        const d = this.add.rectangle(0, 0, 3 + Math.floor(Math.random() * 14), 1, hex(palette.b)).setOrigin(0, 0).setDepth(3);
-        this.placeDrift(d, true);
-        this.drifts.push(d);
-      }
-      this.dust = this.add.particles(0, 0, 'dust', {
-        lifespan: { min: 350, max: 900 },
-        speed: { min: 10, max: 45 },
-        angle: { min: 200, max: 340 },
-        gravityY: 60,
-        alpha: { start: 0.9, end: 0 },
-        emitting: false,
-      }).setDepth(6);
-      this.smoke = [];
+    // Le sprite est posé sur un demi-pixel : son origine est au milieu d'une
+    // colonne, ses bords tombent ainsi sur des pixels entiers.
+    placePlayer() {
+      const px = Math.round(this.pos.x), py = Math.round(this.pos.y);
+      this.player.setPosition(px + 0.5, py).setDepth(this.pos.y);
+      // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
+      const a = this.capeAnchor[this.player.frame.name];
+      if (!a) return;
+      const col = this.flip ? 2 * CX - a.west - 1 : a.east - 1;
+      this.cape.setPosition(px + col - CX, py + a.y - GROUND - 1).setDepth(this.pos.y - 0.01);
     }
 
-    view() {
-      const v = this.cameras.main.worldView;
-      if (v.width) return v;
-      const w = this.scale.width, h = this.scale.height;
-      return { x: this.player.x - w / 2, y: this.player.y - h / 2, width: w, height: h, right: this.player.x + w / 2, bottom: this.player.y + h / 2 };
-    }
-
-    placeFlake(f, from) {
-      const v = this.view();
-      if (from === 'top') { f.x = v.x - 40 + Math.random() * (v.width + 40); f.y = v.y - 4; }
-      else if (from === 'left') { f.x = v.x - 4; f.y = v.y + Math.random() * v.height; }
-      else { f.x = v.x + Math.random() * v.width; f.y = v.y + Math.random() * v.height; }
-      f.gust = 0.6 + Math.random() * 0.7;
-      f.vy = 5 + Math.random() * 8;
-      f.phase = Math.random() * 6.28;
-      f.setAlpha(f.dark ? 0.18 + Math.random() * 0.22 : 0.6 + Math.random() * 0.4);
-    }
-
-    placeDrift(d, anywhere) {
-      const v = this.view();
-      d.x = anywhere ? v.x + Math.random() * v.width : v.x - d.width - Math.random() * 40;
-      d.y = v.y + Math.random() * v.height;
-      d.speed = 1.6 + Math.random() * 1.2;
-      d.base = 0.05 + Math.random() * 0.12;
-      d.phase = Math.random() * 6.28;
-    }
-
-    updateWeather(time, delta) {
-      const dt = delta / 1000;
-      // Rafales : un vent d'ouest qui enfle et retombe
-      const g = (Math.sin(time / 5300) + 0.5 * Math.sin(time / 2100 + 1) + 1.5) / 3;
-      this.gust = g * g;
-      this.wind = 5 + 34 * this.gust;
-      const v = this.cameras.main.worldView;
-
-      for (const f of this.flakes) {
-        f.x += (this.wind * f.gust + Math.sin(time / 800 + f.phase) * 3) * dt;
-        f.y += (f.vy + Math.sin(time / 1300 + f.phase) * 2) * dt;
-        if (f.y > v.bottom + 4) this.placeFlake(f, 'top');
-        else if (f.x > v.right + 4) this.placeFlake(f, 'left');
-        else if (f.x < v.x - 60 || f.y < v.y - 60) this.placeFlake(f, 'anywhere');
-      }
-      for (const d of this.drifts) {
-        d.x += this.wind * d.speed * dt;
-        d.y += Math.sin(time / 600 + d.phase) * 2 * dt;
-        d.setAlpha(d.base * (0.15 + 1.6 * this.gust));
-        if (d.x > v.right + 4) this.placeDrift(d, false);
-        else if (d.x + d.width < v.x - 80 || d.y < v.y - 20 || d.y > v.bottom + 20) this.placeDrift(d, true);
-      }
-      for (let i = this.smoke.length - 1; i >= 0; i--) {
-        const s = this.smoke[i];
-        s.life += dt;
-        s.x += (this.wind * 0.35 * Math.min(1, s.life / 2)) * dt;
-        s.y -= (5 - s.life * 0.4) * dt;
-        s.setAlpha(Math.max(0, 0.45 * (1 - s.life / 7)));
-        if (s.life > 7) { s.destroy(); this.smoke.splice(i, 1); }
-      }
+    updateCape(delta) {
+      // Plus le vent est fort, plus la cape se couche et bat vite
+      const force = Math.min(1, weather.wind / 140);
+      const level = force < 0.22 ? 0 : force < 0.6 ? 1 : 2;
+      this.capeClock += delta / 1000 * (3 + force * 14);
+      this.cape.setFrame(`cape-${level}-${Math.floor(this.capeClock) % CAPE_PHASES}`);
     }
 
     puff() {
       const s = this.add.image(this.chimney.x + Math.random(), this.chimney.y, Math.random() < 0.5 ? 'puff' : 'dust')
-        .setDepth(7).setAlpha(0.45);
+        .setDepth(DEPTH_SKY - 2).setAlpha(0.45);
       s.life = 0;
       this.smoke.push(s);
+    }
+
+    updateSmoke(dt) {
+      for (let i = this.smoke.length - 1; i >= 0; i--) {
+        const s = this.smoke[i];
+        s.life += dt;
+        s.x += weather.wind * 0.5 * Math.min(1, s.life / 1.5) * dt;
+        s.y -= Math.max(0, 5 - s.life * 0.8) * dt;
+        s.setAlpha(Math.max(0, 0.45 * (1 - s.life / 5)));
+        if (s.life > 5) { s.destroy(); this.smoke.splice(i, 1); }
+      }
     }
 
     // ── Pas ──
@@ -246,54 +218,46 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
       if (anim.key.endsWith('walk') && (frame.index === 1 || frame.index === 3)) {
         this.leavePrint(frame.index === 1 ? -1 : 1);
       }
-      if (anim.key === 'side-attack') {
+      if (anim.key.endsWith('attack')) {
         if (frame.index === 2) this.swing();
         if (frame.index === 3) this.impact();
       }
     }
 
     leavePrint(side) {
-      const { x, y } = this.player;
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
       const horizontal = this.facing === 'side';
-      const px = Math.round(x + (horizontal ? 0 : side));
-      const py = Math.round(y - 1 + (horizontal ? (side > 0 ? 0 : -1) : 0));
+      const px = x + (horizontal ? 0 : side);
+      const py = y - 1 + (horizontal ? (side > 0 ? 0 : -1) : 0);
       this.mark(px, py, horizontal ? 2 : 1, horizontal ? 1 : 2, OWN_PRINT_LIFE);
       this.stepCount++;
     }
 
     mark(x, y, w, h, life) {
-      const m = this.add.rectangle(x, y, w, h, hex(palette.b), 0.9).setOrigin(0, 0).setDepth(2);
+      const m = this.add.rectangle(x, y, w, h, hex(palette.b), 0.9).setOrigin(0, 0).setDepth(DEPTH_MARKS);
       this.tweens.add({ targets: m, alpha: 0, duration: life, ease: 'Quad.easeIn', onComplete: () => m.destroy() });
       this.ownPrints.push(m);
       if (this.ownPrints.length > OWN_PRINTS_MAX) this.ownPrints.shift().destroy();
     }
 
-    // ── Attaque : toujours de profil, vers le côté du pointeur ──
-    attack(tx) {
+    // ── Attaque : vers le pointeur, dans l'une des quatre directions ──
+    attack(tx, ty) {
       if (this.attacking) return;
-      this.facing = 'side';
-      this.flip = tx < this.player.x;
+      const dx = tx - this.pos.x, dy = ty - (this.pos.y - 5);
+      if (Math.abs(dx) >= Math.abs(dy)) { this.facing = 'side'; this.flip = dx < 0; }
+      else this.facing = dy < 0 ? 'back' : 'front';
       this.player.setFlipX(this.flip);
       this.attacking = true;
-      this.player.play('side-attack');
+      this.player.play(`${this.facing}-attack`);
     }
 
-    // Traînée du coup : un arc qui part de derrière, passe au-dessus et plonge devant
     swing() {
       const dir = this.flip ? -1 : 1;
-      const cx = Math.round(this.player.x), cy = Math.round(this.player.y) - 7;
-      const g = this.add.graphics().setDepth(6);
-      g.fillStyle(hex(palette.b), 1);
-      const from = -150, to = 40;
-      for (let a = from; a <= to; a += 3) {
-        const t = (a - from) / (to - from);
-        const rad = a * Math.PI / 180;
-        const r0 = 5 + Math.round(t * 2), r1 = 9 + Math.round(t * 1);
-        g.fillStyle(hex(palette.b), 0.15 + 0.6 * t);
-        for (let r = r0; r <= r1; r++) {
-          if (r > r0 && r < r1 && Math.random() < 0.5) continue;
-          g.fillRect(Math.round(cx + dir * Math.cos(rad) * r), Math.round(cy + Math.sin(rad) * r), 1, 1);
-        }
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
+      const g = this.add.graphics().setDepth(this.pos.y + 0.5);
+      for (const p of smearPixels(this.facing)) {
+        g.fillStyle(hex(palette.b), p.a);
+        g.fillRect(x + p.x * dir, y + p.y, 1, 1);
       }
       this.tweens.add({ targets: g, alpha: 0, duration: 260, ease: 'Quad.easeOut', onComplete: () => g.destroy() });
     }
@@ -301,19 +265,20 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
     // La lame s'écrase dans la neige : secousse, gerbe, entaille qui reste un moment
     impact() {
       const dir = this.flip ? -1 : 1;
-      const x = Math.round(this.player.x) + dir * 9, y = Math.round(this.player.y) - 1;
+      const off = IMPACT[this.facing];
+      const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y) + off.y;
       this.cameras.main.shake(140, 0.006);
+      const up = this.facing === 'side' ? (dir > 0 ? { min: 200, max: 330 } : { min: 210, max: 340 }) : { min: 200, max: 340 };
       this.dust.setConfig({
-        lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 },
-        angle: dir > 0 ? { min: 200, max: 330 } : { min: 210, max: 340 },
+        lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 }, angle: up,
         gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
       });
       this.dust.explode(16, x, y);
-      // Entaille : un trait dans le sens du coup et deux éclats
-      this.mark(dir > 0 ? x - 2 : x - 3, y, 6, 1, 25000);
-      this.mark(x + dir * 4, y - 1, 1, 1, 12000);
-      this.mark(x - dir * 1, y + 1, 1, 1, 12000);
-      const ring = this.add.ellipse(x, y, 4, 2).setStrokeStyle(1, hex(palette.b), 0.6).setDepth(2);
+      if (this.facing === 'side') this.mark(dir > 0 ? x - 2 : x - 3, y, 6, 1, 25000);
+      else this.mark(x, y - 2, 1, 5, 25000);
+      this.mark(x + 3, y - 1, 1, 1, 12000);
+      this.mark(x - 2, y + 1, 1, 1, 12000);
+      const ring = this.add.ellipse(x, y, 4, 2).setStrokeStyle(1, hex(palette.b), 0.6).setDepth(DEPTH_MARKS + 1);
       this.tweens.add({ targets: ring, scaleX: 4, scaleY: 3, alpha: 0, duration: 420, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
     }
 
@@ -326,11 +291,12 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
         if (mx || my) {
           const len = Math.hypot(mx, my);
           const step = SPEED * delta / 1000;
-          const nx = this.player.x + mx / len * step, ny = this.player.y + my / len * step;
-          // Ni la mer ni la maison : on glisse le long de l'obstacle si possible
-          if (walkable(nx, ny)) { this.player.x = nx; this.player.y = ny; }
-          else if (mx && walkable(nx, this.player.y)) this.player.x = nx;
-          else if (my && walkable(this.player.x, ny)) this.player.y = ny;
+          const { x, y } = this.pos;
+          const nx = x + mx / len * step, ny = y + my / len * step;
+          // Ni la mer, ni la maison, ni les troncs : on glisse le long de l'obstacle
+          if (walkable(nx, ny)) { this.pos.x = nx; this.pos.y = ny; }
+          else if (mx && walkable(nx, y)) this.pos.x = nx;
+          else if (my && walkable(x, ny)) this.pos.y = ny;
           this.distance += step;
 
           if (mx) { this.facing = 'side'; this.flip = mx < 0; }
@@ -343,14 +309,28 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
           this.player.setFrame(`${this.facing}-idle`);
         }
       }
-      // Devant ou derrière la maison selon qu'il est plus bas ou plus haut qu'elle
-      this.house.setDepth(this.player.y > HOUSE.y ? 4 : 6);
-      this.windowGlow.setDepth(this.house.depth + 0.1);
-      this.updateWeather(time, delta);
+      this.placePlayer();
+      this.updateCape(delta);
+      this.updateSmoke(delta / 1000);
       this.updateChunks();
+      this.drawSky(delta / 1000);
     }
 
-    // Charge les morceaux de sol visibles, oublie ceux qui sont loin.
+    drawSky(dt) {
+      const v = this.cameras.main.worldView;
+      weather.update(dt, { x: v.x, y: v.y, width: v.width, height: v.height });
+      skyCtx.setTransform(1, 0, 0, 1, 0, 0);
+      skyCtx.clearRect(0, 0, sky.width, sky.height);
+      skyCtx.setTransform(1, 0, 0, 1, -Math.round(v.x), -Math.round(v.y));
+      weather.draw((x, y, w, h, c, a) => {
+        skyCtx.globalAlpha = a;
+        skyCtx.fillStyle = palette[c];
+        skyCtx.fillRect(x, y, w, h);
+      });
+      skyCtx.globalAlpha = 1;
+    }
+
+    // Charge les morceaux de sol visibles (et leurs arbres), oublie ceux qui sont loin.
     updateChunks(force) {
       const v = this.cameras.main.worldView;
       const margin = CHUNK / 2;
@@ -371,39 +351,72 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
           // Au plus deux morceaux peints par image, pour ne pas saccader
           if (!force && painted >= 2) { this.lastRange = null; continue; }
           painted++;
-          const canvas = document.createElement('canvas');
-          canvas.width = canvas.height = CHUNK;
-          paintChunk(canvas.getContext('2d'), cx, cy, palette);
-          const texKey = `chunk-${key}`;
-          this.textures.addCanvas(texKey, canvas);
-          const img = this.add.image(cx * CHUNK, cy * CHUNK, texKey).setOrigin(0, 0).setDepth(0);
-          this.chunks.set(key, img);
+          this.chunks.set(key, this.loadChunk(cx, cy, key));
         }
       }
       if (this.chunks.size <= 48) return;
-      for (const [key, img] of this.chunks) {
+      for (const [key, chunk] of this.chunks) {
         if (wanted.has(key)) continue;
-        img.destroy();
-        this.textures.remove(`chunk-${key}`);
+        chunk.images.forEach(i => i.destroy());
+        chunk.textures.forEach(t => this.textures.remove(t));
         this.chunks.delete(key);
       }
+    }
+
+    loadChunk(cx, cy, key) {
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = CHUNK;
+      paintChunk(canvas.getContext('2d'), cx, cy, palette);
+      const groundKey = `chunk-${key}`;
+      this.textures.addCanvas(groundKey, canvas);
+      const images = [this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND)];
+      const textures = [groundKey];
+
+      // Tous les objets du morceau dans une seule planche : un seul envoi à la carte graphique
+      const objs = objectsInChunk(cx, cy);
+      if (objs.length) {
+        let x = 0, y = 0, rowH = 0;
+        const slots = objs.map(o => {
+          if (x + o.w > CHUNK) { x = 0; y += rowH + 1; rowH = 0; }
+          const slot = { x, y };
+          x += o.w + 1; rowH = Math.max(rowH, o.h);
+          return slot;
+        });
+        const atlas = document.createElement('canvas');
+        atlas.width = CHUNK; atlas.height = y + rowH + 1;
+        const ctx = atlas.getContext('2d');
+        objs.forEach((o, i) => o.art.rows.forEach((row, ry) => [...row].forEach((ch, rx) => {
+          if (ch === '.') return;
+          ctx.fillStyle = palette[ch];
+          ctx.fillRect(slots[i].x + rx, slots[i].y + ry, 1, 1);
+        })));
+        const objKey = `objects-${key}`;
+        const tex = this.textures.addCanvas(objKey, atlas);
+        textures.push(objKey);
+        objs.forEach((o, i) => {
+          tex.add(i, 0, slots[i].x, slots[i].y, o.w, o.h);
+          images.push(this.add.image(o.x - o.art.ax, o.y + 1, objKey, i).setOrigin(0, 1).setDepth(o.y));
+        });
+      }
+      return { images, textures };
     }
 
     persist() {
       onSave({
         world: WORLD_VERSION,
-        x: Math.round(this.player.x), y: Math.round(this.player.y),
+        x: Math.round(this.pos.x), y: Math.round(this.pos.y),
         facing: this.facing, flip: this.flip,
         steps: this.stepCount, distance: Math.round(this.distance),
       });
     }
 
     backToShore() {
-      this.player.setPosition(this.spawn.x, this.spawn.y);
+      this.pos = { ...this.spawn };
       this.facing = 'side'; this.flip = false;
       this.player.stop();
       this.player.setFrame('side-idle').setFlipX(false);
       this.attacking = false;
+      this.placePlayer();
       this.cameras.main.centerOn(this.spawn.x, this.spawn.y);
       this.updateChunks(true);
       this.persist();
@@ -425,11 +438,20 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
     disableContextMenu: true,
   });
 
+  function sizeSky(f) {
+    sky.width = f.width; sky.height = f.height;
+    sky.style.width = `${f.width * f.zoom}px`;
+    sky.style.height = `${f.height * f.zoom}px`;
+  }
+  sizeSky(fit);
+  parent.append(sky);
+
   function resize() {
     const r = parent.getBoundingClientRect();
     const f = fitScreen(r.width, r.height);
     game.scale.setZoom(f.zoom);
     game.scale.resize(f.width, f.height);
+    sizeSky(f);
     parent.style.setProperty('--px', `${f.zoom}px`);
   }
   window.addEventListener('resize', resize);
@@ -439,6 +461,7 @@ export function createGame({ parent, palette, save, onSave, isPaused }) {
     game,
     scene: () => game.scene.getScene('island'),
     save: () => game.scene.getScene('island')?.persist(),
+    setWind: name => weather.setPreset(name),
   };
 }
 

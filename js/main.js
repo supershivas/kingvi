@@ -1,5 +1,6 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
+import { WEATHER_PRESETS } from './weather.js';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -20,7 +21,7 @@ const palette = {
   r: css.getPropertyValue('--accent').trim(),
 };
 
-const prefs = { crt: true, tilt: true, ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, wind: 'rafales', ...read(PREFS_KEY, {}) };
 let save = read(SAVE_KEY, {});
 
 // ── Toast ──
@@ -41,6 +42,7 @@ const game = createGame({
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   isPaused: () => settings.open,
+  wind: prefs.wind,
 });
 window.addEventListener('pagehide', () => game.save());
 
@@ -69,6 +71,25 @@ $('opt-crt').addEventListener('change', e => {
   applyCrt();
 });
 
+// Vent : les ambiances à comparer (voir aussi le labo)
+const windSelect = $('opt-wind');
+for (const [key, p] of Object.entries(WEATHER_PRESETS)) {
+  const o = document.createElement('option');
+  o.value = key; o.textContent = p.label;
+  windSelect.append(o);
+}
+function applyWind() {
+  windSelect.value = prefs.wind;
+  $('wind-about').textContent = WEATHER_PRESETS[prefs.wind]?.about || '';
+  game.setWind(prefs.wind);
+}
+applyWind();
+windSelect.addEventListener('change', e => {
+  prefs.wind = e.target.value;
+  write(PREFS_KEY, prefs);
+  applyWind();
+});
+
 function applyTilt() {
   $('screen').classList.toggle('tilt-on', prefs.tilt);
   $('opt-tilt').checked = prefs.tilt;
@@ -86,6 +107,10 @@ $('open-settings').addEventListener('click', async () => {
   settings.showModal();
   renderVersions();
 });
+if (location.hash === '#reglages') {
+  history.replaceState(null, '', location.pathname);
+  setTimeout(() => $('open-settings').click(), 300);
+}
 $('close-settings').addEventListener('click', () => settings.close());
 settings.addEventListener('click', e => { if (e.target === settings) settings.close(); });
 

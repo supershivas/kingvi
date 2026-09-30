@@ -1,4 +1,6 @@
-/* L'île : relief de la côte, traces à suivre, rares rochers et pierres levées.
+import { makeTree, makeBoulder, makeCairn } from './trees.js';
+
+/* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
    Le sol est peint par morceaux de CHUNK × CHUNK pixels, à la demande. */
 
@@ -36,7 +38,7 @@ function valueNoise(x, y, s) {
   return a + (b - a) * xf + (c - a) * yf + (a - b - c + d) * xf * yf;
 }
 
-function fbm(x, y, s, octaves = 4) {
+export function fbm(x, y, s, octaves = 4) {
   let v = 0, amp = 0.5, f = 1;
   for (let i = 0; i < octaves; i++) {
     v += amp * (valueNoise(x * f, y * f, s + i * 17) - 0.5);
@@ -64,7 +66,8 @@ export function landing() {
 
 // ── La maison, au bout des traces ──
 export const HOUSE = { x: CENTER + 650, y: CENTER - 120 };
-export const HOUSE_DOOR = { x: HOUSE.x + 2, y: HOUSE.y + 2 };
+// Devant la porte (voir HOUSE_DOOR_ART) : là où les traces s'arrêtent
+export const HOUSE_DOOR = { x: HOUSE.x + 9, y: HOUSE.y + 4 };
 
 // ── Les traces : une piste de pas qui traverse l'île jusqu'à la maison ──
 const STRIDE = 7;
@@ -125,7 +128,6 @@ const ROCKS = [
   ['..bb...', '.bbbb.b', 'bbbbbbb'],
 ];
 const STONE = ['.b.', 'bsb', 'bbb', 'bsb', 'bbb', 'bsb', 'bbb']; // pierre levée gravée
-const CAIRN = ['.b.', 'bb.', '.bb', 'bbb'];
 // Drakkar échoué, dessiné debout puis couché : proue vers le large (ouest)
 const DRAKKAR_UPRIGHT = [
   '...b...',
@@ -152,20 +154,53 @@ const DRAKKAR_UPRIGHT = [
 
 export const DRAKKAR = [...DRAKKAR_UPRIGHT[0]].map((_, x) => DRAKKAR_UPRIGHT.map(row => row[x]).join(''));
 
-// Petite maison : toit enneigé, fenêtre où brûle un feu, porte en bas à droite.
-// Le point (HOUSE.x, HOUSE.y) est le bas du motif, au milieu.
-export const HOUSE_ART = [
-  '.....bbbbb.bb..',
-  '....bsssssbbb..',
-  '...bsssssssbb..',
-  '..bsssssssssb..',
-  '.bsssssssssssb.',
-  'bbbbbbbbbbbbbbb',
-  '.bbbbbbbbbbbbb.',
-  '.bbrrbbbsssbbb.',
-  '.bbrrbbbsbsbbb.',
-  '.bbbbbbbsbsbbb.',
-];
+// La maison : à l'échelle du viking (sa porte fait à peu près sa taille).
+// Vue de trois quarts : un grand toit enneigé en pente, des murs sombres,
+// une fenêtre où brûle un feu, une cheminée. HOUSE est le bas du motif, au milieu.
+export const HOUSE_W = 72;
+export const HOUSE_H = 46;
+export const HOUSE_WALL = 24;                              // hauteur des murs
+export const HOUSE_WINDOW = { x: 15, y: 31, w: 5, h: 4 };  // en pixels du motif
+export const HOUSE_DOOR_ART = { x: 42, y: 33, w: 6, h: 13 };
+export const HOUSE_CHIMNEY = { x: 55, y: 0 };
+
+function makeHouse() {
+  const W = HOUSE_W, H = HOUSE_H, r = rng(SEED * 313);
+  const g = Array.from({ length: H }, () => Array(W).fill('.'));
+  const put = (x, y, c) => { if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
+  const eave = H - HOUSE_WALL;                  // ligne du bas du toit
+  // Murs : un bloc sombre, un peu en retrait sous le débord du toit
+  for (let y = eave; y < H; y++) for (let x = 5; x < W - 5; x++) put(x, y, 'b');
+  // Toit : pan en pente vers nous, du faîtage (haut) à l'égout (bas), qui déborde
+  const ridge = 5;
+  for (let y = ridge; y <= eave + 1; y++) {
+    const t = (y - ridge) / (eave + 1 - ridge);
+    const left = Math.round(14 - 13 * t), right = Math.round(W - 12 + 11 * t);
+    for (let x = left; x <= right; x++) {
+      const edge = x === left || x === right || y === ridge || y === eave + 1;
+      // Neige tassée : quelques pixels sombres, plus nombreux vers l'égout
+      const speck = r() < 0.05 + 0.18 * t * t;
+      put(x, y, edge || speck ? 'b' : 's');
+    }
+  }
+  // Cheminée qui perce le toit
+  for (let y = 0; y < ridge + 4; y++) for (let x = HOUSE_CHIMNEY.x - 1; x <= HOUSE_CHIMNEY.x + 2; x++) put(x, y, 'b');
+  put(HOUSE_CHIMNEY.x, ridge + 1, 's'); put(HOUSE_CHIMNEY.x + 1, ridge + 1, 's');
+  // Fenêtre (le feu y est ajouté par le jeu) et porte, cadres clairs
+  const { x: wx, y: wy, w: ww, h: wh } = HOUSE_WINDOW;
+  for (let x = wx - 1; x <= wx + ww; x++) { put(x, wy - 1, 's'); put(x, wy + wh, 's'); }
+  for (let y = wy - 1; y <= wy + wh; y++) { put(wx - 1, y, 's'); put(wx + ww, y, 's'); }
+  for (let y = wy; y < wy + wh; y++) for (let x = wx; x < wx + ww; x++) put(x, y, 'r');
+  put(wx + 2, wy, 'b'); put(wx + 2, wy + 1, 'b'); put(wx + 2, wy + 2, 'b'); put(wx + 2, wy + 3, 'b');
+  const { x: dx, y: dy, w: dw, h: dh } = HOUSE_DOOR_ART;
+  for (let y = dy - 1; y < dy + dh; y++) { put(dx - 1, y, 's'); put(dx + dw, y, 's'); }
+  for (let x = dx - 1; x <= dx + dw; x++) put(x, dy - 1, 's');
+  put(dx + dw - 2, dy + 6, 's');                // poignée
+  // Congère contre le mur, côté ouest (le vent vient de là)
+  for (let y = H - 4; y < H; y++) for (let x = 5; x < 5 + (y - (H - 5)) * 4; x++) put(x, y, 's');
+  return g.map(row => row.join(''));
+}
+export const HOUSE_ART = makeHouse();
 
 function stamp(ctx, pat, ox, oy, pal) {
   pat.forEach((row, y) => [...row].forEach((c, x) => {
@@ -231,7 +266,6 @@ export function paintChunk(ctx, cx, cy, pal) {
     if (at) stamp(ctx, pat, at.x, at.y, pal);
   }
   if (r() < 0.035) { const at = place(3, 7); if (at) stamp(ctx, STONE, at.x, at.y, pal); }
-  if (r() < 0.04) { const at = place(3, 4); if (at) stamp(ctx, CAIRN, at.x, at.y, pal); }
 
   // Les traces
   const prints = trailByChunk.get(`${cx},${cy}`) || [];
@@ -245,4 +279,81 @@ export function paintChunk(ctx, cx, cy, pal) {
       ctx.fillRect(lx + dx, ly + dy, 1, 1);
     }
   }
+}
+
+// ── Objets debout (arbres, gros rochers, cairns) ──
+// Ils sont triés en profondeur avec le viking et le bloquent : le jeu les
+// affiche un par un. Tout est tiré d'un hasard propre à chaque cellule.
+const CELL = 16;
+const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+// Quelques arbres isolés, puis la forêt, puis de nouveau clairsemés avant la maison.
+export function forestDensity(x, y) {
+  // Lisière irrégulière : la distance au rivage est déformée par un bruit lent
+  const dx = x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
+  if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
+  const sparse = dx > 300 ? 0.03 : 0;
+  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2350, 2700, dx));
+  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
+  return Math.max(sparse, core * Math.max(0, patchy));
+}
+
+function nearTrail(x, y, dist) {
+  const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
+  for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+    for (const p of trailByChunk.get(`${cx + i},${cy + j}`) || []) {
+      if (Math.abs(p.x - x) < dist && Math.abs(p.y - y) < dist) return true;
+    }
+  }
+  return false;
+}
+
+const LANDING = landing();
+const objectCache = new Map();
+
+export function objectsInChunk(cx, cy) {
+  const key = `${cx},${cy}`;
+  if (objectCache.has(key)) return objectCache.get(key);
+  const list = [];
+  const x0 = cx * CHUNK, y0 = cy * CHUNK;
+  const free = (x, y, trail) =>
+    coast(x, y) < -0.03 && !nearTrail(x, y, trail) &&
+    Math.hypot(x - LANDING.shore, y - LANDING.y) > 60;
+
+  for (let gy = 0; gy < CHUNK; gy += CELL) {
+    for (let gx = 0; gx < CHUNK; gx += CELL) {
+      const r = rng(hash(x0 + gx, y0 + gy, 77) * 4294967296);
+      const x = x0 + gx + Math.floor(r() * CELL), y = y0 + gy + Math.floor(r() * CELL);
+      const d = forestDensity(x, y);
+      if (r() < d && free(x, y, 8)) {
+        list.push({ type: 'tree', x, y, seed: Math.floor(r() * 1e9), big: d > 0.2 });
+        continue;
+      }
+      // Gros rochers : rares, un peu plus fréquents hors de la forêt
+      if (r() < 0.012 && free(x, y, 16)) list.push({ type: 'boulder', x, y, seed: Math.floor(r() * 1e9) });
+      else if (r() < 0.004 && free(x, y, 10)) list.push({ type: 'cairn', x, y, seed: Math.floor(r() * 1e9) });
+    }
+  }
+  for (const o of list) {
+    const r = rng(o.seed);
+    o.art = o.type === 'tree' ? makeTree(r, { big: o.big }) : o.type === 'boulder' ? makeBoulder(r) : makeCairn(r);
+    o.w = o.art.rows[0].length;
+    o.h = o.art.rows.length;
+  }
+  objectCache.set(key, list);
+  return list;
+}
+
+// Un objet bloque-t-il le passage en (x, y) ? Arbres : le tronc.
+// Rochers et cairns : la moitié basse de leur silhouette.
+export function blocked(x, y) {
+  const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
+  for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+    for (const o of objectsInChunk(cx + i, cy + j)) {
+      const dx = x - o.x, dy = y - o.y;
+      if (o.type === 'tree') { if (Math.abs(dx) <= 1.5 && dy <= 0.5 && dy >= -1.5) return true; }
+      else if (Math.abs(dx) < o.w / 2 - 0.5 && dy <= 0.5 && dy >= -o.h * 0.55) return true;
+    }
+  }
+  return false;
 }

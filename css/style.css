@@ -95,6 +95,11 @@ body {
 .screen { position: relative; flex: 1; min-height: 0; overflow: hidden; cursor: crosshair; }
 .stage { position: absolute; inset: 0; }
 .stage canvas { display: block; image-rendering: pixelated; outline: none; }
+/* Calque du vent et de la neige, posé exactement sur le jeu */
+.stage .sky { position: absolute; top: 0; left: 0; pointer-events: none; }
+.field-select { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; }
+.field-select select { min-height: var(--tap); padding: 0 12px; font: inherit; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card-bg); color: var(--text-primary); }
+.field-select .hint-text { color: var(--text-muted); font-size: .8rem; }
 
 .hint {
   position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%);
@@ -129,7 +134,9 @@ body {
 .crt .crt-layer {
   display: block;
   background:
-    radial-gradient(ellipse at center, transparent 55%, rgba(10,14,26,.55) 100%),
+    /* Vignettage diffus : l'assombrissement commence tôt et monte doucement */
+    radial-gradient(ellipse 120% 120% at center,
+      transparent 20%, rgba(10,14,26,.06) 45%, rgba(10,14,26,.16) 70%, rgba(10,14,26,.32) 100%),
     repeating-linear-gradient(to bottom,
       transparent 0, transparent calc(var(--px, 3px) - 1px),
       rgba(10,14,26,.16) calc(var(--px, 3px) - 1px), rgba(10,14,26,.16) var(--px, 3px));
@@ -167,7 +174,7 @@ body {
 }
 .btn-primary { background: var(--accent); color: var(--accent-fg); border: 1px solid var(--accent); }
 .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.btn-ghost { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+.btn-ghost { text-decoration: none; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
 .btn-ghost:hover { background: var(--hover-bg); color: var(--text-primary); }
 
 .settings-foot { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); }

@@ -1,0 +1,380 @@
+/* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
+   Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
+import { startUpdateCheck } from '../app-update.js';
+import {
+  vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
+} from './viking.js';
+import { createWeather, WEATHER_PRESETS } from './weather.js';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
+import { HOUSE_ART, HOUSE_W, HOUSE_H, HOUSE_WINDOW, HOUSE_CHIMNEY, rng } from './world.js';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
+
+const css = getComputedStyle(document.documentElement);
+const SNOW = css.getPropertyValue('--game-snow').trim();
+const NIGHT = css.getPropertyValue('--game-night').trim();
+const RED = css.getPropertyValue('--accent').trim();
+const BLACK = '#0b0d14';
+const PALETTES = {
+  blanc: { label: 'Fond blanc', bg: SNOW, b: NIGHT, s: SNOW, r: RED },
+  noir: { label: 'Fond noir (négatif)', bg: BLACK, b: SNOW, s: BLACK, r: RED },
+};
+
+const FRAMES = Object.fromEntries(vikingFrames().map(f => [f.name, f]));
+
+// ── Dessin ──
+function drawRows(ctx, pal, rows, x0, y0, flip = false) {
+  const w = rows[0].length;
+  rows.forEach((row, y) => {
+    for (let x = 0; x < w; x++) {
+      const c = row[x];
+      if (!c || c === '.') continue;
+      ctx.globalAlpha = c === 'h' ? 0.3 : 1;
+      ctx.fillStyle = pal[c === 'h' ? 'b' : c];
+      ctx.fillRect(x0 + (flip ? w - 1 - x : x), y0 + y, 1, 1);
+    }
+  });
+  ctx.globalAlpha = 1;
+}
+
+// Grille (tableaux de cellules) → lignes de caractères
+const gridRows = g => g.map(r => r.map(c => c || '.').join(''));
+
+// Viking + cape. (fx, fy) : colonne du milieu du corps, ligne des pieds.
+function drawViking(ctx, pal, frameName, fx, fy, { flip = false, wind = 0.55, clock = 0 } = {}) {
+  const f = FRAMES[frameName];
+  const level = wind < 0.22 ? 0 : wind < 0.6 ? 1 : 2;
+  const cape = gridRows(capeGrid(CAPE_LEVELS[level], Math.floor(clock * (3 + wind * 14)) % CAPE_PHASES));
+  const col = flip ? 2 * CX - f.cape.west - 1 : f.cape.east - 1;
+  drawRows(ctx, pal, cape, fx + col - CX, fy + f.cape.y - GROUND);
+  const rows = gridRows(f.grid);
+  // Retourné : la colonne c passe en 2·CX − c
+  const x0 = flip ? fx + CX - (rows[0].length - 1) : fx - CX;
+  drawRows(ctx, pal, rows, x0, fy - GROUND, flip);
+}
+
+// ── Cartes ──
+const demos = [];
+
+function card(section, { title, tag, about, w, h, wide = false, setup, draw, button }) {
+  const el = document.createElement('article');
+  el.className = 'demo' + (wide ? ' wide' : '');
+  el.innerHTML = `<h3>${tag ? `<span class="tag">${tag}</span>` : ''}<span></span></h3>${about ? '<p></p>' : ''}<div class="pair"></div>`;
+  el.querySelector('h3 span:last-child').textContent = title;
+  if (about) el.querySelector('p').textContent = about;
+  const pair = el.querySelector('.pair');
+  const views = Object.entries(PALETTES).map(([key, pal]) => {
+    const fig = document.createElement('figure');
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const cap = document.createElement('figcaption');
+    cap.textContent = pal.label;
+    fig.append(canvas, cap);
+    pair.append(fig);
+    const view = { key, pal, ctx: canvas.getContext('2d'), w, h, state: {} };
+    setup?.(view.state, view);
+    return view;
+  });
+  if (button) {
+    const b = document.createElement('button');
+    b.className = 'btn-ghost'; b.type = 'button';
+    b.innerHTML = `<i class="ti ti-refresh" aria-hidden="true"></i> ${button}`;
+    b.addEventListener('click', () => views.forEach(v => { v.state = {}; setup?.(v.state, v); }));
+    el.append(b);
+  }
+  document.querySelector(`#${section} .demos`).append(el);
+  const demo = { el, views, draw, visible: true };
+  new IntersectionObserver(([e]) => { demo.visible = e.isIntersecting; }).observe(el);
+  demos.push(demo);
+}
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  const t = now / 1000;
+  for (const d of demos) {
+    if (!d.visible) continue;
+    for (const v of d.views) {
+      v.ctx.fillStyle = v.pal.bg;
+      v.ctx.fillRect(0, 0, v.w, v.h);
+      d.draw(v.ctx, v.pal, t, dt, v.state, v);
+    }
+  }
+  requestAnimationFrame(loop);
+}
+
+// ══ Viking ══
+const walkFrame = (view, t) => `${view}-walk-${Math.floor(t * 7) % 4}`;
+
+card('viking', {
+  title: 'Marche — profil, face, dos', about: 'Cycle en 4 temps : appui, passage (le corps monte d\'un pixel), appui, passage.',
+  w: 64, h: 18,
+  draw(ctx, pal, t) {
+    drawViking(ctx, pal, walkFrame('side', t), 8, 14, { clock: t });
+    drawViking(ctx, pal, walkFrame('side', t), 26, 14, { clock: t, flip: true });
+    drawViking(ctx, pal, walkFrame('front', t), 40, 14, { clock: t });
+    drawViking(ctx, pal, walkFrame('back', t), 55, 14, { clock: t });
+  },
+});
+
+card('viking', {
+  title: 'Marche dans la neige', about: 'Il avance et laisse ses traces, que la neige recouvre peu à peu.',
+  w: 100, h: 24,
+  setup(s) { s.x = 10; s.prints = []; s.step = -1; },
+  draw(ctx, pal, t, dt, s) {
+    s.x += 18 * dt;
+    if (s.x > 110) { s.x = -10; s.prints = []; }
+    const i = Math.floor(t * 7) % 4;
+    if ((i === 0 || i === 2) && s.step !== i) s.prints.push({ x: Math.round(s.x), y: 18 + (i ? 0 : -1), t });
+    s.step = i;
+    for (const p of s.prints) {
+      ctx.globalAlpha = Math.max(0, 0.9 - (t - p.t) / 12);
+      ctx.fillStyle = pal.b; ctx.fillRect(p.x, p.y, 2, 1);
+    }
+    ctx.globalAlpha = 1;
+    drawViking(ctx, pal, `side-walk-${i}`, Math.round(s.x), 19, { clock: t });
+  },
+});
+
+// ══ Cape ══
+CAPE_LEVELS.forEach((level, k) => {
+  const names = ['Au calme : elle pend', 'Vent moyen : elle se soulève', 'Vent fort : elle claque à l\'horizontale'];
+  card('cape', {
+    title: names[k], w: 44, h: 20,
+    draw(ctx, pal, t) {
+      drawViking(ctx, pal, 'side-idle', 10, 16, { wind: level, clock: t });
+      drawViking(ctx, pal, 'side-idle', 30, 16, { wind: level, clock: t + 0.3, flip: true });
+    },
+  });
+});
+card('cape', {
+  title: 'Rafales', about: 'La cape suit la force du vent : on voit arriver chaque rafale.',
+  w: 44, h: 20,
+  setup(s) { s.weather = createWeather('rafales'); },
+  draw(ctx, pal, t, dt, s, v) {
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    const wind = Math.min(1, s.weather.wind / 140);
+    drawViking(ctx, pal, walkFrame('front', t), 18, 16, { wind, clock: t });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// ══ Attaques ══
+const ATTACK_TIMES = [0, 0.26, 0.315, 0.635, 0.795];
+function attackDemo(title, view, flip) {
+  card('attaques', {
+    title, w: 40, h: 36,
+    setup(s) { s.dust = []; s.cycle = -1; },
+    draw(ctx, pal, t, dt, s) {
+      const fx = view === 'side' ? (flip ? 26 : 14) : 18, fy = view === 'back' ? 31 : view === 'front' ? 20 : 24;
+      const period = 1.8, local = t % period, cycle = Math.floor(t / period);
+      let i = ATTACK_TIMES.findIndex((tt, k) => local >= tt && local < (ATTACK_TIMES[k + 1] ?? 99));
+      const dir = flip ? -1 : 1;
+      // Traînée
+      if (local > 0.26 && local < 0.6) {
+        const fade = 1 - (local - 0.26) / 0.34;
+        for (const p of smearPixels(view)) {
+          ctx.globalAlpha = p.a * fade; ctx.fillStyle = pal.b;
+          ctx.fillRect(fx + p.x * dir, fy + p.y, 1, 1);
+        }
+      }
+      // Impact : gerbe de neige et onde au sol
+      const imp = IMPACT[view], ix = fx + imp.x * dir, iy = fy + imp.y;
+      if (local >= 0.315 && s.cycle !== cycle) {
+        s.cycle = cycle;
+        for (let k = 0; k < 16; k++) {
+          const a = (200 + Math.random() * 140) * Math.PI / 180, sp = 10 + Math.random() * 35;
+          s.dust.push({ x: ix, y: iy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.4 + Math.random() * 0.5, age: 0 });
+        }
+      }
+      if (local > 0.315 && local < 0.75) {
+        const k = (local - 0.315) / 0.43;
+        ctx.globalAlpha = 0.6 * (1 - k); ctx.strokeStyle = pal.b; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(ix + 0.5, iy + 0.5, 2 + 6 * k, 1 + 3 * k, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+      if (local > 0.315) {
+        ctx.globalAlpha = Math.max(0, 0.9 - (local - 0.315) / 1.4); ctx.fillStyle = pal.b;
+        if (view === 'side') ctx.fillRect(flip ? ix - 3 : ix - 2, iy, 6, 1); else ctx.fillRect(ix, iy - 2, 1, 5);
+      }
+      for (const d of s.dust) {
+        d.age += dt; d.vy += 60 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+        ctx.globalAlpha = Math.max(0, 0.9 * (1 - d.age / d.life)); ctx.fillStyle = pal.b;
+        ctx.fillRect(Math.round(d.x), Math.round(d.y), 1, 1);
+      }
+      s.dust = s.dust.filter(d => d.age < d.life);
+      ctx.globalAlpha = 1;
+      const frame = i >= 0 && i < 4 ? `${view}-attack-${i}` : `${view}-idle`;
+      drawViking(ctx, pal, frame, fx, fy, { flip, clock: t });
+    },
+  });
+}
+attackDemo('Vers la droite', 'side', false);
+attackDemo('Vers la gauche', 'side', true);
+attackDemo('Vers le haut', 'back', false);
+attackDemo('Vers le bas', 'front', false);
+
+// ══ Neige et vent ══
+Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
+  card('vent', {
+    title: p.label, tag: 'ABCD'[k], about: p.about, wide: true, w: 240, h: 70,
+    setup(s) { s.weather = createWeather(key); },
+    draw(ctx, pal, t, dt, s, v) {
+      s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+      drawViking(ctx, pal, 'side-idle', 50, 50, { wind: Math.min(1, s.weather.wind / 140), clock: t });
+      s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+      ctx.globalAlpha = 1;
+    },
+  });
+});
+
+// ══ Arbres ══
+function prerender(rows, pal) {
+  const c = document.createElement('canvas');
+  c.width = rows[0].length; c.height = rows.length;
+  drawRows(c.getContext('2d'), pal, rows, 0, 0);
+  return c;
+}
+
+card('arbres', {
+  title: 'Chaque arbre est différent', about: 'Hauteur, largeur, étages, inclinaison, tronc et neige tirés au hasard ; un sur dix est un arbre mort.',
+  wide: true, w: 320, h: 90, button: 'Autres arbres',
+  setup(s, v) {
+    const seed = Math.floor(Math.random() * 1e9);
+    const r = rng(seed);
+    s.trees = [];
+    for (let x = 8; x < v.w - 8;) {
+      const art = makeTree(r, { big: r() < 0.5 });
+      s.trees.push({ img: prerender(art.rows, v.pal), x: x + art.ax, y: 80 - (s.trees.length % 2) * 30, ax: art.ax });
+      x += art.rows[0].length + 2;
+    }
+  },
+  draw(ctx, pal, t, dt, s) {
+    for (const tr of s.trees) ctx.drawImage(tr.img, tr.x - tr.ax, tr.y - tr.img.height + 1);
+  },
+});
+
+card('arbres', {
+  title: 'Quelques arbres, puis la forêt', about: 'Clairsemés près du rivage, puis de plus en plus serrés ; triés en profondeur avec le viking.',
+  wide: true, w: 320, h: 120, button: 'Autre lisière',
+  setup(s, v) {
+    const r = rng(Math.floor(Math.random() * 1e9));
+    s.items = [];
+    for (let y = 20; y < v.h + 20; y += 7) {
+      for (let x = 0; x < v.w; x += 8) {
+        const d = Math.max(0.02, Math.min(0.75, (x - 90) / 180));
+        if (r() > d) continue;
+        const art = makeTree(r, { big: d > 0.3 });
+        s.items.push({ img: prerender(art.rows, v.pal), x: x + Math.floor(r() * 8), y: y + Math.floor(r() * 7), ax: art.ax });
+      }
+    }
+    s.weather = createWeather('bise');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const vx = ((t * 18) % (v.w + 40)) - 20;
+    const hero = { hero: true, x: Math.round(vx), y: 70 };
+    const all = [...s.items, hero].sort((a, b) => a.y - b.y);
+    for (const it of all) {
+      if (it.hero) drawViking(ctx, pal, walkFrame('side', t), it.x, it.y, { clock: t, wind: 0.4 });
+      else ctx.drawImage(it.img, it.x - it.ax, it.y - it.img.height + 1);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// ══ Rochers et cairns ══
+function row(section, title, about, make, button) {
+  card(section, {
+    title, about, wide: true, w: 320, h: 50, button,
+    setup(s, v) {
+      const r = rng(Math.floor(Math.random() * 1e9));
+      s.items = [];
+      for (let x = 6; x < v.w - 30;) {
+        const art = make(r);
+        s.items.push({ img: prerender(art.rows, v.pal), x });
+        x += art.rows[0].length + 8;
+      }
+    },
+    draw(ctx, pal, t, dt, s) {
+      for (const it of s.items) ctx.drawImage(it.img, it.x, 40 - it.img.height + 1);
+      drawViking(ctx, pal, 'side-idle', 310, 40, { flip: true, wind: 0.3, clock: t });
+    },
+  });
+}
+row('rochers', 'Gros rochers', 'Blocs sombres coiffés de neige ; le viking à droite donne l\'échelle.', makeBoulder, 'Autres rochers');
+row('rochers', 'Cairns (nouvelle forme)', 'Pierres plates empilées, séparées par des lits de neige.', makeCairn, 'Autres cairns');
+
+// ══ Maison ══
+card('maison', {
+  title: 'La maison, au bout des traces', about: 'À l\'échelle du viking : sa porte fait à peu près sa taille. Le feu vacille, la cheminée fume sous le vent.',
+  wide: true, w: 200, h: 70,
+  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.smoke = []; s.next = 0; s.weather = createWeather('rafales'); },
+  draw(ctx, pal, t, dt, s, v) {
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    const left = 90, top = 62 - HOUSE_H + 1;
+    ctx.drawImage(s.img, left, top);
+    ctx.fillStyle = pal.r;
+    for (const dx of [0, 3]) {
+      ctx.globalAlpha = 0.5 + Math.random() * 0.5;
+      ctx.fillRect(left + HOUSE_WINDOW.x + dx, top + HOUSE_WINDOW.y, 2, HOUSE_WINDOW.h);
+    }
+    if (t > s.next) { s.next = t + 0.5; s.smoke.push({ x: left + HOUSE_CHIMNEY.x + 1, y: top, age: 0, big: Math.random() < 0.5 }); }
+    for (const p of s.smoke) {
+      p.age += dt;
+      p.x += s.weather.wind * 0.5 * Math.min(1, p.age / 1.5) * dt;
+      p.y -= Math.max(0, 5 - p.age * 0.8) * dt;
+      ctx.globalAlpha = Math.max(0, 0.45 * (1 - p.age / 5)); ctx.fillStyle = pal.b;
+      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.big ? 2 : 1, p.big ? 2 : 1);
+    }
+    s.smoke = s.smoke.filter(p => p.age < 5);
+    ctx.globalAlpha = 1;
+    drawViking(ctx, pal, walkFrame('side', t), 60, 64, { wind: Math.min(1, s.weather.wind / 140), clock: t });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// ══ Loups ══
+for (const [key, anim] of Object.entries(WOLF_ANIMS)) {
+  card('loups', {
+    title: anim.label, w: 40, h: 14,
+    draw(ctx, pal, t) {
+      const f = anim.frames[Math.floor(t * anim.fps) % anim.frames.length];
+      drawRows(ctx, pal, gridRows(f), 1, 12 - WOLF_GROUND);
+      drawRows(ctx, pal, gridRows(f), 21, 12 - WOLF_GROUND, true);
+    },
+  });
+}
+card('loups', {
+  title: 'Une meute passe', about: 'Trois loups au trot, puis au galop ; le viking donne l\'échelle.', wide: true, w: 200, h: 44,
+  setup(s) { s.wolves = [0, 1, 2].map(i => ({ x: -20 - i * 18, y: 22 + i * 7, phase: i * 0.37 })); s.weather = createWeather('bise'); },
+  draw(ctx, pal, t, dt, s, v) {
+    const galop = (t % 12) > 6;
+    const anim = galop ? WOLF_ANIMS.galop : WOLF_ANIMS.trot;
+    for (const w of s.wolves) {
+      w.x += (galop ? 55 : 22) * dt;
+      if (w.x > v.w + 10) w.x = -WOLF_W - Math.random() * 40;
+    }
+    const all = [...s.wolves, { hero: true, y: 36 }].sort((a, b) => a.y - b.y);
+    for (const w of all) {
+      if (w.hero) { drawViking(ctx, pal, 'side-idle', 180, 36, { flip: true, wind: 0.3, clock: t }); continue; }
+      const f = anim.frames[Math.floor((t + w.phase) * anim.fps) % anim.frames.length];
+      drawRows(ctx, pal, gridRows(f), Math.round(w.x), w.y - WOLF_GROUND);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+requestAnimationFrame(loop);
+
+// ── Mise à jour automatique, comme dans le jeu ──
+function toast(text) {
+  const el = document.getElementById('toast');
+  el.textContent = text; el.hidden = false;
+  setTimeout(() => { el.hidden = true; }, 3200);
+}
+startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });

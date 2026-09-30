@@ -6,16 +6,22 @@
 
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
-couleurs (neige bleutée, bleu nuit, rouge de l'accent), avec du vent, un effet
+couleurs (neige bleutée, bleu nuit ; le rouge de l'accent ne sert qu'au feu de la
+maison), avec du vent, un effet
 d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On accoste à l'ouest et on suit les traces vers l'est ; au bout (environ
-3 minutes de marche), une petite maison dont la cheminée fume.
+On accoste à l'ouest et on suit les traces vers l'est : quelques arbres, puis
+une forêt, puis, au bout (environ 3 minutes de marche), une maison dont la
+cheminée fume. Le viking est tout noir ; sa cape bat au vent.
+
+La page `labo.html` regroupe toutes les animations (menu en haut vers les
+sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
+viking, cape, attaques, ambiances de vent, arbres, rochers, maison, loups.
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
-marcher, clic pour frapper, toujours de profil, du côté du pointeur. L'épée
-est cachée sous la cape et ne sort que pendant l'attaque.
+marcher, clic pour frapper vers le pointeur (droite, gauche, haut, bas). L'épée
+est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
 - Catégorie : **secondaire**.
@@ -28,22 +34,32 @@ est cachée sous la cape et ne sort que pendant l'attaque.
   ne pas passer par un CDN : l'app doit charger même si le CDN tombe).
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
-  nombre de pas ; `kingvi:prefs` : effet CRT, tilt-shift). Récupérables via l'export JSON.
+  nombre de pas ; `kingvi:prefs` : effet CRT, tilt-shift, vent). Récupérables via l'export JSON.
   Pas de Supabase.
 
 ## Structure
 
 - `index.html` — en-tête, écran de jeu, réglages (`<dialog>`), toast.
+- `labo.html`, `js/labo.js`, `css/labo.css` — le labo d'animations (canvas 2D,
+  mêmes modules que le jeu). Toute nouvelle animation y a sa carte.
 - `js/main.js` — interface : réglages, export, sauvegarde, mise à jour auto.
-- `js/game.js` — scène Phaser : sol par morceaux, viking, empreintes,
-  vent (rafales, flocons, poudrerie), attaque (traînée, impact), maison et
-  fumée, échelle entière (`fitScreen`) pour des pixels nets.
+- `js/game.js` — scène Phaser : sol par morceaux, objets debout triés en
+  profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
+  cape (calque à part), attaque (traînée, impact), maison et fumée, échelle
+  entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` : à incrémenter quand l'île change, les anciennes positions
   sauvegardées repartent alors du drakkar.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
-  (marche en 4 temps en profil/face/dos, attaque en 4 temps de profil).
+  (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
+  temps) et la traînée du coup.
+- `js/weather.js` — vent et neige (ambiances Bise, Rafales, Tempête,
+  Tourbillons), partagés jeu/labo ; le joueur choisit dans les Réglages.
+- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns.
+- `js/wolf.js` — loups (labo seulement pour l'instant) : trot, galop, arrêt,
+  flaire, hurle.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
-  pierres levées, cairns, drakkar, maison (`HOUSE`, `HOUSE_ART`).
+  pierres levées, drakkar, maison (`makeHouse`), forêt (`forestDensity`,
+  `objectsInChunk`, `blocked`).
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
   `scripts/sync-design-system.sh`. Ne pas les modifier ici.
@@ -67,5 +83,10 @@ est cachée sous la cape et ne sort que pendant l'attaque.
   faisait léviter.
 - Il doit rester petit (environ 9 pixels de haut, écran d'environ 440 pixels
   de haut) et se lire comme une masse : pas de visage ni de détail.
+- Tout se mesure au viking : porte de la maison ≈ sa taille, loup ≈ 13 px de
+  long avec le garrot à mi-hauteur du viking. Vérifier dans le labo.
+- Le corps est centré sur la colonne CX et l'origine du sprite est au milieu
+  de cette colonne : le retournement ne décale rien, et la cape se place au
+  pixel près (`placePlayer`).
 - `pagehide` sauvegarde la partie : pour tester une position, écrire la
   sauvegarde avant le chargement (sinon elle est écrasée).
