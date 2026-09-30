@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.14.0 — 2026-09-30
+- Au milieu de la forêt noire, un bosquet sacré : un arbre chargé d'offrandes, et quelqu'un qui vous regarde
+- Plus fluide : la forêt se charge par petits morceaux, seul ce qui est à l'écran est dessiné, la nuit coûte moins
+
 ## 1.13.0 — 2026-09-30
 - Le son : une musique deep techno contemplative, le vent, les corbeaux, l'épée (Réglages : musique, bruitages)
 - Loups redessinés d'après la référence : petits, fins, oreilles dressées, queue qui bat

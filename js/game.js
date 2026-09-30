@@ -6,10 +6,11 @@ import {
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
 } from './viking.js';
 import {
-  WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunk, objectsInChunk, blocked,
+  WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
-  LAKE, inLake, STATUE3_DOOR_OUT,
+  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT,
 } from './world.js';
+import { BUNDLE, WATCHER } from './grove.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
 import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
 import { daylightAt, torchLight, TORCH_SIZES } from './daylight.js';
@@ -92,6 +93,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
   if (save.world !== WORLD_VERSION) save = { steps: save.steps };
 
   const weather = createWeather(wind);
+  // La palette en octets, pour écrire les pixels d'un bloc
+  const RGB = Object.fromEntries(Object.entries(palette).map(([k, h]) => {
+    const n = parseInt(h.slice(1), 16);
+    return [k, [n >> 16, (n >> 8) & 255, n & 255]];
+  }));
   // Calque du vent et de la neige, posé sur le jeu, à la même échelle
   const sky = document.createElement('canvas');
   sky.className = 'sky';
@@ -211,6 +217,19 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
       }).setDepth(DEPTH_SKY - 1);
 
+      // ── Le bosquet sacré : les offrandes pendues, le guetteur ──
+      this.ropes = this.add.graphics().setDepth(GROVE_TREE.y + 0.4);
+      this.bundles = GROVE_HOOKS.map((h, i) => ({
+        h, len: 3 + (i * 7) % 5, phase: i * 1.7,
+        img: this.add.image(h.x, h.y, 'bundle').setOrigin(0.5, 0).setDepth(GROVE_TREE.y + 0.5),
+      }));
+      // Ses pas : trois empreintes qui arrivent jusqu'à lui, et plus rien
+      const prints = this.add.graphics().setDepth(DEPTH_MARKS).fillStyle(hex(palette.b), 0.8);
+      for (let k = 1; k <= 4; k++) prints.fillRect(WATCHER_AT.x - 1 + (k % 2) * 2, WATCHER_AT.y - k * 6 + 2, 1, 2);
+      this.watcherGone = !!save.watcherGone;
+      this.watcher = this.watcherGone ? null
+        : this.add.image(WATCHER_AT.x + 0.5, WATCHER_AT.y + 1, 'watcher').setOrigin(0.5, 1).setDepth(WATCHER_AT.y);
+
       // Le sang qui gicle quand une lame porte
       this.gore = this.add.particles(0, 0, 'blood', {
         lifespan: { min: 300, max: 800 }, speed: { min: 20, max: 70 },
@@ -253,7 +272,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const cover = c => this.add.rectangle(-200, -200, 5000, 4000, hex(c)).setOrigin(0, 0).setScrollFactor(0);
       // Le voile de nuit est une texture (posée sur la vue) : la torche y
       // creuse un halo de lumière
-      this.shade = this.add.renderTexture(0, 0, 2800, 1700).setOrigin(0, 0)
+      this.shade = this.add.renderTexture(0, 0, 256, 256).setOrigin(0, 0)
         .setBlendMode(Phaser.BlendModes.MULTIPLY).setDepth(DEPTH_SKY + 5);
       this.lightStamp = this.make.image({ key: 'torchlight1' }, false).setOrigin(0.5);
       this.glow = this.add.image(0, 0, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setAlpha(0);
@@ -315,7 +334,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const k = Math.abs(target - z.current) < 0.01 || z.inside !== this.inside ? 1 : Math.min(1, dt * 6);
       z.inside = this.inside;
       z.current += (target - z.current) * k;
-      if (cam.zoom !== z.current) cam.setZoom(z.current);
+      if (cam.zoom !== z.current) { cam.setZoom(z.current); this.cullClock = 0; }
       // Les lignes du CRT : une par pixel du jeu, en pixels physiques
       const px = `${Math.max(1, Math.round(z.current)) / z.dpr}px`;
       if (px !== this.lastPx) { this.lastPx = px; parent.style.setProperty('--px', px); }
@@ -362,6 +381,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
       art('blood', ['r']);
+      art('bundle', BUNDLE);
+      art('watcher', WATCHER);
       // Halo de la torche : une tache ronde, pleine au centre, qui s'efface
       const halo = (key, rgb, size) => {
         const c = document.createElement('canvas');
@@ -618,7 +639,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.updateZoom(delta / 1000);
       // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
       this.windSound = (this.windSound || 0) - delta;
-      if (this.windSound <= 0) { this.windSound = 200; audio.wind(weather.wind, weather.gust, !!this.inside); }
+      if (this.windSound <= 0) { this.windSound = 200; audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7); }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
@@ -663,10 +684,38 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const front = houseFrontY(this.pos.x);
       this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
       this.updateChunks();
+      // Ne dessiner que ce qui est à l'écran : dans la forêt noire, des milliers
+      // d'arbres sont chargés autour de la vue
+      this.cullClock = (this.cullClock || 0) - delta;
+      if (this.cullClock <= 0) { this.cullClock = 120; this.cull(); }
       this.swayClock = (this.swayClock || 0) - delta;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
+      this.updateGrove(time);
       this.updateNight(delta / 1000, time);
       this.drawSky(delta / 1000);
+    }
+
+    // Les offrandes tournent au vent ; le guetteur s'efface quand on approche
+    updateGrove(time) {
+      if (Math.abs(this.pos.x - GROVE_TREE.x) > 400 || Math.abs(this.pos.y - GROVE_TREE.y) > 300) return;
+      const t = time / 1000, force = Math.min(1, weather.wind / 140);
+      const g = this.ropes;
+      g.clear(); g.fillStyle(hex(palette.b), 1);
+      for (const b of this.bundles) {
+        const sway = Math.round(Math.sin(t * (1.1 + force) + b.phase) * (0.4 + 1.3 * force) + force);
+        for (let k = 0; k < b.len; k++) g.fillRect(b.h.x + Math.round(sway * k / b.len), b.h.y + k, 1, 1);
+        b.img.setPosition(b.h.x + sway + 0.5, b.h.y + b.len);
+      }
+      const w = this.watcher;
+      if (!w || w.fading) return;
+      if (Math.hypot(this.pos.x - WATCHER_AT.x, this.pos.y - WATCHER_AT.y) < 64 && !this.inside) {
+        w.fading = true;
+        audio.play('presence');
+        // Il vacille, revient, et n'est plus là
+        const steps = [0.2, 1, 0.1, 0.7, 0.05, 0.3, 0];
+        steps.forEach((a, i) => this.time.delayedCall(90 + i * 170 + Math.random() * 60, () => w.setAlpha(a)));
+        this.time.delayedCall(1400, () => { w.destroy(); this.watcher = null; this.watcherGone = true; this.persist(); });
+      }
     }
 
     // ── La nuit : le voile, et la torche qu'il sort quand il fait noir ──
@@ -694,7 +743,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       // En plein jour, le voile est vide : on ne le touche pas (il coûte cher)
       rt.setVisible(veil > 0.005);
       if (veil > 0.005) {
-        rt.setPosition(Math.floor(v.x) - 300, Math.floor(v.y) - 300);
+        // Le voile couvre la vue, à peine plus : le remplir coûte cher
+        const w = Math.ceil(v.width) + 64, h = Math.ceil(v.height) + 64;
+        if (Math.abs(rt.width - w) > 16 || Math.abs(rt.height - h) > 16 || rt.width < w || rt.height < h) rt.resize(w + 32, h + 32);
+        rt.setPosition(Math.floor(v.x) - 32, Math.floor(v.y) - 32);
         rt.clear();
         rt.fill(hex(palette.b), veil);
         if (lit > 0.01) {
@@ -927,44 +979,72 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       skyCtx.globalAlpha = 1;
     }
 
-    // Charge les morceaux de sol visibles (et leurs arbres), oublie ceux qui sont loin.
-    updateChunks(force) {
-      const v = this.cameras.main.worldView;
-      const margin = CHUNK / 2;
-      const c0 = Math.max(0, Math.floor((v.x - margin) / CHUNK));
-      const c1 = Math.min(WORLD / CHUNK - 1, Math.floor((v.right + margin) / CHUNK));
-      const r0 = Math.max(0, Math.floor((v.y - margin) / CHUNK));
-      const r1 = Math.min(WORLD / CHUNK - 1, Math.floor((v.bottom + margin) / CHUNK));
-      if (!force && this.lastRange === `${c0},${c1},${r0},${r1}`) return;
-      this.lastRange = `${c0},${c1},${r0},${r1}`;
-
-      const wanted = new Set();
-      let painted = 0;
-      for (let cy = r0; cy <= r1; cy++) {
-        for (let cx = c0; cx <= c1; cx++) {
-          const key = `${cx},${cy}`;
-          wanted.add(key);
-          if (this.chunks.has(key)) continue;
-          // Au plus deux morceaux peints par image, pour ne pas saccader
-          if (!force && painted >= 2) { this.lastRange = null; continue; }
-          painted++;
-          this.chunks.set(key, this.loadChunk(cx, cy, key));
+    cull() {
+      const v = this.cameras.main.worldView, m = 24;
+      const x0 = v.x - m, x1 = v.right + m, y0 = v.y - m, y1 = v.bottom + m;
+      for (const chunk of this.chunks.values()) {
+        for (const img of chunk.images) {
+          const top = img.originY ? img.y - img.height : img.y;
+          img.setVisible(img.x < x1 && img.x + img.width > x0 && top < y1 && top + img.height > y0);
         }
-      }
-      if (this.chunks.size <= 48) return;
-      for (const [key, chunk] of this.chunks) {
-        if (wanted.has(key)) continue;
-        chunk.images.forEach(i => i.destroy());
-        chunk.textures.forEach(t => this.textures.remove(t));
-        this.chunks.delete(key);
       }
     }
 
-    loadChunk(cx, cy, key) {
+    // Charge les morceaux de sol visibles (et leurs arbres), oublie ceux qui
+    // sont loin. Un morceau se prépare en plusieurs temps (sol, objets, planche,
+    // images), sur quelques images d'affilée et avec un budget de temps : pas
+    // d'à-coup en entrant dans la forêt noire. On prépare en avance, au-delà
+    // du bord de la vue ; `force` (arrivée, téléportation) charge tout d'un coup.
+    updateChunks(force) {
+      const v = this.cameras.main.worldView;
+      const range = m => [
+        Math.max(0, Math.floor((v.x - m) / CHUNK)), Math.min(WORLD / CHUNK - 1, Math.floor((v.right + m) / CHUNK)),
+        Math.max(0, Math.floor((v.y - m) / CHUNK)), Math.min(WORLD / CHUNK - 1, Math.floor((v.bottom + m) / CHUNK)),
+      ];
+      const [c0, c1, r0, r1] = range(CHUNK * 0.75);
+      const key0 = `${c0},${c1},${r0},${r1}`;
+      this.jobs = this.jobs || new Map();
+      if (force || this.lastRange !== key0) {
+        this.lastRange = key0;
+        const wanted = new Set();
+        for (let cy = r0; cy <= r1; cy++) for (let cx = c0; cx <= c1; cx++) {
+          const key = `${cx},${cy}`;
+          wanted.add(key);
+          if (!this.chunks.has(key) && !this.jobs.has(key)) this.jobs.set(key, { cx, cy, it: this.loadChunk(cx, cy, key) });
+        }
+        // On oublie ce qui est loin (et les préparations devenues inutiles)
+        const [k0, k1, q0, q1] = range(CHUNK * 1.5);
+        for (const [key, job] of this.jobs) if (!wanted.has(key)) job.it.return?.(), this.jobs.delete(key);
+        for (const [key, chunk] of this.chunks) {
+          const [cx, cy] = key.split(',').map(Number);
+          if (cx >= k0 && cx <= k1 && cy >= q0 && cy <= q1) continue;
+          chunk.images.forEach(i => i.destroy());
+          chunk.textures.forEach(t => this.textures.remove(t));
+          this.chunks.delete(key);
+        }
+      }
+      if (!this.jobs.size) return;
+      // Les plus proches du centre de la vue d'abord ; budget de 5 ms par image
+      const mx = (v.x + v.right) / 2 / CHUNK - 0.5, my = (v.y + v.bottom) / 2 / CHUNK - 0.5;
+      const queue = [...this.jobs.entries()].sort((a, b) => Math.hypot(a[1].cx - mx, a[1].cy - my) - Math.hypot(b[1].cx - mx, b[1].cy - my));
+      const t0 = performance.now();
+      for (const [key, job] of queue) {
+        while (force || performance.now() - t0 < 5) {
+          const step = job.it.next();
+          if (step.done) { this.chunks.set(key, step.value); this.jobs.delete(key); break; }
+        }
+        if (!force && performance.now() - t0 >= 5) break;
+      }
+    }
+
+    // Un morceau, en plusieurs temps (générateur : chaque `yield` rend la main)
+    *loadChunk(cx, cy, key) {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = CHUNK;
-      paintChunk(canvas.getContext('2d'), cx, cy, palette);
+      yield* paintChunkSteps(canvas.getContext('2d'), cx, cy, palette);
       const groundKey = `chunk-${key}`;
+      // (une préparation abandonnée a pu laisser ses textures)
+      for (const k of [groundKey, `objects-${key}`]) if (this.textures.exists(k)) this.textures.remove(k);
       this.textures.addCanvas(groundKey, canvas);
       const images = [this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND)];
       const textures = [groundKey];
@@ -973,44 +1053,62 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       // carte graphique. Les arbres y ont quatre images (penchés de −1 à +2
       // pixels à la cime) : le vent les fait passer de l'une à l'autre.
       const objs = objectsInChunk(cx, cy);
+      yield;
       const swayers = [];
       if (objs.length) {
         const ATLAS_W = 1024;
         const pieces = [];
-        objs.forEach((o, i) => {
+        for (let i = 0; i < objs.length; i++) {
+          const o = objs[i];
           const variants = o.type === 'tree' ? LEANS.map(l => leanRows(o.art.rows, l)) : [o.art.rows];
           variants.forEach((rows, v) => pieces.push({ i, v, rows, w: rows[0].length, h: rows.length }));
-        });
+          if (i % 60 === 59) yield;
+        }
         let x = 0, y = 0, rowH = 0;
         for (const p of pieces) {
           if (x + p.w > ATLAS_W) { x = 0; y += rowH + 1; rowH = 0; }
           p.x = x; p.y = y;
           x += p.w + 1; rowH = Math.max(rowH, p.h);
         }
+        // Les pixels écrits d'un bloc (un appel de dessin par pixel coûtait cher)
         const atlas = document.createElement('canvas');
         atlas.width = ATLAS_W; atlas.height = y + rowH + 1;
         const ctx = atlas.getContext('2d');
-        for (const p of pieces) p.rows.forEach((row, ry) => [...row].forEach((ch, rx) => {
-          if (ch === '.') return;
-          ctx.fillStyle = palette[ch];
-          ctx.fillRect(p.x + rx, p.y + ry, 1, 1);
-        }));
+        const img = ctx.createImageData(atlas.width, atlas.height), d = img.data;
+        for (let n = 0; n < pieces.length; n++) {
+          const p = pieces[n];
+          for (let ry = 0; ry < p.h; ry++) {
+            const row = p.rows[ry];
+            for (let rx = 0; rx < p.w; rx++) {
+              const c = RGB[row[rx]];
+              if (!c) continue;
+              const k = ((p.y + ry) * ATLAS_W + p.x + rx) * 4;
+              d[k] = c[0]; d[k + 1] = c[1]; d[k + 2] = c[2]; d[k + 3] = 255;
+            }
+          }
+          if (n % 400 === 399) yield;
+        }
+        ctx.putImageData(img, 0, 0);
+        yield;
         const objKey = `objects-${key}`;
         const tex = this.textures.addCanvas(objKey, atlas);
         textures.push(objKey);
         for (const p of pieces) tex.add(`${p.i}-${p.v}`, 0, p.x, p.y, p.w, p.h);
-        objs.forEach((o, i) => {
+        for (let i = 0; i < objs.length; i++) {
+          const o = objs[i];
           const tree = o.type === 'tree';
           const rest = tree ? LEANS.indexOf(0) : 0;
-          const img = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
+          const im = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
             .setOrigin(0, 1).setDepth(o.y);
-          images.push(img);
+          images.push(im);
           if (tree) {
             // Chaque arbre a sa cadence : les grands ploient plus lentement
-            swayers.push({ img, i, x: o.x, y: o.y, phase: (o.seed % 628) / 100, freq: treeFreq(o.h) });
+            swayers.push({ img: im, i, x: o.x, y: o.y, phase: (o.seed % 628) / 100, freq: treeFreq(o.h) });
           }
-        });
+          if (i % 80 === 79) yield;
+        }
       }
+      this.cullClock = 0;
       return { images, textures, swayers };
     }
 
@@ -1038,6 +1136,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         y: Math.round(this.inside ? INTERIORS[this.inside].exit.y : this.pos.y),
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
+        watcherGone: this.watcherGone,
         facing: this.facing, flip: this.flip,
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,

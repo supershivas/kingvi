@@ -24,6 +24,7 @@ import { ROWBOAT_FRAMES, BOAT2 } from './boat.js';
 import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 import * as PROPS from './props.js';
 import { audio } from './audio.js';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -641,6 +642,38 @@ for (const [tag, title, about, make] of NECRO) {
     },
   });
 }
+
+// ══ Le bosquet sacré ══
+card('bosquet', {
+  title: 'L\'arbre aux offrandes et le guetteur', about: 'Au milieu de la forêt noire, dans une trouée : un arbre mort immense, chargé d\'offrandes qui tournent au vent. De l\'autre côté, une silhouette plus grande que le viking le regarde venir ; quand il approche, elle vacille et s\'efface, un souffle grave dans l\'air. Ses pas s\'arrêtent net.',
+  wide: true, w: 200, h: 70,
+  setup(s, v) {
+    s.tree = makeGroveTree(7); s.treeImg = prerender(s.tree.rows, v.pal);
+    s.bundle = prerender(BUNDLE, v.pal); s.watcher = prerender(WATCHER, v.pal);
+    s.weather = createWeather('rafales');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const tx = 60, ty = 62, top = ty - s.tree.rows.length + 1, x0 = tx - s.tree.ax;
+    ctx.drawImage(s.treeImg, x0, top);
+    const force = Math.min(1, s.weather.wind / 140);
+    s.tree.hooks.forEach((h, i) => {
+      const len = 3 + (i * 7) % 5, sway = Math.round(Math.sin(t * (1.1 + force) + i * 1.7) * (0.4 + 1.3 * force) + force);
+      ctx.fillStyle = pal.b;
+      for (let k = 0; k < len; k++) ctx.fillRect(x0 + h.x + Math.round(sway * k / len), top + h.y + k, 1, 1);
+      ctx.drawImage(s.bundle, x0 + h.x + sway - 1, top + h.y + len);
+    });
+    // Le viking avance ; le guetteur s'efface quand il est à 30 pixels
+    const k = (t % 12) / 12, hx = Math.round(10 + k * 150), wx = 175;
+    const near = wx - hx < 30;
+    const fade = near ? Math.max(0, 1 - (hx - (wx - 30)) / 8) : 1;
+    if (fade > 0.05) { ctx.globalAlpha = (Math.floor(t * 10) % 3 === 0 && near) ? fade * 0.3 : fade; ctx.drawImage(s.watcher, wx - 3, 63 - WATCHER.length); ctx.globalAlpha = 1; }
+    for (let j = 1; j <= 3; j++) { ctx.fillStyle = pal.b; ctx.fillRect(wx - 1 + (j % 2) * 2, 64 - j * 6, 1, 2); }
+    drawViking(ctx, pal, walkFrame('side', t), hx, 64, { clock: t, wind: force });
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
 
 // ══ Falaise ══
 card('falaise', {

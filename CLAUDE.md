@@ -33,7 +33,9 @@ pierres levées, d'après Lindholm Høje), quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
-clairières), une grande
+clairières ; à mi-chemin, le bosquet sacré : un arbre mort chargé
+d'offrandes qui tournent au vent, et plus loin un guetteur, grande silhouette
+encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
@@ -83,7 +85,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen` ; `kingvi:prefs` : effet CRT, tilt-shift, vent, `music`, `sfx`,
+  `chestOpen`, `watcherGone` ; `kingvi:prefs` : effet CRT, tilt-shift, vent, `music`, `sfx`,
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -102,7 +104,11 @@ est cachée et ne sort que pendant l'attaque.
   cape (calque à part), attaque (traînée, impact), maison. Le canevas a la
   taille de l'écran en pixels physiques (`devicePixelRatio`, zoom Phaser
   1/dpr) ; la caméra agrandit d'un facteur entier de pixels physiques au repos
-  (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans). Le vent est dessiné sur un canvas 2D posé sur le jeu.
+  (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans).
+  Les morceaux se préparent en plusieurs temps (`*loadChunk`, générateur ;
+  `paintChunkSteps`), avec un budget de 5 ms par image, en avance sur la vue ;
+  `cull` cache ce qui sort de l'écran (des milliers d'arbres dans la forêt
+  noire) ; les planches d'objets s'écrivent en ImageData, pas pixel par pixel. Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
   incrémenter quand l'île change, les anciennes positions sauvegardées
   repartent alors de la barque. Voile de nuit : une RenderTexture
@@ -127,6 +133,10 @@ est cachée et ne sort que pendant l'attaque.
 - `js/props.js` — décor à choisir dans le labo : nécropole (navire de
   pierres, triangle, cercle, tertre, champ des morts — E est dans le jeu :
   `necropolisStones`, `stoneArt`), pontons, seconde barque.
+- `js/grove.js` — le bosquet sacré : `makeGroveTree` (arbre mort noueux,
+  crochets des offrandes), `BUNDLE`, `WATCHER`. Placé dans `world.js`
+  (`GROVE_TREE`, `GROVE_HOOKS`, `WATCHER_AT`, trouées ajoutées aux
+  `CLEARINGS`) ; animé dans `game.js` (`updateGrove`).
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
@@ -223,5 +233,8 @@ est cachée et ne sort que pendant l'attaque.
 - Rendu en pixels physiques : sans cela, sur un écran à 125 % (ou autre
   densité fractionnaire), les lignes du CRT et les pixels du jeu tombent entre
   deux pixels de l'écran et dessinent des bandes claires horizontales.
+- Fluidité : ne jamais dessiner pixel par pixel avec `fillRect` dans une
+  boucle chaude (une planche de forêt noire, c'est 150 000 pixels) ; découper
+  les gros travaux en générateurs ; ne pas dessiner hors de la vue.
 - `pagehide` sauvegarde la partie : pour tester une position, écrire la
   sauvegarde avant le chargement (sinon elle est écrasée).

@@ -1,6 +1,7 @@
 import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js';
 import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js';
 import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js';
+import { makeGroveTree } from './grove.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -344,6 +345,26 @@ const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
 }));
 const inNecro = (x, y, m = 0) => x > NECRO.x - m && x < NECRO.x + NECRO_W + m && y > NECRO.y - m && y < NECRO.y + NECRO_H + m;
 
+// ── Le bosquet sacré : au milieu de la forêt noire (là où la traversée est la
+// plus longue), un arbre mort chargé d'offrandes au nord de la sente ; au
+// sud, un peu plus loin, le guetteur ──
+const GROVE_AT = (() => {
+  const inDeep = trail.filter(p => deepForest(p.x, p.y) > 0.6);
+  return inDeep[Math.floor(inDeep.length / 2)] || trail[Math.floor(trail.length / 2)];
+})();
+const GROVE_ART = makeGroveTree(SEED);
+export const GROVE_TREE = off(GROVE_AT, 22);
+export const GROVE_HOOKS = GROVE_ART.hooks.map(h => ({ x: GROVE_TREE.x - GROVE_ART.ax + h.x, y: GROVE_TREE.y - GROVE_ART.rows.length + 1 + h.y }));
+export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 14)], -26);
+const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 3 }];
+// Deux trouées dans la forêt noire : sur la neige, l'arbre et le guetteur se
+// détachent (au noir, on ne les verrait pas)
+CLEARINGS.push(
+  { x: GROVE_TREE.x + 2, y: GROVE_TREE.y - 16, r: 38, seed: 17 },
+  { x: Math.round((GROVE_TREE.x + GROVE_AT.x) / 2), y: Math.round((GROVE_TREE.y + GROVE_AT.y) / 2), r: 16, seed: 23 },
+  { x: WATCHER_AT.x, y: WATCHER_AT.y - 5, r: 20, seed: 29 },
+);
+
 const trailByChunk = new Map();
 for (const p of trail) {
   const key = `${Math.floor(p.x / CHUNK)},${Math.floor(p.y / CHUNK)}`;
@@ -472,7 +493,13 @@ function stamp(ctx, pat, ox, oy, pal) {
 }
 
 // Peint un morceau de sol dans `ctx` (canvas CHUNK × CHUNK).
+// Peint un morceau d'un coup (labo) ; le jeu, lui, avance pas à pas
+// (`paintChunkSteps` rend la main toutes les 32 lignes)
 export function paintChunk(ctx, cx, cy, pal) {
+  const it = paintChunkSteps(ctx, cx, cy, pal);
+  while (!it.next().done);
+}
+export function* paintChunkSteps(ctx, cx, cy, pal) {
   const x0 = cx * CHUNK, y0 = cy * CHUNK;
   const img = ctx.createImageData(CHUNK, CHUNK);
   const d = img.data;
@@ -533,7 +560,9 @@ export function paintChunk(ctx, cx, cy, pal) {
   }
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
+  yield;
   for (let y = 0; y < CHUNK; y++) {
+    if (y % 32 === 31) yield;
     for (let x = 0; x < CHUNK; x++) {
       const wx = x0 + x, wy = y0 + y, i = (y * CHUNK + x) * 4;
       const c = uniform === 'land' ? -1 : uniform === 'sea' ? 1 : coast(wx, wy);
@@ -621,6 +650,7 @@ const CELL = 16;
 // Quelques arbres isolés, puis la forêt, de plus en plus serrée jusqu'au
 // noir, puis de nouveau clairsemée. Clairières autour des statues et de la maison.
 export function forestDensity(x, y) {
+  if (Math.hypot(x - GROVE_TREE.x, y - GROVE_TREE.y) < 30 || Math.hypot(x - WATCHER_AT.x, y - WATCHER_AT.y) < 14) return 0;
   if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
   if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;
   if (Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) < 120) return 0;
@@ -691,7 +721,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS]) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS]) {
     if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }

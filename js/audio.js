@@ -218,6 +218,18 @@ const SOUNDS = {
     const t = ctx.currentTime, pitch = 520 + Math.random() * 160;
     for (let k = 0; k < n; k++) caw(t + k * (0.32 + Math.random() * 0.12), pitch * (1 + (Math.random() - 0.5) * 0.08), pan);
   },
+  // Une présence qui s'efface : un souffle, et deux notes graves qui battent
+  presence: () => {
+    const t = ctx.currentTime;
+    whoosh(t, 1.4, 250, 900, 0.18);
+    for (const f of [55, 58.3]) {
+      const o = ctx.createOscillator(); o.frequency.value = f;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.25, t + 0.6); g.gain.exponentialRampToValueAtTime(0.0001, t + 3.2);
+      o.connect(g).connect(sfxBus); g.connect(reverb);
+      o.start(t); o.stop(t + 3.3);
+    }
+  },
   // Un coffre qui s'ouvre : un grincement de bois
   creak: () => { const t = ctx.currentTime; whoosh(t, 0.5, 300, 180, 0.2); thud(t + 0.4, 90, 0.35); },
 };
@@ -242,10 +254,10 @@ export const audio = {
     if (ctx) sfxBus.gain.setTargetAtTime(on ? 0.8 : 0, ctx.currentTime, 0.2);
   },
   // Le vent : sa force (pixels/s, 0 → ~200) et les rafales (0 → 1) ; `muffled`
-  // quand on est à l'abri (dans une pièce)
-  wind(force, gust, muffled = false) {
+  // (0 → 1) : à l'abri (1, dans une pièce), sous les arbres de la forêt noire
+  wind(force, gust, muffled = 0) {
     if (!ctx) return;
-    const t = ctx.currentTime, k = Math.min(1, force / 170) * (muffled ? 0.15 : 1);
+    const t = ctx.currentTime, k = Math.min(1, force / 170) * (1 - 0.85 * Number(muffled));
     windGain.gain.setTargetAtTime(0.02 + 0.28 * k, t, 0.5);
     windFilter.frequency.setTargetAtTime(250 + 700 * k + 300 * gust, t, 0.5);
     whistleGain.gain.setTargetAtTime(Math.max(0, k - 0.45) * 0.12 * (0.4 + gust), t, 0.3);
