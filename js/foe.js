@@ -69,9 +69,11 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
   return Object.assign(foe, {
 
     // Un coup du héros, dont la lame touche (x, y) : touché ?
-    hitAt(x, y, dir) {
+    // `probe` : seulement savoir s'il est sous la lame, sans le blesser
+    hitAt(x, y, dir, probe = false) {
       if (foe.state === 'dead') return false;
       if (Math.abs(x - foe.pos.x) > 7 || Math.abs(y - (foe.pos.y - 2)) > 6) return false;
+      if (probe) return true;
       foe.hp--;
       bleed(foe.pos.x, foe.pos.y, 5);
       if (foe.hp <= 0) { die(dir); return true; }

@@ -21,8 +21,9 @@ arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 Au lancement, un écran d'accueil, sans sous-titre : le nom en gothique
 étrange (Grenze Gotisch), tracé petit puis pixelisé et texturé (croûte de
 neige, ombre tramée, éclats, glaçons ; `drawTitle` dans `main.js`, agrandi
-d'un facteur entier), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
-la partie), Réglages. Le nom dans l'en-tête y ramène.
+d'un facteur entier), sur fond noir, et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
+la partie), Réglages. Le nom dans l'en-tête y ramène. En entrant dans le
+jeu, le noir s'ouvre en rond depuis le centre (`openIris`, `#iris`).
 
 On part de la grève ouest, près de la barque échouée qui flotte (une seconde
 barque, mâtée sans voile, vue sous un autre angle, halée sur la grève : le
@@ -53,6 +54,10 @@ coffre à ouvrir (clic près de lui).
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
+Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; frapper une
+pierre (rocher, cairn, statue, falaise) fait jaillir des étincelles, la lame
+sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
+`strikeRock`).
 Le son est synthétisé (aucun fichier) : une deep techno contemplative et
 changeante, le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
 l'épée (fendre l'air, neige, chair), le coffre. Il démarre au premier geste du
@@ -121,7 +126,7 @@ est cachée et ne sort que pendant l'attaque.
 - `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
   de 16 mesures (`arrangement`), grosse caisse, charleston, basse, accords dub
   (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
-  'snow' | 'flesh' | 'caw' | 'creak')`, `audio.wind(force, rafale, abrité)`).
+  'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence')`, `audio.wind(force, rafale, abrité)`).
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
   `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6

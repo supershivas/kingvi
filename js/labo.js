@@ -288,6 +288,49 @@ attackDemo('En bas à droite', 'diagdown', false);
 attackDemo('En haut à droite', 'diagup', false);
 attackDemo('En bas à gauche', 'diagdown', true);
 attackDemo('En haut à gauche', 'diagup', true);
+// Sur un arbre : il tremble et sa neige tombe ; sur un rocher : des
+// étincelles, et le coup s'arrête net, la lame rebondit
+card('attaques', {
+  title: 'Sur un arbre', w: 40, h: 36,
+  setup(s, v) { const r = rng(5); s.tree = makeTree(r, { big: true }); s.frames = LEANS.map(l => prerender(leanRows(s.tree.rows, l), v.pal)); s.flakes = []; s.cycle = -1; },
+  draw(ctx, pal, t, dt, s) {
+    const period = 1.8, local = t % period, cycle = Math.floor(t / period), hit = 0.315;
+    const i = ATTACK_TIMES.findIndex((tt, k) => local >= tt && local < (ATTACK_TIMES[k + 1] ?? 99));
+    let lean = 0;
+    if (local > hit) { const k = Math.max(0, 1 - (local - hit) / 0.75); lean = Math.max(-1, Math.min(2, Math.round(Math.sin((1 - k) * 34) * 2.2 * k + 0.5 * k))); }
+    if (local >= hit && s.cycle !== cycle) {
+      s.cycle = cycle;
+      for (let k = 0; k < 14; k++) s.flakes.push({ x: 27 + (Math.random() - 0.5) * 8, y: 30 - s.tree.rows.length * (0.35 + Math.random() * 0.5), vy: 4 + Math.random() * 12, life: 0.6 + Math.random() * 0.8, age: 0 });
+    }
+    const img = s.frames[LEANS.indexOf(lean)];
+    ctx.drawImage(img, 27 - s.tree.ax - LEAN_PAD, 31 - img.height);
+    for (const f of s.flakes) { f.age += dt; f.vy += 22 * dt; f.y += f.vy * dt; ctx.globalAlpha = Math.max(0, 1 - f.age / f.life); ctx.fillStyle = pal.b; ctx.fillRect(Math.round(f.x), Math.round(f.y), 1, 1); }
+    ctx.globalAlpha = 1;
+    s.flakes = s.flakes.filter(f => f.age < f.life);
+    drawViking(ctx, pal, i >= 0 && i < 4 ? `side-attack-${i}` : 'side-idle', 17, 31, { clock: t });
+  },
+});
+card('attaques', {
+  title: 'Sur un rocher', w: 40, h: 36,
+  setup(s, v) { const r = rng(9); s.rock = makeBoulder(r); s.img = prerender(s.rock.rows, v.pal); s.sparks = []; s.cycle = -1; },
+  draw(ctx, pal, t, dt, s) {
+    const period = 1.8, local = t % period, cycle = Math.floor(t / period), hit = 0.315;
+    const rx = 28;
+    ctx.drawImage(s.img, rx - s.rock.ax, 31 - s.img.height);
+    if (local >= hit && s.cycle !== cycle) {
+      s.cycle = cycle;
+      for (let k = 0; k < 16; k++) { const a = (150 + Math.random() * 100) * Math.PI / 180, sp = 40 + Math.random() * 70; s.sparks.push({ x: 27, y: 29, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.1 + Math.random() * 0.3, age: 0, c: k % 3 ? 'r' : 's' }); }
+    }
+    // Arrêté net : la lame reste tendue un instant, un pixel en arrière, puis la garde
+    let frame = 'side-idle', x = 17;
+    if (local < hit) frame = `side-attack-${local < 0.26 ? 0 : 1}`;
+    else if (local < hit + 0.17) { frame = 'side-attack-2'; x = 16; }
+    drawViking(ctx, pal, frame, x, 31, { clock: t });
+    for (const p of s.sparks) { p.age += dt; p.vy += 180 * dt; p.x += p.vx * dt; p.y += p.vy * dt; ctx.globalAlpha = Math.max(0, 1 - p.age / p.life); ctx.fillStyle = pal[p.c]; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
+    ctx.globalAlpha = 1;
+    s.sparks = s.sparks.filter(p => p.age < p.life);
+  },
+});
 
 // ══ Neige et vent ══
 // Le cycle naturel, accéléré : une frise en bas montre les phases et l'instant

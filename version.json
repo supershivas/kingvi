@@ -1,8 +1,8 @@
 {
-  "version": "1.14.0",
+  "version": "1.15.0",
   "date": "2026-09-30",
   "changes": [
-    "Au milieu de la forêt noire, un bosquet sacré : un arbre chargé d'offrandes, et quelqu'un qui vous regarde",
-    "Plus fluide : la forêt se charge par petits morceaux, seul ce qui est à l'écran est dessiné, la nuit coûte moins"
+    "Frapper un arbre le fait trembler et tomber sa neige ; frapper un rocher fait jaillir des étincelles, la lame rebondit",
+    "Accueil sur fond noir ; en entrant dans le jeu, le noir s'ouvre depuis le centre"
   ]
 }

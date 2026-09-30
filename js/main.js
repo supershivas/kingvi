@@ -154,7 +154,24 @@ function openTitle() {
   title.hidden = false;
   ($('title-resume').hidden ? $('title-new') : $('title-resume')).focus();
 }
+// Le noir s'ouvre depuis le centre, lentement d'abord, puis d'un coup
+function openIris() {
+  const iris = $('iris'), screen = $('screen');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const max = Math.hypot(screen.clientWidth, screen.clientHeight) / 2 + 10;
+  iris.hidden = false;
+  const t0 = performance.now(), dur = 1800;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = k < 0.25 ? k * 0.4 : 0.1 + Math.pow((k - 0.25) / 0.75, 2) * 0.9;
+    iris.style.setProperty('--r', `${Math.round(e * max)}px`);
+    if (k < 1) requestAnimationFrame(step); else iris.hidden = true;
+  };
+  iris.style.setProperty('--r', '0px');
+  requestAnimationFrame(step);
+}
 function closeTitle() {
+  openIris();
   title.hidden = true;
   $('stage').querySelector('canvas')?.focus();
   showHint();

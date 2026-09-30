@@ -119,7 +119,7 @@ body {
   position: absolute; inset: 0; z-index: 5;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
   padding: 24px 16px; text-align: center;
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(31,42,68,.55), rgba(5,7,12,.88));
+  background: var(--game-black);
   color: var(--game-snow);
   cursor: default;
 }
@@ -134,6 +134,16 @@ body {
 .title-actions .btn-ghost:hover { background: rgba(223,230,238,.1); color: var(--game-snow); }
 .btn-ghost.confirm { border-color: var(--accent); color: var(--accent); }
 .title-actions .btn-ghost.confirm { color: var(--game-snow); background: var(--accent); }
+
+/* En entrant dans le jeu : le noir s'ouvre en rond depuis le centre (--r,
+   animé par main.js), comme un œil qui s'ouvre */
+.iris {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  background: var(--game-black);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, 0px), #000 calc(var(--r, 0px) + 6px));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, 0px), #000 calc(var(--r, 0px) + 6px));
+}
+.iris[hidden] { display: none; }
 
 /* Flou de maquette, en ellipse autour du héros (la caméra le suit : il est au
    centre). Net autour de lui, un flou doux puis un flou fort vers les bords.

@@ -230,6 +230,18 @@ const SOUNDS = {
       o.start(t); o.stop(t + 3.3);
     }
   },
+  // La lame dans un tronc : un « toc » sec et boisé
+  wood: () => { const t = ctx.currentTime; thud(t, 140, 0.55, 0.12); whoosh(t, 0.08, 1800, 700, 0.25); },
+  // La lame sur la pierre : elle sonne, aigu, métallique, et s'arrête net
+  clang: () => {
+    const t = ctx.currentTime;
+    for (const [f, v, d] of [[1520, 0.16, 0.5], [2390, 0.1, 0.35], [3170, 0.07, 0.25], [4410, 0.04, 0.18]]) {
+      const o = ctx.createOscillator(); o.frequency.value = f * (1 + (Math.random() - 0.5) * 0.02);
+      o.connect(envGain(t, v, 0.002, d, sfxBus)); o.start(t); o.stop(t + d + 0.05);
+    }
+    whoosh(t, 0.05, 6000, 3000, 0.3);
+    thud(t, 90, 0.35, 0.08);
+  },
   // Un coffre qui s'ouvre : un grincement de bois
   creak: () => { const t = ctx.currentTime; whoosh(t, 0.5, 300, 180, 0.2); thud(t + 0.4, 90, 0.35); },
 };

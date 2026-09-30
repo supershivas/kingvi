@@ -212,6 +212,19 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       });
       cam.setBackgroundColor(palette.b);
 
+      // La neige qui tombe d'un arbre qu'on frappe ; les étincelles sur la pierre
+      this.snowfall = this.add.particles(0, 0, 'snowdust', {
+        lifespan: { min: 600, max: 1400 }, speedX: { min: -6, max: 6 }, speedY: { min: 4, max: 16 },
+        gravityY: 22, alpha: { start: 1, end: 0 }, emitting: false,
+      }).setDepth(DEPTH_SKY - 2);
+      this.sparks = this.add.particles(0, 0, 'snowdust', {
+        lifespan: { min: 120, max: 380 }, speed: { min: 40, max: 110 }, gravityY: 180,
+        alpha: { start: 1, end: 0 }, emitting: false,
+      }).setDepth(DEPTH_SKY - 1);
+      this.embers = this.add.particles(0, 0, 'blood', {
+        lifespan: { min: 80, max: 220 }, speed: { min: 30, max: 80 }, gravityY: 180,
+        alpha: { start: 1, end: 0 }, emitting: false,
+      }).setDepth(DEPTH_SKY - 1);
       this.dust = this.add.particles(0, 0, 'dust', {
         lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 },
         gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
@@ -399,6 +412,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       // La lumière de la torche : trois tailles, pour le vacillement
       TORCH_SIZES.forEach((k, n) => this.textures.addCanvas(`torchlight${n}`, torchLight(k)));
       art('dust', ['b']);
+      art('snowdust', ['s']);
     }
 
     makeAnimations() {
@@ -505,10 +519,71 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     // La lame s'écrase dans la neige : secousse, gerbe, entaille qui reste un moment
+    // Ce que la lame rencontre en (x, y) : un tronc, une pierre, ou rien
+    struckObject(x, y) {
+      const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
+      for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        for (const o of objectsInChunk(cx + i, cy + j)) {
+          if (o.type === 'iceberg') continue;
+          if (o.type === 'tree' || o.type === 'grove') {
+            if (Math.abs(x - o.x) <= 3 && y >= o.y - 5 && y <= o.y + 3) return { o, kind: 'tree' };
+            continue;
+          }
+          const left = o.x - o.art.ax, right = left + o.w;
+          const depth = Math.max(3, o.foot ?? o.h * 0.55);
+          if (x >= left && x <= right && y >= o.y - depth - 2 && y <= o.y + 2) return { o, kind: 'rock' };
+        }
+      }
+      return null;
+    }
+
+    // Un arbre frappé tremble, et sa neige tombe
+    shakeTree(o, dir) {
+      for (const chunk of this.chunks.values()) {
+        const s = chunk.swayers.find(w => w.x === o.x && w.y === o.y);
+        if (s) { s.shake = this.time.now + 750; s.shakeDir = dir; break; }
+      }
+      for (let k = 0; k < 4; k++) {
+        this.snowfall.explode(4, o.x + Math.round((Math.random() - 0.5) * 8), o.y - Math.round(o.h * (0.35 + Math.random() * 0.5)));
+      }
+    }
+
+    // La lame sur la pierre : étincelles, et le coup s'arrête net
+    strikeRock(x, y, dir, view) {
+      audio.play('clang');
+      this.cameras.main.shake(90, 0.012);
+      const back = dir > 0 ? { min: 150, max: 250 } : { min: -70, max: 30 };
+      this.sparks.setConfig({ lifespan: { min: 120, max: 380 }, speed: { min: 40, max: 110 }, gravityY: 180, angle: back, alpha: { start: 1, end: 0 }, emitting: false });
+      this.sparks.explode(5, x, y - 1);
+      this.embers.setConfig({ lifespan: { min: 80, max: 220 }, speed: { min: 30, max: 80 }, gravityY: 180, angle: back, alpha: { start: 1, end: 0 }, emitting: false });
+      this.embers.explode(11, x, y - 1);
+      // Le bras est arrêté, la lame rebondit : on reste figé un instant, un
+      // pixel en arrière, puis on se remet en garde
+      this.player.anims.stop();
+      this.player.setFrame(`${view}-attack-2`);
+      if (walkable(this.pos.x - dir, this.pos.y)) this.pos.x -= dir;
+      this.time.delayedCall(170, () => {
+        this.attacking = false;
+        this.player.setFrame(`${this.facing}-idle`);
+      });
+    }
+
     impact() {
       const dir = this.flip ? -1 : 1;
       const view = this.swingView, off = IMPACT[view];
       const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y) + off.y;
+      // L'autre viking d'abord ; sinon, un arbre ou une pierre sous la lame ?
+      if (!this.foe.hitAt(x, y, dir || 1, true) && !this.inside) {
+        const struck = this.struckObject(x, y);
+        if (struck?.kind === 'rock') { this.strikeRock(x, y, dir, view); return; }
+        if (struck?.kind === 'tree') {
+          audio.play('wood');
+          this.cameras.main.shake(100, 0.006);
+          this.shakeTree(struck.o, dir);
+          this.mark(x - dir, y - 2, 1, 2, 30000);             // l'entaille dans l'écorce
+          return;
+        }
+      }
       this.cameras.main.shake(140, 0.006);
       const up = view !== 'front' && view !== 'back' ? (dir > 0 ? { min: 200, max: 330 } : { min: 210, max: 340 }) : { min: 200, max: 340 };
       this.dust.setConfig({
@@ -1121,7 +1196,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       for (const chunk of this.chunks.values()) {
         for (const s of chunk.swayers) {
           if (s.x < v.x - 30 || s.x > v.right + 30 || s.y < v.y - 10 || s.y > v.bottom + 60) continue;
-          const lean = treeLean(t, s, base, amp);
+          let lean = treeLean(t, s, base, amp);
+          // Frappé : il tremble d'un bord à l'autre, de moins en moins
+          if (s.shake > this.time.now) {
+            const k = (s.shake - this.time.now) / 750;
+            lean = Math.max(-1, Math.min(2, Math.round(Math.sin((1 - k) * 34) * 2.2 * k * (s.shakeDir || 1) + 0.5 * k)));
+          }
           const frame = `${s.i}-${LEANS.indexOf(lean)}`;
           if (s.frame !== frame) { s.frame = frame; s.img.setFrame(frame); }
         }
