@@ -145,6 +145,17 @@ body {
 }
 .iris[hidden] { display: none; }
 
+/* À un point de vie : un voile rougeâtre, plus dense sur les bords, qui bat
+   lentement comme un pouls */
+.hurt-layer {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse 75% 70% at 50% 50%, rgba(192,57,43,.08), rgba(192,57,43,.42));
+  mix-blend-mode: multiply; transition: opacity 1.2s ease;
+}
+.hurt .hurt-layer { opacity: 1; animation: hurt-pulse 1.6s ease-in-out infinite; }
+@keyframes hurt-pulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.25); } }
+@media (prefers-reduced-motion: reduce) { .hurt .hurt-layer { animation: none; } }
+
 /* Flou de maquette, en ellipse autour du héros (la caméra le suit : il est au
    centre). Net autour de lui, un flou doux puis un flou fort vers les bords.
    Chaque couche est un flou plein écran, dévoilé par un masque radial. */

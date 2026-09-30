@@ -108,6 +108,19 @@ function sitting({ wag = 0, headPose = 'level', open = false }) {
   return g;
 }
 
+// À terre, mort : couché sur le flanc, les pattes raides vers l'avant
+function lying() {
+  const g = grid();
+  const { put, line } = painter(g);
+  const G = WOLF_GROUND;
+  line(3, G, 11, G); line(4, G - 1, 10, G - 1);        // le flanc
+  put(12, G); put(13, G); put(13, G - 1);               // la tête, posée
+  put(12, G - 1);                                       // l'oreille couchée
+  line(8, G - 2, 10, G - 3); line(5, G - 2, 6, G - 3);  // les pattes, en l'air
+  line(0, G, 2, G);                                     // la queue, à plat
+  return g;
+}
+
 const T = (dx, lift = 0) => [dx, lift];
 
 export const WOLF_ANIMS = {
@@ -170,6 +183,22 @@ export const WOLF_ANIMS = {
       wolf({ legs: [T(0), T(1), T(0), T(1)], headPose: 'howl', raise: 0.3 }),
     ],
   },
+  grogne: {
+    label: 'Grogne (il va bondir)', fps: 8,
+    frames: [
+      // Ramassé : le dos bas, la tête basse en avant, les crocs
+      wolf({ legs: [T(-1), T(0), T(1), T(2)], bob: 1, raise: -0.3, open: true }),
+      wolf({ legs: [T(-1), T(0), T(1), T(2)], bob: 1, raise: -0.3 }),
+    ],
+  },
+  bond: {
+    label: 'Bondit', fps: 10,
+    frames: [
+      wolf({ legs: [T(-3, 1), T(-3, 2), T(3, 2), T(3, 1)], bob: -2, stretch: 1, raise: 0.6, open: true }),
+      wolf({ legs: [T(-2, 2), T(-3, 2), T(2, 2), T(3, 2)], bob: -2, stretch: 1, raise: 0.8, open: true }),
+    ],
+  },
+  mort: { label: 'À terre', fps: 1, frames: [lying()] },
   assis: {
     label: 'Assis', fps: 2,
     frames: [sitting({}), sitting({ wag: 1 }), sitting({ headPose: 'alert' }), sitting({ headPose: 'howl' }), sitting({ headPose: 'howl', open: true })],

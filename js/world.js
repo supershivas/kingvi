@@ -359,7 +359,10 @@ export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 14)]
 const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 3 }];
 // Deux trouées dans la forêt noire : sur la neige, l'arbre et le guetteur se
 // détachent (au noir, on ne les verrait pas)
+// La grande clairière du bosquet, où la meute attaque : la sente la traverse
+export const WOLF_DEN = { ...off(GROVE_AT, 2), r: 64 };
 CLEARINGS.push(
+  { x: WOLF_DEN.x, y: WOLF_DEN.y, r: WOLF_DEN.r, seed: 13 },
   { x: GROVE_TREE.x + 2, y: GROVE_TREE.y - 16, r: 38, seed: 17 },
   { x: Math.round((GROVE_TREE.x + GROVE_AT.x) / 2), y: Math.round((GROVE_TREE.y + GROVE_AT.y) / 2), r: 16, seed: 23 },
   { x: WATCHER_AT.x, y: WATCHER_AT.y - 5, r: 20, seed: 29 },
@@ -582,7 +585,8 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
           const n = valueNoise(wx / 5, wy / 5, 57) + 0.5 * valueNoise(wx / 2, wy / 2, 59);
           const o = corridor[y * CHUNK + x] * 1.35 + (n - 0.75) * 0.9;
           lane = o > 0.72 ? 2 : o > 0.45 ? 1 : 0;
-          if (lane === 2 && hash(wx, wy, 61) < 0.05) lane = 0;   // aiguilles tombées
+          // Aiguilles tombées (rares dans la grande clairière : on y voit les loups)
+          if (lane === 2 && hash(wx, wy, 61) < 0.05 && (hash(wx, wy, 62) < 0.2 || Math.hypot(wx - WOLF_DEN.x, wy - WOLF_DEN.y) > WOLF_DEN.r * 0.85)) lane = 0;
         }
         if (deep && lane < 2) {
           const k = deep[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)] * (lane ? 0.45 : 1);
@@ -736,6 +740,7 @@ export function blocked(x, y) {
   const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
   for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
     for (const o of objectsInChunk(cx + i, cy + j)) {
+      if (o.fallen || o.broken) continue;                // abattu, brisé : on passe
       const dx = x - o.x, dy = y - o.y;
       if (o.type === 'tree') { if (Math.abs(dx) <= 1.5 && dy <= 0.5 && dy >= -1.5) return true; continue; }
       const foot = o.foot ?? o.h * 0.55;               // profondeur au sol ; 0 : on passe dessus

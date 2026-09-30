@@ -843,6 +843,10 @@ card('corbeaux', {
   add('Dans la neige', 'snowflake', () => audio.play('snow'));
   add('Dans la chair', 'droplet', () => audio.play('flesh'));
   add('Le coffre', 'box', () => audio.play('creak'));
+  add('Hurlements', 'moon', () => audio.play('howl', { n: 3 }));
+  add('Grondement', 'alert-triangle', () => audio.play('growl'));
+  add('Morsure', 'bone', () => audio.play('bite'));
+  add('Glapissement', 'paw', () => audio.play('yelp'));
   document.querySelector('#son .demos').append(el);
 })();
 

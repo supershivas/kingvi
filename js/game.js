@@ -8,8 +8,9 @@ import {
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
-  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT,
+  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN,
 } from './world.js';
+import { createPack } from './pack.js';
 import { BUNDLE, WATCHER } from './grove.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
 import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
@@ -36,6 +37,9 @@ const TARGET_HEIGHT = 440;     // hauteur visée de l'écran, en pixels du jeu
 const DEPTH_GROUND = -1000, DEPTH_WAVES = -600, DEPTH_MARKS = -500, DEPTH_BOAT = -400, DEPTH_SKY = 1e6;
 // La pièce (et le viking qui y entre) passe au-dessus de tout le dehors
 const DEPTH_ROOM = 5e5;
+// L'endurance (0 → 1) : ce que coûtent un coup, une seconde de course ; ce
+// que rend une seconde de repos
+const STAMINA = { attack: 0.2, run: 0.16, regen: 0.3 };
 
 // Taille interne et facteur d'agrandissement entier, pour des pixels nets.
 // Le canevas a la taille de l'écran en pixels physiques (densité comprise :
@@ -86,7 +90,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000 }) {
+export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -271,10 +275,21 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const post = nearestWalkable(Math.round(end.x + Math.cos(end.heading) * 18), Math.round(end.y + Math.sin(end.heading) * 18)) || { x: end.x, y: end.y };
       this.hp = FOE_HP;
       this.invuln = 0;
+      this.stamina = 1;
+      // Arbres abattus, rochers brisés : « x,y » → sens de la chute
+      this.wrecked = new Map(Object.entries(save.wrecked || {}));
+      this.staminaBar = this.add.graphics();
       this.playerPips = this.add.graphics();
       this.foe = createFoe(this, {
         post, walkable, capeAnchor: this.capeAnchor, dead: !!save.foeDead,
         onStrike: (x, y, dir) => { audio.play('swing'); this.struckAt(x, y, dir); },
+        bleed: (x, y, n) => this.bleed(x, y, n),
+      });
+      // ── La meute, dans la grande clairière du bosquet ──
+      this.onPackSound = (name, opts) => audio.play(name, opts);
+      this.pack = createPack(this, palette, {
+        den: WOLF_DEN, radius: WOLF_DEN.r, isLand, dead: save.wolvesDead || [],
+        onBite: (x, y, dir) => { audio.play('bite'); this.hurt(dir); },
         bleed: (x, y, n) => this.bleed(x, y, n),
       });
 
@@ -337,8 +352,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     updateZoom(dt) {
       const z = this.zoom, cam = this.cameras.main;
       const f = this.foe;
-      const fighting = !this.inside && !this.dead && f.engaged && f.alive &&
-        Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y) < 70;
+      const fighting = !this.inside && !this.dead && ((f.engaged && f.alive &&
+        Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y) < 70) || this.pack.engaged);
       z.fight += ((fighting ? 1 : 0) - z.fight) * Math.min(1, dt * (fighting ? 2.5 : 1.2));
       if (Math.abs(z.fight - (fighting ? 1 : 0)) < 0.005) z.fight = fighting ? 1 : 0;
       const rest = z.base * (1 + 0.05 * z.wheel);
@@ -452,7 +467,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     updateCape(delta) {
-      // Plus le vent est fort, plus la cape se couche et bat vite
+      // Plus le vent est fort, plus la cape se couche et bat vite ; à
+      // l'intérieur, pas de vent : elle pend, immobile
+      if (this.inside) { this.cape.setFrame('cape-0-0'); return; }
       const force = Math.min(1, weather.wind / 140 + (this.running ? 0.45 : 0));
       const level = force < 0.22 ? 0 : force < 0.6 ? 1 : 2;
       this.capeClock += delta / 1000 * (3 + force * 14);
@@ -487,9 +504,30 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (this.ownPrints.length > OWN_PRINTS_MAX) this.ownPrints.shift().destroy();
     }
 
+    // ── L'endurance : courir et frapper la vident ; elle revient au pas ──
+    useStamina(k) { this.stamina = Math.max(0, this.stamina - k); this.staminaRest = 0.8; }
+    updateStamina(dt) {
+      if (this.running && (this.moved || this.rowing)) this.useStamina(STAMINA.run * dt);
+      this.staminaRest = Math.max(0, (this.staminaRest || 0) - dt);
+      if (!this.staminaRest) this.stamina = Math.min(1, this.stamina + STAMINA.regen * dt);
+      this.staminaFlash = Math.max(0, (this.staminaFlash || 0) - dt);
+      // La barre : sous les marques de vie, seulement quand elle n'est pas pleine
+      const g = this.staminaBar, show = (this.stamina < 0.999 || this.staminaFlash) && !this.dead && !this.rowing;
+      g.clear();
+      if (!show) return;
+      const x = Math.round(this.pos.x) - 4, y = Math.round(this.pos.y) - 12;
+      g.setDepth(this.pos.y + 0.03 + (this.inside ? DEPTH_ROOM : 0));
+      g.fillStyle(hex(palette.b), 0.22); g.fillRect(x, y, 9, 1);
+      g.fillStyle(hex(this.staminaFlash > 0 && Math.floor(this.staminaFlash * 8) % 2 ? palette.r : palette.b), 0.9);
+      g.fillRect(x, y, Math.round(9 * this.stamina), 1);
+    }
+
     // ── Attaque : vers le pointeur, dans l'une des quatre directions ──
     attack(tx, ty) {
       if (this.attacking) return;
+      // Trop essoufflé pour lever l'épée
+      if (this.stamina < STAMINA.attack * 0.6) { this.staminaFlash = 0.6; return; }
+      this.useStamina(STAMINA.attack);
       // Huit directions : profil, face, dos, et les quatre diagonales (jouées
       // de profil, la lame en travers)
       const dx = tx - this.pos.x, dy = ty - (this.pos.y - 5);
@@ -524,7 +562,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
       for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx + i, cy + j)) {
-          if (o.type === 'iceberg') continue;
+          if (o.type === 'iceberg' || o.fallen || o.broken) continue;
           if (o.type === 'tree' || o.type === 'grove') {
             if (Math.abs(x - o.x) <= 3 && y >= o.y - 5 && y <= o.y + 3) return { o, kind: 'tree' };
             continue;
@@ -535,6 +573,76 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         }
       }
       return null;
+    }
+
+    // ── Arbres abattus, rochers brisés : ils le restent (sauvegardés) ──
+    wreck(o, dir) {
+      this.wrecked.set(`${o.x},${o.y}`, dir);
+      this.persist();
+    }
+
+    // L'arbre bascule, loin du coup, et s'abat dans la neige
+    fellTree(o, dir) {
+      o.fallen = true;
+      audio.play('wood');
+      this.layTree(o, dir, false);
+      this.wreck(o, dir);
+    }
+
+    layTree(o, dir, now) {
+      const im = o.img;
+      if (!im) return;
+      for (const chunk of this.chunks.values()) {
+        const s = chunk.swayers.find(w => w.x === o.x && w.y === o.y);
+        if (s) { chunk.swayers.splice(chunk.swayers.indexOf(s), 1); break; }
+      }
+      // Pivoter au pied du tronc (et non au coin de l'image)
+      im.setFrame(`${im.frame.name.split('-')[0]}-${LEANS.indexOf(0)}`);
+      im.setOrigin((o.art.ax + LEAN_PAD + 0.5) / im.width, 1).setPosition(o.x + 0.5, o.y + 1);
+      const angle = dir > 0 ? 90 : -90;
+      if (now) { im.setAngle(angle); return; }
+      this.tweens.add({
+        targets: im, angle, duration: 900, ease: 'Quad.easeIn',
+        onComplete: () => {
+          audio.play('snow');
+          this.cameras.main.shake(90, 0.002);
+          // La neige soulevée tout le long du tronc
+          for (let k = 2; k < o.h; k += 3) this.snowfall.explode(2, o.x + dir * k, o.y - 1);
+          this.dust.setConfig({ lifespan: { min: 300, max: 800 }, speed: { min: 6, max: 30 }, angle: { min: 200, max: 340 }, gravityY: 50, alpha: { start: 0.8, end: 0 }, emitting: false });
+          for (let k = 2; k < o.h; k += 4) this.dust.explode(2, o.x + dir * k, o.y);
+        },
+      });
+    }
+
+    // Le rocher éclate : des morceaux restent au sol
+    breakRock(o, dir) {
+      o.broken = true;
+      audio.play('clang'); audio.play('snow');
+      this.cameras.main.shake(100, 0.003);
+      const cx = o.x - o.art.ax + o.w / 2;
+      this.dust.setConfig({ lifespan: { min: 300, max: 900 }, speed: { min: 15, max: 55 }, angle: { min: 190, max: 350 }, gravityY: 90, alpha: { start: 0.9, end: 0 }, emitting: false });
+      this.dust.explode(22, cx, o.y - 3);
+      this.embers.explode(6, cx, o.y - 3);
+      if (o.img) { o.img.setVisible(false); o.img.hiddenForGood = true; }
+      const pieces = this.rockPieces(o);
+      for (const chunk of this.chunks.values()) if (chunk.images.includes(o.img)) { chunk.images.push(...pieces); break; }
+      this.wreck(o, dir);
+    }
+
+    // Les éclats d'un rocher : quelques blocs, la neige sur le dessus
+    rockPieces(o) {
+      let a = o.seed >>> 0;
+      const r = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
+      const out = [], left = o.x - o.art.ax;
+      const n = 4 + Math.floor(r() * 3);
+      for (let k = 0; k < n; k++) {
+        const w = 2 + Math.floor(r() * 3), h = 1 + Math.floor(r() * 2);
+        const key = `rockpiece-${w}-${h}`;
+        if (!this.textures.exists(key)) this.art(key, Array.from({ length: h + 1 }, (_, y) => (y === 0 ? '.' + 's'.repeat(w - 1) : 'b'.repeat(w))));
+        const x = Math.round(left + r() * (o.w - w)), y = Math.round(o.y - r() * 4 + 1);
+        out.push(this.add.image(x, y, key).setOrigin(0, 1).setDepth(y));
+      }
+      return out;
     }
 
     // Un arbre frappé tremble, et sa neige tombe
@@ -551,7 +659,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     // La lame sur la pierre : étincelles, et le coup s'arrête net
     strikeRock(x, y, dir, view) {
       audio.play('clang');
-      this.cameras.main.shake(90, 0.012);
+      this.cameras.main.shake(70, 0.003);
       const back = dir > 0 ? { min: 150, max: 250 } : { min: -70, max: 30 };
       this.sparks.setConfig({ lifespan: { min: 120, max: 380 }, speed: { min: 40, max: 110 }, gravityY: 180, angle: back, alpha: { start: 1, end: 0 }, emitting: false });
       this.sparks.explode(5, x, y - 1);
@@ -573,18 +681,27 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const view = this.swingView, off = IMPACT[view];
       const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y) + off.y;
       // L'autre viking d'abord ; sinon, un arbre ou une pierre sous la lame ?
-      if (!this.foe.hitAt(x, y, dir || 1, true) && !this.inside) {
+      if (!this.foe.hitAt(x, y, dir || 1, true) && !this.pack.hitAt(x, y, dir || 1, true) && !this.inside) {
         const struck = this.struckObject(x, y);
-        if (struck?.kind === 'rock') { this.strikeRock(x, y, dir, view); return; }
+        if (struck?.kind === 'rock') {
+          const o = struck.o;
+          // Certains rochers sont fendus : au second coup, ils éclatent
+          if (o.type === 'boulder' && o.seed % 3 === 0 && (o.hits = (o.hits || 0) + 1) >= 2) { this.breakRock(o, dir); return; }
+          this.strikeRock(x, y, dir, view);
+          return;
+        }
         if (struck?.kind === 'tree') {
+          const o = struck.o;
+          // Certains arbres sont pourris : au second coup, ils s'effondrent
+          if (o.type === 'tree' && o.seed % 4 === 0 && (o.hits = (o.hits || 0) + 1) >= 2) { this.fellTree(o, dir); return; }
           audio.play('wood');
-          this.cameras.main.shake(100, 0.006);
+          this.cameras.main.shake(60, 0.0015);
           this.shakeTree(struck.o, dir);
           this.mark(x - dir, y - 2, 1, 2, 30000);             // l'entaille dans l'écorce
           return;
         }
       }
-      this.cameras.main.shake(140, 0.006);
+      this.cameras.main.shake(80, 0.002);
       const up = view !== 'front' && view !== 'back' ? (dir > 0 ? { min: 200, max: 330 } : { min: 210, max: 340 }) : { min: 200, max: 340 };
       this.dust.setConfig({
         lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 }, angle: up,
@@ -604,11 +721,19 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.tweens.add({ targets: ring, scaleX: 4, scaleY: 3, alpha: 0, duration: 420, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
       // L'autre viking est-il sous la lame ?
       const hit = this.foe.hitAt(x, y, dir || 1);
-      audio.play(hit ? 'flesh' : 'snow');
+      const wolf = !hit && !this.inside && this.pack.hitAt(x, y, dir || 1);
+      audio.play(hit || wolf ? 'flesh' : 'snow');
       if (hit) {
-        this.cameras.main.shake(180, 0.01);
+        this.cameras.main.shake(110, 0.004);
         this.spurt(this.foe.pos.x, this.foe.pos.y - 5, dir || 1, this.foe.alive ? 18 : 30);
         if (!this.foe.alive) this.pool(this.foe.pos.x, this.foe.pos.y);
+      }
+      if (wolf) {
+        audio.play('yelp');
+        this.cameras.main.shake(90, 0.003);
+        const down = wolf.state === 'dead';
+        this.spurt(wolf.pos.x, wolf.pos.y - 3, dir || 1, down ? 22 : 12);
+        if (down) { this.pool(wolf.pos.x, wolf.pos.y); this.persist(); }
       }
     }
 
@@ -658,12 +783,18 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     struckAt(x, y, dir) {
       if (this.dead || this.invuln > 0) return;
       if (Math.abs(this.pos.x - x) > 6 || Math.abs(this.pos.y - y) > 5) return;
+      this.hurt(dir);
+    }
+
+    // Une blessure (lame ou crocs) : un point de vie de moins
+    hurt(dir) {
+      if (this.dead || this.invuln > 0) return;
       this.hp--;
       this.invuln = 0.8;
       this.bleed(this.pos.x, this.pos.y, 8);
       audio.play('flesh');
       this.spurt(this.pos.x, this.pos.y - 5, dir, this.hp > 0 ? 18 : 30);
-      this.cameras.main.shake(200, 0.012);
+      this.cameras.main.shake(130, 0.005);
       if (this.hp <= 0) { this.pool(this.pos.x, this.pos.y); this.fall(dir); return; }
       // Recul, et on clignote
       for (let k = 0; k < 6; k++) {
@@ -690,6 +821,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
           this.player.setTexture('viking', 'side-idle').setOrigin(ORIGIN_X, ORIGIN_Y).setFlipX(false);
           this.cape.setVisible(true);
           this.foe.reset();
+          this.pack.reset();
           this.pos = { ...this.spawn };
           this.facing = 'side'; this.flip = false;
           this.placePlayer();
@@ -705,7 +837,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (isPaused() || this.dead) this.keys.clear();
       this.invuln = Math.max(0, this.invuln - delta / 1000);
       // Hors du combat, les blessures se referment peu à peu
-      if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive)) {
+      if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
         this.healClock = (this.healClock || 0) + delta / 1000;
         if (this.healClock > 25) { this.healClock = 0; this.hp++; }
       } else this.healClock = 0;
@@ -721,7 +853,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
-      this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
+      this.running = (this.keys.has('ShiftLeft') || this.keys.has('ShiftRight')) && this.stamina > 0.02;
+      this.moved = !!(mx || my) && !this.attacking && !this.dead;
+      // La vie, pour l'interface (à un point, l'écran rougit)
+      const life = this.dead ? 0 : this.hp;
+      if (life !== this.lastLife) { this.lastLife = life; onHealth(life); }
+      this.updateStamina(delta / 1000);
 
       if (this.rowing) this.row(mx, my, delta / 1000);
       else if (!this.attacking && !this.dead) {
@@ -757,7 +894,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.updateCape(delta);
       this.foe.update(delta / 1000, this, this.cape.frame.name);
       if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, delta / 1000, this.foe.hp);
-      drawPips(this.playerPips, this.pos.x, this.pos.y, this.hp, this.foe.engaged && this.foe.alive && !this.dead);
+      if (!this.inside) this.pack.update(delta / 1000, this);
+      drawPips(this.playerPips, this.pos.x, this.pos.y, this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
       if (!this.inside) this.fauna.update(delta / 1000, this.pos, this.running, weather.wind, this.foe.alive ? null : this.foe.pos);
       // Devant ou derrière la maison, selon le pied de ses murs
       const front = houseFrontY(this.pos.x);
@@ -784,7 +922,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       if (f.alive) { this.foeSeenAlive = true; this.foeDownAt = null; } else if (this.foeSeenAlive && this.foeDownAt == null) this.foeDownAt = now;
       let energy;
       if (this.dead) energy = 0.05;                                         // on est tombé
-      else if (f.alive && f.engaged && dFoe < 140) energy = 1;              // le combat
+      else if ((f.alive && f.engaged && dFoe < 140) || this.pack.engaged) energy = 1;   // le combat
       else if (f.alive && dFoe < 320) energy = 0.55 + 0.4 * (1 - dFoe / 320);   // il est là, on le sent
       else if (this.foeDownAt != null && now - this.foeDownAt < 25000) energy = 0.12;   // après : le silence
       else if (this.inside) energy = 0.15;
@@ -912,7 +1050,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const cx = Math.floor(this.pos.x / CHUNK), cy = Math.floor(this.pos.y / CHUNK);
       for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx + i, cy + j)) {
-          if (o.type === 'iceberg' || o.type === 'cliff' || o.type === 'rubble') continue;
+          if (o.type === 'iceberg' || o.type === 'cliff' || o.type === 'rubble' || o.fallen || o.broken) continue;
           if (Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
           const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly));
           if (o.type === 'tree') cast(o.x, o.y, 1.2, Math.max(5, Math.min(40, (o.h || 10) * 18 / d)));
@@ -993,7 +1131,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.chest.setTexture('chest-ajar');
       this.time.delayedCall(380, () => {
         this.chest.setTexture('chest-open');
-        this.cameras.main.shake(120, 0.004);
+        this.cameras.main.shake(80, 0.002);
         // Des éclats montent du coffre
         const x = this.chest.x, y = this.chest.y - 4;
         for (let i = 0; i < 14; i++) {
@@ -1085,7 +1223,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       for (const chunk of this.chunks.values()) {
         for (const img of chunk.images) {
           const top = img.originY ? img.y - img.height : img.y;
-          img.setVisible(img.x < x1 && img.x + img.width > x0 && top < y1 && top + img.height > y0);
+          if (img.hiddenForGood) continue;
+          const w = img.displayWidth, h = img.displayHeight;
+          img.setVisible(img.x - w < x1 && img.x + w > x0 && top - h < y1 && top + img.height > y0);
         }
       }
     }
@@ -1201,6 +1341,16 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
           const im = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
             .setOrigin(0, 1).setDepth(o.y);
           images.push(im);
+          o.img = im;
+          // Abattu ou brisé lors d'une partie précédente : on le montre tel quel
+          const k = `${o.x},${o.y}`;
+          if (this.wrecked.has(k)) {
+            const w = this.wrecked.get(k);
+            if (tree) { o.fallen = true; this.layTree(o, w, true); continue; }
+            o.broken = true; im.setVisible(false); im.hiddenForGood = true;
+            for (const f of this.rockPieces(o)) images.push(f);
+            continue;
+          }
           if (tree) {
             // Chaque arbre a sa cadence : les grands ploient plus lentement
             swayers.push({ img: im, i, x: o.x, y: o.y, phase: (o.seed % 628) / 100, freq: treeFreq(o.h) });
@@ -1242,9 +1392,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
+        wrecked: Object.fromEntries(this.wrecked),
         facing: this.facing, flip: this.flip,
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,
+        wolvesDead: this.pack ? this.pack.deadList : [],
       });
     }
 

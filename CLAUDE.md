@@ -34,8 +34,10 @@ pierres levées, d'après Lindholm Høje), quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
-clairières ; à mi-chemin, le bosquet sacré : un arbre mort chargé
-d'offrandes qui tournent au vent, et plus loin un guetteur, grande silhouette
+clairières ; à mi-chemin, le bosquet sacré, dans une grande clairière : un arbre mort chargé
+d'offrandes qui tournent au vent, une meute de quatre loups qui sort de la forêt
+quand on y entre (hurlement au loin avant ; ils encerclent, grondent, bondissent
+l'un après l'autre pour mordre ; deux coups en abattent un), et plus loin un guetteur, grande silhouette
 encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
@@ -51,10 +53,17 @@ Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
+Une barre d'endurance au-dessus du viking (frapper et courir la vident,
+`STAMINA`) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
+`.hurt`). Les secousses d'écran restent légères. À l'intérieur, la cape
+ne bat pas.
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
-Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; frapper une
+Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; certains
+(pourris) s'effondrent au second coup, certains rochers fendus éclatent en
+morceaux qui restent au sol (`fellTree`, `breakRock`, `wrecked` dans la
+sauvegarde) ; frapper une
 pierre (rocher, cairn, statue, falaise) fait jaillir des étincelles, la lame
 sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 `strikeRock`).
@@ -95,7 +104,8 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen`, `watcherGone` ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
+  `chestOpen`, `watcherGone`, `wrecked` (arbres abattus, rochers brisés),
+  `wolvesDead` (loups tués, là où ils sont tombés) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -131,7 +141,7 @@ est cachée et ne sort que pendant l'attaque.
 - `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
   de 16 mesures (`arrangement`, qui dépend de l'énergie entendue), grosse caisse, charleston, basse, accords dub
   (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
-  'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence')`, `audio.wind(force, rafale, abrité)`, sur son propre canal) ;
+  'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence' | 'howl' | 'growl' | 'bite' | 'yelp')`, `audio.wind(force, rafale, abrité)`, sur son propre canal) ;
   niveaux `audio.setVolume('music' | 'sfx' | 'wind', 0 → 1).
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
@@ -173,11 +183,15 @@ est cachée et ne sort que pendant l'attaque.
   du morceau (1024 px de large) et en change ~22 fois par seconde
   (`swayTrees`) : `treeWind` (quasi rien sous la bise), `treeLean`,
   `treeFreq` (les petits arbres battent plus vite).
-- `js/wolf.js` — loups (labo seulement pour l'instant), d'après les
+- `js/pack.js` — la meute dans le jeu (`createPack` : repaires à la lisière
+  de `WOLF_DEN`, cercle, grogne → bond → morsure `onBite`, `hitAt`,
+  retraite si on fuit ou tombe) ; `pack.engaged` compte comme un combat
+  (musique, zoom, pas de guérison).
+- `js/wolf.js` — loups, d'après les
   silhouettes de référence : petits (garrot à 4 px, oreilles à 6 ; le viking
   en fait 9), corps long et maigre, dos droit, tête en avant, une oreille
   pointue, pattes fines articulées (`leg`), queue touffue qui bat (`tail`,
-  `wag`) ; trot, galop, marche, arrêt, flaire, hurle, assis.
+  `wag`) ; trot, galop, marche, arrêt, flaire, hurle, grogne, bondit, à terre, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
@@ -192,7 +206,8 @@ est cachée et ne sort que pendant l'attaque.
   pierres levées, maison (`makeHouse`, `houseBlocked`, `houseFrontY`,
   `HOUSE_DOOR_OUT`), traces ensanglantées après la porte (`p.blood`), forêt (`forestDx` : bandes à lisière irrégulière,
   `forestDensity`, `deepForest`, largeur de sente `p.lane`, `CLEARINGS`), statues et corbeaux placés le long de la
-  piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
+  piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), la grande clairière de la meute
+  (`WOLF_DEN`, peu d'aiguilles au sol pour qu'on y voie les loups), `objectsInChunk`, `blocked`.
   Le lac (`LAKE`, `ISLET`, `inLake`) passe par `coast` (positif dans l'eau) ;
   `companion` : la piste du second marcheur, décalée sur la gauche, jusqu'à
   la porte de la maison (peinte avec les traces, sans toucher au tracé).

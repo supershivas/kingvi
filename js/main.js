@@ -55,6 +55,8 @@ const game = createGame({
   wind: prefs.wind,
   // Moment de la journée : l'heure réelle, ou celui choisi dans les Réglages
   dayClock,
+  // À un seul point de vie, l'écran se teinte de rouge
+  onHealth: hp => $('screen').classList.toggle('hurt', hp === 1),
 });
 let resetting = false;
 window.addEventListener('pagehide', () => { if (!resetting) game.save(); });

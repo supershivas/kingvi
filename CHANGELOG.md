@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.17.0 — 2026-09-30
+- Une meute de loups attaque dans la grande clairière du bosquet sacré : ils encerclent, grondent et bondissent pour mordre
+- Certains arbres s'effondrent et certains rochers éclatent quand on les frappe ; une barre d'endurance pour frapper et courir
+- À un point de vie, l'écran rougit ; l'écran tremble moins à chaque coup ; la cape ne bat plus à l'intérieur
+
 ## 1.16.0 — 2026-09-30
 - La musique suit le moment : calme sur la grève, sourde dans la forêt noire, tendue à l'approche de l'ennemi, à son comble au combat
 - Réglages : curseurs pour la musique, les bruitages et le son du vent (plus discret par défaut)

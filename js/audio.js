@@ -281,6 +281,49 @@ const SOUNDS = {
     whoosh(t, 0.05, 6000, 3000, 0.3);
     thud(t, 90, 0.35, 0.08);
   },
+  // Un hurlement, loin dans la forêt : une voix qui monte, tient, retombe
+  howl: ({ n = 2 } = {}) => {
+    const t0 = ctx.currentTime;
+    for (let k = 0; k < n; k++) {
+      const t = t0 + k * (0.9 + Math.random() * 0.8), f = 380 + Math.random() * 90, d = 2.2 + Math.random() * 0.8;
+      const o = ctx.createOscillator(); o.type = 'triangle';
+      o.frequency.setValueAtTime(f * 0.7, t);
+      o.frequency.linearRampToValueAtTime(f, t + 0.5);
+      o.frequency.linearRampToValueAtTime(f * 1.04, t + d * 0.7);
+      o.frequency.exponentialRampToValueAtTime(f * 0.6, t + d);
+      const lfo = ctx.createOscillator(); lfo.frequency.value = 5.5;
+      const lg = ctx.createGain(); lg.gain.value = f * 0.015;
+      lfo.connect(lg).connect(o.frequency);
+      const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1400;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.13, t + 0.4);
+      g.gain.setValueAtTime(0.13, t + d * 0.7); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+      const p = ctx.createStereoPanner(); p.pan.value = (Math.random() - 0.5) * 1.4;
+      o.connect(lp).connect(g).connect(p); p.connect(sfxBus); p.connect(reverb);
+      o.start(t); o.stop(t + d + 0.1); lfo.start(t); lfo.stop(t + d + 0.1);
+    }
+  },
+  // Un grondement de gorge, bas et râpeux, avant qu'il ne bondisse
+  growl: () => {
+    const t = ctx.currentTime, d = 0.6;
+    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 85 + Math.random() * 20;
+    const am = ctx.createOscillator(); am.frequency.value = 26;
+    const ag = ctx.createGain(); ag.gain.value = 0.5;
+    const g = ctx.createGain(); g.gain.value = 0.5;
+    am.connect(ag).connect(g.gain);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
+    o.connect(lp).connect(g).connect(envGain(t, 0.35, 0.08, d, sfxBus));
+    o.start(t); o.stop(t + d + 0.1); am.start(t); am.stop(t + d + 0.1);
+  },
+  // Les crocs claquent
+  bite: () => { const t = ctx.currentTime; thud(t, 160, 0.4, 0.06); whoosh(t, 0.06, 4200, 2000, 0.35); thud(t + 0.03, 60, 0.5, 0.15); },
+  // Touché, il glapit
+  yelp: () => {
+    const t = ctx.currentTime;
+    const o = ctx.createOscillator(); o.type = 'triangle';
+    o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(1500, t + 0.05); o.frequency.exponentialRampToValueAtTime(600, t + 0.25);
+    o.connect(envGain(t, 0.22, 0.01, 0.25, sfxBus)); o.start(t); o.stop(t + 0.3);
+  },
   // Un coffre qui s'ouvre : un grincement de bois
   creak: () => { const t = ctx.currentTime; whoosh(t, 0.5, 300, 180, 0.2); thud(t + 0.4, 90, 0.35); },
 };
