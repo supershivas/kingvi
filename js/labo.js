@@ -6,10 +6,13 @@ import {
 } from './viking.js';
 import { createWeather, WEATHER_PRESETS } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
-import { HOUSE_ART, HOUSE_W, HOUSE_H, HOUSE_WINDOW, HOUSE_CHIMNEY, rng } from './world.js';
+import {
+  HOUSE_ART, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
+  HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
+} from './world.js';
 import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
-import { buildStatue } from './statue.js';
+import { buildStatue, buildStatueUpright } from './statue.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -310,29 +313,13 @@ row('rochers', 'Cairns (nouvelle forme)', 'Pierres plates empilées, séparées 
 
 // ══ Maison ══
 card('maison', {
-  title: 'La maison, au bout des traces', about: 'À l\'échelle du viking : sa porte fait à peu près sa taille. Le feu vacille, la cheminée fume sous le vent.',
-  wide: true, w: 200, h: 70,
-  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.smoke = []; s.next = 0; s.weather = createWeather('rafales'); },
+  title: 'La maison, vue de haut et de biais', about: 'D\'après l\'image de référence : grand toit enneigé en losange, murs sombres, ombre portée. Pas de fumée. Les traces passent devant et continuent vers l\'est.',
+  wide: true, w: 200, h: 80,
+  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.weather = createWeather('rafales'); },
   draw(ctx, pal, t, dt, s, v) {
     s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
-    const left = 90, top = 62 - HOUSE_H + 1;
-    ctx.drawImage(s.img, left, top);
-    ctx.fillStyle = pal.r;
-    for (const dx of [0, 3]) {
-      ctx.globalAlpha = 0.5 + Math.random() * 0.5;
-      ctx.fillRect(left + HOUSE_WINDOW.x + dx, top + HOUSE_WINDOW.y, 2, HOUSE_WINDOW.h);
-    }
-    if (t > s.next) { s.next = t + 0.5; s.smoke.push({ x: left + HOUSE_CHIMNEY.x + 1, y: top, age: 0, big: Math.random() < 0.5 }); }
-    for (const p of s.smoke) {
-      p.age += dt;
-      p.x += s.weather.wind * 0.5 * Math.min(1, p.age / 1.5) * dt;
-      p.y -= Math.max(0, 5 - p.age * 0.8) * dt;
-      ctx.globalAlpha = Math.max(0, 0.45 * (1 - p.age / 5)); ctx.fillStyle = pal.b;
-      ctx.fillRect(Math.round(p.x), Math.round(p.y), p.big ? 2 : 1, p.big ? 2 : 1);
-    }
-    s.smoke = s.smoke.filter(p => p.age < 5);
-    ctx.globalAlpha = 1;
-    drawViking(ctx, pal, walkFrame('side', t), 60, 64, { wind: Math.min(1, s.weather.wind / 140), clock: t });
+    ctx.drawImage(s.img, 80, 74 - HOUSE_H + 1);
+    drawViking(ctx, pal, walkFrame('side', t), 20 + Math.round((t * 14) % 170), 76, { wind: Math.min(1, s.weather.wind / 140), clock: t });
     s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
     ctx.globalAlpha = 1;
   },
@@ -408,6 +395,121 @@ card('statue', {
     ctx.globalAlpha = 1;
   },
 });
+
+card('statue', {
+  title: 'Freya, debout, au sortir de la forêt',
+  about: 'Plus grande (une douzaine de fois le viking), droite, à peine enfoncée, de la neige sur la coiffe et les épaules.',
+  wide: true, w: 240, h: 140,
+  setup(s, v) {
+    s.parts = buildStatueUpright({ x: 120, y: 128 }).map(o => ({ ...o, img: prerender(o.art.rows, v.pal) }));
+    s.weather = createWeather('bise');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    const all = [...s.parts, { hero: true, y: 134 }].sort((a, b) => a.y - b.y);
+    for (const o of all) {
+      if (o.hero) drawViking(ctx, pal, walkFrame('side', t), 30 + Math.round((t * 12) % 180), 134, { clock: t, wind: 0.3 });
+      else ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// ══ Corbeaux ══
+const CROW = {
+  sit0: ['.bb.', 'bbbb', '.b..'], sit1: ['....', 'bbb.', '..bb'],
+  fly: [['b...b', '.b.b.', '..b..'], ['.....', 'bbbbb', '..b..'], ['..b..', '.bbb.', 'b...b'], ['.....', 'bbbbb', '..b..']],
+};
+card('corbeaux', {
+  title: 'Envol de corbeaux', about: 'Une volée posée près de la piste, avant la forêt. Ils picorent ; quand le viking approche (de plus loin s\'il court), ils s\'envolent l\'un après l\'autre et filent avec le vent.',
+  wide: true, w: 200, h: 70,
+  setup(s) { s.start = null; },
+  draw(ctx, pal, t, dt, s) {
+    const period = 7, local = t % period;
+    if (!s.birds || local < s.last) {
+      s.birds = [...Array(14)].map(() => ({ x: 120 + (Math.random() - 0.5) * 50, y: 56 + (Math.random() - 0.5) * 12, delay: 2.4 + Math.random() * 0.7, vx: 20 + Math.random() * 30, vy: -(26 + Math.random() * 22), ph: Math.random() * 4, flip: Math.random() < 0.5 }));
+    }
+    s.last = local;
+    const hx = Math.round(20 + Math.min(local, 3) * 26);
+    drawViking(ctx, pal, local < 3 ? walkFrame('side', t) : 'side-idle', hx, 62, { clock: t, wind: 0.3 });
+    for (const b of s.birds) {
+      if (local < b.delay) {
+        const rows = (t + b.ph) % 1.1 < 0.9 ? CROW.sit0 : CROW.sit1;
+        drawRows(ctx, pal, rows, Math.round(b.x), Math.round(b.y) - 3, b.flip);
+      } else {
+        const k = local - b.delay;
+        const x = b.x + b.vx * k, y = b.y + b.vy * k * (1 - 0.15 * k);
+        drawRows(ctx, pal, CROW.fly[Math.floor((t + b.ph) * 12) % 4], Math.round(x), Math.round(y) - 3);
+      }
+    }
+  },
+});
+
+// ══ Carte de l'île : cliquer pour s'y téléporter ══
+(function islandMap() {
+  const section = document.querySelector('#carte .demos');
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Carte de l\'île</span></h3><p>Clique n\'importe où sur l\'île : le jeu s\'ouvre et le viking y apparaît (au point praticable le plus proche). Le point rouge : là où il se trouve.</p>';
+  const canvas = document.createElement('canvas');
+  const S = 12, N = WORLD / S;
+  canvas.width = N; canvas.height = N;
+  canvas.className = 'map';
+  el.append(canvas);
+  const legend = document.createElement('p');
+  legend.className = 'map-legend';
+  legend.textContent = 'Traces · D drakkar · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison';
+  el.append(legend);
+  section.append(el);
+
+  const ctx = canvas.getContext('2d');
+  const img = ctx.createImageData(N, N);
+  const put = (i, hex) => { const n = parseInt(hex.slice(1), 16); img.data[i] = n >> 16; img.data[i + 1] = (n >> 8) & 255; img.data[i + 2] = n & 255; img.data[i + 3] = 255; };
+  const MID = '#8a96b0', DEEP = '#4a5776';  // forêt, forêt noire (la mer reste nuit)
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    const wx = x * S + S / 2, wy = y * S + S / 2, i = (y * N + x) * 4;
+    if (coast(wx, wy) >= 0) { put(i, NIGHT); continue; }
+    const deep = deepForest(wx, wy);
+    const f = forestDensity(wx, wy);
+    // Forêt : tramée selon sa densité ; forêt noire : pleine
+    const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][(y & 3) * 4 + (x & 3)] / 16;
+    put(i, deep > 0.5 ? DEEP : bayer < f * 0.9 ? MID : SNOW);
+  }
+  ctx.putImageData(img, 0, 0);
+  ctx.fillStyle = NIGHT;
+  for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
+  const L = landing();
+  const marks = [['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y]];
+  ctx.font = '9px "DM Mono", monospace';
+  for (const [label, x, y] of marks) {
+    ctx.fillStyle = NIGHT; ctx.fillRect(x / S - 2, y / S - 2, 5, 5);
+    ctx.fillStyle = SNOW; ctx.fillRect(x / S - 1, y / S - 1, 3, 3);
+    ctx.fillStyle = RED; ctx.fillText(label, x / S + 4, y / S - 3);
+  }
+  const base = ctx.getImageData(0, 0, N, N);
+  function drawHere() {
+    ctx.putImageData(base, 0, 0);
+    let save = {};
+    try { save = JSON.parse(localStorage.getItem('kingvi:save')) || {}; } catch { /* rien */ }
+    if (save.x == null) return;
+    ctx.fillStyle = RED;
+    ctx.fillRect(Math.round(save.x / S) - 2, Math.round(save.y / S) - 2, 5, 5);
+  }
+  drawHere();
+
+  canvas.addEventListener('click', e => {
+    const r = canvas.getBoundingClientRect();
+    const x = Math.round((e.clientX - r.left) / r.width * WORLD), y = Math.round((e.clientY - r.top) / r.height * WORLD);
+    if (coast(x, y) >= 0) { toast('C\'est la mer : choisis un point sur l\'île.'); return; }
+    let save = {};
+    try { save = JSON.parse(localStorage.getItem('kingvi:save')) || {}; } catch { /* rien */ }
+    try {
+      localStorage.setItem('kingvi:save', JSON.stringify({ ...save, world: 3, x, y, facing: 'side', flip: false }));
+    } catch { toast('Impossible d\'enregistrer la position.'); return; }
+    location.href = './';
+  });
+})();
 
 requestAnimationFrame(loop);
 

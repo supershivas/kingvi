@@ -7,8 +7,9 @@ import {
 } from './viking.js';
 import {
   WORLD, CHUNK, isLand, landing, paintChunk, objectsInChunk, blocked,
-  DRAKKAR, HOUSE, HOUSE_ART, HOUSE_W, HOUSE_H, HOUSE_WINDOW, HOUSE_CHIMNEY,
+  DRAKKAR, HOUSE, HOUSE_ART, houseBlocked, houseFrontY,
 } from './world.js';
+import { createFauna } from './fauna.js';
 import { createWeather } from './weather.js';
 
 const Phaser = window.Phaser;
@@ -16,6 +17,7 @@ const Phaser = window.Phaser;
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
 const WORLD_VERSION = 3;
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
+const RUN = 2.4;               // Maj enfoncée : il court
 const WALK_FPS = 7;
 const OWN_PRINTS_MAX = 500;
 const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
@@ -33,9 +35,20 @@ export function fitScreen(w, h) {
 
 // Emprise de la maison (on ne la traverse pas)
 // (vue de trois quarts : le toit représente la profondeur de la maison)
-const inHouse = (x, y) =>
-  Math.abs(x - HOUSE.x) <= HOUSE_W / 2 - 4 && y <= HOUSE.y + 1 && y >= HOUSE.y - 30;
-const walkable = (x, y) => isLand(x, y) && !inHouse(x, y) && !blocked(x, y);
+const walkable = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y);
+
+// Le point praticable le plus proche (une sauvegarde ou une téléportation
+// peut tomber sur un tronc ou dans la maison)
+function nearestWalkable(x, y) {
+  if (walkable(x, y)) return { x, y };
+  for (let r = 2; r <= 60; r += 2) {
+    for (let k = 0; k < 16; k++) {
+      const a = k / 16 * Math.PI * 2, px = Math.round(x + Math.cos(a) * r), py = Math.round(y + Math.sin(a) * r);
+      if (walkable(px, py)) return { x: px, y: py };
+    }
+  }
+  return null;
+}
 
 export function createGame({ parent, palette, save, onSave, isPaused, wind = 'rafales' }) {
   const hex = c => parseInt(c.slice(1), 16);
@@ -56,7 +69,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
       this.chunks = new Map();
       this.keys = new Set();
       this.ownPrints = [];
-      this.smoke = [];
       this.stepCount = save.steps || 0;
       this.distance = save.distance || 0;
       this.attacking = false;
@@ -68,22 +80,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
 
       const land = landing();
       this.spawn = { x: land.shore + 30, y: land.y };
-      const start = save.x != null && walkable(save.x, save.y) ? save : this.spawn;
+      const start = (save.x != null && nearestWalkable(save.x, save.y)) || this.spawn;
       this.pos = { x: start.x, y: start.y };
 
       // Le drakkar sur lequel il a accosté, proue dans l'eau, à l'ouest
       this.add.image(land.shore - 4, land.y, 'drakkar').setDepth(DEPTH_BOAT);
 
-      // La maison, au bout des traces, et la fumée de son feu
-      this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1).setDepth(HOUSE.y);
-      const left = HOUSE.x - HOUSE_W / 2, top = HOUSE.y + 1 - HOUSE_H;
-      this.chimney = { x: left + HOUSE_CHIMNEY.x + 1.5, y: top + HOUSE_CHIMNEY.y };
-      this.time.addEvent({ delay: 500, loop: true, callback: () => this.puff() });
-      // Le feu derrière les deux carreaux de la fenêtre : il vacille
-      const W = HOUSE_WINDOW;
-      const panes = [0, 3].map(dx => this.add.rectangle(left + W.x + dx, top + W.y, 2, W.h, hex(palette.r))
-        .setOrigin(0, 0).setDepth(HOUSE.y + 0.1));
-      this.time.addEvent({ delay: 140, loop: true, callback: () => panes.forEach(p => p.setAlpha(0.5 + Math.random() * 0.5)) });
+      // La maison, vers le bout des traces
+      this.house = this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1).setDepth(HOUSE.y);
 
       this.cape = this.add.image(0, 0, 'cape', 'cape-0-0').setOrigin(0, 0);
       this.player = this.add.sprite(0, 0, 'viking', `${this.facing}-idle`)
@@ -110,9 +114,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
         gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
       }).setDepth(DEPTH_SKY - 1);
 
+      this.fauna = createFauna(this, palette);
+
       window.addEventListener('keydown', e => {
         if (isPaused()) return;
-        if (MOVE_CODES[e.code]) { this.keys.add(e.code); e.preventDefault(); }
+        if (MOVE_CODES[e.code] || e.code === 'ShiftLeft' || e.code === 'ShiftRight') { this.keys.add(e.code); e.preventDefault(); }
       });
       window.addEventListener('keyup', e => this.keys.delete(e.code));
       window.addEventListener('blur', () => this.keys.clear());
@@ -150,7 +156,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
       art('drakkar', DRAKKAR);
       art('house', HOUSE_ART);
       art('dust', ['b']);
-      art('puff', ['bb', 'bb']);
     }
 
     makeAnimations() {
@@ -188,28 +193,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
 
     updateCape(delta) {
       // Plus le vent est fort, plus la cape se couche et bat vite
-      const force = Math.min(1, weather.wind / 140);
+      const force = Math.min(1, weather.wind / 140 + (this.running ? 0.45 : 0));
       const level = force < 0.22 ? 0 : force < 0.6 ? 1 : 2;
       this.capeClock += delta / 1000 * (3 + force * 14);
       this.cape.setFrame(`cape-${level}-${Math.floor(this.capeClock) % CAPE_PHASES}`);
-    }
-
-    puff() {
-      const s = this.add.image(this.chimney.x + Math.random(), this.chimney.y, Math.random() < 0.5 ? 'puff' : 'dust')
-        .setDepth(DEPTH_SKY - 2).setAlpha(0.45);
-      s.life = 0;
-      this.smoke.push(s);
-    }
-
-    updateSmoke(dt) {
-      for (let i = this.smoke.length - 1; i >= 0; i--) {
-        const s = this.smoke[i];
-        s.life += dt;
-        s.x += weather.wind * 0.5 * Math.min(1, s.life / 1.5) * dt;
-        s.y -= Math.max(0, 5 - s.life * 0.8) * dt;
-        s.setAlpha(Math.max(0, 0.45 * (1 - s.life / 5)));
-        if (s.life > 5) { s.destroy(); this.smoke.splice(i, 1); }
-      }
     }
 
     // ── Pas ──
@@ -248,6 +235,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
       else this.facing = dy < 0 ? 'back' : 'front';
       this.player.setFlipX(this.flip);
       this.attacking = true;
+      this.player.anims.timeScale = 1;
       this.player.play(`${this.facing}-attack`);
     }
 
@@ -285,12 +273,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
     update(time, delta) {
       if (isPaused()) this.keys.clear();
       let mx = 0, my = 0;
-      for (const code of this.keys) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
+      for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
+      this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
 
       if (!this.attacking) {
         if (mx || my) {
           const len = Math.hypot(mx, my);
-          const step = SPEED * delta / 1000;
+          const step = SPEED * (this.running ? RUN : 1) * delta / 1000;
           const { x, y } = this.pos;
           const nx = x + mx / len * step, ny = y + my / len * step;
           // Ni la mer, ni la maison, ni les troncs : on glisse le long de l'obstacle
@@ -304,6 +293,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
           this.player.setFlipX(this.flip);
           const key = `${this.facing}-walk`;
           if (this.player.anims.currentAnim?.key !== key || !this.player.anims.isPlaying) this.player.play(key, true);
+          this.player.anims.timeScale = this.running ? 1.9 : 1;
         } else if (this.player.anims.isPlaying) {
           this.player.stop();
           this.player.setFrame(`${this.facing}-idle`);
@@ -311,7 +301,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'ra
       }
       this.placePlayer();
       this.updateCape(delta);
-      this.updateSmoke(delta / 1000);
+      this.fauna.update(delta / 1000, this.pos, this.running, weather.wind);
+      // Devant ou derrière la maison, selon le pied de ses murs
+      const front = houseFrontY(this.pos.x);
+      this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
       this.updateChunks();
       this.drawSky(delta / 1000);
     }

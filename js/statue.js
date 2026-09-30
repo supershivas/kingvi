@@ -1,4 +1,5 @@
-/* La statue cyclopéenne de Freya, à mi-chemin : ensevelie, penchée, brisée.
+/* Les statues cyclopéennes de Freya. La première, à mi-chemin : ensevelie,
+   penchée, brisée. La seconde, au sortir de la forêt : droite, plus grande.
    Les pixels viennent d'une photo de statuette réduite aux couleurs du jeu :
    b sombre, m pierre en demi-teinte (tramée), . vide. Elle fait environ dix
    fois la taille du viking (une fois dégagée de la neige). Tout est déterministe. */
@@ -101,6 +102,148 @@ const FREYA = [
   '.mmbbbmmmbbbbbbbbmbmbbbbbbbbbbbbbmbbmm',
   '...mmmmmmmmmbbbbbbbbbbbbbbbbbbbbbmbmmm',
   '.......mmmmmmmmmbbbbbbbbbmmmmmmmbbmmmm',
+];
+
+// Même photo, réduite moins fort : pour la grande statue droite.
+const FREYA_BIG = [
+  '.........................mm....mm.....................',
+  '........................mmmm..mmmm....................',
+  '.......................mbbmmmmmmbmm...................',
+  '......................mmbbmmbmmmbbmm..................',
+  '....................mmmmbbmbbbmmbmmmmm................',
+  '...................mmmmmbbbbbmmmmbmmmmm...............',
+  '................mmmmmmmmmbbbbmmmmbbmmmmmmm............',
+  '...............mmmmbmmmmmbbmbbbbbbbmmmbmmmm...........',
+  '...............mmmbbbmmbmbbmmbbbbbmmmmmbmmmm..........',
+  '...............mmmbbbmmmbbbmmbbbbbbbmmmbmmmm..........',
+  '................mmbbbmbmbbbbmbmbbbmmmmbbmmmm..........',
+  '................mmmbbmbmbbbbmbbbbbbmmbmbmmmm..........',
+  '...............mmmmbbbbmbbbbbbbbbmmmmbmbbmmm..........',
+  '...............mmmmmbmmbbbbbbbbbbmbmmmbbmbmm..........',
+  '.................mbmmmmmmmmbbbbbbbbbbmbmbbm...........',
+  '.................mmm..mmmmmmbbbbbbbbbbbbbbm...........',
+  '...............m.m.....mmmmmmbbbbmbbbmbbbm............',
+  '......................mmmmmbbbbbbbmmmmmmmm............',
+  '....................mmmmmbbbbbbbbbmmmmbmmm............',
+  '....................mmmmmbbbbbbbbbmmmmbmmmm...........',
+  '..............m..b.bmmbmmbbbbbbbbbbmmmmmbbbm..........',
+  '..............m.mmmbmbbmmbbbmbbmbbbbmmmbbmmm..........',
+  '...............mmbbbmmbmmbbbbmbbmbbbbmmbbmmm..........',
+  '..............mmbbmmmbbmmbbbbbbbbbbbbmmbmmm...........',
+  '..............mmmmbbbmmmmbbbbbbbbbbbbmmmbmmm..........',
+  '..............mmmbmbbbbmmbbbbbbbbbbmbmmmbmm...........',
+  '...............mb..mbbbbmbbbbbbmmmbbbmmmbmm...........',
+  '...............mm.mmbbbb.bbbbmmmbmmbbmmmmmm...........',
+  '..................mbbbbb.bbbbmmbbbmmbmmmmm............',
+  '................mmmmbbbb.bbbbmmmmmmmbmmmmm............',
+  '................mmmmmbbb.bbbbbmmmmmbbmmmmm............',
+  '................mmmmbbbm.bbbbbbbbbbbbmmmm.............',
+  '.................mmbbbmmmbmbbbbbbbbbmmmmm.............',
+  '................mmmbbmmm.bbbbbbbbbbmmmmm..............',
+  '..................mmm.m.mbbmbbbmbmmmmmbm..............',
+  '................mmmmmmmmbbbmbbbbmmmmmmbm..............',
+  '................mmmm.mmmmbbbbbbbbmbmmmbm..............',
+  '................mmmm.mmmbbbbbbbbbbbmmmbm..............',
+  '................mmmmmm.mmbbbbbbbbbbbmmbm..............',
+  '................mmmmmmmmmmbbbbbbbbbbmbbmm.............',
+  '................mmmmmmmmbbbbbbbmbbbmmbbmmm............',
+  '................mmmmmmmmmmmmmbmmbmbmmbbmbmm...........',
+  '................mmmmmmmmmmmmbbmmbmbmbbbbmbm...........',
+  '...............mbbmm.mmmmmmbbmmmbmbbbbbmbmmm..........',
+  '..............mbbbbmmmmmmmmmmmmmbmbbbbbmmmbmm.........',
+  '..............bbbbbbmmmmmmmmmmmmbbbbbbbbbmmbb.........',
+  '..........mmmmbbbbbbbmmmmmmmmbbbbbbbbbbbbmmmmm........',
+  '........mmmmbbbbbb.bbbbbbbbbbbbbbbbbmbbbmbmbbmm.......',
+  '.......mmbbbbbbmbbbmmbbbbbbbbbbbbbbbbbbbbbbbbmmm......',
+  '.......mmmmbbbbmbbbbbbbbbmbbbbbbbbbbbbmbbbbbbmmmm.....',
+  '......mmmbbbbbbbbbmbbbbbbbbbbbbbbbbbbbbbbbbbbmmmbm....',
+  '......mmbbbbbbmbbbbbbbmbmbbbbbbbbbbbbbbbbbbmmmbmbbm...',
+  '.....mmbbbbbbbbmmmbbbbbbbbbbbbbbbbbbbbbmbbbbmmmmbmmm..',
+  '.....mmbbbbbmbbbbbmmmmbbbbbbbbbbbbbbbbbbbbbbbmbmmmbm..',
+  '....mmmmbbbmmbbbbbbbmbmbmbbbbmbbbbbbbbbbbbbbbmmmmmbm..',
+  '....mmmbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbmmmmbmm..',
+  '....mmmbbbbbmmbbbbbmbbbbbbbbbbbmbbbbbbbbbbbbbbmmmbmm..',
+  '....mbmmbbbbbmmmbbbmbbmbbbbmbbbmbbbbbbbbbbbbbbmmmbbm..',
+  '...mmbbmbbbbmmmbbbbmbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbm...',
+  '....mbbbbbmbmbmmbbbmbbbbbbbbbbbbbbbmbmbmbbbbbbbbbmmm..',
+  '....mbbbbbbbmmmmbbmbbbbbbbbmmmbbbbbbbbbbbbbbbbbbmmmm..',
+  '...mmbbbbbbmbmbmmmbbbbbbbbmmmmmmmmbbmbbbbbbbbbbmmmmm..',
+  '...mbbbbbbbbbbbbmmbmmbbbbbmmmbmbbbbbbbbbbbbbbbbmmmmmm.',
+  '..mmmbbbbbmbbbbmbbmbbbbbbbmbmmmbbbmbbbbbbbbbbbmmmmbmm.',
+  '...mmbbbbbbbbbbbbbmmbbbbbmmmmbmbbbbbbmmbbbbbbbmmbmbbm.',
+  '..mbmmbbbbbbbmbbbmmbmbbbbbmmbbbbbbbmbbbbbbbbbbbbbmbmm.',
+  '...bbbbbbbbbbmbbbbbbmmmbbmbmbbmbbbbbmbbbbbbbbbbmbmbmm.',
+  '...bbbbbbmmbmmbbbbbbmmmbbmbbbbbbmmbbbbbbbbbbbbmmmmbmm.',
+  '..mbbmbbbbmbmbmbbbmbmmbmmmbmmbbbbbmbmbbbbbbbbmmmmmbmm.',
+  '..mmbmbbbmmbmbbbbbmbbbbmmbbbbmbbbmbbbbbbbbbbbbmmmbmmm.',
+  '..mmbmbbbmmbmbmbbbbbbbbmbbbbbbbbbmbbbbbbbbbbbbmbmbbmm.',
+  '..mbbbbbbmmmmbmbbmbbbbbbmbbbbbbbbbbbbmbbbbbbbbbmbbmm..',
+  '..mmbbbbbbmmmbmbbmbbbbbmbbbbbbbbbbbbbbbbbbbbbbbmbmmm..',
+  '...bbbbbbbmmmbmbbmbbbbbbbmbmbbbbbbbbbbbbbbbbbbbmbmmm..',
+  '...bbbbbbbbbmbmbbmbbbbbbbmbmbbbbbbbbbbbbbbbbbbbmmmmm..',
+  '..mmmbbbbbbbmbmbbmbbmbbmbmbbbbbbbbbbbbbbbbbbbbbbbmbm..',
+  '..m.mbbbbbbbmbbbbmmbbbbbbbbbbbmbbbbbbbbmbbbbbbbbbbbm..',
+  '..m.bbbbbbbbmbbmbbmbbbmmmbbbbbmbbbbbmbbmbbbbbmbmbbbmm.',
+  '.mmmbbbbbbbbbbbmbbbbmmbbbmbbbbbbbbbbbmbbbbbbbbbbbbmmm.',
+  '.mmmmbbbbbbbbbbbbbbmbbbmmbbbbbbbbmbbbbbbbbbbbbmbbbmmm.',
+  '.mmmmbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbmbbbmmm.',
+  '.mmmmbbbbbbbbbbbbmbbbbbmbbbbbbbbbbbbbbbbbbbbbmmmbbmmm.',
+  '.mmmmbbbbbbbbbbbmmbbbbmbbbbbbbmbbbbbbbbbbbbbbmbmmbmbm.',
+  '..mmbbbbbbbbbmbbmmbbbbbbmbmbbbmmbbbbbbbbbbbbbbmmmbmbm.',
+  '.mmmbmbbbbmbbmbmmmmbbbbbbbbbbbmmbbbbbbbbbbbbmbmmmmmbm.',
+  '.mmmmmbbbbbbbmbmmmmmbbbbbbbbmmbmbbbbbbbbbbbbbbmbmmmm..',
+  '.mmmbbbbbbbbbbbmmmmmbbbbbbmmmbbbbbbbmbbbmbbbbbbmmbmm..',
+  '.mmmmbbbbbbbbbbmmmmmbmbbbbmmmbbbbbbbbbbbbbbbbmmmbbm...',
+  '.mmmmbbbbbbbbbbmmmmmmmbbbbmmmbbbmbbbbbbbbbbbbbmmbbmm..',
+  '.mmmmbbbbbbbbbbbbmmmmmbbbbbmmmmmmbbbbbbbbbbbbbbbbbmm..',
+  '..m.mbbbbbbbbmbbbbbbbbbbbbbbmmbbbbbbbbbbbbbbbbbbbbbmm.',
+  '..m.mbbbbbbbmbbmbbbbbbbmbbbbbbbbbbbbbbbbbbbbbbbbbbbmm.',
+  '..mmbbbbbbbmmbbmbbbbbbbmbbbbbbbbbbbbbbbbbbbbmmbmbbbbm.',
+  '..mmmbbbbbbmbmbbbbmbmbbbbbmbbbbbbbbbbbbbbbbbmmbmmbbbm.',
+  '..mmmbbbbbmbmmbmmbmbmbbbbbmbbbbmbbbbbbbbbbbmmmbmbmbmm.',
+  '.mmmbbbbbbmbmbbmmbmbmbbbbbmbbbbbbbbbbbbbbbbmmmbmbmbmm.',
+  '.mmmmbbbbbmbmbmmbmmbmbbbbbbmbmbbmbbbmbbmbbbmmbbmbmbmm.',
+  '.mmmmbbbbbmbmbmbbmbbbmbbbmmbbbbbbmbbbbbmbbbmmbmbbbbmm.',
+  '.mmmmmbbbbbbmbbbmbbbbmbbbmbbbbbbbbmbbbbmbbbmmbmbbbbbm.',
+  '.mmmmmmbbbbbbmbmmbmbbmmbbmbbbbbbbbbbbbbmbbbmmbmbbmbmm.',
+  '.mbmmmbbbbbbbmbbmmbbbmmbbmbbbbbbbbbbbbbbbbbmmbmbbmbmm.',
+  '.mmmmmbbbbbbbmbbbmbbbmmbbmbbbmbbbbbbbbbbbbbmmmmbbmmm..',
+  '.mmmmbbbbbbmbmbbmmbbbmbbbmbbbbbbbbmbbbbbbbbmmmmbmmmm..',
+  '.mmbbbbbbbbmbbmbmbbbbbbbbbbbbbbbbbmmbbbbbbbbmmmbmmm...',
+  '.mmmmbbbbbbmbmmbbmbbbbbbbbbbbbbbbbmbbbbbbbbbmmbbmmm...',
+  '.mmmmbbbbbbmbmmbbmbbbbbbbbbbbmbbbbmbbbmbbbbbbbbbmmmm..',
+  '..m.bbbbbbbmbbbbbbmbbbbbbbbbbbbbbbmbbbmbbbbbbbbbbbmm..',
+  '.mmmbbbbbbbbbbbbbbbbbbmbbbbmbbbbbbmmbbbbbbbbbbbbbbmm..',
+  '.mmmbbbbbbbbmbbbmbbmbbbbbbbbbbbbbbbbbbbbbbbbbbbbmbbmm.',
+  'mmmbbbbbbbbbmbbmmbbbmbbmbbmbbbbbbbbbbbbbbbbbbbmbmbmmm.',
+  'bbmbbbbbbbbbmmbmmbbmmbbmbbmmbbbbbbbbbbbbbbbbbbmmmbbbm.',
+  'mbmmbbbbbbmbmmbmbbbmmbbbmbmmbbbmbbbmmbbbbbbbbbmmmbbbm.',
+  'mbmmbbbbbmbbmmbmbbmmbbbmmbmmbbbmbbbmmbbbbbbbbbmmbbbbm.',
+  'mbmmmbbbbmbbmmbmbbbbbbmmmbbbmbbmbbbmmbbbbbbbbbmmbbbbm.',
+  'mbmmmbbbbmbbmbbmbbbbbbmmbbbbbbbbbbbmmbbbbbbbbbmmbmbbm.',
+  'mmmmbbbbbmbbbbbbbbbbbmmbbbmmbbbbbbbbbbbbbbbbmmmmmmmmm.',
+  'mmmmbbbbbmbbbbmbmbbbbmbbbbbbbbbbbbbbmbbmbbbbmmmmmbmmm.',
+  'mmmmbbbbbmbbbbmbbmbbmmbbbbbbbbbbbbbbbbbmbbbbmmmmmbmbm.',
+  'mmbmbbbbbmbbbmmbbmbbmmbbbbbbbbbbbbbbbbbbbbbbmbmmmbbmm.',
+  'mmbmmbbbbbmbbmbbbmmbbmbbbbbbmmbbbbbbbbbmbbbbmmmmmbbmm.',
+  'mmbbmbbbbbmmbmbbmmbbbbbbbmbbmmbbbmbbbbbmbbbbbmmmmbbmm.',
+  'mmbbmmbbbbbmbmbmmmbbbbbbbmmbbmmbbbmbbbbbbbbbbmbmbbmbm.',
+  '.mbbmmbbbbbmbmbmmbbbbbbbbmmbbbbmbbmbbbbbbbbbmbbmmbbb..',
+  '.mbbmmbbbbbmbmbbbbbbbbbbmmbbbbbbbbmbbmbbbbbbbbbbmbmm..',
+  '.mmbmbbbmbbmbmbbbbmbbbbmmmbbbbbbbbmbbmbbbbbmbbmbbmm...',
+  '.mmmmmbbmbbmbbmbbbmbbbmmbbbbbbbbbmbbbmbbbbbbbbmmbmm...',
+  '.mmmmmbbmbbbbbmbbmmbbmmbbbbbbbbbbbmbbbbbbbbbbbmmmmm...',
+  '.mmbmbbmbbbbbbmbbmmbbmbbbbbbbbbbbbbbbbbbbbbmbmmmmmmmm.',
+  '.mmbmbbbmbbbmbmmbmmbmmbbbbbbmbbmmbbbbbbbbbbmbmmmbmmmmm',
+  '.mmbmbbbmbbbmbmmbmmbmbbbmbbbmbbmmbbbbbbbbbbmmmmmbmmmmm',
+  '.mmbmbbbbbbbmbmbbbmbmbbbbbbbmbbbmmbbbbbbmbbbbbbbbbmmmm',
+  '.mbbbbbbbbbbmbbbbbmbmbbbbmbmmbbbbbbbmbbbbbbbmbbbbbbbmm',
+  '.mmbbbbbbbbbbbbbbbmbbmbbbmbmmbbbbbbbmbbbbbbbbbbbbbbmmm',
+  '..mbbbbbbbbbmbbbbbmbbbbbmmbmbbbbbbbbbbbbbbbbbbmmbbbmmm',
+  '..mmmmmmmmmmmmbbmbbbbbbbmmbbbbbbbbbbbbbbbbbbbbbmmbbmmm',
+  '.....mmmmmmmmmmmmbbbbbmbbbbbbbbbbbbbbbbbbbbbbbmbbmmmmm',
+  '.........mmmmmmmmmmmbbbbbbbbbbbbbbbbbbbbbbbbbbbbmmmmmm',
+  '.............mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm.',
 ];
 
 function rng(seed) {
@@ -239,6 +382,32 @@ export function buildStatue(base, seed = 7) {
     objects.push({
       type: 'rubble', x: Math.round(base.x + Math.cos(a) * d), y: Math.round(base.y + Math.sin(a) * d * 0.5 + 4),
       art: { rows, ax: 0 }, foot: 0,
+    });
+  }
+  return objects;
+}
+
+// La grande statue, droite, au sortir de la forêt : intacte, à peine enfoncée,
+// de la neige posée sur la coiffe et les épaules.
+export function buildStatueUpright(base, seed = 7) {
+  const r = rng(seed * 1409);
+  const g = smooth(toGrid(FREYA_BIG));
+  const H = g.length, W = g[0].length;
+  const tilted = rotate(g, 3, W / 2, H * 0.85);
+  const body = finish(tilted.g, tilted.py + 1, r, 0.7);
+  const objects = [{
+    type: 'statue',
+    x: base.x, y: base.y,
+    art: { rows: body.rows, ax: Math.round(tilted.px - body.left) },
+    foot: 18,
+  }];
+  // Quelques pierres tombées à son pied
+  for (let i = 0; i < 5; i++) {
+    const w = 2 + Math.floor(r() * 3);
+    const a = Math.PI * (0.1 + r() * 0.8), d = 26 + r() * 20;
+    objects.push({
+      type: 'rubble', x: Math.round(base.x + Math.cos(a) * d * (r() < 0.5 ? -1 : 1)), y: Math.round(base.y + 3 + Math.sin(a) * 6),
+      art: { rows: ['b'.repeat(w)], ax: 0 }, foot: 0,
     });
   }
   return objects;

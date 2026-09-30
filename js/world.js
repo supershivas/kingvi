@@ -1,5 +1,5 @@
 import { makeTree, makeBoulder, makeCairn } from './trees.js';
-import { buildStatue } from './statue.js';
+import { buildStatue, buildStatueUpright } from './statue.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -65,14 +65,13 @@ export function landing() {
   return { shore: x, y };
 }
 
-// ── La maison, au bout des traces ──
+// ── La maison, vers le bout des traces ──
 export const HOUSE = { x: CENTER + 650, y: CENTER - 120 };
-// Devant la porte (voir HOUSE_DOOR_ART) : là où les traces s'arrêtent
-export const HOUSE_DOOR = { x: HOUSE.x + 9, y: HOUSE.y + 4 };
 
-// ── Les traces : une piste de pas qui traverse l'île jusqu'à la maison ──
+// ── Les traces : une piste de pas qui traverse l'île, passe devant la
+// maison et continue plus loin vers l'est ──
 const STRIDE = 7;
-const TRAIL_STEPS = 1100;
+const TRAIL_STEPS = 1500;
 
 function buildTrail() {
   const { shore, y: ly } = landing();
@@ -80,16 +79,28 @@ function buildTrail() {
   // Elles partent juste devant le drakkar, là où le viking pose le pied
   let x = shore + 40, y = ly - 4;
   let heading = 0; // vers l'est
-  const target = HOUSE_DOOR;
+  // Points de passage : devant la maison (sud-ouest, sud, sud-est), puis au loin
+  const waypoints = [
+    { x: HOUSE.x - 48, y: HOUSE.y - 8, near: 400 },
+    { x: HOUSE.x + 8, y: HOUSE.y + 10, near: 60 },
+    { x: HOUSE.x + 62, y: HOUSE.y - 2, near: 60 },
+    { x: HOUSE.x + 950, y: HOUSE.y - 320, near: 0, last: true },
+  ];
+  let w = 0;
   const prints = [];
   for (let i = 0; i < TRAIL_STEPS; i++) {
-    // Arrivées au but, les traces s'arrêtent net
-    if (Math.hypot(target.x - x, target.y - y) < 10) break;
+    const target = waypoints[w];
+    const dist = Math.hypot(target.x - x, target.y - y);
+    if (dist < 16) {
+      if (target.last) break;       // au bout, les traces s'arrêtent net
+      w++;
+      continue;
+    }
     const toTarget = Math.atan2(target.y - y, target.x - x);
     let diff = Math.atan2(Math.sin(toTarget - heading), Math.cos(toTarget - heading));
-    // Errance lente, attirée de loin par le but
-    // Plus on approche, plus l'attraction l'emporte sur l'errance
-    const pull = Math.hypot(target.x - x, target.y - y) < 400 ? 0.08 : 0.012;
+    // Errance lente, attirée de loin par le but ; près d'un point de passage,
+    // l'attraction l'emporte sur l'errance
+    const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012;
     heading += 0.09 * fbm(i / 40, 0, 42, 3) + pull * diff + (r() - 0.5) * 0.03;
     // Ne jamais marcher vers la mer
     if (coast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
@@ -113,14 +124,55 @@ function buildTrail() {
 }
 
 export const trail = buildTrail();
+trail.forEach((p, i) => { p.i = i; });
 
-// ── La statue de Freya, à mi-chemin, sur le bord nord de la piste ──
-const MID = trail[Math.floor(trail.length / 2)];
-export const STATUE_BASE = {
-  x: Math.round(MID.x + Math.sin(MID.heading) * 26),
-  y: Math.round(MID.y - Math.cos(MID.heading) * 26),
-};
+const LANDING = landing();
+const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+// Distance au rivage d'accostage, déformée par un bruit lent : c'est elle qui
+// dessine les bandes (arbres isolés, forêt, forêt noire) à lisière irrégulière.
+export function forestDx(x, y) {
+  return x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
+}
+
+// La forêt profonde, si dense qu'elle est noire : 0 (dehors) → 1 (cœur).
+export function deepForest(x, y) {
+  const dx = forestDx(x, y);
+  return smoothstep(1880, 2000, dx) * (1 - smoothstep(2330, 2450, dx));
+}
+
+function rawForest(x, y) {
+  const dx = forestDx(x, y);
+  const sparse = dx > 300 ? 0.03 : 0;
+  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2350, 2700, dx));
+  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
+  return Math.max(sparse, core * Math.max(0, patchy), deepForest(x, y));
+}
+
+const off = (p, d) => ({ x: Math.round(p.x + Math.sin(p.heading) * d), y: Math.round(p.y - Math.cos(p.heading) * d) });
+
+// ── La statue brisée : dans la forêt, au bord nord de la piste ──
+const STATUE_AT = trail.find(p => p.x > LANDING.shore + 1830) || trail[Math.floor(trail.length / 2)];
+export const STATUE_BASE = off(STATUE_AT, 26);
 const STATUE_PARTS = buildStatue(STATUE_BASE, SEED);
+
+// ── La grande statue droite : au sortir de la forêt, au bord sud de la piste ──
+function forestExit() {
+  const start = trail.indexOf(STATUE_AT);
+  let run = 0;
+  for (let i = start; i < trail.length; i++) {
+    run = rawForest(trail[i].x, trail[i].y) < 0.05 ? run + 1 : 0;
+    if (run === 12) return trail[i - 6];
+  }
+  return trail[Math.floor(trail.length * 0.8)];
+}
+const EXIT = forestExit();
+export const STATUE2_BASE = off(EXIT, -40);
+const STATUE2_PARTS = buildStatueUpright(STATUE2_BASE, SEED);
+
+// ── Les corbeaux : posés près de la piste, avant la forêt ──
+const CROW_AT = trail.find(p => forestDx(p.x, p.y) > 880) || trail[Math.floor(trail.length * 0.25)];
+export const CROWS = off(CROW_AT, 14);
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -163,53 +215,85 @@ const DRAKKAR_UPRIGHT = [
 
 export const DRAKKAR = [...DRAKKAR_UPRIGHT[0]].map((_, x) => DRAKKAR_UPRIGHT.map(row => row[x]).join(''));
 
-// La maison : à l'échelle du viking (sa porte fait à peu près sa taille).
-// Vue de trois quarts : un grand toit enneigé en pente, des murs sombres,
-// une fenêtre où brûle un feu, une cheminée. HOUSE est le bas du motif, au milieu.
-export const HOUSE_W = 72;
-export const HOUSE_H = 46;
-export const HOUSE_WALL = 24;                              // hauteur des murs
-export const HOUSE_WINDOW = { x: 15, y: 31, w: 5, h: 4 };  // en pixels du motif
-export const HOUSE_DOOR_ART = { x: 42, y: 33, w: 6, h: 13 };
-export const HOUSE_CHIMNEY = { x: 55, y: 0 };
+// La maison, vue de haut et de biais (d'après l'image de référence) : un grand
+// toit enneigé en losange, dont le faîtage court en diagonale, et sous lui
+// deux murs sombres. Pas de cheminée qui fume. HOUSE est le bas du motif, au milieu.
+export const HOUSE_W = 100;
+export const HOUSE_H = 60;
+const WALL = 15;                                           // hauteur des murs
+// Coins du toit (en pixels du motif) : gauche, haut, droite, bas
+const ROOF = { L: [14, 14], T: [50, 3], R: [95, 25], B: [58, 40] };
+// Emprise au sol : le toit abaissé de la hauteur des murs
+export const HOUSE_FOOT = [ROOF.L, ROOF.T, ROOF.R, ROOF.B].map(([x, y]) => [x, y + WALL]);
+
+function inPoly(poly, x, y) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, yi] = poly[i], [xj, yj] = poly[j];
+    if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
 
 function makeHouse() {
   const W = HOUSE_W, H = HOUSE_H, r = rng(SEED * 313);
   const g = Array.from({ length: H }, () => Array(W).fill('.'));
-  const put = (x, y, c) => { if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
-  const eave = H - HOUSE_WALL;                  // ligne du bas du toit
-  // Murs : un bloc sombre, un peu en retrait sous le débord du toit
-  for (let y = eave; y < H; y++) for (let x = 5; x < W - 5; x++) put(x, y, 'b');
-  // Toit : pan en pente vers nous, du faîtage (haut) à l'égout (bas), qui déborde
-  const ridge = 5;
-  for (let y = ridge; y <= eave + 1; y++) {
-    const t = (y - ridge) / (eave + 1 - ridge);
-    const left = Math.round(14 - 13 * t), right = Math.round(W - 12 + 11 * t);
-    for (let x = left; x <= right; x++) {
-      const edge = x === left || x === right || y === ridge || y === eave + 1;
-      // Neige tassée : quelques pixels sombres, plus nombreux vers l'égout
-      const speck = r() < 0.05 + 0.18 * t * t;
-      put(x, y, edge || speck ? 'b' : 's');
-    }
+  const put = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
+  const line = ([x0, y0], [x1, y1], c) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+    for (let i = 0; i <= n; i++) put(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, c);
+  };
+  const { L, T, R, B } = ROOF;
+  const down = ([x, y]) => [x, y + WALL];
+
+  // Ombre portée sur la neige, au sud-est (tramée)
+  const shadow = [down(B), down(R), [R[0] + 4, R[1] + WALL + 5], [B[0] + 6, B[1] + WALL + 5]];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (inPoly(shadow, x + 0.5, y + 0.5) && (x + y) % 2 === 0) g[y][x] = 'b';
+  // Murs : face gauche (L→B) pleine, face droite (B→R) aux planches usées
+  const left = [L, B, down(B), down(L)], right = [B, R, down(R), down(B)];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (inPoly(left, x + 0.5, y + 0.5)) g[y][x] = 'b';
+    else if (inPoly(right, x + 0.5, y + 0.5)) g[y][x] = x % 5 === 0 && r() < 0.5 ? 's' : 'b';
   }
-  // Cheminée qui perce le toit
-  for (let y = 0; y < ridge + 4; y++) for (let x = HOUSE_CHIMNEY.x - 1; x <= HOUSE_CHIMNEY.x + 2; x++) put(x, y, 'b');
-  put(HOUSE_CHIMNEY.x, ridge + 1, 's'); put(HOUSE_CHIMNEY.x + 1, ridge + 1, 's');
-  // Fenêtre (le feu y est ajouté par le jeu) et porte, cadres clairs
-  const { x: wx, y: wy, w: ww, h: wh } = HOUSE_WINDOW;
-  for (let x = wx - 1; x <= wx + ww; x++) { put(x, wy - 1, 's'); put(x, wy + wh, 's'); }
-  for (let y = wy - 1; y <= wy + wh; y++) { put(wx - 1, y, 's'); put(wx + ww, y, 's'); }
-  for (let y = wy; y < wy + wh; y++) for (let x = wx; x < wx + ww; x++) put(x, y, 'r');
-  put(wx + 2, wy, 'b'); put(wx + 2, wy + 1, 'b'); put(wx + 2, wy + 2, 'b'); put(wx + 2, wy + 3, 'b');
-  const { x: dx, y: dy, w: dw, h: dh } = HOUSE_DOOR_ART;
-  for (let y = dy - 1; y < dy + dh; y++) { put(dx - 1, y, 's'); put(dx + dw, y, 's'); }
-  for (let x = dx - 1; x <= dx + dw; x++) put(x, dy - 1, 's');
-  put(dx + dw - 2, dy + 6, 's');                // poignée
-  // Congère contre le mur, côté ouest (le vent vient de là)
-  for (let y = H - 4; y < H; y++) for (let x = 5; x < 5 + (y - (H - 5)) * 4; x++) put(x, y, 's');
+  line(B, down(B), 's');                                   // arête éclairée du coin
+  // Toit : neige, tachée de sombre vers les bords, contour et faîtage sombres
+  const roof = [L, T, R, B];
+  const ridgeA = [(L[0] + T[0]) / 2, (L[1] + T[1]) / 2], ridgeB = [(B[0] + R[0]) / 2, (B[1] + R[1]) / 2];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    if (!inPoly(roof, x + 0.5, y + 0.5)) continue;
+    // Distance au faîtage : la neige se tasse et se salit vers l'égout
+    const t = Math.abs((ridgeB[1] - ridgeA[1]) * x - (ridgeB[0] - ridgeA[0]) * y + ridgeB[0] * ridgeA[1] - ridgeB[1] * ridgeA[0])
+      / Math.hypot(ridgeB[1] - ridgeA[1], ridgeB[0] - ridgeA[0]) / 14;
+    g[y][x] = r() < 0.04 + 0.22 * t * t ? 'b' : 's';
+  }
+  for (const [a, b] of [[L, T], [T, R], [R, B], [B, L]]) line(a, b, 'b');
+  for (let i = 0; i <= 40; i += 2) {
+    const k = i / 40;
+    put(ridgeA[0] + (ridgeB[0] - ridgeA[0]) * k, ridgeA[1] + (ridgeB[1] - ridgeA[1]) * k, 'b');
+  }
+  // Porte et fenêtre sur la face gauche, cadres clairs
+  const along = (t, h) => [L[0] + (B[0] - L[0]) * t, L[1] + (B[1] - L[1]) * t + h];
+  const frame = (t0, t1, h0, h1) => {
+    line(along(t0, h0), along(t1, h0), 's'); line(along(t0, h1), along(t1, h1), 's');
+    line(along(t0, h0), along(t0, h1), 's'); line(along(t1, h0), along(t1, h1), 's');
+  };
+  frame(0.62, 0.74, 4, WALL);                                // porte
+  frame(0.2, 0.3, 5, 9);                                     // fenêtre
   return g.map(row => row.join(''));
 }
 export const HOUSE_ART = makeHouse();
+
+const HOUSE_LEFT = HOUSE.x - HOUSE_W / 2, HOUSE_TOP = HOUSE.y + 1 - HOUSE_H;
+// On ne traverse pas la maison
+export const houseBlocked = (x, y) => inPoly(HOUSE_FOOT, x - HOUSE_LEFT, y - HOUSE_TOP);
+// Ligne du pied des murs, vue d'en face : devant elle on passe devant la maison
+export function houseFrontY(x) {
+  const ax = x - HOUSE_LEFT;
+  const [L, , R, B] = HOUSE_FOOT;
+  if (ax < L[0] || ax > R[0]) return null;
+  const [a, b] = ax <= B[0] ? [L, B] : [B, R];
+  return HOUSE_TOP + a[1] + (b[1] - a[1]) * (ax - a[0]) / (b[0] - a[0]);
+}
 
 function stamp(ctx, pat, ox, oy, pal) {
   pat.forEach((row, y) => [...row].forEach((c, x) => {
@@ -235,6 +319,36 @@ export function paintChunk(ctx, cx, cy, pal) {
   const mid = coast(x0 + CHUNK / 2, y0 + CHUNK / 2);
   const uniform = mid < -0.35 ? 'land' : mid > 0.35 ? 'sea' : null;
 
+  // Forêt noire : sol tramé de plus en plus sombre sous les arbres.
+  // La piste y reste claire (couloir de 3 pixels autour de chaque pas).
+  let deep = null, corridor = null;
+  const corners = [[0, 0], [CHUNK, 0], [0, CHUNK], [CHUNK, CHUNK], [CHUNK / 2, CHUNK / 2]];
+  if (corners.some(([x, y]) => deepForest(x0 + x, y0 + y) > 0)) {
+    deep = new Float32Array((CHUNK / 4 + 1) ** 2);
+    for (let j = 0; j <= CHUNK / 4; j++) for (let i = 0; i <= CHUNK / 4; i++) deep[j * (CHUNK / 4 + 1) + i] = deepForest(x0 + i * 4, y0 + j * 4);
+    // Couloir continu : on suit la piste d'un pas au suivant. 2 = cœur clair,
+    // 1 = bord à demi tramé
+    corridor = new Uint8Array(CHUNK * CHUNK);
+    const mark = (x, y) => {
+      for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) {
+        const d2 = dx * dx + dy * dy;
+        if (d2 > 16) continue;
+        const lx = Math.round(x) - x0 + dx, ly = Math.round(y) - y0 + dy;
+        if (lx < 0 || ly < 0 || lx >= CHUNK || ly >= CHUNK) continue;
+        const v = d2 <= 5 ? 2 : 1;
+        if (corridor[ly * CHUNK + lx] < v) corridor[ly * CHUNK + lx] = v;
+      }
+    };
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+      for (const p of trailByChunk.get(`${cx + i},${cy + j}`) || []) {
+        const q = trail[p.i + 1] || p;
+        const n = Math.max(1, Math.ceil(Math.hypot(q.x - p.x, q.y - p.y) / 2));
+        for (let k = 0; k <= n; k++) mark(p.x + (q.x - p.x) * k / n, p.y + (q.y - p.y) * k / n);
+      }
+    }
+  }
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+
   for (let y = 0; y < CHUNK; y++) {
     for (let x = 0; x < CHUNK; x++) {
       const wx = x0 + x, wy = y0 + y, i = (y * CHUNK + x) * 4;
@@ -248,6 +362,11 @@ export function paintChunk(ctx, cx, cy, pal) {
           const ridge = fbm(wx / 70, wy / 9, 11, 3);
           dark = ridge > 0.3 && hash(wx, wy, 9) < 0.06;
           if (!dark) dark = hash(wx, wy, 13) < 0.00012;
+        }
+        const lane = deep ? corridor[y * CHUNK + x] : 0;
+        if (deep && lane < 2) {
+          const k = deep[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)] * (lane ? 0.45 : 1);
+          if (k > 0 && (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < k * 1.15) dark = true;
         }
         set(i, dark ? 'b' : 's');
       } else {
@@ -294,18 +413,14 @@ export function paintChunk(ctx, cx, cy, pal) {
 // Ils sont triés en profondeur avec le viking et le bloquent : le jeu les
 // affiche un par un. Tout est tiré d'un hasard propre à chaque cellule.
 const CELL = 16;
-const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
-// Quelques arbres isolés, puis la forêt, puis de nouveau clairsemés avant la maison.
+// Quelques arbres isolés, puis la forêt, de plus en plus serrée jusqu'au
+// noir, puis de nouveau clairsemée. Clairières autour des statues et de la maison.
 export function forestDensity(x, y) {
-  // Lisière irrégulière : la distance au rivage est déformée par un bruit lent
-  const dx = x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
   if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
-  if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;   // clairière de la statue
-  const sparse = dx > 300 ? 0.03 : 0;
-  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2350, 2700, dx));
-  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
-  return Math.max(sparse, core * Math.max(0, patchy));
+  if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;
+  if (Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) < 120) return 0;
+  return rawForest(x, y);
 }
 
 function nearTrail(x, y, dist) {
@@ -318,7 +433,6 @@ function nearTrail(x, y, dist) {
   return false;
 }
 
-const LANDING = landing();
 const objectCache = new Map();
 
 export function objectsInChunk(cx, cy) {
@@ -329,7 +443,9 @@ export function objectsInChunk(cx, cy) {
   const free = (x, y, trail) =>
     coast(x, y) < -0.03 && !nearTrail(x, y, trail) &&
     Math.hypot(x - LANDING.shore, y - LANDING.y) > 60 &&
-    Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80;
+    Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80 &&
+    Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) > 80 &&
+    Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110;
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
@@ -338,6 +454,11 @@ export function objectsInChunk(cx, cy) {
       const d = forestDensity(x, y);
       if (r() < d && free(x, y, 8)) {
         list.push({ type: 'tree', x, y, seed: Math.floor(r() * 1e9), big: d > 0.2 });
+        // Au cœur de la forêt noire, un second arbre serré contre le premier
+        if (d > 0.8 && r() < 0.6) {
+          const x2 = x + Math.floor(r() * 9) - 4, y2 = y + Math.floor(r() * 7) - 3;
+          if (free(x2, y2, 7)) list.push({ type: 'tree', x: x2, y: y2, seed: Math.floor(r() * 1e9), big: true });
+        }
         continue;
       }
       // Gros rochers : rares, un peu plus fréquents hors de la forêt
@@ -353,7 +474,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of STATUE_PARTS) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS]) {
     if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }

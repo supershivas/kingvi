@@ -11,18 +11,23 @@ maison), avec du vent, un effet
 d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On accoste à l'ouest et on suit les traces vers l'est : quelques arbres, puis
-une forêt ; à mi-chemin, dans une clairière, une statue géante de Freya
-ensevelie, penchée et brisée ; au bout (environ 3 minutes de marche), une
-maison dont la cheminée fume. Le viking est tout noir ; sa cape bat au vent.
+On accoste à l'ouest et on suit les traces vers l'est : quelques arbres, une
+volée de corbeaux qui s'envole à l'approche, la forêt (cerfs et biches au
+loin, qui s'enfuient), une statue géante de Freya ensevelie, penchée et
+brisée, puis la forêt noire (si dense que le sol est noir ; la piste y reste
+un couloir de neige), une grande Freya debout à la sortie, la maison (vue de
+biais, sans fumée) ; les traces passent devant et continuent vers l'est.
+Le viking est tout noir ; sa cape bat au vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
-viking, cape, attaques, ambiances de vent, arbres, rochers, maison, statue,
-loups, cerfs et biches.
+carte de l'île (un clic y téléporte le viking), viking, cape, attaques,
+ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
+et biches.
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
-marcher, clic pour frapper vers le pointeur (droite, gauche, haut, bas). L'épée
+marcher, Maj pour courir, clic pour frapper vers le pointeur (droite, gauche,
+haut, bas). L'épée
 est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
@@ -59,14 +64,18 @@ est cachée et ne sort que pendant l'attaque.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns.
 - `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
   silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
-- `js/deer.js` — cerfs (bois) et biches (labo) : marche, bond, arrêt,
-  broute, brame / alerte.
+- `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
+  brame / alerte.
+- `js/fauna.js` — les bêtes dans le jeu : cerfs et biches (apparaissent loin,
+  fuient à l'approche, plus tôt si on court) et envol de corbeaux (`CROWS`).
 - `js/statue.js` — la statue de Freya : pixels tirés d'une photo
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
-  enfouis ; éclats et débris autour.
+  enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
-  pierres levées, drakkar, maison (`makeHouse`), forêt (`forestDensity`,
-  `objectsInChunk`, `blocked`).
+  pierres levées, drakkar, maison (`makeHouse`, `houseBlocked`,
+  `houseFrontY`), forêt (`forestDx` : bandes à lisière irrégulière,
+  `forestDensity`, `deepForest`), statues et corbeaux placés le long de la
+  piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
   `scripts/sync-design-system.sh`. Ne pas les modifier ici.

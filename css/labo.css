@@ -35,3 +35,5 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .demo figcaption { font-family: var(--font-mono); font-size: .7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; }
 .demo canvas { width: 100%; height: auto; image-rendering: pixelated; border-radius: var(--radius-sm); display: block; }
 .demo .btn-ghost { align-self: flex-start; }
+.demo canvas.map { max-width: 768px; cursor: crosshair; image-rendering: auto; }
+.map-legend { font-family: var(--font-mono); font-size: .75rem; }

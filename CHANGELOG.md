@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.0 — 2026-09-30
+- Maj pour courir ; cerfs et biches au loin dans la forêt, qui s'enfuient à l'approche
+- Envol de corbeaux avant la forêt, forêt noire au cœur, grande statue droite à la sortie
+- Maison redessinée vue de biais, sans fumée, les traces continuent ; carte de l'île dans le labo pour s'y téléporter
+
 ## 1.3.0 — 2026-09-30
 - À mi-chemin, une statue géante de Freya, ensevelie, penchée et brisée
 - Cape plus courte et discrète ; cairns d'un seul tenant, tous de guingois
