@@ -69,7 +69,8 @@ sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 `strikeRock`).
 Le son est synthétisé (aucun fichier) : une deep techno contemplative et
 changeante, le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
-l'épée (fendre l'air, neige, chair), le coffre. Il démarre au premier geste du
+l'épée (fendre l'air, neige, chair, bois, pierre), le coffre, les loups
+(hurlement, grondement, morsure, glapissement). Il démarre au premier geste du
 joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
 La musique suit l'humeur du moment (`musicMood` dans `game.js` →
 `audio.setMood({ energy, dark, muffled })`) : calme sur la grève, sourde et
@@ -89,7 +90,8 @@ et biches.
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
 les diagonales se jouent de profil, lame en travers), molette pour un léger
-zoom (90 à 110 % ; nets seulement à 100 %). L'épée
+zoom (90 à 110 % ; nets seulement à 100 %). Sur écran tactile : la croix
+pour marcher (au bord pour courir), toucher l'écran pour frapper. L'épée
 est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
