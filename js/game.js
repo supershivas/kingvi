@@ -18,6 +18,7 @@ import { createFoe, drawPips, FOE_HP } from './foe.js';
 import { createFauna } from './fauna.js';
 import { createWeather } from './weather.js';
 import { createSea } from './sea.js';
+import { audio } from './audio.js';
 import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
 
 const Phaser = window.Phaser;
@@ -198,11 +199,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       cam.setZoom(fit.zoom);
       this.input.on('wheel', (p, over, dx, dy) => {
         if (isPaused()) return;
-        // Un cran : un pixel physique de plus ou de moins par pixel du jeu
-        // (deux sur un écran à haute densité)
-        const z = this.zoom, step = Math.max(1, Math.round(z.dpr));
-        const min = Math.max(1, z.base - step) - z.base, max = 2 * step;
-        z.wheel = Math.max(min, Math.min(max, z.wheel + (dy > 0 ? -step : step)));
+        // Un léger zoom : de 90 à 110 %, par crans de 5 % (à 100 %, les pixels
+        // restent nets ; entre deux, ils sont un peu inégaux)
+        const z = this.zoom;
+        z.wheel = Math.max(-2, Math.min(2, z.wheel + (dy > 0 ? -1 : 1)));
       });
       cam.setBackgroundColor(palette.b);
 
@@ -242,7 +242,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.playerPips = this.add.graphics();
       this.foe = createFoe(this, {
         post, walkable, capeAnchor: this.capeAnchor, dead: !!save.foeDead,
-        onStrike: (x, y, dir) => this.struckAt(x, y, dir),
+        onStrike: (x, y, dir) => { audio.play('swing'); this.struckAt(x, y, dir); },
         bleed: (x, y, n) => this.bleed(x, y, n),
       });
 
@@ -309,8 +309,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y) < 70;
       z.fight += ((fighting ? 1 : 0) - z.fight) * Math.min(1, dt * (fighting ? 2.5 : 1.2));
       if (Math.abs(z.fight - (fighting ? 1 : 0)) < 0.005) z.fight = fighting ? 1 : 0;
-      const rest = z.base + z.wheel;
-      const target = (rest + z.fight * Math.max(1, Math.round(rest * 0.5))) * (this.inside ? 2 : 1);
+      const rest = z.base * (1 + 0.05 * z.wheel);
+      const target = (rest + z.fight * Math.max(1, Math.round(z.base * 0.5))) * (this.inside ? 2 : 1);
       // En passant la porte (sous le fondu), pas de glissé
       const k = Math.abs(target - z.current) < 0.01 || z.inside !== this.inside ? 1 : Math.min(1, dt * 6);
       z.inside = this.inside;
@@ -472,6 +472,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     }
 
     swing() {
+      audio.play('swing');
       const dir = this.flip ? -1 : 1;
       const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
       const g = this.add.graphics().setDepth(this.pos.y + 0.5);
@@ -506,7 +507,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const ring = this.add.ellipse(x, y, 4, 2).setStrokeStyle(1, hex(palette.b), 0.6).setDepth(DEPTH_MARKS + 1);
       this.tweens.add({ targets: ring, scaleX: 4, scaleY: 3, alpha: 0, duration: 420, ease: 'Quad.easeOut', onComplete: () => ring.destroy() });
       // L'autre viking est-il sous la lame ?
-      if (this.foe.hitAt(x, y, dir || 1)) {
+      const hit = this.foe.hitAt(x, y, dir || 1);
+      audio.play(hit ? 'flesh' : 'snow');
+      if (hit) {
         this.cameras.main.shake(180, 0.01);
         this.spurt(this.foe.pos.x, this.foe.pos.y - 5, dir || 1, this.foe.alive ? 18 : 30);
         if (!this.foe.alive) this.pool(this.foe.pos.x, this.foe.pos.y);
@@ -562,6 +565,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.hp--;
       this.invuln = 0.8;
       this.bleed(this.pos.x, this.pos.y, 8);
+      audio.play('flesh');
       this.spurt(this.pos.x, this.pos.y - 5, dir, this.hp > 0 ? 18 : 30);
       this.cameras.main.shake(200, 0.012);
       if (this.hp <= 0) { this.pool(this.pos.x, this.pos.y); this.fall(dir); return; }
@@ -612,6 +616,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.updateBoat(delta / 1000, time);
       this.updateWaves(delta / 1000, time);
       this.updateZoom(delta / 1000);
+      // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
+      this.windSound = (this.windSound || 0) - delta;
+      if (this.windSound <= 0) { this.windSound = 200; audio.wind(weather.wind, weather.gust, !!this.inside); }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       this.running = this.keys.has('ShiftLeft') || this.keys.has('ShiftRight');
@@ -828,6 +835,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
     openChest() {
       if (this.chestOpen) return;
+      audio.play('creak');
       this.chestOpen = true;
       this.facing = 'back'; this.player.setFrame('back-idle');
       this.chest.setTexture('chest-ajar');

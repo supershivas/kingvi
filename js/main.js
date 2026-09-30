@@ -1,5 +1,6 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
+import { audio } from './audio.js';
 import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
 import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
 
@@ -23,7 +24,7 @@ const palette = {
   k: css.getPropertyValue('--game-black').trim(),   // le noir du dehors, vu de l'intérieur
 };
 
-const prefs = { crt: true, tilt: true, wind: 'cycle', dayOffset: 0, ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, wind: 'cycle', dayOffset: 0, music: true, sfx: true, ...read(PREFS_KEY, {}) };
 // Ancien réglage (moment figé) : on repart de ce moment-là, et le temps s'écoule
 if (prefs.dayFixed != null) { prefs.dayOffset = prefs.dayFixed - Date.now() / 1000; delete prefs.dayFixed; write(PREFS_KEY, prefs); }
 // L'heure du jeu : l'horloge réelle, décalée si le joueur a choisi un autre moment
@@ -190,6 +191,22 @@ $('home').addEventListener('click', e => {
   game.save();
   openTitle();
 });
+
+// ── Le son : il ne peut démarrer qu'après un geste du joueur ──
+audio.setMusic(prefs.music);
+audio.setSfx(prefs.sfx);
+const unlockAudio = () => { if (prefs.music || prefs.sfx) audio.unlock(); };
+window.addEventListener('pointerdown', unlockAudio);
+window.addEventListener('keydown', unlockAudio);
+for (const [id, key, set] of [['opt-music', 'music', on => audio.setMusic(on)], ['opt-sfx', 'sfx', on => audio.setSfx(on)]]) {
+  $(id).checked = prefs[key];
+  $(id).addEventListener('change', e => {
+    prefs[key] = e.target.checked;
+    write(PREFS_KEY, prefs);
+    set(prefs[key]);
+    unlockAudio();
+  });
+}
 
 // ── Réglages ──
 function applyCrt() {

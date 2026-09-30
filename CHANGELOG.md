@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.0 — 2026-09-30
+- Le son : une musique deep techno contemplative, le vent, les corbeaux, l'épée (Réglages : musique, bruitages)
+- Loups redessinés d'après la référence : petits, fins, oreilles dressées, queue qui bat
+- La molette ne zoome plus que de 90 à 110 %
+
 ## 1.12.1 — 2026-09-30
 - Le titre de l'accueil est en pixels : neige sur les lettres, ombre tramée, glaçons ; plus de sous-titre
 - Le sommet de la falaise s'effrite entre les pans, sans arêtes nettes

@@ -23,6 +23,7 @@ import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
 import { ROWBOAT_FRAMES, BOAT2 } from './boat.js';
 import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 import * as PROPS from './props.js';
+import { audio } from './audio.js';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -727,6 +728,39 @@ card('corbeaux', {
     if (local < 1) s.birds.forEach(b => { b.flee = null; });
   },
 });
+
+// ══ Son : la musique et les bruitages, synthétisés ══
+(function sounds() {
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures (nappe seule, la grosse caisse entre, la basse, les accords dub dans l\'écho, une respiration…), le vent qui suit la météo, les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
+  const box = el.querySelector('.sound-buttons');
+  let music = false;
+  const add = (label, icon, fn) => {
+    const b = document.createElement('button');
+    b.className = 'btn-ghost'; b.type = 'button';
+    b.innerHTML = `<i class="ti ti-${icon}" aria-hidden="true"></i> <span></span>`;
+    b.querySelector('span').textContent = label;
+    b.addEventListener('click', () => { audio.unlock(); fn(b); });
+    box.append(b);
+  };
+  audio.setMusic(false);
+  add('Musique', 'music', b => { music = !music; audio.setMusic(music); b.querySelector('span').textContent = music ? 'Couper la musique' : 'Musique'; });
+  let windOn = false, windTimer = null;
+  add('Vent (tempête)', 'wind', b => {
+    windOn = !windOn;
+    clearInterval(windTimer);
+    if (windOn) { let t = 0; windTimer = setInterval(() => { t += 0.2; audio.wind(120 + 60 * Math.sin(t / 3), 0.5 + 0.5 * Math.sin(t), false); }, 200); }
+    else audio.wind(0, 0);
+    b.querySelector('span').textContent = windOn ? 'Couper le vent' : 'Vent (tempête)';
+  });
+  add('Corbeaux', 'feather', () => audio.play('caw', { n: 3 }));
+  add('Coup d\'épée', 'sword', () => audio.play('swing'));
+  add('Dans la neige', 'snowflake', () => audio.play('snow'));
+  add('Dans la chair', 'droplet', () => audio.play('flesh'));
+  add('Le coffre', 'box', () => audio.play('creak'));
+  document.querySelector('#son .demos').append(el);
+})();
 
 // ══ Carte de l'île : cliquer pour s'y téléporter ══
 (function islandMap() {

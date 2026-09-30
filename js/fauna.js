@@ -4,6 +4,7 @@
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_H, DEER_GROUND } from './deer.js';
 import { paintFrames } from './viking.js';
 import { isLand, blocked, forestDensity, deepForest, CROWS } from './world.js';
+import { audio } from './audio.js';
 
 const DEER_ENABLED = false;
 const DEER_MAX = 4;
@@ -144,6 +145,10 @@ export function createFauna(scene, palette) {
   function updateCrows(dt, player, running, wind) {
     if (!scattered && Math.hypot(CROWS.x - player.x, CROWS.y - player.y) < (running ? 120 : 80)) {
       scattered = true;
+      // L'envol : une clameur, puis quelques cris qui s'éloignent
+      audio.play('caw', { n: 3 });
+      scene.time.delayedCall(700, () => audio.play('caw', { n: 2, pan: 0.4 }));
+      scene.time.delayedCall(1600, () => audio.play('caw', { n: 1, pan: 0.7 }));
       for (const c of crows) {
         const away = Math.sign(c.sprite.x - player.x) || 1;
         c.state = 'wait';
@@ -201,6 +206,7 @@ export function createFauna(scene, palette) {
     for (let i = carrion.length - 1; i >= 0; i--) {
       const c = carrion[i], s = c.sprite;
       if (scare && c.state !== 'flee') {
+        if (i === carrion.length - 1) audio.play('caw', { n: 3 });
         c.state = 'flee'; c.delay = Math.random() * 0.4; c.life = 0;
         c.vx = (Math.sign(s.x - player.x) || 1) * (50 + Math.random() * 40); c.vy = -(60 + Math.random() * 30);
         s.setVisible(true);
@@ -221,12 +227,15 @@ export function createFauna(scene, palette) {
         s.setFlipX(dx < 0);
         if (dist < 1.5) {
           c.state = 'eat';
+          if (Math.random() < 0.5) audio.play('caw', { n: 1, pan: Math.max(-1, Math.min(1, (s.x - player.x) / 150)) });
           s.setPosition(c.land.x, c.land.y).setDepth(c.land.y);
           s.anims.play({ key: 'crow-peck', startFrame: Math.floor(Math.random() * 2) });
           s.anims.timeScale = 0.9 + Math.random() * 1.1;
           s.setFlipX(corpse ? c.land.x > corpse.x : false);
         }
       } else if (c.state === 'eat') {
+        // Ils se chamaillent : un cri, de temps en temps
+        if (Math.random() < dt * 0.05) audio.play('caw', { n: 1 + Math.floor(Math.random() * 2), pan: Math.max(-1, Math.min(1, (s.x - player.x) / 150)) });
         // De temps en temps, il sautille autour du corps
         if (Math.random() < dt * 0.25) {
           const nx = s.x + (Math.random() < 0.5 ? -2 : 2);

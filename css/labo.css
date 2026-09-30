@@ -38,3 +38,6 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .demo .btn-ghost { align-self: flex-start; }
 .demo canvas.map { max-width: 768px; cursor: crosshair; image-rendering: auto; }
 .map-legend { font-family: var(--font-mono); font-size: .75rem; }
+
+/* Son : une rangée de boutons */
+.sound-buttons { display: flex; flex-wrap: wrap; gap: 8px; }

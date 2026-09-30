@@ -51,6 +51,10 @@ coffre à ouvrir (clic près de lui).
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
+Le son est synthétisé (aucun fichier) : une deep techno contemplative et
+changeante, le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
+l'épée (fendre l'air, neige, chair), le coffre. Il démarre au premier geste du
+joueur ; Musique et Bruitages se coupent dans les Réglages.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), une vue par animation, sur la neige aux couleurs du jeu :
@@ -63,7 +67,8 @@ et biches.
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
-les diagonales se jouent de profil, lame en travers), molette pour zoomer. L'épée
+les diagonales se jouent de profil, lame en travers), molette pour un léger
+zoom (90 à 110 % ; nets seulement à 100 %). L'épée
 est cachée et ne sort que pendant l'attaque.
 
 - Production : https://supershivas.github.io/kingvi/
@@ -78,7 +83,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen` ; `kingvi:prefs` : effet CRT, tilt-shift, vent,
+  `chestOpen` ; `kingvi:prefs` : effet CRT, tilt-shift, vent, `music`, `sfx`,
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -87,7 +92,8 @@ est cachée et ne sort que pendant l'attaque.
 - `index.html` — en-tête, écran de jeu, écran d'accueil (`#title`),
   réglages (`<dialog>`, « Nouveau jeu » en premier), toast.
 - `labo.html`, `js/labo.js`, `css/labo.css` — le labo d'animations (canvas 2D,
-  mêmes modules que le jeu). Toute nouvelle animation y a sa carte.
+  mêmes modules que le jeu). Toute nouvelle animation y a sa carte ; une
+  section Son fait entendre la musique et chaque bruitage.
 - `js/main.js` — interface : écran d'accueil, nouveau jeu (efface
   `kingvi:save` et recharge, drapeau `kingvi:start` en sessionStorage pour
   entrer directement), réglages, export, sauvegarde, mise à jour auto.
@@ -106,6 +112,10 @@ est cachée et ne sort que pendant l'attaque.
   maison, la crypte) sont des pièces posées loin en mer, fond noir, profondeur
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
+- `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
+  de 16 mesures (`arrangement`), grosse caisse, charleston, basse, accords dub
+  (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
+  'snow' | 'flesh' | 'caw' | 'creak')`, `audio.wind(force, rafale, abrité)`).
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos ; attaques en diagonale
   `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6
@@ -142,9 +152,11 @@ est cachée et ne sort que pendant l'attaque.
   du morceau (1024 px de large) et en change ~22 fois par seconde
   (`swayTrees`) : `treeWind` (quasi rien sous la bise), `treeLean`,
   `treeFreq` (les petits arbres battent plus vite).
-- `js/wolf.js` — loups (labo seulement pour l'instant) : petits, trapus,
-  voûtés, la tête plus basse que le garrot (pas de chien de dessin animé) ;
-  trot, galop, arrêt, grogne, flaire, hurle, assis.
+- `js/wolf.js` — loups (labo seulement pour l'instant), d'après les
+  silhouettes de référence : petits (garrot à 4 px, oreilles à 6 ; le viking
+  en fait 9), corps long et maigre, dos droit, tête en avant, une oreille
+  pointue, pattes fines articulées (`leg`), queue touffue qui bat (`tail`,
+  `wag`) ; trot, galop, marche, arrêt, flaire, hurle, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
@@ -196,8 +208,8 @@ est cachée et ne sort que pendant l'attaque.
   faisait léviter.
 - Il doit rester petit (environ 9 pixels de haut, écran d'environ 440 pixels
   de haut) et se lire comme une masse : pas de visage ni de détail.
-- Tout se mesure au viking : porte de la maison ≈ sa taille, tête du loup à
-  la hauteur de son casque, statue ≈ dix fois sa taille. Vérifier dans le labo.
+- Tout se mesure au viking : porte de la maison ≈ sa taille, loup à la
+  hauteur de sa hanche (oreilles comprises), statue ≈ dix fois sa taille. Vérifier dans le labo.
 - La cape est courte et discrète : au calme elle se confond avec le dos ; même
   par grand vent elle ne dépasse que de quelques pixels (pas de cape de héros).
 - Les cairns sont d'un seul tenant et jamais symétriques.
