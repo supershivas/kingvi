@@ -7,13 +7,15 @@ import {
 import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js';
 import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
 import {
-  HOUSE_ART, HOUSE_GLOW, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
+  HOUSE_ART, HOUSE_H, rng, WORLD, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
 } from './world.js';
 import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
 import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
-import { BOAT, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
+import { ROOM, ROOM_ENTRY } from './interior.js';
+import { makeIceberg } from './trees.js';
 import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH } from './daylight.js';
 
 const css = getComputedStyle(document.documentElement);
@@ -329,7 +331,7 @@ card('arbres', {
 });
 
 // ══ Rochers et cairns ══
-function row(section, title, about, make, button) {
+function row(section, title, about, make, button, sea = false) {
   card(section, {
     title, about, wide: true, w: 320, h: 50, button,
     setup(s, v) {
@@ -341,7 +343,8 @@ function row(section, title, about, make, button) {
         x += art.rows[0].length + 8;
       }
     },
-    draw(ctx, pal, t, dt, s) {
+    draw(ctx, pal, t, dt, s, v) {
+      if (sea) { ctx.fillStyle = pal.b; ctx.fillRect(0, 0, v.w, v.h); }
       for (const it of s.items) ctx.drawImage(it.img, it.x, 40 - it.img.height + 1);
       drawViking(ctx, pal, 'side-idle', 310, 40, { flip: true, wind: 0.3, clock: t });
     },
@@ -552,36 +555,22 @@ card('corbeaux', {
 
 // ══ Barque ══
 card('barque', {
-  title: 'La barque accoste', about: 'D\'après l\'image de référence. Elle glisse vers la grève en laissant un sillage en V, dodine d\'un pixel, l\'écume bat sa coque ; puis le viking saute à terre. Un liseré clair la détache de la mer sombre.',
+  title: 'La barque flotte', about: 'D\'après l\'image de référence, échouée sur la grève : elle dodine, roule d\'un bord à l\'autre, l\'écume bat sa coque. Un liseré clair la détache de la mer sombre.',
   wide: true, w: 200, h: 60,
-  setup(s, v) { s.img = prerender(BOAT, v.pal); s.wake = []; },
+  setup(s, v) { s.imgs = Object.fromEntries(Object.entries(BOAT_FRAMES).map(([k, rows]) => [k, prerender(rows, v.pal)])); },
   draw(ctx, pal, t, dt, s, v) {
     const shore = 130;
-    // La mer à gauche, la grève à droite
     ctx.fillStyle = pal.b;
     for (let y = 0; y < v.h; y++) ctx.fillRect(0, y, shore + Math.round(Math.sin(y * 0.3) * 2), 1);
-    const period = 11, local = t % period;
-    const k = Math.min(1, local / 7), ease = 1 - (1 - k) ** 3;
-    const bx = Math.round(shore + 6 - (BOAT_W - 2) - 150 * (1 - ease));
-    const by = 24 + (Math.sin(t * (k < 1 ? 12 : 4.5)) > 0.4 ? 1 : 0);
-    if (k < 0.97 && Math.random() < dt * 14) for (const side of [-1, 1]) s.wake.push({ x: bx + 1, y: by + BOAT_WATERLINE + side * 2, side, age: 0 });
-    for (const w of s.wake) {
-      w.age += dt;
-      ctx.globalAlpha = Math.max(0, 0.9 * (1 - w.age / 1.8)); ctx.fillStyle = pal.s;
-      ctx.fillRect(Math.round(w.x), Math.round(w.y + w.side * 7 * Math.min(1, w.age / 1.2)), 2, 1);
-    }
-    s.wake = s.wake.filter(w => w.age < 1.8);
-    ctx.globalAlpha = 1;
-    ctx.drawImage(s.img, bx, by);
+    const bx = shore + 6 - (BOAT_W - 2), bob = Math.sin(t * 1.3) > 0.35 ? 1 : 0, by = 24 + bob;
+    const roll = Math.sin(t * 0.8 + 1);
+    ctx.drawImage(s.imgs[roll > 0.55 ? 'right' : roll < -0.55 ? 'left' : 'still'], bx, by);
     ctx.fillStyle = pal.s;
     for (const e of BOAT_EDGE) {
       if (e.y < BOAT_WATERLINE - 1 || bx + e.x > shore) continue;
       if (Math.sin(t * 4.2 + e.x * 0.7 + e.y) > 0.15) ctx.fillRect(bx + e.x, by + e.y, 1, 1);
     }
-    if (local > 7.3) {
-      const hop = local < 7.65 ? Math.round(Math.sin((local - 7.3) / 0.35 * Math.PI) * 5) : 0;
-      drawViking(ctx, pal, 'side-idle', shore + 24, 37 - hop, { clock: t, wind: 0.3 });
-    }
+    drawViking(ctx, pal, 'side-idle', shore + 24, 37, { clock: t, wind: 0.3 });
   },
 });
 
@@ -589,9 +578,9 @@ card('barque', {
 const DAY_SPEED = 60;
 card('nuit', {
   title: `Jour et nuit (accéléré ×${DAY_SPEED})`,
-  about: 'Aube, jour, crépuscule, nuit : 20 minutes calées sur l\'heure réelle. La nuit, un voile bleu nuit ; à l\'aube et au crépuscule, une lueur rouge rasante ; le feu s\'allume à la fenêtre de la maison.',
+  about: 'Aube, jour, crépuscule, nuit : 20 minutes calées sur l\'heure réelle (ou figées avec le curseur des Réglages). La nuit, un voile bleu nuit ; à l\'aube et au crépuscule, une lueur rouge rasante.',
   wide: true, w: 200, h: 86,
-  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.glow = prerender(HOUSE_GLOW, v.pal); s.weather = createWeather('bise'); },
+  setup(s, v) { s.img = prerender(HOUSE_ART, v.pal); s.weather = createWeather('bise'); },
   draw(ctx, pal, t, dt, s, v) {
     const d = daylightAt(t * DAY_SPEED);
     const h = v.h - 8;
@@ -605,8 +594,6 @@ card('nuit', {
     ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = d.dusk * 0.08;
     ctx.fillStyle = pal.r; ctx.fillRect(0, 0, v.w, h);
     ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = d.night * (0.7 + Math.random() * 0.3);
-    ctx.drawImage(s.glow, 70, 74 - HOUSE_H + 1);
     ctx.globalAlpha = 1;
     // Frise des phases, curseur sur l'instant
     let x = 0;
@@ -625,6 +612,23 @@ card('nuit', {
     }
   },
 });
+
+// ══ Intérieur de la maison ══
+card('interieur', {
+  title: 'Dans la maison', about: 'On y entre par la porte (en marchant vers elle). Pièce vue de biais, noire tout autour ; un corps au milieu, une flaque de sang, une traînée et des pas ensanglantés jusqu\'à la porte. On ressort par où l\'on est entré ; dehors, les traces qui repartent sont tachées de sang.',
+  wide: true, w: 150, h: 100,
+  setup(s, v) { s.img = prerender(ROOM, { ...v.pal, k: '#05070c' }); },
+  draw(ctx, pal, t, dt, s) {
+    ctx.drawImage(s.img, 0, 0);
+    // Le viking entre, s'approche du corps, s'arrête
+    const k = Math.min(1, (t % 10) / 5);
+    const x = Math.round(ROOM_ENTRY.x + 24 * k), y = Math.round(ROOM_ENTRY.y - 12 * k);
+    drawViking(ctx, pal, k < 1 ? walkFrame('side', t) : 'back-idle', x, y, { clock: t, wind: 0 });
+  },
+});
+
+// ══ Icebergs ══
+row('mer', 'Icebergs plats', 'Tabulaires, au large des côtes : plateau de glace, falaise tramée, écume au ras de l\'eau.', makeIceberg, 'Autres icebergs', true);
 
 requestAnimationFrame(loop);
 

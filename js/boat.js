@@ -57,3 +57,15 @@ export const BOAT_EDGE = (() => {
   }
   return out;
 })();
+
+// Roulis : le haut de la coque (au-dessus de la flottaison) glisse d'un pixel
+// d'un bord à l'autre. Trois images : droite, penchée à gauche, penchée à droite.
+function roll(dir) {
+  return BOAT.map((row, y) => {
+    if (y >= BOAT_WATERLINE - 3) return row;
+    const shift = y < 6 ? dir : 0;
+    if (!shift) return row;
+    return shift > 0 ? '.' + row.slice(0, -1) : row.slice(1) + '.';
+  });
+}
+export const BOAT_FRAMES = { still: BOAT, left: roll(-1), right: roll(1) };

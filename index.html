@@ -39,8 +39,10 @@
 
 <main id="screen" class="screen crt">
   <div id="stage" class="stage"></div>
-  <div class="tilt tilt-top" aria-hidden="true"></div>
-  <div class="tilt tilt-bottom" aria-hidden="true"></div>
+  <div class="tilt tilt-top soft" aria-hidden="true"></div>
+  <div class="tilt tilt-top strong" aria-hidden="true"></div>
+  <div class="tilt tilt-bottom soft" aria-hidden="true"></div>
+  <div class="tilt tilt-bottom strong" aria-hidden="true"></div>
   <div class="crt-layer" aria-hidden="true"></div>
   <p id="hint" class="hint">ZQSD pour marcher · Maj pour courir · clic pour frapper</p>
 </main>
@@ -70,9 +72,18 @@
       <span class="hint-text" id="wind-about"></span>
     </label>
 
+    <div class="field-select">
+      <label for="opt-daytime">Moment de la journée</label>
+      <input id="opt-daytime" type="range" min="0" step="1"/>
+      <span class="hint-text" id="daytime-label"></span>
+      <label class="toggle">
+        <input id="opt-dayauto" type="checkbox"/>
+        <span>Suivre l'heure réelle</span>
+      </label>
+    </div>
+
     <section class="stats" aria-label="Voyage">
       <div><span class="stat-value" id="stat-distance">0</span><span class="stat-label">pas dans la neige</span></div>
-      <p class="hint-text" id="daytime"></p>
     </section>
 
     <button id="back-to-shore" class="btn-ghost" type="button">

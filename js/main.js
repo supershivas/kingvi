@@ -1,7 +1,7 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
 import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
-import { DAY_LABELS } from './daylight.js';
+import { DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -20,9 +20,10 @@ const palette = {
   s: css.getPropertyValue('--game-snow').trim(),
   b: css.getPropertyValue('--game-night').trim(),
   r: css.getPropertyValue('--accent').trim(),
+  k: css.getPropertyValue('--game-black').trim(),   // le noir du dehors, vu de l'intérieur
 };
 
-const prefs = { crt: true, tilt: true, wind: 'cycle', ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, wind: 'cycle', dayFixed: null, ...read(PREFS_KEY, {}) };
 // Le vent suit désormais un cycle naturel : on y bascule une fois ceux qui
 // avaient l'ancienne valeur par défaut (une ambiance fixe)
 if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
@@ -47,6 +48,8 @@ const game = createGame({
   onSave: s => { save = s; write(SAVE_KEY, s); },
   isPaused: () => settings.open,
   wind: prefs.wind,
+  // Moment de la journée : l'heure réelle, ou celui choisi dans les Réglages
+  dayClock: () => (prefs.dayFixed ?? Date.now() / 1000),
 });
 window.addEventListener('pagehide', () => game.save());
 
@@ -99,6 +102,32 @@ windSelect.addEventListener('change', e => {
   applyWind();
 });
 
+// Moment de la journée : un curseur sur le cycle (aube, jour, crépuscule, nuit)
+const daySlider = $('opt-daytime');
+daySlider.max = String(DAY_LENGTH - 1);
+function dayNow() { return (prefs.dayFixed ?? Date.now() / 1000) % DAY_LENGTH; }
+function syncDaytime() {
+  daySlider.value = String(Math.floor(dayNow()));
+  $('opt-dayauto').checked = prefs.dayFixed == null;
+  const d = daylightAt(dayNow());
+  $('daytime-label').textContent = prefs.dayFixed == null
+    ? `${DAY_LABELS[d.phase]} — suit l'heure réelle (un cycle de 20 minutes)`
+    : `${DAY_LABELS[d.phase]} — figé`;
+}
+daySlider.addEventListener('input', () => {
+  prefs.dayFixed = Number(daySlider.value);
+  write(PREFS_KEY, prefs);
+  syncDaytime();
+  game.refreshDaylight();
+});
+$('opt-dayauto').addEventListener('change', e => {
+  prefs.dayFixed = e.target.checked ? null : Math.floor(dayNow());
+  write(PREFS_KEY, prefs);
+  syncDaytime();
+  game.refreshDaylight();
+});
+syncDaytime();
+
 function applyTilt() {
   $('screen').classList.toggle('tilt-on', prefs.tilt);
   $('opt-tilt').checked = prefs.tilt;
@@ -114,7 +143,7 @@ $('open-settings').addEventListener('click', async () => {
   game.save();
   $('stat-distance').textContent = (save.steps || 0).toLocaleString('fr-FR');
   $('wind-about').textContent = describeWind();
-  $('daytime').textContent = `Jour et nuit suivent l'heure (un cycle de 20 minutes). En ce moment : ${DAY_LABELS[game.dayPhase()].toLowerCase()}.`;
+  syncDaytime();
   settings.showModal();
   renderVersions();
 });

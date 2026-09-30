@@ -4,6 +4,7 @@ import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_H, DEER_GROUND } from './deer.js';
 import { paintFrames } from './viking.js';
 import { isLand, blocked, forestDensity, deepForest, CROWS } from './world.js';
 
+const DEER_ENABLED = false;
 const DEER_MAX = 4;
 const DEER_FLEE = 125;          // distance d'alerte (en marchant)
 const DEER_FLEE_RUN = 175;      // … et en courant : on l'entend venir
@@ -146,8 +147,8 @@ export function createFauna(scene, palette) {
         const away = Math.sign(c.sprite.x - player.x) || 1;
         c.state = 'wait';
         c.delay = Math.random() * 0.7;
-        c.vx = away * (18 + Math.random() * 30);
-        c.vy = -(26 + Math.random() * 22);
+        c.vx = away * (45 + Math.random() * 40);
+        c.vy = -(55 + Math.random() * 35);
       }
     }
     for (let i = crows.length - 1; i >= 0; i--) {
@@ -162,18 +163,22 @@ export function createFauna(scene, palette) {
       } else if (c.state === 'fly') {
         c.life += dt;
         // Ils montent en battant des ailes, puis filent avec le vent
-        c.vy *= 1 - 0.35 * dt;
-        c.vx += (wind * 0.4 - c.vx) * 0.3 * dt;
+        // Ils prennent de la vitesse et filent jusqu'à sortir de l'écran
+        c.vy *= 1 - 0.2 * dt;
+        c.vx += (Math.sign(c.vx) * 90 + wind * 0.5 - c.vx) * 0.5 * dt;
         s.x += c.vx * dt;
         s.y += c.vy * dt + Math.sin(c.life * 9 + i) * 0.3;
-        if (c.life > 12) { s.destroy(); crows.splice(i, 1); }
+        const v = scene.cameras.main.worldView;
+        const gone = s.x < v.x - 20 || s.x > v.right + 20 || s.y < v.y - 20 || s.y > v.bottom + 20;
+        if (gone || c.life > 30) { s.destroy(); crows.splice(i, 1); }
       }
     }
   }
 
   return {
     update(dt, player, running, wind) {
-      updateDeer(dt, player, running);
+      // Cerfs et biches : retirés du jeu pour le moment (ils restent dans le labo)
+      if (DEER_ENABLED) updateDeer(dt, player, running);
       updateCrows(dt, player, running, wind);
     },
   };

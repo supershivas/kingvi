@@ -6,26 +6,27 @@
 
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
-couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le feu à la fenêtre
-la nuit et les repères du labo), avec un temps qui change selon un cycle
+couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le sang et les
+repères du labo ; un noir profond autour de l'intérieur de la maison), avec un temps qui change selon un cycle
 naturel, le jour et la nuit, un effet
 d'écran cathodique discret et un flou de maquette (tilt-shift), désactivables.
 Vue de très loin : on doit sentir l'immensité de l'île.
 
-On accoste à l'ouest (la barque glisse jusqu'à la grève, puis le viking saute
-à terre) et on suit les traces vers l'est : quelques arbres, une
-volée de corbeaux qui s'envole à l'approche, la forêt (cerfs et biches au
-loin, qui s'enfuient), une statue géante de Freya ensevelie, penchée et
+On part de la grève ouest, près de la barque échouée qui flotte (quelques
+icebergs plats au large), et on suit les traces vers l'est : quelques arbres,
+une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y serpente, se resserre, s'ouvre en clairières), une grande
-Freya debout à la sortie, la maison (vue de biais, sans fumée) ; les traces
-passent devant et continuent vers l'est.
+Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
+Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
+noire tout autour, un corps, du sang), et elles ressortent tachées de sang
+vers l'est.
 Le viking est tout noir ; sa cape bat au vent.
 
 La page `labo.html` regroupe toutes les animations (menu en haut vers les
 sections), chacune sur fond blanc et sur fond noir, pour choisir et régler :
 carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
-cape, attaques,
+cape, attaques, intérieur de la maison, icebergs,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches.
 
@@ -45,7 +46,8 @@ est cachée et ne sort que pendant l'attaque.
   ne pas passer par un CDN : l'app doit charger même si le CDN tombe).
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
-  nombre de pas ; `kingvi:prefs` : effet CRT, tilt-shift, vent). Récupérables via l'export JSON.
+  nombre de pas ; `kingvi:prefs` : effet CRT, tilt-shift, vent, moment de la
+  journée figé `dayFixed` ou `null` pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
 ## Structure
@@ -59,32 +61,39 @@ est cachée et ne sort que pendant l'attaque.
   cape (calque à part), attaque (traînée, impact), maison, échelle
   entière (`fitScreen`). Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` : à incrémenter quand l'île change, les anciennes positions
-  sauvegardées repartent alors de la barque (arrivée rejouée). Voile de nuit :
-  rectangle multiplié au-dessus de tout, feu de la fenêtre au-dessus du voile.
+  sauvegardées repartent alors de la barque. Voile de nuit : rectangle
+  multiplié au-dessus de tout. L'intérieur de la maison est une pièce posée
+  loin en mer (`ROOM_AT`), fond noir, profondeur `DEPTH_ROOM` au-dessus du
+  dehors ; on y passe par un fondu (`goInside` / `goOutside`), caméra ×2.
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses
   (marche et attaque en 4 temps, profil/face/dos), la cape (3 forces × 6
   temps) et la traînée du coup.
 - `js/boat.js` — la barque (pixels tirés de l'image de référence, liseré
-  clair pour la détacher de la mer sombre), ligne de flottaison, bords.
+  clair pour la détacher de la mer sombre), ligne de flottaison, bords, roulis
+  (`BOAT_FRAMES`).
+- `js/interior.js` — la pièce (sol repéré en u, v), meubles, corps, sang ;
+  `roomWalkable`, `atRoomDoor`, `ROOM_ENTRY`.
 - `js/daylight.js` — jour et nuit (`DAY_CYCLE`, 20 min sur l'horloge réelle) :
   `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
   Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
   joueur peut figer une ambiance dans les Réglages.
-- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns.
+- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers, cairns,
+  icebergs plats.
 - `js/wolf.js` — loups (labo seulement pour l'instant), d'après des
   silhouettes de référence : trot, galop, arrêt, flaire, hurle, assis.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
-- `js/fauna.js` — les bêtes dans le jeu : cerfs et biches (apparaissent loin,
-  fuient à l'approche, plus tôt si on court) et envol de corbeaux (`CROWS`).
+- `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
+  filent jusqu'à sortir de l'écran). Cerfs et biches codés mais retirés pour
+  le moment (`DEER_ENABLED = false`).
 - `js/statue.js` — la statue de Freya : pixels tirés d'une photo
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
   enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite.
 - `js/world.js` — l'île, déterministe (graine fixe) : côte, traces, rochers,
-  pierres levées, maison (`makeHouse`, `HOUSE_GLOW`, `houseBlocked`,
-  `houseFrontY`), forêt (`forestDx` : bandes à lisière irrégulière,
+  pierres levées, maison (`makeHouse`, `houseBlocked`, `houseFrontY`,
+  `HOUSE_DOOR_OUT`), traces ensanglantées après la porte (`p.blood`), forêt (`forestDx` : bandes à lisière irrégulière,
   `forestDensity`, `deepForest`, largeur de sente `p.lane`, `CLEARINGS`), statues et corbeaux placés le long de la
   piste (`STATUE_BASE`, `STATUE2_BASE`, `CROWS`), `objectsInChunk`, `blocked`.
 - `css/style.css` — tokens en variables CSS, composants partagés, effet CRT.

@@ -1,4 +1,4 @@
-import { makeTree, makeBoulder, makeCairn } from './trees.js';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js';
 import { buildStatue, buildStatueUpright } from './statue.js';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
@@ -90,6 +90,9 @@ function rawForest(x, y) {
 
 // ── La maison, vers le bout des traces ──
 export const HOUSE = { x: CENTER + 1150, y: CENTER - 120 };
+// La porte, au pied du mur de gauche (voir makeHouse) ; et juste devant elle, dehors
+export const HOUSE_DOOR = { x: HOUSE.x - 6, y: HOUSE.y - 12 };
+export const HOUSE_DOOR_OUT = { x: HOUSE.x - 8, y: HOUSE.y - 8 };
 
 // ── Les traces : une piste de pas qui traverse l'île, passe devant la
 // maison et continue plus loin vers l'est ──
@@ -103,19 +106,23 @@ function buildTrail() {
   let x = shore + 40, y = ly - 4;
   let heading = 0; // vers l'est
   // Points de passage : devant la maison (sud-ouest, sud, sud-est), puis au loin
+  // Elles vont jusqu'à la porte de la maison, puis en ressortent vers l'est
   const waypoints = [
-    { x: HOUSE.x - 48, y: HOUSE.y - 8, near: 400 },
-    { x: HOUSE.x + 8, y: HOUSE.y + 10, near: 60 },
-    { x: HOUSE.x + 62, y: HOUSE.y - 2, near: 60 },
-    { x: HOUSE.x + 950, y: HOUSE.y - 320, near: 0, last: true },
+    { x: HOUSE_DOOR_OUT.x - 28, y: HOUSE_DOOR_OUT.y + 16 },
+    { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y, door: true, reach: 5 },
+    { x: HOUSE.x + 14, y: HOUSE.y + 12 },
+    { x: HOUSE.x + 62, y: HOUSE.y - 2 },
+    { x: HOUSE.x + 950, y: HOUSE.y - 320, last: true },
   ];
+  let doorIndex = Infinity;
   let w = 0;
   const prints = [];
   for (let i = 0; i < TRAIL_STEPS; i++) {
     const target = waypoints[w];
     const dist = Math.hypot(target.x - x, target.y - y);
-    if (dist < 16) {
+    if (dist < (target.reach || 16)) {
       if (target.last) break;       // au bout, les traces s'arrêtent net
+      if (target.door) doorIndex = prints.length;
       w++;
       continue;
     }
@@ -140,6 +147,8 @@ function buildTrail() {
     const py = y + Math.sin(heading + Math.PI / 2) * side * 1.6;
     prints.push({ x: Math.round(px), y: Math.round(py), heading, gone: r(), faintness: r() });
   }
+  // En sortant de la maison, il saigne : gouttes de sang le long des traces
+  prints.forEach((p, i) => { if (i >= doorIndex) p.blood = true; });
   // Les premiers pas sont les plus anciens : la neige les a en partie recouverts
   return prints.filter((p, i) => {
     const age = 1 - i / prints.length;
@@ -149,6 +158,7 @@ function buildTrail() {
 }
 
 export const trail = buildTrail();
+const BLOOD_FROM = trail.findIndex(p => p.blood);
 // Largeur de la sente autour de chaque pas : elle s'élargit et se resserre
 trail.forEach((p, i) => { p.i = i; p.lane = 2 + 3.5 * Math.max(0, 0.5 + 1.6 * fbm(i / 14, 3, 91, 2)); });
 
@@ -418,6 +428,14 @@ export function paintChunk(ctx, cx, cy, pal) {
   ctx.fillStyle = pal.b;
   for (const p of prints) {
     const lx = p.x - x0, ly = p.y - y0;
+    if (p.blood) {
+      // Gouttes de sang : à côté du pas, parfois une traînée ; plus rares au loin
+      const fade = Math.max(0.15, 1 - (p.i - BLOOD_FROM) / 160);
+      ctx.fillStyle = pal.r;
+      if (hash(p.x, p.y, 71) < 0.65 * fade) ctx.fillRect(lx + Math.round(hash(p.x, p.y, 72) * 4 - 2), ly + Math.round(hash(p.x, p.y, 73) * 4 - 2), 1, 1);
+      if (hash(p.x, p.y, 74) < 0.25 * fade) ctx.fillRect(lx + 1, ly + 2, 2, 1);
+      ctx.fillStyle = pal.b;
+    }
     ctx.fillRect(lx, ly, 1, 1);
     if (!p.faint) {
       // Deuxième pixel dans le sens de la marche : l'empreinte s'allonge
@@ -472,6 +490,14 @@ export function objectsInChunk(cx, cy) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
       const r = rng(hash(x0 + gx, y0 + gy, 77) * 4294967296);
       const x = x0 + gx + Math.floor(r() * CELL), y = y0 + gy + Math.floor(r() * CELL);
+      // En mer, pas trop loin des côtes : de rares icebergs plats
+      const sea = coast(x, y);
+      if (sea > 0.012) {
+        if (sea < 0.3 && r() < 0.0011 && coast(x - 22, y) > 0.01 && coast(x + 22, y) > 0.01 && coast(x, y - 12) > 0.01) {
+          list.push({ type: 'iceberg', x, y, seed: Math.floor(r() * 1e9) });
+        }
+        continue;
+      }
       const d = forestDensity(x, y);
       if (r() < d && free(x, y, 8)) {
         list.push({ type: 'tree', x, y, seed: Math.floor(r() * 1e9), big: d > 0.2 });
@@ -490,7 +516,8 @@ export function objectsInChunk(cx, cy) {
   for (const o of list) {
     if (o.art) continue;
     const r = rng(o.seed);
-    o.art = o.type === 'tree' ? makeTree(r, { big: o.big }) : o.type === 'boulder' ? makeBoulder(r) : makeCairn(r);
+    o.art = o.type === 'tree' ? makeTree(r, { big: o.big }) : o.type === 'boulder' ? makeBoulder(r)
+      : o.type === 'iceberg' ? makeIceberg(r) : makeCairn(r);
     o.w = o.art.rows[0].length;
     o.h = o.art.rows.length;
   }

@@ -116,3 +116,32 @@ export function makeCairn(r) {
   });
   return { rows, ax: Math.round(-minX) };
 }
+
+// Iceberg tabulaire, plat : un plateau de glace (clair) au contour
+// irrégulier, une falaise tramée dessous, de l'écume au ras de l'eau.
+export function makeIceberg(r) {
+  const w = Math.round(10 + r() * 30);
+  const top = Math.max(3, Math.round(w * (0.22 + r() * 0.12)));
+  const cliff = 2 + Math.floor(r() * 2);
+  const H = top + cliff + 1;
+  const g = Array.from({ length: H }, () => Array(w).fill('.'));
+  const wobble = [r() * 6, r() * 6];
+  const inside = (x, y) => {
+    const nx = (x + 0.5 - w / 2) / (w / 2), ny = (y + 0.5 - top / 2) / (top / 2);
+    return nx * nx + ny * ny < 1 + 0.18 * Math.sin(nx * 4 + wobble[0]) + 0.1 * Math.sin(nx * 9 + wobble[1]);
+  };
+  for (let y = 0; y < top; y++) for (let x = 0; x < w; x++) {
+    if (!inside(x, y)) continue;
+    const edge = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1);
+    g[y][x] = edge && y < top / 2 ? 'b' : r() < 0.03 ? 'b' : 's';
+  }
+  // Falaise : sous le bord avant du plateau, tramée ; puis l'écume
+  for (let x = 0; x < w; x++) {
+    let low = -1;
+    for (let y = top - 1; y >= 0; y--) if (g[y][x] !== '.') { low = y; break; }
+    if (low < 0 || low < top / 2) continue;
+    for (let k = 1; k <= cliff; k++) g[low + k][x] = (x + k) % 2 ? 's' : 'b';
+    if (r() < 0.7) g[low + cliff + 1][x] = 's';
+  }
+  return { rows: g.map(row => row.join('')), ax: Math.floor(w / 2) };
+}

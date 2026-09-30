@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.0 — 2026-09-30
+- On entre dans la maison par la porte : un corps, du sang ; les traces qui en ressortent saignent
+- La barque flotte au rivage (plus d'arrivée) ; quelques icebergs plats en mer ; les corbeaux s'envolent vite
+- Réglages : curseur du moment de la journée ; tilt-shift plus marqué ; plus de cerfs ni de lumière à la fenêtre
+
 ## 1.6.0 — 2026-09-30
 - La barque du début, d'après l'image : elle accoste, dodine, l'écume bat sa coque
 - Cycle jour et nuit (20 minutes, sur l'heure réelle) : aube, jour, crépuscule, nuit ; le feu s'allume à la maison
