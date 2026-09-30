@@ -39,6 +39,8 @@
 
 <main id="screen" class="screen crt">
   <div id="stage" class="stage"></div>
+  <div class="tilt tilt-top" aria-hidden="true"></div>
+  <div class="tilt tilt-bottom" aria-hidden="true"></div>
   <div class="crt-layer" aria-hidden="true"></div>
   <p id="hint" class="hint">ZQSD pour marcher · clic pour frapper</p>
 </main>
@@ -55,6 +57,11 @@
     <label class="toggle">
       <input id="opt-crt" type="checkbox"/>
       <span>Effet écran cathodique</span>
+    </label>
+
+    <label class="toggle">
+      <input id="opt-tilt" type="checkbox"/>
+      <span>Flou de maquette (tilt-shift)</span>
     </label>
 
     <section class="stats" aria-label="Voyage">

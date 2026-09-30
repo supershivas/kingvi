@@ -54,33 +54,39 @@ export function coast(x, y) {
 
 export const isLand = (x, y) => coast(x, y) < 0;
 
-// ── Point d'accostage : sur la côte sud ──
+// ── Point d'accostage : sur la côte ouest ; on part vers l'est ──
 export function landing() {
-  const x = CENTER + 180;
-  let y = CENTER;
-  while (coast(x, y) < 0) y += 2;
-  return { x, shore: y };
+  const y = CENTER + 200;
+  let x = CENTER;
+  while (coast(x, y) < 0) x -= 2;
+  return { shore: x, y };
 }
 
-// ── Les traces : une piste de pas qui s'enfonce dans l'île ──
+// ── La maison, au bout des traces ──
+export const HOUSE = { x: CENTER + 650, y: CENTER - 120 };
+export const HOUSE_DOOR = { x: HOUSE.x + 2, y: HOUSE.y + 2 };
+
+// ── Les traces : une piste de pas qui traverse l'île jusqu'à la maison ──
 const STRIDE = 7;
 const TRAIL_STEPS = 1100;
 
 function buildTrail() {
-  const { x: lx, shore } = landing();
+  const { shore, y: ly } = landing();
   const r = rng(SEED * 101);
   // Elles partent juste devant le drakkar, là où le viking pose le pied
-  let x = lx - 4, y = shore - 44;
-  let heading = -Math.PI / 2; // vers le nord
-  const target = { x: CENTER - 900, y: CENTER - 1500 };
+  let x = shore + 40, y = ly - 4;
+  let heading = 0; // vers l'est
+  const target = HOUSE_DOOR;
   const prints = [];
   for (let i = 0; i < TRAIL_STEPS; i++) {
     // Arrivées au but, les traces s'arrêtent net
-    if (Math.hypot(target.x - x, target.y - y) < 40) break;
+    if (Math.hypot(target.x - x, target.y - y) < 10) break;
     const toTarget = Math.atan2(target.y - y, target.x - x);
     let diff = Math.atan2(Math.sin(toTarget - heading), Math.cos(toTarget - heading));
     // Errance lente, attirée de loin par le but
-    heading += 0.09 * fbm(i / 40, 0, 42, 3) + 0.01 * diff + (r() - 0.5) * 0.03;
+    // Plus on approche, plus l'attraction l'emporte sur l'errance
+    const pull = Math.hypot(target.x - x, target.y - y) < 400 ? 0.08 : 0.012;
+    heading += 0.09 * fbm(i / 40, 0, 42, 3) + pull * diff + (r() - 0.5) * 0.03;
     // Ne jamais marcher vers la mer
     if (coast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
       const toCenter = Math.atan2(CENTER - y, CENTER - x);
@@ -120,8 +126,8 @@ const ROCKS = [
 ];
 const STONE = ['.b.', 'bsb', 'bbb', 'bsb', 'bbb', 'bsb', 'bbb']; // pierre levée gravée
 const CAIRN = ['.b.', 'bb.', '.bb', 'bbb'];
-// Drakkar échoué, proue vers le large (sud)
-export const DRAKKAR = [
+// Drakkar échoué, dessiné debout puis couché : proue vers le large (ouest)
+const DRAKKAR_UPRIGHT = [
   '...b...',
   '..bbb..',
   '..bsb..',
@@ -142,6 +148,23 @@ export const DRAKKAR = [
   '..bbb..',
   '...b...',
   '...b...',
+];
+
+export const DRAKKAR = [...DRAKKAR_UPRIGHT[0]].map((_, x) => DRAKKAR_UPRIGHT.map(row => row[x]).join(''));
+
+// Petite maison : toit enneigé, fenêtre où brûle un feu, porte en bas à droite.
+// Le point (HOUSE.x, HOUSE.y) est le bas du motif, au milieu.
+export const HOUSE_ART = [
+  '.....bbbbb.bb..',
+  '....bsssssbbb..',
+  '...bsssssssbb..',
+  '..bsssssssssb..',
+  '.bsssssssssssb.',
+  'bbbbbbbbbbbbbbb',
+  '.bbbbbbbbbbbbb.',
+  '.bbrrbbbsssbbb.',
+  '.bbrrbbbsbsbbb.',
+  '.bbbbbbbsbsbbb.',
 ];
 
 function stamp(ctx, pat, ox, oy, pal) {

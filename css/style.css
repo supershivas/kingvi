@@ -106,6 +106,23 @@ body {
 }
 .hint.gone { opacity: 0; }
 
+/* Tilt-shift : haut et bas de l'écran flous, bande nette au milieu,
+   comme une maquette photographiée de près. Rend l'île plus lointaine. */
+.tilt { position: absolute; left: 0; right: 0; height: 42%; pointer-events: none; display: none; }
+.tilt-on .tilt { display: block; }
+.tilt-top {
+  top: 0;
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 25%, transparent 100%);
+}
+.tilt-bottom {
+  bottom: 0;
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 25%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, #000 25%, transparent 100%);
+}
+
 /* Écran cathodique, discret : lignes de balayage alignées sur les pixels du jeu,
    et vignettage. --px est le facteur d'agrandissement (posé par le jeu). */
 .crt-layer { position: absolute; inset: 0; pointer-events: none; display: none; }

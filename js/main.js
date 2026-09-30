@@ -20,7 +20,7 @@ const palette = {
   r: css.getPropertyValue('--accent').trim(),
 };
 
-const prefs = { crt: true, ...read(PREFS_KEY, {}) };
+const prefs = { crt: true, tilt: true, ...read(PREFS_KEY, {}) };
 let save = read(SAVE_KEY, {});
 
 // ── Toast ──
@@ -67,6 +67,17 @@ $('opt-crt').addEventListener('change', e => {
   prefs.crt = e.target.checked;
   write(PREFS_KEY, prefs);
   applyCrt();
+});
+
+function applyTilt() {
+  $('screen').classList.toggle('tilt-on', prefs.tilt);
+  $('opt-tilt').checked = prefs.tilt;
+}
+applyTilt();
+$('opt-tilt').addEventListener('change', e => {
+  prefs.tilt = e.target.checked;
+  write(PREFS_KEY, prefs);
+  applyTilt();
 });
 
 $('open-settings').addEventListener('click', async () => {
