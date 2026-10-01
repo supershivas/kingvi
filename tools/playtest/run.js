@@ -41,7 +41,7 @@ const HELP = `Harnais de playtest — node run.js [options]
   --vitesse <n>                 accélère le jeu (1 par défaut ; 2 à 4 pour aller vite)
   --heure <aube|jour|crepuscule|nuit>   --meteo <cycle|calme|bise|rafales|tempete|tourbillons>
   --clavier <azerty|qwerty|fleches>     (azerty par défaut)
-  --crt <oui|non> --flou <oui|non>      (oui par défaut, comme le jeu)
+  --qualite <1|2|3|4>           qualité de l'image (Réglages) : 1 légère, 2 économe, 3 équilibrée (défaut), 4 haute
   --navigateur <chromium|firefox|webkit> --taille 1280x800 --dpr 1
   --graine <n>                  graine du hasard du combat (7 par défaut)
   --capture <s>                 secondes entre deux captures (6 par défaut)
@@ -49,7 +49,7 @@ const HELP = `Harnais de playtest — node run.js [options]
   --visible                     navigateur affiché (headed)`;
 
 function parseArgs(argv) {
-  const o = { clavier: 'azerty', crt: 'oui', flou: 'oui', navigateur: 'chromium', taille: '1280x800', dpr: 1,
+  const o = { clavier: 'azerty', qualite: 3, navigateur: 'chromium', taille: '1280x800', dpr: 1,
     graine: 7, capture: 6, vitesse: 1, heure: null, meteo: null, from: null, to: null, lac: true, reel: false, etiquette: '', visible: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -60,7 +60,7 @@ function parseArgs(argv) {
     else if (a.startsWith('--')) o[a.slice(2)] = argv[++i];
     else throw new Error(`Option inconnue : ${a}`);
   }
-  o.vitesse = Number(o.vitesse) || 1; o.capture = Number(o.capture) || 6; o.graine = Number(o.graine); o.dpr = Number(o.dpr) || 1;
+  o.qualite = Math.min(4, Math.max(1, Number(o.qualite) || 3)); o.vitesse = Number(o.vitesse) || 1; o.capture = Number(o.capture) || 6; o.graine = Number(o.graine); o.dpr = Number(o.dpr) || 1;
   const ids = STEPS.map(s => s[0]);
   for (const k of ['from', 'to']) if (o[k] && !ids.includes(o[k])) throw new Error(`Étape inconnue : ${o[k]} (${ids.join(', ')})`);
   if (!['azerty', 'qwerty', 'fleches'].includes(o.clavier)) throw new Error('--clavier : azerty, qwerty ou fleches');
@@ -101,9 +101,9 @@ async function main() {
   const engine = { chromium, firefox, webkit }[o.navigateur];
   const browser = await engine.launch({ headless: !o.visible });
   const context = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: o.dpr, ignoreHTTPSErrors: true });
-  // Les réglages du joueur : CRT et flou de maquette ; la musique coupée (rien n'écoute)
+  // Les réglages du joueur : la qualité de l'image ; la musique coupée (rien n'écoute)
   await context.addInitScript(p => { if (!localStorage.getItem('kingvi:prefs')) localStorage.setItem('kingvi:prefs', JSON.stringify(p)); },
-    { crt: o.crt === 'oui', tilt: o.flou === 'oui', wind: 'cycle', windCycle: true, dayOffset: 0, musicVol: 0, sfxVol: 0, windVol: 0 });
+    { quality: o.qualite, wind: 'cycle', windCycle: true, dayOffset: 0, musicVol: 0, sfxVol: 0, windVol: 0 });
   const page = await context.newPage();
   const consoleErrors = [];
   page.on('pageerror', e => consoleErrors.push({ t: Date.now(), message: e.message }));
@@ -471,7 +471,7 @@ function carnet({ run, events, shots, durations, stepLog }) {
   const o = run.options;
   const L = [];
   L.push(`# Carnet de partie — ${run.runId}`, '');
-  L.push(`Version ${run.version} · ${run.navigateur} · fenêtre ${o.taille} · clavier ${o.clavier} · CRT ${o.crt} · flou ${o.flou}`
+  L.push(`Version ${run.version} · ${run.navigateur} · fenêtre ${o.taille} · clavier ${o.clavier} · qualité ${o.qualite}`
     + `${o.heure ? ` · heure forcée : ${o.heure}` : ''}${o.meteo ? ` · temps forcé : ${o.meteo}` : ''} · vitesse ×${o.vitesse}`, '');
   L.push('Ce carnet raconte une partie jouée par un script : le viking suit les traces au clavier, comme un joueur. '
     + 'Entre deux étapes, le script saute d\'un lieu à l\'autre (indiqué *en italique*) : ces sauts ne font pas partie du jeu. '

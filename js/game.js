@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.23.0';
+} from './viking.js?v=1.24.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.23.0';
-import { createPack } from './pack.js?v=1.23.0';
-import { chapterById } from './chapters.js?v=1.23.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.23.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.23.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.23.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.23.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.23.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.23.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.23.0';
-import { createFauna } from './fauna.js?v=1.23.0';
-import { createWeather } from './weather.js?v=1.23.0';
-import { createSea } from './sea.js?v=1.23.0';
-import { audio } from './audio.js?v=1.23.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.23.0';
+} from './world.js?v=1.24.0';
+import { createPack } from './pack.js?v=1.24.0';
+import { chapterById } from './chapters.js?v=1.24.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.24.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.24.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.24.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.24.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.24.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.24.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.24.0';
+import { createFauna } from './fauna.js?v=1.24.0';
+import { createWeather } from './weather.js?v=1.24.0';
+import { createSea } from './sea.js?v=1.24.0';
+import { audio } from './audio.js?v=1.24.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.24.0';
 
 const Phaser = window.Phaser;
 
@@ -52,11 +52,19 @@ const STAMINA = { attack: 0.2, run: 0.16, regen: 0.3 };
 // en moins de pixels (2 × 2 pixels physiques par pixel du canevas, agrandi
 // sans lissage) : l'image est la même, et la carte graphique a quatre fois
 // moins à peindre. `dpr` est alors la densité du canevas, pas celle de l'écran.
-export function fitScreen(w, h) {
+// La qualité (Réglages, 1 → 4) choisit ce rapport : 1 et 2, un pixel du
+// canevas par pixel du jeu (le moins de pixels possible : le plus fluide) ;
+// 3, demi-résolution sur écran dense ; 4, tous les pixels de l'écran.
+export const QUALITY = { min: 1, max: 4, initial: 3 };
+export function fitScreen(w, h, quality = QUALITY.initial) {
   const screenDpr = window.devicePixelRatio || 1;
   const physical = Math.max(1, Math.round(h * screenDpr / TARGET_HEIGHT));
-  let r = Math.max(1, Math.floor(screenDpr));
-  while (r > 1 && physical % r) r--;
+  let r = 1;
+  if (quality <= 2) r = physical;
+  else if (quality === 3) {
+    r = Math.max(1, Math.floor(screenDpr));
+    while (r > 1 && physical % r) r--;
+  }
   const dpr = screenDpr / r;
   return { zoom: physical / r, dpr, render: r, width: Math.ceil(w * dpr), height: Math.ceil(h * dpr) };
 }
@@ -105,13 +113,15 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, isTitle = () => false, onTally = () => {} }) {
+export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, isTitle = () => false, onTally = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
-  const fit = fitScreen(rect.width, rect.height);
+  const fit = fitScreen(rect.width, rect.height, quality);
   if (save.world !== WORLD_VERSION) save = { steps: save.steps };
 
   const weather = createWeather(wind);
+  // En qualité légère, moitié moins de flocons
+  weather.density = quality <= 1 ? 0.5 : 1;
   // La palette en octets, pour écrire les pixels d'un bloc
   const RGB = Object.fromEntries(Object.entries(palette).map(([k, h]) => {
     const n = parseInt(h.slice(1), 16);
@@ -1683,12 +1693,16 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
   function resize() {
     const r = parent.getBoundingClientRect();
-    const f = fitScreen(r.width, r.height);
+    const f = fitScreen(r.width, r.height, quality);
     game.scale.setZoom(1 / f.dpr);
     game.scale.resize(f.width, f.height);
     sizeSky(f);
     const scene = game.scene.getScene('island');
-    if (scene?.zoom) { scene.zoom.base = f.zoom; scene.zoom.dpr = f.dpr; }
+    if (scene?.zoom) {
+      // (le zoom saute d'un coup à sa nouvelle échelle, sans glisser)
+      const k = f.zoom / scene.zoom.base;
+      scene.zoom.base = f.zoom; scene.zoom.dpr = f.dpr; scene.zoom.current *= k;
+    }
   }
   window.addEventListener('resize', resize);
 
@@ -1705,6 +1719,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     },
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),
+    // La qualité de l'image (Réglages) : la taille du canevas, les flocons
+    setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; resize(); },
     windPhase: () => weather.phase,
     dayPhase: () => daylightAt(dayClock()).phase,
     refreshDaylight: () => game.scene.getScene('island')?.applyDaylight(),

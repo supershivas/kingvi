@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.24.0 — 2026-10-01
+- Dans les Réglages, un curseur de qualité de l'image, de « Légère » (le plus fluide, pour les ordinateurs anciens) à « Haute » (pour les ordinateurs récents), à la place des cases écran cathodique et flou
+- Les chapitres s'inscrivent sous un voile de nuit qui descend du haut de l'écran, en franges comme des glaçons
+
 ## 1.23.0 — 2026-10-01
 - Le jeu est bien plus fluide sur les écrans Retina : l'image est peinte en moins de pixels, et le flou de maquette coûte beaucoup moins cher
 - L'écran d'accueil : une vraie houle sur la mer, des moutons partout, et les bords qui s'enfoncent dans le noir

@@ -67,8 +67,9 @@ Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
 par partie (`chapters` dans la sauvegarde) : « Chapitre I » en petit, le nom
-en grand dans la gothique du titre, texte clair sur un bandeau sombre aux
-bords fondus (lisible sur la neige comme sur la mer). I La grève, II La plaine
+en grand dans la gothique du titre, texte clair sous un voile de nuit qui
+descend du haut de l'écran, tramé, en franges comme des glaçons (lisible sur
+la neige comme sur la mer). I La grève, II La plaine
 des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
 VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
 IX Le roi sous la roche (dans la grotte) ; Interlude, Le lac (en barque).
@@ -140,7 +141,7 @@ est cachée et ne sort que pendant l'attaque.
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
-  aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
+  aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 4), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -166,6 +167,11 @@ est cachée et ne sort que pendant l'attaque.
   Sur écran dense (Retina), si ce facteur est pair, le canevas est rendu à
   demi-résolution et agrandi sans lissage (`fitScreen` : `render`, et `dpr`
   devient la densité du canevas) : même image, quatre fois moins de pixels.
+  **Qualité de l'image** (Réglages, un curseur 1 → 4, `prefs.quality`, plus
+  de cases CRT et flou) : 1 légère (canevas d'un pixel par pixel du jeu, ni
+  CRT ni flou, moitié moins de flocons : `weather.density`), 2 économe
+  (+ CRT), 3 équilibrée (+ flou, demi-résolution sur Retina ; par défaut),
+  4 haute (tous les pixels de l'écran) ; `game.setQuality(q)`.
   Le flou de maquette : une copie réduite de chaque image (`blurCopy`, après
   le rendu), agrandie en douceur sous un masque radial ; jamais de
   `backdrop-filter` plein écran (trop cher sur un Mac Intel).
@@ -211,8 +217,8 @@ est cachée et ne sort que pendant l'attaque.
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
-  Le fond derrière le titre : `CHAPTER_STYLE` (A, l'ombre ovale, dans le jeu),
-  propositions B → F dans le labo (`CHAPTER_STYLES` : brume tramée, lambeau,
+  Le fond derrière le titre : `CHAPTER_STYLE` (E, le voile du haut, dans le
+  jeu) ; les autres propositions restent dans le labo (`CHAPTER_STYLES` : brume tramée, lambeau,
   lettres de neige, voile du haut, pierre levée), dessinées en pixels du jeu.
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
@@ -299,7 +305,7 @@ n'est jamais implémenté automatiquement.
   `node_modules` ignoré) : `node run.js --aide`. Sert le dépôt en local, joue
   un parcours scripté en suivant les traces au clavier (téléport entre les
   étapes ; `--reel` pour tout marcher), options d'étapes, heure, météo,
-  clavier, CRT, flou, navigateur, taille, densité, graine, vitesse.
+  clavier, qualité, navigateur, taille, densité, graine, vitesse.
   Conteneur neuf : `sh scripts/setup-playtest.sh` (Playwright 1.56.1, accordé
   au Chromium de `/opt/pw-browsers` ; Firefox, WebKit et ses bibliothèques).
 - **Agents** `.claude/agents/` : designers (`gardien-du-ton` avec veto,

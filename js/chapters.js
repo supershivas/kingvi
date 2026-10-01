@@ -22,14 +22,14 @@ export const chapterById = id => CHAPTERS.find(c => c.id === id);
 // du labo (B → F), dessinées en pixels du jeu, tramées, aux bords rongés
 // (rien de géométrique). `CHAPTER_STYLE` : celle du jeu.
 export const CHAPTER_STYLES = [
-  ['halo', 'A', 'L\'ombre ovale (actuelle)', 'Un ovale sombre aux bords fondus derrière le texte.'],
+  ['halo', 'A', 'L\'ombre ovale (l\'ancienne)', 'Un ovale sombre aux bords fondus derrière le texte.'],
   ['brume', 'B', 'Brume tramée', 'Une bande de nuit en pixels tramés, dense au centre, qui s\'effiloche en grain vers les bords : la même matière que le voile de nuit et les ombres.'],
   ['lambeau', 'C', 'Lambeau', 'Une bande de nuit aux bords déchirés, comme une peau tendue ou une écorce arrachée ; quelques trous, des fibres qui pendent.'],
   ['pixels', 'D', 'Lettres de neige', 'Pas de fond : le nom est tracé en pixels du jeu, comme le titre de l\'accueil (croûte de neige, ombre tramée), cerné de nuit pour se lire partout.'],
-  ['voile', 'E', 'Voile du haut', 'La nuit descend du haut de l\'écran, tramée, et s\'arrête en franges inégales, comme des glaçons ; le titre s\'y inscrit.'],
+  ['voile', 'E', 'Voile du haut (dans le jeu)', 'La nuit descend du haut de l\'écran, tramée, et s\'arrête en franges inégales, comme des glaçons ; le titre s\'y inscrit.'],
   ['pierre', 'F', 'Pierre levée', 'Une dalle de pierre noire, taillée de travers, ébréchée, de la neige sur l\'arête : le nom y est gravé.'],
 ];
-export const CHAPTER_STYLE = 'halo';
+export const CHAPTER_STYLE = 'voile';
 
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 function hash(x, y, s) {

@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.23.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.23.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.24.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.24.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -102,15 +102,11 @@
       <input id="opt-windvol" type="range" min="0" max="100" step="5"/>
     </div>
 
-    <label class="toggle">
-      <input id="opt-crt" type="checkbox"/>
-      <span>Effet écran cathodique</span>
-    </label>
-
-    <label class="toggle">
-      <input id="opt-tilt" type="checkbox"/>
-      <span>Flou de maquette (autour du héros)</span>
-    </label>
+    <div class="field-select">
+      <label for="opt-quality">Qualité de l'image : <span id="quality-label"></span></label>
+      <input id="opt-quality" type="range" min="1" max="4" step="1"/>
+      <span class="hint-text" id="quality-about"></span>
+    </div>
 
     <label class="field-select">
       <span>Météo (vent et neige)</span>
@@ -153,6 +149,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.23.0"></script>
+<script type="module" src="js/main.js?v=1.24.0"></script>
 </body>
 </html>

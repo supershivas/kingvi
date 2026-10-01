@@ -1,15 +1,15 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.23.0';
-import { createGame } from './game.js?v=1.23.0';
-import { showChapter } from './chapters.js?v=1.23.0';
-import { createTitleSea } from './titlesea.js?v=1.23.0';
-import { audio } from './audio.js?v=1.23.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.23.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.23.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.24.0';
+import { createGame } from './game.js?v=1.24.0';
+import { showChapter } from './chapters.js?v=1.24.0';
+import { createTitleSea } from './titlesea.js?v=1.24.0';
+import { audio } from './audio.js?v=1.24.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.24.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.24.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.23.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.24.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -39,6 +39,9 @@ const dayClock = () => Date.now() / 1000 + (prefs.dayOffset || 0);
 // Le vent suit désormais un cycle naturel : on y bascule une fois ceux qui
 // avaient l'ancienne valeur par défaut (une ambiance fixe)
 if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
+// La qualité de l'image (1 → 4) remplace les cases CRT et flou : on la
+// déduit des anciennes cases, une fois
+if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt === false ? 1 : prefs.crt === false || prefs.tilt === false ? 2 : 3; write(PREFS_KEY, prefs); }
 let save = read(SAVE_KEY, {});
 
 // ── Toast ──
@@ -59,6 +62,7 @@ const game = createGame({
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   isPaused: () => settings.open || !$('title').hidden,
+  quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
   wind: prefs.wind,
@@ -299,15 +303,27 @@ for (const [id, key, kind] of LEVELS) {
 }
 
 // ── Réglages ──
-function applyCrt() {
-  $('screen').classList.toggle('crt', prefs.crt);
-  $('opt-crt').checked = prefs.crt;
+// La qualité de l'image : un seul curseur, du plus fluide au plus fin
+const QUALITIES = {
+  1: ['Légère', 'Pour les ordinateurs anciens : l\'image en gros pixels, sans effet cathodique ni flou, moitié moins de flocons. Le plus fluide.'],
+  2: ['Économe', 'L\'image en gros pixels, l\'effet cathodique, sans le flou de maquette.'],
+  3: ['Équilibrée', 'L\'effet cathodique et le flou de maquette ; sur un écran Retina, l\'image est peinte en demi-résolution (elle n\'y perd rien).'],
+  4: ['Haute', 'Pour les ordinateurs récents : tous les pixels de l\'écran, l\'effet cathodique et le flou de maquette.'],
+};
+function applyQuality() {
+  const q = prefs.quality;
+  $('screen').classList.toggle('crt', q >= 2);
+  $('screen').classList.toggle('tilt-on', q >= 3);
+  $('opt-quality').value = String(q);
+  $('quality-label').textContent = QUALITIES[q][0];
+  $('quality-about').textContent = QUALITIES[q][1];
 }
-applyCrt();
-$('opt-crt').addEventListener('change', e => {
-  prefs.crt = e.target.checked;
+applyQuality();
+$('opt-quality').addEventListener('input', e => {
+  prefs.quality = Number(e.target.value);
   write(PREFS_KEY, prefs);
-  applyCrt();
+  applyQuality();
+  game.setQuality(prefs.quality);
 });
 
 // Vent : les ambiances à comparer (voir aussi le labo)
@@ -373,16 +389,6 @@ $('opt-dayauto').addEventListener('change', e => {
 setInterval(() => { if (settings.open) syncDaytime(); }, 1000);
 syncDaytime();
 
-function applyTilt() {
-  $('screen').classList.toggle('tilt-on', prefs.tilt);
-  $('opt-tilt').checked = prefs.tilt;
-}
-applyTilt();
-$('opt-tilt').addEventListener('change', e => {
-  prefs.tilt = e.target.checked;
-  write(PREFS_KEY, prefs);
-  applyTilt();
-});
 
 $('open-settings').addEventListener('click', async () => {
   game.save();

@@ -38,7 +38,7 @@ Outils à ta disposition :
 - le run précédent, s'il existe (`ls playtests/`), pour repérer les
   régressions ;
 - le harnais : `cd tools/playtest && node run.js --aide` (parcours partiels,
-  heure, météo, clavier, CRT, flou, navigateur, taille). Si
+  heure, météo, clavier, qualité, navigateur, taille). Si
   `node_modules` manque : `sh scripts/setup-playtest.sh` ;
 - le mode debug du jeu, dans tes propres scripts Playwright :
   `?debug=1`, `window.__kingvi` (`state()`, `events`, `teleport(lieu)`,

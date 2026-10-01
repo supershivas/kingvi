@@ -83,7 +83,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
   let view = { x: 0, y: 0, width: 800, height: 440 };
 
   const w = {
-    gust: 0, wind: P.base, preset: presetName, phase: fixed(presetName) ? presetName : null,
+    gust: 0, wind: P.base, preset: presetName, density: 1, phase: fixed(presetName) ? presetName : null,
     setPreset(name) { w.preset = name; if (fixed(name)) { P = fixed(name); w.phase = name; } },
     update, draw,
   };
@@ -139,7 +139,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     // Au lancement, la neige s'installe en deux secondes (pas d'averse d'un coup)
     const ramp = Math.min(1, t0 === null ? 0 : (t - t0) / 2);
     if (t0 === null) t0 = t;
-    const wanted = Math.round(P.flakes * area * ramp);
+    const wanted = Math.round(P.flakes * area * ramp * w.density);
     while (flakes.length < wanted) flakes.push(spawnFlake({}, 'anywhere'));
     flakes.length = Math.min(flakes.length, wanted);
     const wantedDrifts = Math.round(P.drifts * area);
