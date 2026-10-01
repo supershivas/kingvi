@@ -1,9 +1,10 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
-import { createGame } from './game.js';
-import { showChapter } from './chapters.js';
-import { audio } from './audio.js';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.22.0';
+import { createGame } from './game.js?v=1.22.0';
+import { showChapter } from './chapters.js?v=1.22.0';
+import { createTitleSea } from './titlesea.js?v=1.22.0';
+import { audio } from './audio.js?v=1.22.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.22.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.22.0';
 
 const SAVE_KEY = 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
@@ -53,6 +54,8 @@ const game = createGame({
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   isPaused: () => settings.open || !$('title').hidden,
+  // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
+  isTitle: () => !$('title').hidden,
   wind: prefs.wind,
   // Moment de la journée : l'heure réelle, ou celui choisi dans les Réglages
   dayClock,
@@ -60,6 +63,14 @@ const game = createGame({
   onHealth: hp => $('screen').classList.toggle('hurt', hp === 1),
   // Aux grands moments de l'aventure, un chapitre s'inscrit à l'écran
   onChapter: ch => showChapter($('screen'), ch),
+  // Le compteur d'arbres abattus et de rochers brisés (dès le premier)
+  onTally: (t, what) => {
+    $('tally-trees').textContent = t.trees;
+    $('tally-rocks').textContent = t.rocks;
+    $('tally').hidden = !(t.trees || t.rocks);
+    const item = what && $(`tally-${what}`).parentElement;
+    if (item) { item.classList.add('bump'); setTimeout(() => item.classList.remove('bump'), 260); }
+  },
 });
 let resetting = false;
 
@@ -179,8 +190,10 @@ drawTitle();
 // ── Écran d'accueil : nouveau jeu, reprendre, réglages ──
 const title = $('title');
 const hasSave = () => save.x != null;
+const titleSea = createTitleSea($('title-sea'), palette);
 function openTitle() {
   if (settings.open) settings.close();
+  titleSea.start();
   $('title-resume').hidden = !hasSave();
   title.hidden = false;
   dpad.hidden = true;
@@ -190,21 +203,37 @@ function openTitle() {
 function openIris() {
   const iris = $('iris'), screen = $('screen');
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const max = Math.hypot(screen.clientWidth, screen.clientHeight) / 2 + 10;
+  const max = Math.hypot(screen.clientWidth, screen.clientHeight) / 2 + 100;
   iris.hidden = false;
   const t0 = performance.now(), dur = 1800;
   const step = now => {
     const k = Math.min(1, (now - t0) / dur);
     const e = k < 0.25 ? k * 0.4 : 0.1 + Math.pow((k - 0.25) / 0.75, 2) * 0.9;
-    iris.style.setProperty('--r', `${Math.round(e * max)}px`);
+    iris.style.setProperty('--r', `${Math.round(e * max - 90)}px`);
     if (k < 1) requestAnimationFrame(step); else iris.hidden = true;
   };
-  iris.style.setProperty('--r', '0px');
+  iris.style.setProperty('--r', '-90px');
   requestAnimationFrame(step);
 }
+// Le noir, tout de suite (en attendant que le jeu soit prêt)
+function closeIris() {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  $('iris').hidden = false;
+  $('iris').style.setProperty('--r', '-90px');
+}
 function closeTitle() {
-  openIris();
+  // La musique de l'accueil s'arrête : un silence, puis celle du jeu
+  if (!title.hidden) audio.hush(2.5);
+  titleSea.stop();
   title.hidden = true;
+  // La caméra d'abord sur le viking, l'île chargée autour de lui ; puis l'iris
+  closeIris();
+  const t0 = performance.now();
+  const ready = () => {
+    if (game.focus() || performance.now() - t0 > 4000) openIris();
+    else requestAnimationFrame(ready);
+  };
+  requestAnimationFrame(ready);
   dpad.hidden = !touchScreen;
   $('stage').querySelector('canvas')?.focus();
   showHint();

@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css"/>
-<link rel="stylesheet" href="mobile.css"/>
+<link rel="stylesheet" href="css/style.css?v=1.22.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.22.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -43,6 +43,7 @@
   <div class="tilt strong" aria-hidden="true"></div>
   <div class="crt-layer" aria-hidden="true"></div>
   <section id="title" class="title-screen" aria-labelledby="title-name">
+    <canvas id="title-sea" class="title-sea" aria-hidden="true"></canvas>
     <h1 id="title-name" class="title-name"><span class="visually-hidden">Kingvi Sno 7</span><canvas id="title-art" aria-hidden="true"></canvas></h1>
     <div class="title-actions">
       <button id="title-resume" class="btn-primary" type="button">
@@ -56,6 +57,11 @@
       </button>
     </div>
   </section>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="tally" class="tally" hidden>
+    <span class="tally-item" title="Arbres abattus"><i class="ti ti-tree" aria-hidden="true"></i> <span id="tally-trees">0</span></span>
+    <span class="tally-item" title="Rochers brisés"><i class="ti ti-diamond" aria-hidden="true"></i> <span id="tally-rocks">0</span></span>
+  </div>
   <div class="hurt-layer" aria-hidden="true"></div>
   <div id="dpad" class="dpad" hidden aria-hidden="true">
     <i class="ti ti-chevron-up dpad-arrow up"></i>
@@ -147,6 +153,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/main.js?v=1.22.0"></script>
 </body>
 </html>

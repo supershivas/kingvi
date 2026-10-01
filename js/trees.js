@@ -62,57 +62,101 @@ export function makeTree(r, opts) {
 }
 
 // Gros rocher : bloc sombre, calotte de neige sur le dessus, contour marqué.
-// Gros rocher : un éclat de roc noir, anguleux, hérissé de pointes (deux ou
-// trois sommets aigus, des pans nets et des brèches). Les pans tournés vers
-// la droite sont un peu moins noirs ; à peine de neige, sur les replats.
+// Gros rocher : un bloc de roc noir, trapu, taillé en facettes nettes (des
+// sommets tirés autour d'une forme presque carrée : arêtes vives, angles
+// francs, jamais une pyramide). Les pans tournés vers la droite sont un peu
+// moins noirs ; à peine de neige sur les replats ; quelques fissures.
 export function makeBoulder(r) {
   const w = Math.round(9 + r() * 16);
-  const hMax = Math.round(w * (0.55 + r() * 0.4));
-  // Les sommets : position, hauteur, raideur (à gauche et à droite)
-  const np = 2 + (r() < 0.45 ? 1 : 0);
-  const peaks = Array.from({ length: np }, (_, i) => ({
-    x: (w - 1) * (0.15 + 0.7 * (i + r() * 0.8) / np),
-    h: hMax * (i === 0 || r() < 0.5 ? 0.6 + r() * 0.4 : 0.45 + r() * 0.3),
-    sl: 0.9 + r() * 1.8, sr: 0.9 + r() * 1.8,
-  }));
-  peaks[Math.floor(r() * peaks.length)].h = hMax;
-  const H = Math.ceil(Math.max(...peaks.map(p => p.h))) + 1;
-  const top = [], owner = [];
-  for (let x = 0; x < w; x++) {
-    let best = -1, who = 0;
-    peaks.forEach((p, i) => {
-      const d = x - p.x, v = p.h - Math.abs(d) * (d < 0 ? p.sl : p.sr);
-      if (v > best) { best = v; who = i; }
-    });
-    // les bords tombent à pic ; une brèche, parfois
-    const edge = Math.min(x + 1, w - x) * 1.6;
-    // d'un seul tenant : entre deux sommets, le creux ne descend pas trop bas
-    const inner = x > Math.min(...peaks.map(p => p.x)) && x < Math.max(...peaks.map(p => p.x));
-    let v = Math.min(inner ? Math.max(best, hMax * 0.4) : best, edge + 1);
-    if (r() < 0.12) v -= 1 + Math.floor(r() * 2);
-    top.push(Math.max(1, Math.round(v)));
-    owner.push(who);
+  const H = Math.round(w * (0.45 + r() * 0.3));
+  const cx = (w - 1) / 2, base = H - 0.5;
+  // Le contour : du pied gauche au pied droit, par le haut
+  const n = 3 + Math.floor(r() * 3), pts = [[0, base + 0.5]];
+  for (let i = 0; i <= n; i++) {
+    const a = Math.PI * (1 - i / n) + (i > 0 && i < n ? (r() - 0.5) * 0.35 : 0);
+    const k = 0.62 + r() * 0.38;
+    // |cos|^0.5 et |sin|^0.45 : une forme carrée plutôt qu'une ellipse
+    const px = cx + Math.sign(Math.cos(a)) * Math.pow(Math.abs(Math.cos(a)), 0.5) * (w / 2) * (i === 0 || i === n ? 1 : k);
+    const py = base - Math.pow(Math.abs(Math.sin(a)), 0.45) * H * k;
+    pts.push([px, Math.max(0, py)]);
   }
+  pts.push([w - 1, base + 0.5]);
+  const inside = (x, y) => {
+    let c = false;
+    for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  };
   const g = blank(w, H);
-  for (let x = 0; x < w; x++) {
-    const t = H - top[x];
-    const p = peaks[owner[x]];
-    const lit = x > p.x;                               // le pan de droite
-    for (let y = t; y < H; y++) g[y][x] = lit && y < H - 1 ? 'b' : 'k';
-    // Une arête : le pan de gauche mord sur celui de droite, en biais
-    if (lit && x - p.x < 2 && t + 1 < H) g[t + 1][x] = 'k';
-    // Un grain de neige sur les replats (rares)
-    const flat = Math.abs(top[x] - (top[x - 1] ?? top[x])) === 0 && Math.abs(top[x] - (top[x + 1] ?? top[x])) === 0;
-    if (flat && r() < 0.35) g[t][x] = 's';
+  // Distance d'un point à un segment
+  const segD = (x, y, [x0, y0], [x1, y1]) => {
+    const dx = x1 - x0, dy = y1 - y0, t = Math.max(0, Math.min(1, ((x - x0) * dx + (y - y0) * dy) / (dx * dx + dy * dy || 1)));
+    return Math.hypot(x - x0 - dx * t, y - y0 - dy * t);
+  };
+  for (let y = 0; y < H; y++) for (let x = 0; x < w; x++) {
+    if (!inside(x + 0.5, y + 0.5) && y < H - 1) continue;
+    // La facette : le pan du contour le plus proche ; tourné vers la droite
+    // (il descend vers la droite), il est un peu moins noir
+    let best = Infinity, face = 1;
+    for (let i = 1; i < pts.length - 2; i++) {
+      const d = segD(x + 0.5, y + 0.5, pts[i], pts[i + 1]);
+      if (d < best) { best = d; face = i; }
+    }
+    const [x0, y0] = pts[face], [x1, y1] = pts[face + 1];
+    const len = Math.hypot(x1 - x0, y1 - y0) || 1, nx = (y1 - y0) / len;
+    g[y][x] = nx > 0.35 && y < H - 1 ? 'b' : 'k';
   }
-  // Quelques fissures sombres dans les pans clairs
+  // Un grain de neige sur les replats
+  for (let x = 1; x < w - 1; x++) {
+    const t = g.findIndex(row => row[x] !== '.');
+    if (t > 0 && g[t][x - 1] !== '.' && g[t][x + 1] !== '.' && g[t - 1][x - 1] === '.' && g[t - 1][x + 1] === '.' && r() < 0.3) g[t][x] = 's';
+  }
+  // Quelques fissures
   for (let k = 0; k < 2; k++) {
-    let x = Math.floor(r() * w), y = H - 1 - Math.floor(r() * 3);
-    for (let n = 0; n < 4 && g[y]?.[x] && g[y][x] !== '.'; n++) { g[y][x] = 'k'; y--; x += r() < 0.5 ? 1 : 0; }
+    let x = Math.floor(r() * w), y = H - 2 - Math.floor(r() * 3);
+    for (let m = 0; m < 4 && g[y]?.[x] && g[y][x] !== '.'; m++) { g[y][x] = 'k'; y--; x += r() < 0.5 ? 1 : -1; }
   }
-  // Sans lignes vides au-dessus
   while (g.length > 1 && g[0].every(c => c === '.')) g.shift();
   return { rows: toRows(g), ax: Math.floor(w / 2) };
+}
+
+// Combien de coups pour en venir à bout : les gros résistent longtemps
+export const boulderHits = (w, h) => Math.max(2, Math.round(w * h / 40));
+
+// Le rocher ébréché : `n` éclats arrachés au contour, toujours les mêmes pour
+// un même rocher (graine). La base reste : il s'effrite par le haut et les
+// flancs. Rend aussi où chaque éclat est tombé (pour les morceaux au sol).
+export function chipBoulder(rows, n, seed) {
+  const g = rows.map(row => [...row]);
+  const H = g.length, W = g[0].length;
+  let a = seed >>> 0;
+  const r = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
+  const fell = [];
+  for (let k = 0; k < n; k++) {
+    // Un point du bord, en haut ou sur un flanc
+    const edge = [];
+    for (let y = 0; y < H - 2; y++) for (let x = 0; x < W; x++) {
+      if (g[y][x] === '.') continue;
+      if (y === 0 || g[y - 1][x] === '.' || x === 0 || g[y][x - 1] === '.' || x === W - 1 || g[y][x + 1] === '.') edge.push([x, y]);
+    }
+    if (!edge.length) break;
+    const [ex, ey] = edge[Math.floor(r() * edge.length)];
+    const rad = 1 + r() * 1.6;
+    for (let y = Math.max(0, Math.floor(ey - rad)); y <= Math.min(H - 3, ey + rad); y++) {
+      for (let x = Math.max(0, Math.floor(ex - rad)); x <= Math.min(W - 1, ex + rad); x++) {
+        if (Math.hypot((x - ex) * 0.9, y - ey) <= rad) g[y][x] = '.';
+      }
+    }
+    // La cassure, plus claire (la pierre neuve)
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      if (g[y][x] !== 'k' || Math.hypot(x - ex, y - ey) > rad + 1.2) continue;
+      if ((g[y - 1]?.[x] === '.' || g[y][x - 1] === '.' || g[y][x + 1] === '.') && r() < 0.6) g[y][x] = 'b';
+    }
+    fell.push({ x: ex, y: ey, side: ex < W / 2 ? -1 : 1, size: rad });
+  }
+  return { rows: g.map(row => row.join('')), fell };
 }
 
 // Cairn : pierres plates empilées d'un seul tenant, de guingois — jamais

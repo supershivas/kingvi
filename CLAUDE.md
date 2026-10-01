@@ -21,9 +21,15 @@ arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 Au lancement, un écran d'accueil, sans sous-titre : le nom en gothique
 étrange (Grenze Gotisch), tracé petit puis pixelisé et texturé (croûte de
 neige, ombre tramée, éclats, glaçons ; `drawTitle` dans `main.js`, agrandi
-d'un facteur entier), sur fond noir, et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
+d'un facteur entier), sur la mer de nuit où vogue la barque, le viking debout
+dedans (houle, roulis, sillage, moutons, icebergs au loin, neige :
+`js/titlesea.js`, arrêté quand l'accueil est caché), avec sa propre musique
+(sourde, sombre : `isTitle` → `musicMood`), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
 la partie), Réglages. Le nom dans l'en-tête y ramène. En entrant dans le
-jeu, le noir s'ouvre en rond depuis le centre (`openIris`, `#iris`).
+jeu, la musique de l'accueil se tait, l'écran reste noir le temps de placer
+la caméra sur le viking et de charger l'île autour de lui (`game.focus()`),
+puis le noir s'ouvre en rond depuis le centre, bord fondu (`openIris`,
+`#iris`). En jeu, les coins de l'écran sont un peu assombris (`.vignette`).
 
 On part de la grève ouest, près de la barque échouée qui flotte (une seconde
 barque, mâtée sans voile, vue sous un autre angle, halée sur la grève : le
@@ -60,7 +66,8 @@ Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
 par partie (`chapters` dans la sauvegarde) : « Chapitre I » en petit, le nom
-en grand dans la gothique du titre, en différence. I La grève, II La plaine
+en grand dans la gothique du titre, texte clair sur un bandeau sombre aux
+bords fondus (lisible sur la neige comme sur la mer). I La grève, II La plaine
 des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
 VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
 IX Le roi sous la roche (dans la grotte) ; Interlude, Le lac (en barque).
@@ -75,10 +82,14 @@ tramés autour de lui, arbres et rochers portent une ombre à l'opposé, tramée
 par les mêmes paliers que le halo (`castShadow` dans `daylight.js`, partagé
 jeu/labo).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
-Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; certains
-(pourris) s'effondrent au second coup, certains rochers fendus éclatent en
-morceaux qui restent au sol (`fellTree`, `breakRock`, `wrecked` dans la
-sauvegarde) ; frapper une
+Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
+par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
+finissent par céder : chaque coup en arrache un éclat qui tombe au pied
+(`chipBoulder`, `chipRock`), les gros résistent longtemps (`boulderHits`) ;
+au dernier, ils éclatent en morceaux qui restent au sol (`fellTree`,
+`breakRock` ; `wrecked`, `chips` dans la sauvegarde). Un compteur discret,
+en haut à droite, dit combien d'arbres abattus et de rochers brisés
+(`tally`, `onTally`) ; frapper une
 pierre (rocher, cairn, statue, falaise) fait jaillir des étincelles, la lame
 sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 `strikeRock`).
@@ -127,7 +138,8 @@ est cachée et ne sort que pendant l'attaque.
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
-  `wolvesDead` (loups tués, là où ils sont tombés) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
+  `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
+  aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -206,8 +218,9 @@ est cachée et ne sort que pendant l'attaque.
   (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
   joueur peut figer une ambiance dans les Réglages. Le nombre de flocons est
   plafonné quand on dézoome, et la neige s'installe en 2 s au lancement.
-- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (éclats
-  noirs `k`, anguleux, deux ou trois pointes, pans de droite en `b`), cairns,
+- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (blocs
+  noirs `k`, trapus, taillés en facettes, jamais des pyramides ; pans tournés
+  vers la droite en `b` ; `chipBoulder` : le rocher ébréché), cairns,
   icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
   (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
   du morceau (1024 px de large) et en change ~22 fois par seconde
@@ -262,6 +275,15 @@ est cachée et ne sort que pendant l'attaque.
   secondaire).
 
 ## Pièges connus
+
+- **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
+  navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
+  l'ancien code, le labo avec le nouveau). Tous les imports et les pages
+  portent la version (`?v=1.22.0`) : après chaque changement de
+  `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
+- `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
+  dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en
+  filtrage au plus proche (sinon le halo et les ombres tramés se fondent).
 
 - Les déplacements lisent `event.code` (touches physiques), pas `event.key` :
   ZQSD en AZERTY et WASD en QWERTY marchent sans rien configurer.

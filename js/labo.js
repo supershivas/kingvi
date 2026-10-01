@@ -1,32 +1,32 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js';
+import { startUpdateCheck } from '../app-update.js?v=1.22.0';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn } from './trees.js';
+} from './viking.js?v=1.22.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.22.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.22.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js';
-import { buildStatue, buildStatueUpright } from './statue.js';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow } from './daylight.js';
-import { createSea } from './sea.js';
-import { buildStatueDoor } from './statue.js';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
-import * as PROPS from './props.js';
-import { audio } from './audio.js';
-import { CHAPTERS, showChapter } from './chapters.js';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js';
+} from './world.js?v=1.22.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.22.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.22.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.22.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.22.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.22.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.22.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow } from './daylight.js?v=1.22.0';
+import { createSea } from './sea.js?v=1.22.0';
+import { buildStatueDoor } from './statue.js?v=1.22.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.22.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.22.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js?v=1.22.0';
+import * as PROPS from './props.js?v=1.22.0';
+import { audio } from './audio.js?v=1.22.0';
+import { CHAPTERS, showChapter } from './chapters.js?v=1.22.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.22.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.22.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -342,7 +342,7 @@ function swing(local, hits) {
   return 'side-idle';
 }
 card('attaques', {
-  title: 'Un arbre pourri s\'effondre', about: 'Un arbre sur quatre : il tremble au premier coup, tombe au second, à l\'opposé du viking, et reste couché (on l\'enjambe).', w: 60, h: 36,
+  title: 'Un arbre finit par tomber', about: 'Tous les arbres finissent par tomber : chaque coup le fait trembler et laisse une entaille ; les petits cèdent au second coup, les grands en demandent bien plus (un coup par 4 pixels de haut). Il tombe à l\'opposé du viking et reste couché (on l\'enjambe).', w: 60, h: 36,
   setup(s, v) { const r = rng(12); s.tree = makeTree(r, { big: true }); s.img = prerender(s.tree.rows, v.pal); },
   draw(ctx, pal, t, dt, s) {
     const period = 5, local = t % period, h1 = 0.4, h2 = 1.4;
@@ -358,21 +358,33 @@ card('attaques', {
   },
 });
 card('attaques', {
-  title: 'Un rocher fendu éclate', about: 'Un gros rocher sur trois : des étincelles au premier coup, il éclate au second, et ses morceaux restent au pied.', w: 44, h: 36,
+  title: 'Un rocher s\'effrite, puis cède', about: 'Tous les rochers finissent par céder : chaque coup fait jaillir des étincelles et arrache un éclat, qui tombe au pied ; les gros résistent bien plus longtemps. Au dernier coup, il éclate, ses morceaux restent au sol.', w: 64, h: 40,
   setup(s, v) {
-    const r = rng(21); s.rock = makeBoulder(r); s.img = prerender(s.rock.rows, v.pal); s.sparks = []; s.cycle = -1;
-    s.pieces = Array.from({ length: 5 }, (_, k) => ({ x: 22 + Math.round((r() - 0.3) * s.img.width), w: 2 + Math.floor(r() * 3), h: 1 + Math.floor(r() * 2), y: 31 - Math.floor(r() * 3) }));
+    const r = rng(21); s.rock = makeBoulder(r); s.hp = boulderHits(s.rock.rows[0].length, s.rock.rows.length);
+    s.stages = Array.from({ length: s.hp }, (_, n) => chipBoulder(s.rock.rows, n, 21));
+    s.imgs = s.stages.map(st => prerender(st.rows, v.pal));
+    s.pieces = Array.from({ length: 6 }, () => ({ x: 34 + Math.round((r() - 0.5) * s.rock.rows[0].length), w: 1 + Math.floor(r() * 3), y: 35 - Math.floor(r() * 3) }));
+    s.sparks = []; s.last = -1;
   },
   draw(ctx, pal, t, dt, s) {
-    const period = 4.5, local = t % period, cycle = Math.floor(t / period), h1 = 0.4, h2 = 1.4;
-    const broken = local > h2;
-    if (!broken) ctx.drawImage(s.img, 28 - s.rock.ax, 31 - s.img.height);
-    else for (const p of s.pieces) { ctx.fillStyle = pal.b; ctx.fillRect(p.x + 1, p.y - p.h, p.w - 1, 1); ctx.fillStyle = pal.k; ctx.fillRect(p.x, p.y - p.h + 1, p.w, p.h); }
-    for (const [h, n] of [[h1, 8], [h2, 14]]) if (local >= h && s.cycle !== cycle * 2 + (h === h2 ? 1 : 0)) {
-      s.cycle = cycle * 2 + (h === h2 ? 1 : 0);
-      for (let k = 0; k < n; k++) { const a = (h === h2 ? 200 + Math.random() * 140 : 150 + Math.random() * 100) * Math.PI / 180, sp = 25 + Math.random() * 45; s.sparks.push({ x: 29, y: 27, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.1 + Math.random() * 0.25, age: 0, c: h === h2 ? (k % 2 ? 'b' : 's') : (k % 3 ? 'r' : 's') }); }
+    const beat = 0.9, rest = 2.5, period = s.hp * beat + rest, local = t % period;
+    const n = Math.min(s.hp, Math.floor(local / beat + 0.65));      // coups déjà portés
+    const rx = 36 - s.rock.ax, ground = 35;
+    const hitId = Math.floor(t / period) * 100 + n;
+    if (n > 0 && s.last !== hitId) {
+      s.last = hitId;
+      const broken = n >= s.hp;
+      for (let k = 0; k < (broken ? 16 : 7); k++) { const a = (broken ? 200 + Math.random() * 140 : 150 + Math.random() * 100) * Math.PI / 180, sp = 25 + Math.random() * 45; s.sparks.push({ x: rx - 1, y: ground - 4, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 0.1 + Math.random() * 0.25, age: 0, c: broken ? (k % 2 ? 'b' : 'k') : (k % 3 ? 'r' : 's') }); }
     }
-    drawViking(ctx, pal, local < 3 ? swing(local, [h1, h2]) : 'side-idle', 17, 31, { clock: t });
+    if (n < s.hp) {
+      const img = s.imgs[n];
+      ctx.drawImage(img, rx, ground + 1 - img.height);
+      // Les éclats déjà tombés
+      ctx.fillStyle = pal.k;
+      s.stages[n].fell.forEach((f, i) => ctx.fillRect(Math.round(rx + f.x + f.side * (2 + (i % 3))), ground - (i % 2), f.size > 1.8 ? 2 : 1, 1));
+    } else for (const p of s.pieces) { ctx.fillStyle = pal.b; ctx.fillRect(p.x + 1, p.y - 1, Math.max(1, p.w - 1), 1); ctx.fillStyle = pal.k; ctx.fillRect(p.x, p.y, p.w, 1); }
+    const sw = local % beat;
+    drawViking(ctx, pal, n < s.hp || local < s.hp * beat + 0.3 ? swing(sw + 0.315 - 0.25, [0.315]) : 'side-idle', rx - 11, ground, { clock: t });
     for (const p of s.sparks) { p.age += dt; p.vy += 180 * dt; p.x += p.vx * dt; p.y += p.vy * dt; ctx.globalAlpha = Math.max(0, 1 - p.age / p.life); ctx.fillStyle = pal[p.c]; ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
     ctx.globalAlpha = 1;
     s.sparks = s.sparks.filter(p => p.age < p.life);
@@ -540,7 +552,7 @@ function row(section, title, about, make, button, sea = false) {
     },
   });
 }
-row('rochers', 'Gros rochers', 'Éclats de roc noirs, anguleux, hérissés de pointes ; à peine de neige sur les replats. Le viking à droite donne l\'échelle.', makeBoulder, 'Autres rochers');
+row('rochers', 'Gros rochers', 'Blocs de roc noirs, trapus, taillés en facettes nettes (pas de pyramides) ; à peine de neige sur les replats. Le viking à droite donne l\'échelle.', makeBoulder, 'Autres rochers');
 row('rochers', 'Cairns (nouvelle forme)', 'Pierres plates empilées, séparées par des lits de neige.', makeCairn, 'Autres cairns');
 
 // ══ Maison ══

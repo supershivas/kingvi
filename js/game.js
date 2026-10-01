@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js';
+} from './viking.js?v=1.22.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js';
-import { createPack } from './pack.js';
-import { chapterById } from './chapters.js';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js';
-import { BUNDLE, WATCHER } from './grove.js';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js';
-import { createFoe, drawPips, FOE_HP } from './foe.js';
-import { createFauna } from './fauna.js';
-import { createWeather } from './weather.js';
-import { createSea } from './sea.js';
-import { audio } from './audio.js';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js';
+} from './world.js?v=1.22.0';
+import { createPack } from './pack.js?v=1.22.0';
+import { chapterById } from './chapters.js?v=1.22.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.22.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.22.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.22.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.22.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.22.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.22.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.22.0';
+import { createFauna } from './fauna.js?v=1.22.0';
+import { createWeather } from './weather.js?v=1.22.0';
+import { createSea } from './sea.js?v=1.22.0';
+import { audio } from './audio.js?v=1.22.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.22.0';
 
 const Phaser = window.Phaser;
 
@@ -98,7 +98,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {} }) {
+export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, isTitle = () => false, onTally = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -295,6 +295,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.stamina = 1;
       // Arbres abattus, rochers brisés : « x,y » → sens de la chute
       this.wrecked = new Map(Object.entries(save.wrecked || {}));
+      // Rochers ébréchés : « x,y » → nombre d'éclats arrachés
+      this.chips = new Map(Object.entries(save.chips || {}));
+      // Le compteur : arbres abattus, rochers brisés
+      this.tally = { trees: 0, rocks: 0, ...(save.tally || {}) };
       this.staminaBar = this.add.graphics();
       this.playerPips = this.add.graphics();
       this.foe = createFoe(this, {
@@ -318,8 +322,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const cover = c => this.add.rectangle(-200, -200, 5000, 4000, hex(c)).setOrigin(0, 0).setScrollFactor(0);
       // Le voile de nuit est une texture (posée sur la vue) : la torche y
       // creuse un halo de lumière
-      this.shade = this.add.renderTexture(0, 0, 256, 256).setOrigin(0, 0)
-        .setBlendMode(Phaser.BlendModes.MULTIPLY).setDepth(DEPTH_SKY + 5);
+      this.makeShade(256, 256);
       this.lightStamp = this.make.image({ key: 'torchlight1' }, false).setOrigin(0.5);
       this.glow = this.add.image(0, 0, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setAlpha(0);
       this.torchOn = 0;
@@ -333,6 +336,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.time.addEvent({ delay: 250, loop: true, callback: () => this.applyDaylight() });
 
       this.updateChunks(true);
+      onTally(this.tally, null);
     }
 
     applyDaylight() {
@@ -604,6 +608,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     // L'arbre bascule, loin du coup, et s'abat dans la neige
     fellTree(o, dir) {
       o.fallen = true;
+      this.tally.trees++; onTally(this.tally, 'trees');
       audio.play('wood');
       this.layTree(o, dir, false);
       this.wreck(o, dir);
@@ -637,6 +642,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
     // Le rocher éclate : des morceaux restent au sol
     breakRock(o, dir) {
       o.broken = true;
+      this.tally.rocks++; onTally(this.tally, 'rocks');
       audio.play('clang'); audio.play('snow');
       this.cameras.main.shake(100, 0.003);
       const cx = o.x - o.art.ax + o.w / 2;
@@ -644,9 +650,47 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.dust.explode(22, cx, o.y - 3);
       this.embers.explode(6, cx, o.y - 3);
       if (o.img) { o.img.setVisible(false); o.img.hiddenForGood = true; }
+      if (o.chipImg) { o.chipImg.setVisible(false); o.chipImg.hiddenForGood = true; }
       const pieces = this.rockPieces(o);
       for (const chunk of this.chunks.values()) if (chunk.images.includes(o.img)) { chunk.images.push(...pieces); break; }
       this.wreck(o, dir);
+    }
+
+    // Le rocher ébréché de `n` éclats : une image à lui (à la place de celle de
+    // la planche), et les éclats tombés à son pied. `fresh` : le dernier éclat
+    // vient de sauter (poussière). Rend les images et textures créées.
+    chipRock(o, n, fresh = false, chunk = null) {
+      chunk = chunk || [...this.chunks.values()].find(c => c.images.includes(o.img));
+      const { rows, fell } = chipBoulder(o.art.rows, n, o.seed);
+      const key = `chipped-${o.x}-${o.y}-${n}`;
+      if (o.chipImg) {
+        // L'image précédente sort de la liste de son morceau, puis disparaît
+        for (const c of this.chunks.values()) { const i = c.images.indexOf(o.chipImg); if (i >= 0) c.images.splice(i, 1); }
+        o.chipImg.destroy(); this.dropTexture(o.chipTex);
+      }
+      this.dropTexture(key);
+      this.art(key, rows);
+      const left = o.x - o.art.ax;
+      o.chipImg = this.add.image(left, o.y + 1, key).setOrigin(0, 1).setDepth(o.y);
+      o.chipTex = key;
+      if (o.img) { o.img.setVisible(false); o.img.hiddenForGood = true; }
+      const made = [o.chipImg];
+      // Les éclats au sol : un par coup, du côté où il a sauté
+      const show = fresh ? fell.slice(-1) : fell;
+      show.forEach((f, i) => {
+        const k = fresh ? fell.length - 1 : i;
+        const w = f.size > 1.8 ? 2 : 1, pk = `rockpiece-${w}-1`;
+        if (!this.textures.exists(pk)) this.art(pk, w > 1 ? ['.b', 'kk'] : ['k']);
+        const px = Math.round(left + f.x + f.side * (2 + ((o.seed >> k) & 3))), py = o.y + 1 + ((o.seed >> (k + 3)) & 3);
+        made.push(this.add.image(px, py, pk).setOrigin(0, 1).setDepth(py));
+      });
+      if (fresh) {
+        const f = fell.at(-1);
+        this.dust.setConfig({ lifespan: { min: 250, max: 600 }, speed: { min: 8, max: 30 }, angle: { min: 200, max: 340 }, gravityY: 80, alpha: { start: 0.8, end: 0 }, emitting: false });
+        if (f) this.dust.explode(6, left + f.x, o.y + 1 - rows.length + f.y);
+      }
+      if (chunk) { chunk.images.push(...made); chunk.textures.push(key); }
+      return { images: made, textures: [key] };
     }
 
     // Les éclats d'un rocher : quelques blocs, la neige sur le dessus
@@ -729,15 +773,28 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         const struck = this.struckObject(x, y);
         if (struck?.kind === 'rock') {
           const o = struck.o;
-          // Certains rochers sont fendus : au second coup, ils éclatent
-          if (o.type === 'boulder' && o.seed % 3 === 0 && (o.hits = (o.hits || 0) + 1) >= 2) { this.breakRock(o, dir); return; }
+          // Tous les rochers finissent par céder : chaque coup en arrache un
+          // éclat ; les gros résistent longtemps
+          if (o.type === 'boulder') {
+            const k = `${o.x},${o.y}`, n = (this.chips.get(k) || 0) + 1;
+            if (n >= boulderHits(o.w, o.h)) { this.chips.delete(k); this.breakRock(o, dir); return; }
+            this.chips.set(k, n);
+            this.chipRock(o, n, true);
+            this.persist();
+          }
           this.strikeRock(x, y, dir, view);
           return;
         }
         if (struck?.kind === 'tree') {
           const o = struck.o;
-          // Certains arbres sont pourris : au second coup, ils s'effondrent
-          if (o.type === 'tree' && o.seed % 4 === 0 && (o.hits = (o.hits || 0) + 1) >= 2) { this.fellTree(o, dir); return; }
+          // Tous les arbres finissent par tomber : les petits en deux coups,
+          // les grands en bien plus (les entailles restent, comptées)
+          if (o.type === 'tree') {
+            const k = `${o.x},${o.y}`, n = (this.chips.get(k) || 0) + 1;
+            if (n >= Math.max(2, Math.round((o.h || 10) / 4))) { this.chips.delete(k); this.fellTree(o, dir); return; }
+            this.chips.set(k, n);
+            this.persist();
+          }
           audio.play('wood');
           this.cameras.main.shake(60, 0.0015);
           this.shakeTree(struck.o, dir);
@@ -966,6 +1023,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
 
     // La musique suit le moment : le lieu, la nuit, le danger
     musicMood() {
+      // L'écran d'accueil : une nappe sourde et sombre, presque immobile
+      if (isTitle()) return { energy: 0.08, dark: 0.85, muffled: 0.45 };
       const f = this.foe, now = this.time.now;
       const dFoe = Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y);
       const deep = this.inside ? 0 : deepForest(this.pos.x, this.pos.y);
@@ -1046,6 +1105,18 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       return { x: x - 4, y: y - 8, behind: true };
     }
 
+    // Le voile de nuit : une texture posée sur la vue, multipliée sur la scène.
+    // Agrandi par la caméra, il reste en pixels nets (lissé, il fondait les
+    // paliers tramés du halo et des ombres)
+    makeShade(w, h) {
+      const visible = this.shade ? this.shade.visible : false;
+      this.shade?.destroy();
+      this.shade = this.add.renderTexture(0, 0, w, h).setOrigin(0, 0)
+        .setBlendMode(Phaser.BlendModes.MULTIPLY).setDepth(DEPTH_SKY + 5).setVisible(visible);
+      this.shade.texture.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      return this.shade;
+    }
+
     updateNight(dt, time) {
       // Dans la grotte, il fait toujours nuit (la torche est allumée)
       const dark = INTERIORS[this.inside]?.dark, night = dark ? 1 : this.daylight?.night || 0, t = time / 1000;
@@ -1056,14 +1127,18 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const flick = 1 + 0.07 * Math.sin(t * 11) * Math.sin(t * 5.3 + 1) + 0.03 * Math.sin(t * 23);
       const tp = this.torchPoint();
       // Le voile de nuit, percé autour de la torche
-      const v = this.cameras.main.worldView, rt = this.shade;
+      const v = this.cameras.main.worldView;
+      let rt = this.shade;
       const veil = night * (dark ? 0.72 : 0.62);
       // En plein jour, le voile est vide : on ne le touche pas (il coûte cher)
       rt.setVisible(veil > 0.005);
       if (veil > 0.005) {
         // Le voile couvre la vue, à peine plus : le remplir coûte cher
         const w = Math.ceil(v.width) + 64, h = Math.ceil(v.height) + 64;
-        if (Math.abs(rt.width - w) > 16 || Math.abs(rt.height - h) > 16 || rt.width < w || rt.height < h) rt.resize(w + 32, h + 32);
+        // (recréé à la bonne taille : `resize` ne redimensionne pas sa surface de
+        // dessin, le voile restait rempli dans son coin et le trou de la torche,
+        // hors de ce coin, ne se voyait pas)
+        if (Math.abs(rt.width - w) > 16 || Math.abs(rt.height - h) > 16 || rt.width < w || rt.height < h) rt = this.makeShade(w + 32, h + 32);
         rt.setPosition(Math.floor(v.x) - 32, Math.floor(v.y) - 32);
         rt.clear();
         rt.fill(hex(palette.b), veil);
@@ -1309,8 +1384,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const x0 = v.x - m, x1 = v.right + m, y0 = v.y - m, y1 = v.bottom + m;
       for (const chunk of this.chunks.values()) {
         for (const img of chunk.images) {
+          if (img.hiddenForGood || !img.scene) continue;   // (détruite : on l'ignore)
           const top = img.originY ? img.y - img.height : img.y;
-          if (img.hiddenForGood) continue;
           const w = img.displayWidth, h = img.displayHeight;
           img.setVisible(img.x - w < x1 && img.x + w > x0 && top - h < y1 && top + img.height > y0);
         }
@@ -1464,6 +1539,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
             for (const f of this.rockPieces(o)) images.push(f);
             continue;
           }
+          // Ébréché lors d'une partie précédente
+          const nChips = o.type === 'boulder' ? this.chips.get(k) : 0;
+          if (nChips) {
+            const c = this.chipRock(o, nChips, false, { images: [], textures: [] });
+            images.push(...c.images); textures.push(...c.textures);
+          }
           if (tree) {
             // Chaque arbre a sa cadence : les grands ploient plus lentement
             swayers.push({ img: im, i, x: o.x, y: o.y, phase: (o.seed % 628) / 100, freq: treeFreq(o.h) });
@@ -1508,6 +1589,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         chapters: [...this.chapters],
         kingBowed: this.kingBowed,
         wrecked: Object.fromEntries(this.wrecked),
+        chips: Object.fromEntries(this.chips),
+        tally: this.tally,
         facing: this.facing, flip: this.flip,
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,
@@ -1586,6 +1669,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
   return {
     game,
     scene: () => game.scene.getScene('island'),
+    // Caméra sur le viking, l'île chargée autour de lui : vrai quand c'est prêt
+    focus() {
+      const sc = game.scene.getScene('island');
+      if (!sc?.pos || !sc.chunks) return false;
+      sc.cameras.main.centerOn(sc.pos.x, sc.pos.y);
+      sc.updateChunks(true);
+      return true;
+    },
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),
     windPhase: () => weather.phase,

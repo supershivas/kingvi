@@ -118,12 +118,20 @@ body {
 .title-screen {
   position: absolute; inset: 0; z-index: 5;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-  padding: 24px 16px; text-align: center;
-  background: var(--game-black);
+  padding: 24px 16px; text-align: center; overflow: hidden;
+  background: var(--game-night);
   color: var(--game-snow);
   cursor: default;
 }
 .title-screen[hidden] { display: none; }
+/* Derrière le titre : la mer, la barque qui vogue (titlesea.js), en pixels */
+.title-sea { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none; }
+.title-screen > :not(.title-sea) { position: relative; }
+/* Une fois la partie lancée, les coins de l'écran un peu plus sombres */
+.vignette {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 80% 75% at 50% 50%, transparent 55%, rgba(5,7,12,.32) 100%);
+}
 .title-name { line-height: 0; }
 /* Le titre est dessiné en pixels (voir drawTitle, main.js) et agrandi d'un
    facteur entier : net, sans lissage */
@@ -140,8 +148,9 @@ body {
 .iris {
   position: absolute; inset: 0; z-index: 4; pointer-events: none;
   background: var(--game-black);
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, 0px), #000 calc(var(--r, 0px) + 6px));
-  mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, 0px), #000 calc(var(--r, 0px) + 6px));
+  /* Un bord doux (fondu sur 90 px), pas un cercle net */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, -90px), #000 calc(var(--r, -90px) + 90px));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--r, -90px), #000 calc(var(--r, -90px) + 90px));
 }
 .iris[hidden] { display: none; }
 
@@ -157,21 +166,40 @@ body {
 @media (prefers-reduced-motion: reduce) { .hurt .hurt-layer { animation: none; } }
 
 /* Chapitres : « Chapitre III » en petit, « La forêt » en grand, dans le haut
-   de l'écran ; en différence, lisible sur la neige comme sur la mer */
+   de l'écran. Texte clair sur un bandeau sombre aux bords fondus : lisible
+   sur la neige comme sur la mer (le mode différence coupait le titre en deux
+   quand il chevauchait le rivage) */
 .chapter {
-  position: absolute; left: 50%; top: 20%; z-index: 4; transform: translate(-50%, 8px);
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  color: var(--game-snow); mix-blend-mode: difference; pointer-events: none;
+  position: absolute; left: 0; right: 0; top: 16%; z-index: 4; transform: translateY(8px);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 22px 16px 26px;
+  background: radial-gradient(ellipse 46% 50% at 50% 50%, rgba(5,7,12,.62), rgba(5,7,12,.38) 55%, transparent 100%);
+  color: var(--game-snow); pointer-events: none;
   text-align: center; white-space: nowrap; opacity: 0; filter: blur(3px);
   transition: opacity 1.4s ease, transform 2.4s ease, filter 1.4s ease;
 }
-.chapter.in { opacity: .92; transform: translate(-50%, 0); filter: none; }
+.chapter.in { opacity: 1; transform: translateY(0); filter: none; }
 .chapter.out { opacity: 0; filter: blur(2px); transition-duration: 1.6s; }
 .chapter-label {
-  font-family: var(--font-mono); font-size: .75rem; letter-spacing: .35em; text-transform: uppercase;
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .35em; text-transform: uppercase; opacity: .85;
+  text-shadow: 0 0 6px rgba(5,7,12,.9);
 }
-.chapter-title { font-family: var(--font-game-title); font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1; }
-@media (prefers-reduced-motion: reduce) { .chapter, .chapter.in { transform: translate(-50%, 0); filter: none; } }
+.chapter-title {
+  font-family: var(--font-game-title); font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1;
+  text-shadow: 0 2px 0 rgba(5,7,12,.85), 0 0 14px rgba(5,7,12,.7);
+}
+@media (prefers-reduced-motion: reduce) { .chapter, .chapter.in { transform: none; filter: none; } }
+
+/* Le compteur : arbres abattus, rochers brisés (en haut à droite, discret) */
+.tally {
+  position: absolute; top: 12px; right: 16px; z-index: 4; display: flex; gap: 14px;
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .08em;
+  color: var(--game-snow); mix-blend-mode: difference; opacity: .7; pointer-events: none;
+}
+.tally[hidden] { display: none; }
+.tally-item { display: inline-flex; align-items: center; gap: 5px; transition: transform .25s ease; }
+.tally-item i { font-size: 1rem; }
+.tally-item.bump { transform: scale(1.35); }
 
 /* Croix directionnelle, sur écran tactile : on glisse le pouce dans une
    direction ; tout au bord, on court */
