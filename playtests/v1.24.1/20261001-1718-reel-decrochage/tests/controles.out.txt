@@ -1,0 +1,136 @@
+{
+ "azerty": {
+  "est": {
+   "dx": 15,
+   "dy": 0,
+   "jeu": 0.9,
+   "pxs": 25
+  },
+  "ouest": {
+   "dx": -35.6,
+   "dy": 0,
+   "jeu": 4.2,
+   "pxs": 9.1
+  },
+  "haut": {
+   "dx": 0,
+   "dy": -26,
+   "jeu": 2.4,
+   "pxs": 12.4
+  }
+ },
+ "qwerty": {
+  "est": {
+   "dx": 73.8,
+   "dy": 0,
+   "jeu": 4.5,
+   "pxs": 17.6
+  },
+  "ouest": {
+   "dx": -75.4,
+   "dy": 0,
+   "jeu": 4.6,
+   "pxs": 17.5
+  },
+  "haut": {
+   "dx": 0,
+   "dy": -38.4,
+   "jeu": 2.6,
+   "pxs": 16.7
+  }
+ },
+ "fleches": {
+  "est": {
+   "dx": 75.1,
+   "dy": 0,
+   "jeu": 4.6,
+   "pxs": 17.5
+  },
+  "ouest": {
+   "dx": -72.9,
+   "dy": 0,
+   "jeu": 4.5,
+   "pxs": 17.4
+  },
+  "haut": {
+   "dx": 0,
+   "dy": -27.2,
+   "jeu": 2.4,
+   "pxs": 13
+  }
+ },
+ "keyZ": {
+  "dx": 0,
+  "dy": 0
+ },
+ "blurEvent": {
+  "avant": 637.5,
+  "apres2s": 638.5,
+  "bouge": 1
+ },
+ "ongletDevant": {
+  "hidden": false,
+  "focus": true,
+  "avant": 628.6,
+  "apres": 602.2,
+  "bouge": -26.4
+ },
+ "majPendantAttaque": {
+  "pendant": {
+   "attaque": true,
+   "court": true,
+   "endurance": 0.8
+  },
+  "apres": {
+   "court": false,
+   "vitesse": 5.6
+  }
+ },
+ "courseEtCoup": {
+  "lignes": 47,
+  "attaqueVue": true,
+  "courtApres": true,
+  "enduranceFin": 0.76
+ },
+ "courseVide": {
+  "images": 251,
+  "videA_ms": null,
+  "imagesCourantApresVide": 0,
+  "imagesApresVide": 0,
+  "basculesCourse": 0,
+  "enduranceMaxApresVide": null,
+  "vitesseAvant": null,
+  "vitesseApres": null
+ },
+ "majArretVide": {
+  "enduranceDebut": 0.22,
+  "enduranceFin": 0.36,
+  "court": true
+ },
+ "dixClics": {
+  "frappes": 2,
+  "tempsFrappes": [
+   55.4,
+   56.2
+  ],
+  "essouffle": 0,
+  "enduranceMin": 0.61,
+  "attaqueApres": false,
+  "marcheApres": 13.2,
+  "attaqueContinue_ms": 1407
+ },
+ "dixClicsFalaise": {
+  "pos": [
+   5232,
+   2573.7
+  ],
+  "frappes": 1,
+  "cibles": [
+   "air"
+  ],
+  "attaqueApres": false,
+  "marcheApres": 9
+ },
+ "erreurs": [],
+ "derniereErreur": null
+}

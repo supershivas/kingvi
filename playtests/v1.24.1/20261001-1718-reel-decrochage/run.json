@@ -1,0 +1,116 @@
+{
+  "runId": "20261001-1718-reel-decrochage",
+  "version": "1.24.1",
+  "date": "2026-10-01T17:23:53.560Z",
+  "dureeReelle": 338,
+  "options": {
+    "clavier": "azerty",
+    "qualite": 3,
+    "navigateur": "chromium",
+    "taille": "1280x800",
+    "dpr": 1,
+    "graine": 7,
+    "capture": 6,
+    "vitesse": 3,
+    "heure": "jour",
+    "meteo": null,
+    "from": null,
+    "to": null,
+    "lac": true,
+    "reel": true,
+    "etiquette": "decrochage",
+    "visible": false
+  },
+  "navigateur": "chromium 141.0.7390.37",
+  "fps": {
+    "moyen": 11.7,
+    "min": 7.1,
+    "max": 23.3
+  },
+  "erreurs": [],
+  "derniereErreurDuJeu": null,
+  "etatFinal": {
+    "pret": true,
+    "accueil": false,
+    "x": 758,
+    "y": 772,
+    "zone": "interieur:maison",
+    "dedans": "maison",
+    "enBarque": false,
+    "pv": 3,
+    "pvMax": 3,
+    "endurance": 1,
+    "mort": false,
+    "attaque": false,
+    "court": false,
+    "ennemi": {
+      "pv": 3,
+      "etat": "wait",
+      "vivant": true,
+      "engage": false,
+      "x": 5179,
+      "y": 2627,
+      "distance": 4794
+    },
+    "meute": {
+      "etat": "idle",
+      "engagee": false,
+      "vivants": 4,
+      "morts": 0,
+      "loups": [
+        {
+          "etat": "hidden",
+          "x": 3264,
+          "y": 2280
+        },
+        {
+          "etat": "hidden",
+          "x": 3117,
+          "y": 2282
+        },
+        {
+          "etat": "hidden",
+          "x": 3138,
+          "y": 2187
+        },
+        {
+          "etat": "hidden",
+          "x": 3243,
+          "y": 2188
+        }
+      ]
+    },
+    "vent": "bise",
+    "jour": "jour",
+    "nuit": 0,
+    "heureCycle": 240,
+    "torche": false,
+    "chapitres": [
+      "greve",
+      "morts",
+      "foret",
+      "noire",
+      "loups",
+      "maison"
+    ],
+    "compteur": {
+      "trees": 0,
+      "rocks": 0
+    },
+    "drapeaux": {
+      "foeDead": false,
+      "chestOpen": false,
+      "watcherGone": true,
+      "kingBowed": false
+    },
+    "distance": 12639,
+    "tempsJeu": 1008.6,
+    "fps": 12.5,
+    "vitesse": 3,
+    "graine": 7,
+    "zoom": 4,
+    "morceauxEnAttente": 9,
+    "derniereErreur": null
+  },
+  "captures": 101
+}

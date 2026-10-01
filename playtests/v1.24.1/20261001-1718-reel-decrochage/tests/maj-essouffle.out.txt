@@ -1,0 +1,46 @@
+{
+ "majTenue": {
+  "enduranceAvantClics": 0.02,
+  "enduranceApresChaqueClic": [
+   0.02,
+   0.02,
+   0.02,
+   0.02
+  ],
+  "evenements": [
+   "31.7 essouffle",
+   "32.5 essouffle",
+   "33.3 essouffle",
+   "34.1 essouffle"
+  ]
+ },
+ "majRelachee": {
+  "enduranceApres2_5sDeMarche": 0.76,
+  "evenements": [
+   "37.9 frappe side",
+   "38.1 son",
+   "38.1 coup-donne air"
+  ]
+ },
+ "falaise": {
+  "evenements": [
+   "46.8 frappe back",
+   "47.1 son",
+   "47.1 coup-donne pierre",
+   "47.4 frappe back",
+   "47.4 son",
+   "47.4 coup-recu",
+   "47.7 son",
+   "47.7 coup-donne pierre",
+   "48 frappe back",
+   "48.2 son",
+   "48.2 coup-donne pierre",
+   "50 son",
+   "50 coup-recu",
+   "50 mort"
+  ],
+  "attaqueApres": false,
+  "sudPx": 0.9
+ },
+ "erreurs": []
+}

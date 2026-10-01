@@ -1,0 +1,1 @@
+[{"nom": "chr-1280-d1-q3-lieux", "qualite": 3, "dpr": 1, "etapes": [{"nom": "greve-nuit", "lieu": "barque", "heure": "nuit"}, {"nom": "grotte-jour", "lieu": "grotte", "heure": "jour"}, {"nom": "interieur", "lieu": "interieur", "heure": "jour", "marche": "KeyW", "ms": 2500}, {"nom": "freya-debout", "lieu": "freya-debout", "heure": "jour"}]}]

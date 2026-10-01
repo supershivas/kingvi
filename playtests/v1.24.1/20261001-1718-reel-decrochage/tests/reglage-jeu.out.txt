@@ -1,0 +1,38 @@
+{
+ "depart": {
+  "cycle": 303,
+  "jour": "jour"
+ },
+ "res": [
+  {
+   "curseur": 1000,
+   "cycle": 1001,
+   "jour": "nuit",
+   "nuit": 1,
+   "torche": true
+  },
+  {
+   "curseur": 30,
+   "cycle": 32,
+   "jour": "aube",
+   "nuit": 0.72,
+   "torche": true
+  },
+  {
+   "curseur": 800,
+   "cycle": 802,
+   "jour": "crepuscule",
+   "nuit": 0.61,
+   "torche": true
+  },
+  {
+   "curseur": 400,
+   "cycle": 402,
+   "jour": "jour",
+   "nuit": 0,
+   "torche": false
+  }
+ ],
+ "prefs": "{\"quality\":1,\"musicVol\":0,\"sfxVol\":0,\"windVol\":0}",
+ "erreurs": []
+}

@@ -1,0 +1,36 @@
+{
+  "unite": "secondes de temps de jeu",
+  "parZone": {
+    "greve": 33.9,
+    "plaine": 351.7,
+    "morts": 27.7,
+    "foret": 93.4,
+    "noire": 459.7,
+    "bosquet": 30,
+    "maison": 5.3,
+    "interieur:maison": 5.6
+  },
+  "chapitresA": {
+    "Chapitre I — La grève": 1.7,
+    "Chapitre II — La plaine des morts": 63.9,
+    "Chapitre III — La forêt": 204.8,
+    "Chapitre IV — La forêt noire": 295.9,
+    "Chapitre V — Les loups": 533.7,
+    "Chapitre VI — La maison": 994.6
+  },
+  "tronconsSautes": [],
+  "pisteEntiere": {
+    "pixels": 6209,
+    "secondesAPied": 345,
+    "minutesAPied": 5.7
+  },
+  "etapes": [
+    {
+      "id": "traversee",
+      "titre": "La traversée, à pied",
+      "debut": 2.5,
+      "fin": 1003.8,
+      "duree": 1001.3
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+minuit Europe/Paris [
+ "23:59:58 | 01:59:58 GMT+0200 | cycle 1199/1199 nuit/nuit | jeu 0.4",
+ "00:00:00 | 02:00:00 GMT+0200 | cycle 0/0 aube/aube | jeu 0.7",
+ "00:00:01 | 02:00:01 GMT+0200 | cycle 1/2 aube/aube | jeu 1.2",
+ "00:00:03 | 02:00:03 GMT+0200 | cycle 3/3 aube/aube | jeu 1.9",
+ "00:00:04 | 02:00:04 GMT+0200 | cycle 5/5 aube/aube | jeu 3",
+ "00:00:06 | 02:00:06 GMT+0200 | cycle 7/6 aube/aube | jeu 3.9",
+ "00:00:07 | 02:00:07 GMT+0200 | cycle 8/8 aube/aube | jeu 4.8",
+ "00:00:09 | 02:00:09 GMT+0200 | cycle 10/10 aube/aube | jeu 6.2"
+]
+erreurs []
+minuit UTC [
+ "23:59:58 | 23:59:58 GMT+0000 | cycle 1199/1199 nuit/nuit | jeu 0.5",
+ "00:00:00 | 00:00:00 GMT+0000 | cycle 0/0 aube/aube | jeu 1.2",
+ "00:00:01 | 00:00:01 GMT+0000 | cycle 2/2 aube/aube | jeu 1.8",
+ "00:00:03 | 00:00:03 GMT+0000 | cycle 3/4 aube/aube | jeu 2.8",
+ "00:00:05 | 00:00:05 GMT+0000 | cycle 6/5 aube/aube | jeu 4.5",
+ "00:00:07 | 00:00:07 GMT+0000 | cycle 7/7 aube/aube | jeu 6.2",
+ "00:00:08 | 00:00:08 GMT+0000 | cycle 9/9 aube/aube | jeu 7.5",
+ "00:00:10 | 00:00:10 GMT+0000 | cycle 11/11 aube/aube | jeu 9"
+]
+erreurs []
+hiver Europe/Paris [
+ "00:59:58 | 02:59:59 GMT+0200 | cycle 1199/1199 nuit/nuit | jeu 0.6",
+ "01:00:00 | 02:00:00 GMT+0100 | cycle 1/1 aube/aube | jeu 1.4",
+ "01:00:02 | 02:00:02 GMT+0100 | cycle 2/2 aube/aube | jeu 2.5",
+ "01:00:04 | 02:00:04 GMT+0100 | cycle 4/4 aube/aube | jeu 3.8",
+ "01:00:05 | 02:00:05 GMT+0100 | cycle 6/6 aube/aube | jeu 5.2",
+ "01:00:07 | 02:00:07 GMT+0100 | cycle 8/7 aube/aube | jeu 6.8",
+ "01:00:09 | 02:00:09 GMT+0100 | cycle 9/9 aube/aube | jeu 8.3",
+ "01:00:10 | 02:00:10 GMT+0100 | cycle 11/11 aube/aube | jeu 9.5"
+]
+erreurs []
+hiver UTC [
+ "00:59:58 | 00:59:58 GMT+0000 | cycle 1198/1198 nuit/nuit | jeu 0.3",
+ "01:00:00 | 01:00:00 GMT+0000 | cycle 1200/0 nuit/aube | jeu 1",
+ "01:00:01 | 01:00:01 GMT+0000 | cycle 2/1 aube/aube | jeu 1.9",
+ "01:00:03 | 01:00:03 GMT+0000 | cycle 3/3 aube/aube | jeu 2.5",
+ "01:00:05 | 01:00:05 GMT+0000 | cycle 5/5 aube/aube | jeu 3.4",
+ "01:00:06 | 01:00:06 GMT+0000 | cycle 7/7 aube/aube | jeu 4.2",
+ "01:00:08 | 01:00:08 GMT+0000 | cycle 9/9 aube/aube | jeu 5.9",
+ "01:00:10 | 01:00:10 GMT+0000 | cycle 11/10 aube/aube | jeu 7.5"
+]
+erreurs []
+hiver America/New_York [
+ "00:59:58 | 20:59:58 GMT-0400 | cycle 1199/1199 nuit/nuit | jeu 0.7",
+ "01:00:00 | 21:00:00 GMT-0400 | cycle 0/0 aube/aube | jeu 1.4",
+ "01:00:01 | 21:00:01 GMT-0400 | cycle 2/2 aube/aube | jeu 2.4",
+ "01:00:03 | 21:00:03 GMT-0400 | cycle 4/4 aube/aube | jeu 3.5",
+ "01:00:05 | 21:00:05 GMT-0400 | cycle 6/6 aube/aube | jeu 4.9",
+ "01:00:07 | 21:00:07 GMT-0400 | cycle 7/7 aube/aube | jeu 6.1",
+ "01:00:08 | 21:00:08 GMT-0400 | cycle 9/9 aube/aube | jeu 8",
+ "01:00:10 | 21:00:10 GMT-0400 | cycle 11/11 aube/aube | jeu 9.5"
+]
+erreurs []

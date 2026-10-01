@@ -1,0 +1,4 @@
+chr-1280-d1-q3-lieux greve-nuit zoom 2 N 2 phaseX 61.4 phaseY 52.6 runsBad 73.1 fps 11.7/10.6/9.4/8.6 crt true tilt true --px 2px canvas {"w":1280,"h":748,"cssW":1280,"cssH":748,"left":0,"top":52}
+chr-1280-d1-q3-lieux grotte-jour zoom 4 N 4 phaseX 39.1 phaseY 26.9 runsBad 83.5 fps 5.5/5.1/5.6/5.7 crt true tilt true --px 4px canvas {"w":1280,"h":748,"cssW":1280,"cssH":748,"left":0,"top":52}
+chr-1280-d1-q3-lieux interieur zoom 4 N 4 phaseX 33.1 phaseY 26.6 runsBad 90 fps 9.4/9.8/10.1/8.8 crt true tilt true --px 4px canvas {"w":1280,"h":748,"cssW":1280,"cssH":748,"left":0,"top":52}
+chr-1280-d1-q3-lieux freya-debout zoom 2 N 2 phaseX 52.8 phaseY 50.1 runsBad 92.3 fps 11.9/12.1/12.1/11.8 crt true tilt true --px 2px canvas {"w":1280,"h":748,"cssW":1280,"cssH":748,"left":0,"top":52}

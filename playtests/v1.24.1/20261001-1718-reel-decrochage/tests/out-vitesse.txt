@@ -1,0 +1,3 @@
+x1 : 10 px en 0.6 s de jeu (17.0 px/s), fps 8.5   (mesure prise dans les ~120 premières images : delta bridé par Phaser)
+x3 : 209 px en 12.0 s de jeu (17.4 px/s), fps 8.1
+erreurs : aucune

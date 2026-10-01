@@ -1,0 +1,79 @@
+[
+ {
+  "nom": "chr-1280-d1-q1",
+  "cfg": {
+   "nom": "chr-1280-d1-q1",
+   "qualite": 1,
+   "dpr": 1,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 640,
+      "h": 374,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     12.4,
+     13.3,
+     12.5,
+     12.1
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      2156,
+      0
+     ],
+     "edgesY": [
+      2496,
+      0
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 36
+    },
+    "capture": "tests/rendu/chr-1280-d1-q1-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ }
+]
