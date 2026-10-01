@@ -69,3 +69,67 @@ export function castShadow(put, x, y, lx, ly, half, len, R = 90) {
     }
   }
 }
+
+// L'ombre d'un rocher (cairn, statue) : elle part de sa base, le segment
+// entre ses deux coins inférieurs (x0 → x1, sur la ligne des pieds y), et
+// s'allonge à l'opposé de la flamme en s'évasant un peu. Un pixel est dans
+// l'ombre s'il est la base poussée de s le long du rayon (0 < s ≤ len) ; plus
+// s est grand, plus l'ombre s'effiloche. Mêmes paliers tramés que le halo.
+export function castShadowBase(put, x0, x1, y, lx, ly, len, R = 90) {
+  const cx = (x0 + x1) / 2;
+  const dx = cx - lx, dy = (y - ly) / 0.6, d = Math.hypot(dx, dy);
+  if (d < 0.5 || d > R) return;
+  let vx = dx / d, vy = dy / d * 0.6;
+  const n = Math.hypot(vx, vy); vx /= n; vy /= n;
+  const fade = Math.min(1, 1.6 * (1 - d / R));
+  const spread = 0.22, depth = 1.5;                    // l'évasement ; l'épaisseur de la base au sol
+  // Pour chaque inégalité lo ≤ p − s·v ± spread·s ≤ hi, l'intervalle des s
+  const range = (p, v, lo, hi, out) => {
+    // lo − spread·s ≤ p − v·s ≤ hi + spread·s
+    // ⇔ (v − spread)·s ≤ p − lo  et  (v + spread)·s ≥ p − hi
+    let a = 0, b = Infinity;
+    const k1 = v - spread, r1 = p - lo, k2 = v + spread, r2 = p - hi;
+    if (Math.abs(k1) < 1e-6) { if (r1 < 0) return false; } else if (k1 > 0) b = Math.min(b, r1 / k1); else a = Math.max(a, r1 / k1);
+    if (Math.abs(k2) < 1e-6) { if (r2 > 0) return false; } else if (k2 > 0) a = Math.max(a, r2 / k2); else b = Math.min(b, r2 / k2);
+    out[0] = Math.max(out[0], a); out[1] = Math.min(out[1], b);
+    return out[0] <= out[1];
+  };
+  const reach = len * 1.2 * (1 + spread) + 2;
+  const s = [0, 0];
+  for (let py = Math.floor(y - depth - reach); py <= y + reach; py++) {
+    for (let px = Math.floor(x0 - reach); px <= x1 + reach; px++) {
+      s[0] = 0; s[1] = len * 1.15;
+      if (!range(px + 0.5, vx, x0, x1, s) || !range(py + 0.5, vy, y - depth, y, s)) continue;
+      const along = s[0];
+      if (along < 0.25) continue;                         // sous le rocher même : pas d'ombre sur lui
+      // Le bout de l'ombre est rongé : sa longueur varie le long de la base
+      // (rien de droit), et elle s'effiloche vers la fin
+      const u = (px + 0.5) * -vy + (py + 0.5) * vx;
+      const reachHere = len * (0.7 + 0.45 * wobble(u / 2.5, x0 * 7 + y));
+      if (along > reachHere) continue;
+      const e = Math.min(1, 1.35 * fade * (1 - 0.8 * along / reachHere));
+      const q = Math.min(3, Math.floor(e * e * (3 - 2 * e) * 3 + (BAYER[(py & 3) * 4 + (px & 3)] + 0.5) / 16));
+      if (q > 0) put(px, py, q / 3);
+    }
+  }
+}
+
+// Un bruit lisse sur une ligne (0 → 1)
+function wobble(x, seed) {
+  const h = i => { let v = (i * 374761393 + seed * 668265263) | 0; v = Math.imul(v ^ (v >>> 13), 1274126177); return ((v ^ (v >>> 16)) >>> 0) / 4294967296; };
+  const i = Math.floor(x), f = x - i, k = f * f * (3 - 2 * f);
+  return h(i) + (h(i + 1) - h(i)) * k;
+}
+
+// Les deux coins inférieurs d'un dessin (rangées de pixels) : le premier et
+// le dernier pixel plein de sa rangée du bas (mis en cache sur le dessin)
+export function artBase(art) {
+  if (art.base) return art.base;
+  const rows = art.rows;
+  for (let y = rows.length - 1; y >= 0; y--) {
+    const row = typeof rows[y] === 'string' ? [...rows[y]] : rows[y];
+    const first = row.findIndex(c => c && c !== '.'), last = row.length - 1 - [...row].reverse().findIndex(c => c && c !== '.');
+    if (first >= 0) return (art.base = { x0: first, x1: last + 1 });
+  }
+  return (art.base = { x0: 0, x1: rows[0].length });
+}

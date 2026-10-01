@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.24.0';
+} from './viking.js?v=1.24.1';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.24.0';
-import { createPack } from './pack.js?v=1.24.0';
-import { chapterById } from './chapters.js?v=1.24.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.24.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.24.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.24.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.24.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.24.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.24.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.24.0';
-import { createFauna } from './fauna.js?v=1.24.0';
-import { createWeather } from './weather.js?v=1.24.0';
-import { createSea } from './sea.js?v=1.24.0';
-import { audio } from './audio.js?v=1.24.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.24.0';
+} from './world.js?v=1.24.1';
+import { createPack } from './pack.js?v=1.24.1';
+import { chapterById } from './chapters.js?v=1.24.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.24.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.24.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.24.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.24.1';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.24.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.24.1';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.24.1';
+import { createFauna } from './fauna.js?v=1.24.1';
+import { createWeather } from './weather.js?v=1.24.1';
+import { createSea } from './sea.js?v=1.24.1';
+import { audio } from './audio.js?v=1.24.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.24.1';
 
 const Phaser = window.Phaser;
 
@@ -1212,9 +1212,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly));
           if (o.type === 'tree') cast(o.x, o.y, 1.2, Math.max(5, Math.min(40, (o.h || 10) * 18 / d)));
           else {
-            // Rochers, cairns, statues : une ombre courte et discrète, à leur pied
-            const w = o.w || 6, mid = o.x + w / 2 - (o.art?.ax || 0);
-            cast(mid, o.y, Math.min(4, w * 0.22), Math.max(3, Math.min(10, (o.h || 8) * 6 / d)));
+            // Rochers, cairns, statues : l'ombre part de leur base, d'un coin
+            // inférieur à l'autre
+            const left = o.x - (o.art?.ax || 0), b = o.art ? artBase(o.art) : { x0: 0, x1: o.w || 6 };
+            castShadowBase(put, left + b.x0, left + b.x1, o.y + 1, lx, ly, Math.max(4, Math.min(14, (o.h || 8) * 9 / d)), R);
           }
         }
       }

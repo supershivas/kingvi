@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.24.1 — 2026-10-01
+- La nuit, l'ombre des rochers part de leur base, d'un coin inférieur à l'autre, et s'allonge à l'opposé de la torche, le bout rongé
+
 ## 1.24.0 — 2026-10-01
 - Dans les Réglages, un curseur de qualité de l'image, de « Légère » (le plus fluide, pour les ordinateurs anciens) à « Haute » (pour les ordinateurs récents), à la place des cases écran cathodique et flou
 - Les chapitres s'inscrivent sous un voile de nuit qui descend du haut de l'écran, en franges comme des glaçons

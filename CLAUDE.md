@@ -82,7 +82,8 @@ ne bat pas.
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé, tramée
 par les mêmes paliers que le halo (`castShadow` dans `daylight.js`, partagé
-jeu/labo).
+jeu/labo) ; celle d'un rocher (cairn, statue) part de sa base, d'un coin
+inférieur à l'autre (`castShadowBase`, `artBase`), le bout rongé.
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
 par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
@@ -355,7 +356,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.23.0`) : après chaque changement de
+  portent la version (`?v=1.24.1`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en
