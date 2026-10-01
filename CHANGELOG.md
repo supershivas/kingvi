@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.25.0 — 2026-10-01
+- Une arche de pierre dans la plaine, entre la plaine des morts et la forêt : dix fois la taille du viking, on passe dessous
+- Trois ruines : une colonne couchée avant le lac, un socle à degrés au sortir de la forêt noire, une arche en ruine entre la maison et la falaise
+- La nuit, plus de ligne claire entre un rocher et son ombre ; les ruines portent leur ombre depuis leur base
+
 ## 1.24.1 — 2026-10-01
 - La nuit, l'ombre des rochers part de leur base, d'un coin inférieur à l'autre, et s'allonge à l'opposé de la torche, le bout rongé
 

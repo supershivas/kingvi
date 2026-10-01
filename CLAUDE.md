@@ -83,7 +83,10 @@ La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé, tramée
 par les mêmes paliers que le halo (`castShadow` dans `daylight.js`, partagé
 jeu/labo) ; celle d'un rocher (cairn, statue) part de sa base, d'un coin
-inférieur à l'autre (`castShadowBase`, `artBase`), le bout rongé.
+inférieur à l'autre (`castShadowBase`, `artBase` : la rangée de pierre
+la plus basse, sans les éclats posés autour), le bout rongé ; sa première
+rangée couvre aussi la rangée noire du pied du rocher (le voile de nuit
+glisse d'une fraction de pixel au rendu : sinon, une ligne claire s'ouvre).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
 par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
@@ -209,6 +212,13 @@ est cachée et ne sort que pendant l'attaque.
   crochets des offrandes), `BUNDLE`, `WATCHER`. Placé dans `world.js`
   (`GROVE_TREE`, `GROVE_HOOKS`, `WATCHER_AT`, trouées ajoutées aux
   `CLEARINGS`) ; animé dans `game.js` (`updateGrove`).
+- `js/arch.js` — l'arche (`makeArch`, `archParts` : pilier gauche, voûte
+  `arch-vault` où l'on passe, pilier droit ; gravats `rubble`), et l'arche en
+  ruine (`RUIN_ARCH` : plus petite, le haut droit effondré). Placée dans
+  `world.js` (`ARCH`, au nord de la piste entre la plaine des morts et la forêt).
+- `js/ruins.js` — la colonne couchée (`makeColumn`) et le socle en ruine
+  (`makePlinth`). Placées dans `world.js` (`RUINS` : colonne, socle, arche
+  en ruine ; aucun arbre ni rocher dans leur emprise, `LANDMARKS`).
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
@@ -356,7 +366,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.24.1`) : après chaque changement de
+  portent la version (`?v=1.25.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en

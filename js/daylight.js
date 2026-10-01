@@ -101,7 +101,10 @@ export function castShadowBase(put, x0, x1, y, lx, ly, len, R = 90) {
       s[0] = 0; s[1] = len * 1.15;
       if (!range(px + 0.5, vx, x0, x1, s) || !range(py + 0.5, vy, y - depth, y, s)) continue;
       const along = s[0];
-      if (along < 0.25) continue;                         // sous le rocher même : pas d'ombre sur lui
+      // Sous le rocher même, pas d'ombre ; sauf sur sa rangée du pied (toute
+      // noire, ça ne s'y voit pas) quand l'ombre part vers le bas : si le voile
+      // de nuit glisse d'une fraction de pixel au rendu, pas de jour entre eux
+      if (along < 0.25) { if (vy > 0.15 && py === Math.ceil(y) - 1 && px >= x0 && px < x1) put(px, py, 1); continue; }
       // Le bout de l'ombre est rongé : sa longueur varie le long de la base
       // (rien de droit), et elle s'effiloche vers la fin
       const u = (px + 0.5) * -vy + (py + 0.5) * vx;
@@ -122,14 +125,28 @@ function wobble(x, seed) {
 }
 
 // Les deux coins inférieurs d'un dessin (rangées de pixels) : le premier et
-// le dernier pixel plein de sa rangée du bas (mis en cache sur le dessin)
+// le dernier pixel de sa rangée de pierre la plus basse, une rangée pleine
+// d'au moins quelques pixels d'affilée (les éclats posés autour ne comptent
+// pas). `dy` : de combien cette rangée est au-dessus du pied (mis en cache)
 export function artBase(art) {
   if (art.base) return art.base;
-  const rows = art.rows;
+  const rows = art.rows, minRun = Math.min(6, Math.ceil(rows[0].length / 2));
+  const cells = y => (typeof rows[y] === 'string' ? [...rows[y]] : rows[y]).map(c => !!c && c !== '.');
   for (let y = rows.length - 1; y >= 0; y--) {
-    const row = typeof rows[y] === 'string' ? [...rows[y]] : rows[y];
-    const first = row.findIndex(c => c && c !== '.'), last = row.length - 1 - [...row].reverse().findIndex(c => c && c !== '.');
-    if (first >= 0) return (art.base = { x0: first, x1: last + 1 });
+    const row = cells(y);
+    let best = null;
+    for (let x = 0; x < row.length;) {
+      if (!row[x]) { x++; continue; }
+      let e = x; while (e < row.length && row[e]) e++;
+      if (!best || e - x > best.x1 - best.x0) best = { x0: x, x1: e };
+      x = e;
+    }
+    if (best && best.x1 - best.x0 >= minRun) return (art.base = { ...best, dy: rows.length - 1 - y });
   }
-  return (art.base = { x0: 0, x1: rows[0].length });
+  // (rien d'assez large : la rangée du bas, telle quelle)
+  for (let y = rows.length - 1; y >= 0; y--) {
+    const row = cells(y), first = row.indexOf(true);
+    if (first >= 0) return (art.base = { x0: first, x1: row.lastIndexOf(true) + 1, dy: rows.length - 1 - y });
+  }
+  return (art.base = { x0: 0, x1: rows[0].length, dy: 0 });
 }

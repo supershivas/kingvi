@@ -1,32 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.24.1';
+import { startUpdateCheck } from '../app-update.js?v=1.25.0';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.24.1';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.24.1';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.24.1';
+} from './viking.js?v=1.25.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.25.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.25.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.24.1';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.24.1';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.24.1';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.24.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.24.1';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.24.1';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.24.1';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.24.1';
-import { createSea } from './sea.js?v=1.24.1';
-import { buildStatueDoor } from './statue.js?v=1.24.1';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.24.1';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.24.1';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js?v=1.24.1';
-import * as PROPS from './props.js?v=1.24.1';
-import { audio } from './audio.js?v=1.24.1';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.24.1';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.24.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.24.1';
+} from './world.js?v=1.25.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.25.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.25.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.25.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.25.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.25.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.25.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.25.0';
+import { createSea } from './sea.js?v=1.25.0';
+import { buildStatueDoor } from './statue.js?v=1.25.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.25.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.25.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.25.0';
+import * as PROPS from './props.js?v=1.25.0';
+import { audio } from './audio.js?v=1.25.0';
+import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.0';
+import { makeColumn, makePlinth } from './ruins.js?v=1.25.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.25.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.25.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.25.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -222,7 +224,7 @@ card('nuit', {
     for (const o of s.trees) {
       const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly)), h = o.art.rows.length, w = o.art.rows[0].length;
       if (o.tree) castShadow(put, o.x, o.y, lx, ly, 1.2, Math.max(5, Math.min(40, h * 18 / d)));
-      else { const b = artBase(o.art), left = o.x - o.art.ax; castShadowBase(put, left + b.x0, left + b.x1, o.y + 1, lx, ly, Math.max(4, Math.min(14, h * 9 / d))); }
+      else { const b = artBase(o.art), left = o.x - o.art.ax; castShadowBase(put, left + b.x0, left + b.x1, o.y + 1 - b.dy, lx, ly, Math.max(4, Math.min(14, h * 9 / d))); }
     }
     vc.globalAlpha = 1;
     ctx.globalCompositeOperation = 'multiply';
@@ -670,6 +672,50 @@ for (const [who, anims] of [['Cerf', STAG_ANIMS], ['Biche', DOE_ANIMS]]) {
 }
 
 // ══ Statue ══
+card('arche', {
+  title: 'L\'arche',
+  about: 'Une porte de pierre seule dans la plaine, au nord de la piste, entre la plaine des morts et la forêt. Environ dix fois la taille du viking ; vue de biais, le flanc dans l\'ombre, la neige sur le dessus, les arêtes ébréchées. On passe dessous : le viking la traverse, du sud vers le nord, et revient.',
+  wide: true, w: 160, h: 120,
+  setup(s, v) {
+    s.parts = archParts(Math.round(80 - ARCH_FW / 2), 104, 7 * 17).map(o => ({ ...o, img: prerender(o.art.rows, v.pal) }));
+    s.weather = createWeather('bise');
+  },
+  draw(ctx, pal, t, dt, s, v) {
+    // Il monte vers l'arche, passe dessous, s'éloigne, puis revient
+    const k = (t % 14) / 7, u = k < 1 ? k : 2 - k, y = Math.round(116 - u * 40), view = k < 1 ? 'back' : 'front';
+    const hero = { hero: true, y };
+    for (const o of [...s.parts, hero].sort((a, b) => a.y - b.y)) {
+      if (o.hero) drawViking(ctx, pal, walkFrame(view, t), 80, y, { clock: t, wind: 0.4 });
+      else ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
+    }
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
+// Les ruines de la plaine : chacune avec le viking qui passe, pour l'échelle
+for (const [title, about, w, h, make] of [
+  ['L\'arche en ruine', 'Plus petite que la grande arche (six ou sept fois le viking) : le pilier gauche entier, le haut droit effondré par blocs, la neige sur les marches de la cassure. On passe dessous.', 120, 90, () => archParts(30, 80, 5, RUIN_ARCH)],
+  ['La colonne couchée', 'Un fût cannelé tombé en travers de la neige, le chapiteau d\'un côté, la cassure ovale de l\'autre, des éclats autour. Environ quatre fois le viking.', 120, 70, () => [{ x: 30, y: 60, art: makeColumn(3) }]],
+  ['Le socle en ruine', 'Deux degrés de pierre ; un pilier brisé au fond, un tronçon plus court, un bloc tombé sur la marche. Environ cinq fois le viking.', 120, 80, () => [{ x: 28, y: 72, art: makePlinth(5) }]],
+]) {
+  card('ruines', {
+    title, about, wide: false, w, h,
+    setup(s, v) { s.parts = make().map(o => ({ ...o, img: prerender(o.art.rows, v.pal) })); s.weather = createWeather('bise'); },
+    draw(ctx, pal, t, dt, s, v) {
+      const y = v.h - 4, hero = { hero: true, y };
+      for (const o of [...s.parts, hero].sort((a, b) => a.y - b.y)) {
+        if (o.hero) drawViking(ctx, pal, walkFrame('side', t), 6 + Math.round((t * 10) % (v.w - 12)), y, { clock: t, wind: 0.4 });
+        else ctx.drawImage(o.img, o.x - o.art.ax, o.y - o.img.height + 1);
+      }
+      s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+      s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+      ctx.globalAlpha = 1;
+    },
+  });
+}
+
 card('statue', {
   title: 'Freya, ensevelie, penchée, brisée',
   about: 'À mi-chemin, au bord nord de la piste, dans une clairière. Environ dix fois la taille du viking ; la coiffe et un éclat d\'épaule gisent dans la neige.',
@@ -995,7 +1041,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D barque · C corbeaux · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · L lac et îlot';
+  legend.textContent = 'Traces · D barque · C corbeaux · A arche · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · L lac et îlot';
   el.append(legend);
   section.append(el);
 
@@ -1016,7 +1062,7 @@ card('corbeaux', {
   ctx.fillStyle = NIGHT;
   for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
   const L = landing();
-  const marks = [['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['L', LAKE.x, LAKE.y]];
+  const marks = [['A', ARCH.x, ARCH.y], ['c', RUINS.colonne.x, RUINS.colonne.y], ['s', RUINS.socle.x, RUINS.socle.y], ['r', RUINS.arche.x, RUINS.arche.y], ['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['L', LAKE.x, LAKE.y]];
   // La falaise : un trait sombre à son pied
   ctx.fillStyle = NIGHT;
   ctx.fillRect(Math.floor(CLIFF.x0 / S), Math.floor(CLIFF.y / S) - 1, Math.ceil((CLIFF.x1 - CLIFF.x0) / S), 2);

@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.24.1';
-import { WEATHER_PRESETS } from './weather.js?v=1.24.1';
-import { chapterById } from './chapters.js?v=1.24.1';
-import { audio } from './audio.js?v=1.24.1';
-import { THRONE, caveWalkable } from './cave.js?v=1.24.1';
-import { CHEST } from './crypt.js?v=1.24.1';
-import { ROOM_ENTRY } from './interior.js?v=1.24.1';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.25.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.25.0';
+import { chapterById } from './chapters.js?v=1.25.0';
+import { audio } from './audio.js?v=1.25.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.25.0';
+import { CHEST } from './crypt.js?v=1.25.0';
+import { ROOM_ENTRY } from './interior.js?v=1.25.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
-  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, CROWS, LAKE,
-} from './world.js?v=1.24.1';
+  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, CROWS, LAKE, ARCH, RUINS,
+} from './world.js?v=1.25.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -126,6 +126,11 @@ export function attachDebug({ game, dayClock, enter }) {
   const PLACES = {
     barque: () => sc.spawn,
     morts: () => firstOnTrail((x, y) => x > NECRO.x - 30 && y > NECRO.y - 30 && y < NECRO.y + 200),
+    // Au sud de l'arche, face à son ouverture (on passe dessous en montant)
+    arche: () => nearFree({ x: ARCH.x, y: ARCH.y + 30 }),
+    colonne: () => nearFree({ x: RUINS.colonne.x, y: RUINS.colonne.y + 30 }),
+    socle: () => nearFree({ x: RUINS.socle.x, y: RUINS.socle.y + 30 }),
+    ruine: () => nearFree({ x: RUINS.arche.x, y: RUINS.arche.y + 30 }),
     foret: () => firstOnTrail((x, y) => forestDensity(x, y) > 0.12),
     'freya-ensevelie': () => before(STATUE_BASE, 70),
     'foret-noire': () => firstOnTrail((x, y) => deepForest(x, y) > 0.6),
@@ -337,6 +342,8 @@ export function attachDebug({ game, dayClock, enter }) {
     get trail() { return trail.map(p => ({ i: p.i, x: Math.round(p.x), y: Math.round(p.y), sang: !!p.blood })); },
     get places() { return Object.fromEntries(Object.keys(PLACES).map(k => [k, PLACES[k]()])); },
     lieux: Object.keys(PLACES),
+    // La scène Phaser elle-même (pour les scripts de test)
+    get scene() { return sc; },
     // Des points utiles au harnais, en coordonnées du monde
     get cibles() {
       return {
