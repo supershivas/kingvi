@@ -1,0 +1,277 @@
+[
+ {
+  "nom": "chr-1280-d1-q3-lieux",
+  "cfg": {
+   "nom": "chr-1280-d1-q3-lieux",
+   "qualite": 3,
+   "dpr": 1,
+   "etapes": [
+    {
+     "nom": "greve-nuit",
+     "lieu": "barque",
+     "heure": "nuit"
+    },
+    {
+     "nom": "grotte-jour",
+     "lieu": "grotte",
+     "heure": "jour"
+    },
+    {
+     "nom": "interieur",
+     "lieu": "interieur",
+     "heure": "jour",
+     "marche": "KeyW",
+     "ms": 2500
+    },
+    {
+     "nom": "freya-debout",
+     "lieu": "freya-debout",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve-nuit",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     11.7,
+     10.6,
+     9.4,
+     8.6
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      21476,
+      13500
+     ],
+     "edgesY": [
+      33372,
+      30025
+     ],
+     "phaseX": 61.4,
+     "phaseY": 52.6,
+     "runsBadPct": 73.1,
+     "colours": 288
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-lieux-greve-nuit.png",
+    "zone": "greve",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "grotte-jour",
+    "zoom": 4,
+    "physParPixelJeu": 4,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "4px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     5.5,
+     5.1,
+     5.6,
+     5.7
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 4,
+     "edgesX": [
+      12910,
+      6704,
+      6711,
+      6656
+     ],
+     "edgesY": [
+      16927,
+      15071,
+      15186,
+      15780
+     ],
+     "phaseX": 39.1,
+     "phaseY": 26.9,
+     "runsBadPct": 83.5,
+     "colours": 276
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-lieux-grotte-jour.png",
+    "zone": "interieur:grotte",
+    "torche": true,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "interieur",
+    "zoom": 4,
+    "physParPixelJeu": 4,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "4px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     9.4,
+     9.8,
+     10.1,
+     8.8
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 4,
+     "edgesX": [
+      8774,
+      5965,
+      5959,
+      5808
+     ],
+     "edgesY": [
+      14440,
+      14437,
+      15797,
+      14727
+     ],
+     "phaseX": 33.1,
+     "phaseY": 26.6,
+     "runsBadPct": 90,
+     "colours": 149
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-lieux-interieur.png",
+    "zone": "interieur:maison",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "freya-debout",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     11.9,
+     12.1,
+     12.1,
+     11.8
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      13325,
+      11890
+     ],
+     "edgesY": [
+      29452,
+      29321
+     ],
+     "phaseX": 52.8,
+     "phaseY": 50.1,
+     "runsBadPct": 92.3,
+     "colours": 122
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-lieux-freya-debout.png",
+    "zone": "plaine",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ }
+]

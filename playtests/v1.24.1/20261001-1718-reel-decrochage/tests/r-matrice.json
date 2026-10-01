@@ -1,0 +1,2160 @@
+[
+ {
+  "nom": "chr-1280-d1-q1",
+  "cfg": {
+   "nom": "chr-1280-d1-q1",
+   "qualite": 1,
+   "dpr": 1,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 640,
+      "h": 374,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     13.3,
+     12.4,
+     13.3,
+     12.2
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      1964,
+      0
+     ],
+     "edgesY": [
+      2300,
+      0
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 19
+    },
+    "capture": "tests/rendu/chr-1280-d1-q1-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 640,
+      "h": 374,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     6.9,
+     7.4,
+     7.1,
+     7.3
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      16206,
+      0
+     ],
+     "edgesY": [
+      16656,
+      0
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 104
+    },
+    "capture": "tests/rendu/chr-1280-d1-q1-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1-q2",
+  "cfg": {
+   "nom": "chr-1280-d1-q2",
+   "qualite": 2,
+   "dpr": 1,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 640,
+      "h": 374,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     13.7,
+     12.6,
+     11.7,
+     12.6
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      12650,
+      11184
+     ],
+     "edgesY": [
+      29264,
+      28800
+     ],
+     "phaseX": 53.1,
+     "phaseY": 50.4,
+     "runsBadPct": 94.2,
+     "colours": 59
+    },
+    "capture": "tests/rendu/chr-1280-d1-q2-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 640,
+      "h": 374,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     7.5,
+     7.4,
+     7.3,
+     7.7
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      23873,
+      11184
+     ],
+     "edgesY": [
+      34052,
+      28793
+     ],
+     "phaseX": 68.1,
+     "phaseY": 54.2,
+     "runsBadPct": 63.7,
+     "colours": 186
+    },
+    "capture": "tests/rendu/chr-1280-d1-q2-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1-q3",
+  "cfg": {
+   "nom": "chr-1280-d1-q3",
+   "qualite": 3,
+   "dpr": 1,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     6.8,
+     5.9,
+     5.6,
+     5.5
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      14331,
+      12634
+     ],
+     "edgesY": [
+      29982,
+      29747
+     ],
+     "phaseX": 53.1,
+     "phaseY": 50.2,
+     "runsBadPct": 90.4,
+     "colours": 170
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     3.4,
+     3.1,
+     3.1,
+     3
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      25542,
+      13411
+     ],
+     "edgesY": [
+      35195,
+      30155
+     ],
+     "phaseX": 65.6,
+     "phaseY": 53.9,
+     "runsBadPct": 65.8,
+     "colours": 349
+    },
+    "capture": "tests/rendu/chr-1280-d1-q3-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1-q4",
+  "cfg": {
+   "nom": "chr-1280-d1-q4",
+   "qualite": 4,
+   "dpr": 1,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     9.9,
+     8.9,
+     8.2,
+     7.2
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      13538,
+      12145
+     ],
+     "edgesY": [
+      29933,
+      29431
+     ],
+     "phaseX": 52.7,
+     "phaseY": 50.4,
+     "runsBadPct": 91.4,
+     "colours": 128
+    },
+    "capture": "tests/rendu/chr-1280-d1-q4-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1280,
+      "h": 748,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     4.6,
+     4.7,
+     4.8,
+     4.8
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      314,
+      832,
+      538
+     ],
+     "n": 2,
+     "edgesX": [
+      23653,
+      13400
+     ],
+     "edgesY": [
+      34238,
+      29963
+     ],
+     "phaseX": 63.8,
+     "phaseY": 53.3,
+     "runsBadPct": 69,
+     "colours": 325
+    },
+    "capture": "tests/rendu/chr-1280-d1-q4-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1.25-q1",
+  "cfg": {
+   "nom": "chr-1280-d1.25-q1",
+   "qualite": 1,
+   "dpr": 1.25,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 800,
+      "h": 468,
+      "cssW": 1280,
+      "cssH": 748.796875,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     35.1,
+     36.1,
+     36.6,
+     36.9
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      393,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      2430,
+      0
+     ],
+     "edgesY": [
+      0,
+      2940
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 59
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q1-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 800,
+      "h": 468,
+      "cssW": 1280,
+      "cssH": 748.796875,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     18.1,
+     16.3,
+     15.3,
+     15.4
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      393,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      21064,
+      0
+     ],
+     "edgesY": [
+      0,
+      21012
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 121
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q1-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1.25-q2",
+  "cfg": {
+   "nom": "chr-1280-d1.25-q2",
+   "qualite": 2,
+   "dpr": 1.25,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 800,
+      "h": 468,
+      "cssW": 1280,
+      "cssH": 748.796875,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     19.2,
+     18.1,
+     17.1,
+     16.3
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      393,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      19391,
+      17697
+     ],
+     "edgesY": [
+      40319,
+      41960
+     ],
+     "phaseX": 52.3,
+     "phaseY": 51,
+     "runsBadPct": 95.7,
+     "colours": 60
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q2-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 2,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 800,
+      "h": 468,
+      "cssW": 1280,
+      "cssH": 748.796875,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     8.8,
+     8.6,
+     8.7,
+     8.8
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      393,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      33095,
+      17697
+     ],
+     "edgesY": [
+      40317,
+      49098
+     ],
+     "phaseX": 65.2,
+     "phaseY": 54.9,
+     "runsBadPct": 69.7,
+     "colours": 226
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q2-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1.25-q3",
+  "cfg": {
+   "nom": "chr-1280-d1.25-q3",
+   "qualite": 3,
+   "dpr": 1.25,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1600,
+      "h": 935,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     7,
+     6.2,
+     5.9,
+     5.9
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      392,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      20753,
+      18936
+     ],
+     "edgesY": [
+      42720,
+      41843
+     ],
+     "phaseX": 52.3,
+     "phaseY": 50.5,
+     "runsBadPct": 92.6,
+     "colours": 145
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1600,
+      "h": 935,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     2.9,
+     2.6,
+     2.7,
+     2.6
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      392,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      34510,
+      20427
+     ],
+     "edgesY": [
+      49546,
+      42474
+     ],
+     "phaseX": 62.8,
+     "phaseY": 53.8,
+     "runsBadPct": 71.3,
+     "colours": 415
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q3-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d1.25-q4",
+  "cfg": {
+   "nom": "chr-1280-d1.25-q4",
+   "qualite": 4,
+   "dpr": 1.25,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1600,
+      "h": 935,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     4.6,
+     4.2,
+     4.2,
+     4.4
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      392,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      20469,
+      18902
+     ],
+     "edgesY": [
+      42647,
+      41853
+     ],
+     "phaseX": 52,
+     "phaseY": 50.5,
+     "runsBadPct": 93.2,
+     "colours": 142
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q4-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1600,
+      "h": 935,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     2.8,
+     2.8,
+     2.8,
+     2.9
+    ],
+    "analyse": {
+     "W": 1600,
+     "H": 1000,
+     "crop": [
+      560,
+      392,
+      1040,
+      673
+     ],
+     "n": 2,
+     "edgesX": [
+      35491,
+      20438
+     ],
+     "edgesY": [
+      50276,
+      42778
+     ],
+     "phaseX": 63.5,
+     "phaseY": 54,
+     "runsBadPct": 70,
+     "colours": 400
+    },
+    "capture": "tests/rendu/chr-1280-d1.25-q4-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d2-q1",
+  "cfg": {
+   "nom": "chr-1280-d2-q1",
+   "qualite": 1,
+   "dpr": 2,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 3,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 854,
+      "h": 499,
+      "cssW": 1281,
+      "cssH": 748.5,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     20.3,
+     19.2,
+     17.4,
+     17.1
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      897,
+      628,
+      1665,
+      1077
+     ],
+     "n": 3,
+     "edgesX": [
+      3996,
+      0,
+      0
+     ],
+     "edgesY": [
+      1986,
+      0,
+      2847
+     ],
+     "phaseX": 100,
+     "phaseY": 58.9,
+     "runsBadPct": 0,
+     "colours": 67
+    },
+    "capture": "tests/rendu/chr-1280-d2-q1-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 3,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 854,
+      "h": 499,
+      "cssW": 1281,
+      "cssH": 748.5,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": false,
+     "tiltOn": false,
+     "crtTop": 0,
+     "classes": "screen"
+    },
+    "fps": [
+     9.5,
+     8.9,
+     8.4,
+     8.5
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      897,
+      628,
+      1665,
+      1077
+     ],
+     "n": 3,
+     "edgesX": [
+      33377,
+      0,
+      0
+     ],
+     "edgesY": [
+      15765,
+      0,
+      17397
+     ],
+     "phaseX": 100,
+     "phaseY": 52.5,
+     "runsBadPct": 0,
+     "colours": 127
+    },
+    "capture": "tests/rendu/chr-1280-d2-q1-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d2-q2",
+  "cfg": {
+   "nom": "chr-1280-d2-q2",
+   "qualite": 2,
+   "dpr": 2,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 3,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 854,
+      "h": 499,
+      "cssW": 1281,
+      "cssH": 748.5,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     10.8,
+     9.8,
+     9.4,
+     9
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      897,
+      628,
+      1665,
+      1077
+     ],
+     "n": 3,
+     "edgesX": [
+      33251,
+      30016,
+      30036
+     ],
+     "edgesY": [
+      58617,
+      57600,
+      59169
+     ],
+     "phaseX": 35.6,
+     "phaseY": 33.7,
+     "runsBadPct": 84.2,
+     "colours": 102
+    },
+    "capture": "tests/rendu/chr-1280-d2-q2-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 1,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 3,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 854,
+      "h": 499,
+      "cssW": 1281,
+      "cssH": 748.5,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": false,
+     "crtTop": 52,
+     "classes": "screen crt"
+    },
+    "fps": [
+     5.7,
+     5.3,
+     5.2,
+     5.2
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      897,
+      628,
+      1665,
+      1077
+     ],
+     "n": 3,
+     "edgesX": [
+      54359,
+      30016,
+      30036
+     ],
+     "edgesY": [
+      65494,
+      57600,
+      66386
+     ],
+     "phaseX": 47.5,
+     "phaseY": 35,
+     "runsBadPct": 72.2,
+     "colours": 262
+    },
+    "capture": "tests/rendu/chr-1280-d2-q2-noire-nuit.png",
+    "zone": "noire",
+    "torche": true,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d2-q3",
+  "cfg": {
+   "nom": "chr-1280-d2-q3",
+   "qualite": 3,
+   "dpr": 2,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 3,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 2560,
+      "h": 1496,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     2.5,
+     2.7,
+     2.7,
+     2.8
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      896,
+      628,
+      1664,
+      1076
+     ],
+     "n": 3,
+     "edgesX": [
+      31417,
+      31294,
+      33761
+     ],
+     "edgesY": [
+      61592,
+      59237,
+      58862
+     ],
+     "phaseX": 35,
+     "phaseY": 34.3,
+     "runsBadPct": 84.6,
+     "colours": 155
+    },
+    "capture": "tests/rendu/chr-1280-d2-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 3,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 2560,
+      "h": 1496,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     1.9,
+     1.7,
+     1.7,
+     1.8
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      896,
+      628,
+      1664,
+      1076
+     ],
+     "n": 3,
+     "edgesX": [
+      38670,
+      38268,
+      45346
+     ],
+     "edgesY": [
+      69136,
+      65939,
+      62588
+     ],
+     "phaseX": 37.1,
+     "phaseY": 35,
+     "runsBadPct": 77.9,
+     "colours": 385
+    },
+    "capture": "tests/rendu/chr-1280-d2-q3-noire-nuit.png",
+    "zone": "noire",
+    "torche": false,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1280-d2-q4",
+  "cfg": {
+   "nom": "chr-1280-d2-q4",
+   "qualite": 4,
+   "dpr": 2,
+   "taille": "1280x800",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    },
+    {
+     "nom": "noire-nuit",
+     "lieu": "foret-noire",
+     "heure": "nuit"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 3,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 2560,
+      "h": 1496,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     2.5,
+     2.1,
+     2.1,
+     2.1
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      896,
+      628,
+      1664,
+      1076
+     ],
+     "n": 3,
+     "edgesX": [
+      31402,
+      31287,
+      33770
+     ],
+     "edgesY": [
+      61588,
+      59227,
+      58844
+     ],
+     "phaseX": 35,
+     "phaseY": 34.3,
+     "runsBadPct": 84.6,
+     "colours": 151
+    },
+    "capture": "tests/rendu/chr-1280-d2-q4-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   },
+   {
+    "etape": "noire-nuit",
+    "zoom": 3,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 2,
+     "canvas": {
+      "w": 2560,
+      "h": 1496,
+      "cssW": 1280,
+      "cssH": 748,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.5px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     1.6,
+     1.7,
+     1.8,
+     1.8
+    ],
+    "analyse": {
+     "W": 2560,
+     "H": 1600,
+     "crop": [
+      896,
+      628,
+      1664,
+      1076
+     ],
+     "n": 3,
+     "edgesX": [
+      38758,
+      38195,
+      45405
+     ],
+     "edgesY": [
+      69238,
+      65875,
+      62494
+     ],
+     "phaseX": 37.1,
+     "phaseY": 35,
+     "runsBadPct": 78,
+     "colours": 381
+    },
+    "capture": "tests/rendu/chr-1280-d2-q4-noire-nuit.png",
+    "zone": "noire",
+    "torche": false,
+    "jour": "nuit",
+    "nuit": 1,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1440x900-d1-q3",
+  "cfg": {
+   "nom": "chr-1440x900-d1-q3",
+   "qualite": 3,
+   "dpr": 1,
+   "taille": "1440x900",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1440,
+      "h": 848,
+      "cssW": 1440,
+      "cssH": 848,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     7.4,
+     7,
+     7.3,
+     7.2
+    ],
+    "analyse": {
+     "W": 1440,
+     "H": 900,
+     "crop": [
+      504,
+      349,
+      936,
+      603
+     ],
+     "n": 2,
+     "edgesX": [
+      17425,
+      15540
+     ],
+     "edgesY": [
+      38222,
+      37145
+     ],
+     "phaseX": 52.9,
+     "phaseY": 50.7,
+     "runsBadPct": 91.5,
+     "colours": 167
+    },
+    "capture": "tests/rendu/chr-1440x900-d1-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1440x900-d1.25-q3",
+  "cfg": {
+   "nom": "chr-1440x900-d1.25-q3",
+   "qualite": 3,
+   "dpr": 1.25,
+   "taille": "1440x900",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1800,
+      "h": 1060,
+      "cssW": 1440,
+      "cssH": 848,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     5.3,
+     4.9,
+     4.5,
+     4.3
+    ],
+    "analyse": {
+     "W": 1800,
+     "H": 1125,
+     "crop": [
+      630,
+      436,
+      1170,
+      754
+     ],
+     "n": 2,
+     "edgesX": [
+      25634,
+      23722
+     ],
+     "edgesY": [
+      52630,
+      53760
+     ],
+     "phaseX": 51.9,
+     "phaseY": 50.5,
+     "runsBadPct": 93.2,
+     "colours": 148
+    },
+    "capture": "tests/rendu/chr-1440x900-d1.25-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1920x1080-d1-q3",
+  "cfg": {
+   "nom": "chr-1920x1080-d1-q3",
+   "qualite": 3,
+   "dpr": 1,
+   "taille": "1920x1080",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1920,
+      "h": 1028,
+      "cssW": 1920,
+      "cssH": 1028,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     4.6,
+     4.2,
+     4.1,
+     4.1
+    ],
+    "analyse": {
+     "W": 1920,
+     "H": 1080,
+     "crop": [
+      672,
+      412,
+      1248,
+      720
+     ],
+     "n": 2,
+     "edgesX": [
+      26294,
+      24272
+     ],
+     "edgesY": [
+      60966,
+      60059
+     ],
+     "phaseX": 52,
+     "phaseY": 50.4,
+     "runsBadPct": 92.9,
+     "colours": 139
+    },
+    "capture": "tests/rendu/chr-1920x1080-d1-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1920x1080-d1.25-q3",
+  "cfg": {
+   "nom": "chr-1920x1080-d1.25-q3",
+   "qualite": 3,
+   "dpr": 1.25,
+   "taille": "1920x1080",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 3,
+    "physParPixelJeu": 3,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 2400,
+      "h": 1285,
+      "cssW": 1920,
+      "cssH": 1028,
+      "left": 0,
+      "top": 52
+     },
+     "px": "2.4px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     3.7,
+     3.3,
+     3.2,
+     3.2
+    ],
+    "analyse": {
+     "W": 2400,
+     "H": 1350,
+     "crop": [
+      840,
+      515,
+      1560,
+      900
+     ],
+     "n": 3,
+     "edgesX": [
+      27504,
+      25153,
+      25175
+     ],
+     "edgesY": [
+      56705,
+      56198,
+      58271
+     ],
+     "phaseX": 35.3,
+     "phaseY": 34,
+     "runsBadPct": 84.6,
+     "colours": 151
+    },
+    "capture": "tests/rendu/chr-1920x1080-d1.25-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1024x640-d1-q3",
+  "cfg": {
+   "nom": "chr-1024x640-d1-q3",
+   "qualite": 3,
+   "dpr": 1,
+   "taille": "1024x640",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 1,
+    "physParPixelJeu": 1,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1,
+     "canvas": {
+      "w": 1024,
+      "h": 588,
+      "cssW": 1024,
+      "cssH": 588,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     12.3,
+     11.7,
+     10.8,
+     11.6
+    ],
+    "analyse": {
+     "W": 1024,
+     "H": 640,
+     "crop": [
+      358,
+      258,
+      666,
+      434
+     ],
+     "n": 1,
+     "edgesX": [
+      16925
+     ],
+     "edgesY": [
+      37612
+     ],
+     "phaseX": 100,
+     "phaseY": 100,
+     "runsBadPct": 0,
+     "colours": 91
+    },
+    "capture": "tests/rendu/chr-1024x640-d1-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ },
+ {
+  "nom": "chr-1024x640-d1.25-q3",
+  "cfg": {
+   "nom": "chr-1024x640-d1.25-q3",
+   "qualite": 3,
+   "dpr": 1.25,
+   "taille": "1024x640",
+   "etapes": [
+    {
+     "nom": "greve",
+     "lieu": "barque",
+     "heure": "jour"
+    }
+   ]
+  },
+  "mesures": [
+   {
+    "etape": "greve",
+    "zoom": 2,
+    "physParPixelJeu": 2,
+    "physPerCanvas": 1,
+    "info": {
+     "dpr": 1.25,
+     "canvas": {
+      "w": 1280,
+      "h": 735,
+      "cssW": 1024,
+      "cssH": 588,
+      "left": 0,
+      "top": 52
+     },
+     "px": "1.6px",
+     "crtOn": true,
+     "tiltOn": true,
+     "crtTop": 52,
+     "classes": "screen crt tilt-on"
+    },
+    "fps": [
+     11.8,
+     11.8,
+     11.9,
+     11.9
+    ],
+    "analyse": {
+     "W": 1280,
+     "H": 800,
+     "crop": [
+      448,
+      322,
+      832,
+      543
+     ],
+     "n": 2,
+     "edgesX": [
+      13398,
+      11936
+     ],
+     "edgesY": [
+      27065,
+      26223
+     ],
+     "phaseX": 52.9,
+     "phaseY": 50.8,
+     "runsBadPct": 91.3,
+     "colours": 98
+    },
+    "capture": "tests/rendu/chr-1024x640-d1.25-q3-greve.png",
+    "zone": "greve",
+    "torche": false,
+    "jour": "jour",
+    "nuit": 0,
+    "attente": 0,
+    "derniereErreur": null
+   }
+  ],
+  "erreurs": []
+ }
+]

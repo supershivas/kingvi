@@ -1,0 +1,43 @@
+{
+ "normal": {
+  "kingvi": "undefined",
+  "dateNowNatif": true,
+  "randomNatif": true,
+  "cles": [
+   "kingvi:prefs"
+  ],
+  "debugJsDemande": false,
+  "apresSortie": {
+   "cles": [
+    "kingvi:save",
+    "kingvi:prefs"
+   ],
+   "save": "{\"world\":6,\"x\":613,\"y\":3272,\"rowboat\":{\"x\":1410,\"y\":3195},\"chestOpen\":false,\"watcherGone\":false,\"chapters\":[],\"kingBowed",
+   "debugSave": null
+  }
+ },
+ "debug0": {
+  "kingvi": "undefined",
+  "debugJsDemande": false
+ },
+ "erreurs": [],
+ "debug": {
+  "cles": [
+   "kingvi:debug:save"
+  ],
+  "prefs": null,
+  "save": false,
+  "debugSave": "{\"world\":6,\"x\":613,\"y\":3272,\"rowboat\":{\"x\":1410,\"y\":3195},\"chestOpen\":false,\"watcherGone\":false,\"cha",
+  "reglagesTouches": [
+   "opt-music",
+   "opt-sfx",
+   "opt-windvol",
+   "opt-quality",
+   "opt-wind",
+   "opt-daytime",
+   "opt-dayauto"
+  ],
+  "debugJsDemande": true
+ },
+ "erreursDebug": []
+}

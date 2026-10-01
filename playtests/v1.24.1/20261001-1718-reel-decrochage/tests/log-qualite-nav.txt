@@ -1,0 +1,20 @@
+firefox dpr 1 q 3 canevas 1280x748, affiché 1280x748 (scène 1280x703) zoom 2
+firefox dpr 1 → q 1 canevas 640x352, affiché 1280x704 (scène 1280x703) zoom 1
+firefox dpr 1 → q 3 canevas 1280x703, affiché 640x352 (scène 1280x703) zoom 2
+firefox dpr 1 après redimensionnement de la fenêtre canevas 1279x703, affiché 1280x703 (scène 1279x703) zoom 2
+erreurs []
+firefox dpr 2 q 3 canevas 2560x1496, affiché 1280x748 (scène 1280x703) zoom 3
+firefox dpr 2 → q 1 canevas 854x469, affiché 1281x703.5 (scène 1280x703) zoom 1
+firefox dpr 2 → q 4 canevas 2560x1406, affiché 1280x703 (scène 1280x703) zoom 3
+firefox dpr 2 après redimensionnement de la fenêtre canevas 2558x1406, affiché 1279x703 (scène 1279x703) zoom 3
+erreurs []
+webkit dpr 1 q 3 canevas 1280x748, affiché 1280x748 (scène 1280x748) zoom 2
+webkit dpr 1 → q 1 canevas 640x374, affiché 1280x748 (scène 1280x748) zoom 1
+webkit dpr 1 → q 3 canevas 1280x748, affiché 640x374 (scène 1280x748) zoom 2
+webkit dpr 1 après redimensionnement de la fenêtre canevas 1279x748, affiché 1280x748 (scène 1279x748) zoom 2
+erreurs []
+webkit dpr 2 q 3 canevas 2560x1496, affiché 1280x748 (scène 1280x748) zoom 3
+webkit dpr 2 → q 1 canevas 854x499, affiché 1281x748.5 (scène 1280x748) zoom 1
+webkit dpr 2 → q 4 canevas 2560x1496, affiché 1280x748 (scène 1280x748) zoom 3
+webkit dpr 2 après redimensionnement de la fenêtre canevas 2558x1496, affiché 1279x748 (scène 1279x748) zoom 3
+erreurs []

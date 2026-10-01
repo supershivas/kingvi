@@ -1,0 +1,27 @@
+chromium-d1-q3-parcours entrée {"zoom":2,"fps":29.9,"zone":"greve","pv":3,"meute":"idle","engagee":false,"torche":false,"jour":"jour","attente":0,"err":null,"canvas":"1280x748 css 1280x748","stagePx":"2px","crtPx":"(non défini)","crtBg":"radial-gradient(120% 120%, rgba(0, 0, 0, 0) 20%, rgba(10, 14, 26, 0.06) 45%, rgba(10, 14, 26, 0.16) 70%, rgba(10, 14, 26, 0.32) 100%), repeating-linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) ","classes":"screen crt tilt-on"}
+chromium-d1-q3-parcours barque jour teleport ms 3361 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 7.8/8.1/7.8 err null
+chromium-d1-q3-parcours morts jour teleport ms 975 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 7.5/8.9/9.9 err null
+chromium-d1-q3-parcours foret-noire nuit teleport ms 1466 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 8/8.3/8.5 err null
+chromium-d1-q3-parcours bosquet nuit teleport ms 1211 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 5.4/5.3/5.2 err null
+chromium-d1-q3-parcours maison jour teleport ms 1069 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 7.6/7.7/8 err null
+chromium-d1-q3-parcours interieur jour teleport ms 1662 attente@1.5s 0 attente@5.5s 0 zoom 4 torche false figé(2 captures identiques) true fps 6.4/6.5/6.6 err null
+chromium-d1-q3-parcours grotte jour teleport ms 2463 attente@1.5s 0 attente@5.5s 0 zoom 4 torche true figé(2 captures identiques) false fps 5/5.3/5.2 err null
+chromium-d1-q3-parcours derniereErreur null erreurs console []
+firefox-d1-q3-parcours entrée {"zoom":2,"fps":29.5,"zone":"greve","pv":3,"meute":"idle","engagee":false,"torche":false,"jour":"jour","attente":0,"err":null,"canvas":"1280x748 css 1280x748","stagePx":"2px","crtPx":"(non défini)","crtBg":"radial-gradient(120% 120%, rgba(0, 0, 0, 0) 20%, rgba(10, 14, 26, 0.06) 45%, rgba(10, 14, 26, 0.16) 70%, rgba(10, 14, 26, 0.32) 100%), repeating-linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) ","classes":"screen crt tilt-on"}
+firefox-d1-q3-parcours barque jour teleport ms 2126 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 10.7/10.5/10.2 err null
+firefox-d1-q3-parcours morts jour teleport ms 1119 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 8.7/8.8/9.1 err null
+firefox-d1-q3-parcours foret-noire nuit teleport ms 1297 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 9.1/9.4/9.8 err null
+firefox-d1-q3-parcours bosquet nuit teleport ms 990 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 8.9/9.1/9.4 err null
+firefox-d1-q3-parcours maison jour teleport ms 745 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 9.2/10.1/10.1 err null
+firefox-d1-q3-parcours interieur jour teleport ms 1633 attente@1.5s 0 attente@5.5s 0 zoom 4 torche false figé(2 captures identiques) true fps 10.1/10.3/10.7 err null
+firefox-d1-q3-parcours grotte jour teleport ms 3121 attente@1.5s 0 attente@5.5s 0 zoom 4 torche true figé(2 captures identiques) false fps 8.5/8.9/9.2 err null
+firefox-d1-q3-parcours derniereErreur null erreurs console []
+webkit-d1-q3-parcours entrée {"zoom":2,"fps":36.6,"zone":"greve","pv":3,"meute":"idle","engagee":false,"torche":false,"jour":"jour","attente":0,"err":null,"canvas":"1280x748 css 1280x748","stagePx":"2px","crtPx":"(non défini)","crtBg":"radial-gradient(120% 120%, rgba(0, 0, 0, 0) 20%, rgba(10, 14, 26, 0.06) 45%, rgba(10, 14, 26, 0.16) 70%, rgba(10, 14, 26, 0.32) 100%), repeating-linear-gradient(rgba(0, 0, 0, 0) 0px, rgba(0, 0, 0, 0) ","classes":"screen crt tilt-on"}
+webkit-d1-q3-parcours barque jour teleport ms 1187 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 12.5/13.1/13.6 err null
+webkit-d1-q3-parcours morts jour teleport ms 1223 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 11.4/12.3/13 err null
+webkit-d1-q3-parcours foret-noire nuit teleport ms 2333 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 9.7/10.5/11.2 err null
+webkit-d1-q3-parcours bosquet nuit teleport ms 1844 attente@1.5s 0 attente@5.5s 0 zoom 2 torche true figé(2 captures identiques) false fps 9.5/9.5/10.1 err null
+webkit-d1-q3-parcours maison jour teleport ms 1132 attente@1.5s 0 attente@5.5s 0 zoom 2 torche false figé(2 captures identiques) false fps 11.4/12.3/13.2 err null
+webkit-d1-q3-parcours interieur jour teleport ms 2041 attente@1.5s 0 attente@5.5s 0 zoom 4 torche false figé(2 captures identiques) true fps 13.1/13.6/14.2 err null
+webkit-d1-q3-parcours grotte jour teleport ms 4626 attente@1.5s 0 attente@5.5s 0 zoom 4 torche true figé(2 captures identiques) false fps 11/11.8/12.3 err null
+webkit-d1-q3-parcours derniereErreur null erreurs console []

@@ -1,0 +1,11 @@
+0.1 silence  (610,3272)
+0.4 silence  (610,3272)
+3.0 silence  (2990,2367)
+10.4 son howl (3019,2338)
+36.0 son howl (3158,2264)
+36.0 meute-attaque  (3158,2264)
+41.4 silence  (3228,2201)
+41.4 guetteur-efface  (3228,2201)
+48.2 meute-fin  (3289,2130)
+fin : pv 3, mort false, meute idle, fps 5.5, 64.3 s de jeu
+erreurs : aucune

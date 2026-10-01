@@ -1,0 +1,159 @@
+A avant {
+  utc: '10:00:04',
+  local: '12:00:04 GMT+0200',
+  cycle: 4,
+  attendu: 4,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'rafales',
+  x: 618.8,
+  y: 3272,
+  tempsJeu: 1.1,
+  fps: 45.6
+}
+A retour {
+  utc: '13:00:04',
+  local: '15:00:04 GMT+0200',
+  cycle: 4,
+  attendu: 4,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'tempete',
+  x: 620,
+  y: 3272,
+  tempsJeu: 1.2,
+  fps: 38.9
+}
+A +4s {
+  utc: '13:00:06',
+  local: '15:00:06 GMT+0200',
+  cycle: 7,
+  attendu: 7,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'tempete',
+  x: 620,
+  y: 3272,
+  tempsJeu: 2.3,
+  fps: 34
+}
+B avant {
+  utc: '13:00:08',
+  local: '15:00:08 GMT+0200',
+  cycle: 8,
+  attendu: 8,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'tempete',
+  x: 629.2,
+  y: 3272,
+  tempsJeu: 2.9,
+  fps: 34.2
+}
+B apres saut {
+  utc: '18:00:08',
+  local: '20:00:08 GMT+0200',
+  cycle: 8,
+  attendu: 8,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'calme',
+  x: 631,
+  y: 3272,
+  tempsJeu: 3,
+  fps: 30.9
+}
+B +2s {
+  utc: '18:00:09',
+  local: '20:00:09 GMT+0200',
+  cycle: 9,
+  attendu: 10,
+  jour: 'aube',
+  attenduPhase: 'aube',
+  vent: 'calme',
+  x: 648.9,
+  y: 3272,
+  tempsJeu: 4,
+  fps: 31.4
+}
+[
+  '0 silence ',
+  '0 musique calme',
+  '0 debut ',
+  '0.5 torche-allumee ',
+  '0.8 silence ',
+  '0.8 chapitre ',
+  '1.2 vent tempete',
+  '3 vent calme'
+]
+erreurs [] null
+{
+ "avant": {
+  "label": "Aube, 5 h 17 — suit l'heure réelle (un jour dure 20 minutes)",
+  "slider": "13",
+  "auto": true,
+  "prefs": {
+   "quality": 1,
+   "musicVol": 0,
+   "sfxVol": 0,
+   "windVol": 0,
+   "dayOffset": 0,
+   "windCycle": true
+  }
+ },
+ "apresCurseur1000": {
+  "label": "Nuit, 0 h 33 — le temps s'écoule depuis le moment choisi",
+  "slider": "1000",
+  "auto": false,
+  "prefs": {
+   "crt": true,
+   "tilt": true,
+   "wind": "cycle",
+   "dayOffset": 986.3710000514984,
+   "music": true,
+   "sfx": true,
+   "quality": 1,
+   "musicVol": 0,
+   "sfxVol": 0,
+   "windVol": 0,
+   "windCycle": true
+  }
+ },
+ "recharge2minPlusTard": {
+  "label": "Nuit, 3 h 24 — le temps s'écoule depuis le moment choisi",
+  "slider": "1128",
+  "auto": false,
+  "prefs": {
+   "crt": true,
+   "tilt": true,
+   "wind": "cycle",
+   "dayOffset": 986.3710000514984,
+   "music": true,
+   "sfx": true,
+   "quality": 1,
+   "musicVol": 0,
+   "sfxVol": 0,
+   "windVol": 0,
+   "windCycle": true
+  }
+ },
+ "retourHeureReelle": {
+  "label": "Jour, 7 h 56 — suit l'heure réelle (un jour dure 20 minutes)",
+  "slider": "141",
+  "auto": true,
+  "prefs": {
+   "crt": true,
+   "tilt": true,
+   "wind": "cycle",
+   "dayOffset": 0,
+   "music": true,
+   "sfx": true,
+   "quality": 1,
+   "musicVol": 0,
+   "sfxVol": 0,
+   "windVol": 0,
+   "windCycle": true
+  }
+ }
+}
+erreurs []
