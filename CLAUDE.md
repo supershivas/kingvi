@@ -212,13 +212,19 @@ est cachée et ne sort que pendant l'attaque.
   crochets des offrandes), `BUNDLE`, `WATCHER`. Placé dans `world.js`
   (`GROVE_TREE`, `GROVE_HOOKS`, `WATCHER_AT`, trouées ajoutées aux
   `CLEARINGS`) ; animé dans `game.js` (`updateGrove`).
-- `js/arch.js` — l'arche (`makeArch`, `archParts` : pilier gauche, voûte
-  `arch-vault` où l'on passe, pilier droit ; gravats `rubble`), et l'arche en
-  ruine (`RUIN_ARCH` : plus petite, le haut droit effondré). Placée dans
-  `world.js` (`ARCH`, au nord de la piste entre la plaine des morts et la forêt).
-- `js/ruins.js` — la colonne couchée (`makeColumn`) et le socle en ruine
-  (`makePlinth`). Placées dans `world.js` (`RUINS` : colonne, socle, arche
-  en ruine ; aucun arbre ni rocher dans leur emprise, `LANDMARKS`).
+- `js/ruins.js` — l'arche et les ruines (colonne couchée, socle, arche en
+  ruine), d'après les dessins de `assets/` : on ne retouche pas leurs pixels.
+  `monumentParts(clé, x, y)` : la plus grande masse d'un seul tenant est le
+  monument, le reste devient des gravats (`rubble`, on marche dessus) ; une
+  arche est coupée en trois tranches (pilier, passage `arch-vault`, pilier),
+  chacune triée à son propre pied (`PASSAGES` : les colonnes du passage ;
+  `FOOT` : la profondeur qui bloque). Placées dans `world.js` (`ARCH`,
+  `RUINS`, `LANDMARKS` : ni arbres ni rochers dans leur emprise).
+- `js/ruins-art.js` — leurs pixels, **générés** par `scripts/import-art.py`
+  (ImageMagick) depuis `assets/` : couleurs ramenées aux trois du jeu (traits
+  k, demi-teintes b, clairs s), le blanc du fond transparent, le blanc enfermé
+  en neige. Les fichiers `_x1` sont à l'échelle du jeu ; `arche2.png` est
+  réduite par moyenne. À relancer après chaque changement d'image.
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
@@ -366,7 +372,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.25.1`) : après chaque changement de
+  portent la version (`?v=1.26.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en
@@ -381,8 +387,9 @@ n'est jamais implémenté automatiquement.
 - Le viking doit peser sur la neige : son ombre est dessinée dans le sprite,
   sur la ligne même des pieds. Une ombre séparée, un pixel plus bas, le
   faisait léviter.
-- Il doit rester petit (environ 9 pixels de haut, écran d'environ 440 pixels
-  de haut) et se lire comme une masse : pas de visage ni de détail.
+- Il doit rester petit (environ 9 pixels de haut, écran d'environ 352 pixels
+  de haut : `TARGET_HEIGHT`, 80 % de l'ancien 440, pour la fluidité ; le zoom
+  restant entier, on voit de 67 à 80 % de l'ancienne vue selon l'écran) et se lire comme une masse : pas de visage ni de détail.
 - Tout se mesure au viking : porte de la maison ≈ sa taille, loup à la
   hauteur de sa hanche (oreilles comprises), statue ≈ dix fois sa taille. Vérifier dans le labo.
 - La cape est courte et discrète : au calme elle se confond avec le dos ; même

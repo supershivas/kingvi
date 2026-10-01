@@ -5,7 +5,7 @@
 
    Le module ne connaît la scène que par ce qu'on lui passe : le sprite
    partagé du viking (animations globales), et quelques fonctions. */
-import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.25.1';
+import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.26.0';
 
 export const FOE_HP = 3;
 const SIGHT = 110;          // il nous voit venir de là

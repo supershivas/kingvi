@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.26.0 — 2026-10-01
+- L'arche et les trois ruines reprennent exactement les dessins fournis : on passe sous les deux arches, la colonne et le socle font obstacle, on marche sur les éclats
+- La vue est un peu resserrée autour du viking (80 %) : le jeu est plus fluide, le petit zoom de la molette et le zoom des combats restent
+
 ## 1.25.1 — 2026-10-01
 - Labo : la carte de l'île s'affiche de nouveau, même avec une extension anti-pistage dans le navigateur
 

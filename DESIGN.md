@@ -16,7 +16,7 @@ Le jeu est **contemplatif** et sa **lenteur est assumée**. On marche à
 18 pixels par seconde sur une île de 6144 pixels de côté ; les traces, de la
 barque à leur bout, demandent près de six minutes de marche sans s'arrêter.
 La vue est lointaine : le viking fait 9 pixels de haut sur un écran d'environ
-440. On doit sentir l'immensité, le froid, le vent, la solitude. Le récit
+352. On doit sentir l'immensité, le froid, le vent, la solitude. Le récit
 n'est jamais dit : il est posé dans le paysage (traces, sang, corps, statues,
 pierres levées, offrandes) et le joueur le lit.
 
@@ -47,7 +47,7 @@ souffle (sauf aux combats).
 |---|---|---|---|
 | I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues | Ils étaient deux |
 | II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après Lindholm Høje), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
-| — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, dix fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
+| — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
 | III | La forêt | La forêt s'épaissit ; une statue géante de Freya ensevelie, penchée, brisée | Des dieux tombés |
 | IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, s'ouvre en clairières. Longue à traverser | L'oppression, la perte de repères |
 | V | Les loups | À mi-chemin, le bosquet sacré : un arbre mort chargé d'offrandes. Une meute de quatre loups sort quand on entre dans la clairière (hurlement au loin avant) | Le danger, le sacré |

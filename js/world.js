@@ -1,9 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.25.1';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.25.1';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.25.1';
-import { makeGroveTree } from './grove.js?v=1.25.1';
-import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.1';
-import { makeColumn, makePlinth } from './ruins.js?v=1.25.1';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.26.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.26.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.26.0';
+import { makeGroveTree } from './grove.js?v=1.26.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.26.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -353,27 +352,29 @@ const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
   type: 'stone', x: NECRO.x + x, y: NECRO.y + y, art: stoneArt(h, SEED * 31 + i), foot: 1,
 }));
 // ── L'arche : une porte de pierre seule, au nord de la piste, entre la plaine
-// des morts et la forêt ; elle fait face à la piste, on peut passer dessous ──
+// des morts et la forêt ; elle fait face à la piste, on passe dessous. Et
+// les ruines, près de la piste : la colonne couchée (avant le lac), le socle
+// (au nord, au sortir de la forêt noire), l'arche en ruine (entre la maison
+// et la falaise). Les dessins viennent de assets/ (ruins.js) ; chaque point
+// est le milieu du pied du monument ──
 const ARCH_AT = trail.find(p => p.x > LANDING.shore + 1250) || trail[Math.floor(trail.length * 0.3)];
-export const ARCH = off(ARCH_AT, 58);                       // le pied, au milieu de la face avant
-const ARCH_PARTS = archParts(Math.round(ARCH.x - ARCH_FW / 2), ARCH.y, SEED * 17);
-// ── Les ruines de la plaine, près de la piste : la colonne couchée (avant
-// le lac), le socle (au nord, au sortir de la forêt noire), l'arche en ruine (entre la
-// maison et la falaise). Chacune : le milieu de son pied ──
+export const ARCH = off(ARCH_AT, 58);
 const ruinAt = (dx, d) => off(trail.find(p => p.x > LANDING.shore + dx) || trail.at(-1), d);
 export const RUINS = { colonne: ruinAt(450, -90), socle: ruinAt(3300, 90), arche: ruinAt(4100, -90) };
-const COLUMN_ART = makeColumn(SEED * 23), PLINTH_ART = makePlinth(SEED * 29);
-const RUIN_PARTS = [
-  { type: 'ruin', x: RUINS.colonne.x - (COLUMN_ART.rows[0].length >> 1), y: RUINS.colonne.y, foot: 14, art: COLUMN_ART },
-  { type: 'ruin', x: RUINS.socle.x - (PLINTH_ART.rows[0].length >> 1), y: RUINS.socle.y, foot: 16, art: PLINTH_ART },
-  ...archParts(RUINS.arche.x - (RUIN_ARCH.fw >> 1), RUINS.arche.y, SEED * 31, RUIN_ARCH),
+const MONUMENT_PARTS = [
+  ...monumentParts('arche', ARCH.x, ARCH.y),
+  ...monumentParts('colonne', RUINS.colonne.x, RUINS.colonne.y),
+  ...monumentParts('socle', RUINS.socle.x, RUINS.socle.y),
+  ...monumentParts('ruine', RUINS.arche.x, RUINS.arche.y),
 ];
-// Les emprises (arche et ruines), où ne poussent ni arbres ni rochers
+// Leurs emprises, où ne poussent ni arbres ni rochers
 const LANDMARKS = [
-  { x: ARCH.x, y: ARCH.y, w: ARCH_FW + 24, h: 20 },
-  ...Object.values(RUINS).map(p => ({ x: p.x, y: p.y, w: 70, h: 30 })),
+  { ...ARCH, ...monumentSize('arche') },
+  { ...RUINS.colonne, ...monumentSize('colonne') },
+  { ...RUINS.socle, ...monumentSize('socle') },
+  { ...RUINS.arche, ...monumentSize('ruine') },
 ];
-const inArch = (x, y, m = 0) => LANDMARKS.some(L => Math.abs(x - L.x - 6) < L.w / 2 + m && y > L.y - L.h - m && y < L.y + 6 + m);
+const inArch = (x, y, m = 0) => LANDMARKS.some(L => Math.abs(x - L.x) < L.w / 2 + m && y > L.y - L.h * 0.5 - m && y < L.y + 12 + m);
 const inNecro = (x, y, m = 0) => x > NECRO.x - m && x < NECRO.x + NECRO_W + m && y > NECRO.y - m && y < NECRO.y + NECRO_H + m;
 
 // ── Le bosquet sacré : au milieu de la forêt noire (là où la traversée est la
@@ -756,7 +757,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS, ...ARCH_PARTS, ...RUIN_PARTS]) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS, ...MONUMENT_PARTS]) {
     if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }
