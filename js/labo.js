@@ -24,6 +24,7 @@ import { ROWBOAT_FRAMES, BOAT2 } from './boat.js';
 import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js';
 import * as PROPS from './props.js';
 import { audio } from './audio.js';
+import { CHAPTERS, showChapter } from './chapters.js';
 import { makeGroveTree, BUNDLE, WATCHER } from './grove.js';
 import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js';
 
@@ -1195,6 +1196,22 @@ function toast(text) {
   setTimeout(() => { el.hidden = true; }, 3200);
 }
 startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
+
+// ══ Chapitres : aux grands moments, un titre s'inscrit à l'écran ══
+(function chapters() {
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Les chapitres</span></h3><p>Aux grands moments de l\'aventure, un titre s\'inscrit dans le haut de l\'écran, une seule fois par partie : le numéro en petit, le nom en grand (la gothique du titre). En arrivant sur la grève ; dans la plaine des morts ; à l\'orée de la forêt ; dans la forêt noire ; quand la meute attaque ; devant la maison ; quand l\'autre vient au contact ; au pied de la falaise ; dans la grotte. Le lac est un détour : un interlude. Hors des combats, la musique se tait un instant. Clique un chapitre pour le voir.</p><div class="chapter-stage"></div><div class="sound-buttons"></div>';
+  const stage = el.querySelector('.chapter-stage'), row = el.querySelector('.sound-buttons');
+  for (const ch of CHAPTERS) {
+    const b = document.createElement('button');
+    b.className = 'btn-ghost'; b.type = 'button';
+    b.textContent = `${ch.label} · ${ch.title}`;
+    b.addEventListener('click', () => showChapter(stage, ch, { hold: 2200 }));
+    row.append(b);
+  }
+  document.querySelector('#chapitres .demos').append(el);
+})();
 
 // ══ Navigation : un thème à la fois (onglets), et son sous-menu ══
 // Les sections des autres thèmes sont cachées : leurs animations ne tournent

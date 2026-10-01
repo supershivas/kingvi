@@ -8,9 +8,10 @@ import {
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
-  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT,
+  LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
 } from './world.js';
 import { createPack } from './pack.js';
+import { chapterById } from './chapters.js';
 import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js';
 import { BUNDLE, WATCHER } from './grove.js';
 import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js';
@@ -97,7 +98,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {} }) {
+export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -258,6 +259,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       const prints = this.add.graphics().setDepth(DEPTH_MARKS).fillStyle(hex(palette.b), 0.8);
       for (let k = 1; k <= 4; k++) prints.fillRect(WATCHER_AT.x - 1 + (k % 2) * 2, WATCHER_AT.y - k * 6 + 2, 1, 2);
       this.watcherGone = !!save.watcherGone;
+      this.chapters = new Set(save.chapters || []);
       this.watcher = this.watcherGone ? null
         : this.add.image(WATCHER_AT.x + 0.5, WATCHER_AT.y + 1, 'watcher').setOrigin(0.5, 1).setDepth(WATCHER_AT.y);
 
@@ -956,6 +958,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       this.swayClock = (this.swayClock || 0) - delta;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
+      this.chapterClock = (this.chapterClock || 0) - delta;
+      if (this.chapterClock <= 0) { this.chapterClock = 400; this.checkChapters(); }
       this.updateNight(delta / 1000, time);
       this.drawSky(delta / 1000);
     }
@@ -978,6 +982,33 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       else energy = 0.4 + (this.running ? 0.12 : 0) + (this.rowing ? -0.15 : 0);
       energy *= 1 - 0.25 * night;
       return { energy, dark: Math.min(1, deep + 0.4 * night), muffled: this.inside ? 1 : 0 };
+    }
+
+    // Les chapitres : aux grands moments, un titre à l'écran (une fois chacun)
+    checkChapters() {
+      if (isPaused() || this.dead || this.moving) return;
+      const { x, y } = this.pos, near = (p, d) => Math.hypot(x - p.x, y - p.y) < d;
+      const seen = id => this.chapters.has(id);
+      let id = null;
+      if (this.inside === 'cave') id = 'roi';
+      else if (this.inside) id = null;
+      else if (!seen('greve') && this.time.now > 2500) id = 'greve';
+      else if (this.pack.engaged) id = 'loups';
+      else if (this.foe.alive && this.foe.engaged) id = 'autre';
+      else if (this.rowing) id = 'lac';
+      // (la falaise, après la rencontre au bout des traces)
+      else if ((seen('autre') || !this.foe.alive) && x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) id = 'falaise';
+      else if (near(HOUSE, 90)) id = 'maison';
+      else if (deepForest(x, y) > 0.6) id = 'noire';
+      else if (forestDensity(x, y) > 0.12) id = 'foret';
+      else if (x > NECRO.x - 30 && x < NECRO.x + 260 && y > NECRO.y - 30 && y < NECRO.y + 200) id = 'morts';
+      if (!id || seen(id)) return;
+      this.chapters.add(id);
+      this.persist();
+      const ch = chapterById(id);
+      // Hors des combats, la musique retient son souffle un instant
+      if (id !== 'loups' && id !== 'autre') audio.hush(4);
+      onChapter(ch);
     }
 
     // Les offrandes tournent au vent ; le guetteur s'efface quand on approche
@@ -1474,6 +1505,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
+        chapters: [...this.chapters],
         kingBowed: this.kingBowed,
         wrecked: Object.fromEntries(this.wrecked),
         facing: this.facing, flip: this.flip,

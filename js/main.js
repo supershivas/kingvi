@@ -1,5 +1,6 @@
 import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js';
 import { createGame } from './game.js';
+import { showChapter } from './chapters.js';
 import { audio } from './audio.js';
 import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js';
 import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js';
@@ -57,6 +58,8 @@ const game = createGame({
   dayClock,
   // À un seul point de vie, l'écran se teinte de rouge
   onHealth: hp => $('screen').classList.toggle('hurt', hp === 1),
+  // Aux grands moments de l'aventure, un chapitre s'inscrit à l'écran
+  onChapter: ch => showChapter($('screen'), ch),
 });
 let resetting = false;
 

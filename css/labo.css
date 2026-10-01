@@ -54,3 +54,6 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 
 /* Son : une rangée de boutons */
 .sound-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Chapitres : une scène de neige où le titre s'inscrit comme dans le jeu */
+.chapter-stage { position: relative; height: 220px; border-radius: var(--radius-sm); background: var(--game-snow); overflow: hidden; }

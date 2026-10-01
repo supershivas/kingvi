@@ -58,6 +58,14 @@ Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
+Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
+par partie (`chapters` dans la sauvegarde) : « Chapitre I » en petit, le nom
+en grand dans la gothique du titre, en différence. I La grève, II La plaine
+des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
+VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
+IX Le roi sous la roche (dans la grotte) ; Interlude, Le lac (en barque).
+Hors des combats, la musique se tait un instant (`checkChapters` dans
+`game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
 Une barre d'endurance au-dessus du viking (frapper et courir la vident,
 `STAMINA`) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
 `.hurt`). Les secousses d'écran restent légères. À l'intérieur, la cape
@@ -89,7 +97,7 @@ La page `labo.html` regroupe toutes les animations, rangées par thèmes en
 onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son ; un
 seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
 thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
-carte de l'île (un clic y téléporte le viking), barque, jour et nuit, viking,
+carte de l'île (un clic y téléporte le viking), chapitres, barque, jour et nuit, viking,
 cape, attaques (8 directions, arbre qui tombe, rocher qui éclate), torche, meute,
 grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
@@ -118,7 +126,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
-  `chestOpen`, `watcherGone`, `kingBowed`, `wrecked` (arbres abattus, rochers brisés),
+  `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés) ; `kingvi:prefs` : effet CRT, tilt-shift, météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
@@ -180,6 +188,8 @@ est cachée et ne sort que pendant l'attaque.
   bruit, paroi, glaçons, mare gelée, stalagmites, ossements ; le trône
   (`THRONE_FRAMES` : assis, tête tombée) ; `caveWalkable`, `atCaveDoor`,
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
+- `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
+  affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
   moutons au large. Dans le jeu, un calque `DEPTH_WAVES` redessiné ~8 fois/s.

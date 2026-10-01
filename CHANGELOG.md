@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.0 — 2026-10-01
+- Aux grands moments de l'aventure, un chapitre s'inscrit à l'écran : « Chapitre III » en petit, « La forêt » en grand
+- Neuf chapitres, de la grève au roi sous la roche, et un interlude sur le lac ; chacun ne paraît qu'une fois par partie
+
 ## 1.20.1 — 2026-09-30
 - Corrige un blocage : le jeu pouvait se figer (écran noir, flocons immobiles) en s'éloignant vite d'un endroit, après une mort ou une téléportation
 - Corrige la grotte : on peut désormais aller jusqu'au trône et en ressortir
