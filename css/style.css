@@ -99,7 +99,7 @@ body {
 .stage { position: absolute; inset: 0; }
 .stage canvas { display: block; image-rendering: pixelated; outline: none; }
 /* Calque du vent et de la neige, posé exactement sur le jeu */
-.stage .sky { position: absolute; top: 0; left: 0; pointer-events: none; }
+.stage .sky { position: absolute; top: 0; left: 0; pointer-events: none; image-rendering: pixelated; }
 .field-select { display: flex; flex-direction: column; gap: 6px; font-size: .9rem; }
 .field-select select { min-height: var(--tap); padding: 0 12px; font: inherit; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card-bg); color: var(--text-primary); }
 .field-select .hint-text { color: var(--text-muted); font-size: .8rem; }
@@ -126,7 +126,12 @@ body {
 .title-screen[hidden] { display: none; }
 /* Derrière le titre : la mer, la barque qui vogue (titlesea.js), en pixels */
 .title-sea { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); image-rendering: pixelated; image-rendering: crisp-edges; pointer-events: none; }
-.title-screen > :not(.title-sea) { position: relative; }
+.title-screen > :not(.title-sea) { position: relative; z-index: 1; }
+/* Le vignettage de l'accueil : les bords de la mer s'enfoncent dans le noir */
+.title-screen::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 60% 62% at 50% 50%, transparent 40%, rgba(5,7,12,.42) 72%, rgba(5,7,12,.88) 100%);
+}
 /* Une fois la partie lancée, les coins de l'écran un peu plus sombres */
 .vignette {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
@@ -189,6 +194,14 @@ body {
   text-shadow: 0 2px 0 rgba(5,7,12,.85), 0 0 14px rgba(5,7,12,.7);
 }
 @media (prefers-reduced-motion: reduce) { .chapter, .chapter.in { transform: none; filter: none; } }
+/* Les autres fonds (propositions du labo, chapters.js) : dessinés en pixels */
+.chapter:not(.chapter--halo) { background: none; }
+.chapter-art {
+  position: absolute; left: 50%; transform: translateX(-50%); z-index: -1;
+  image-rendering: pixelated; image-rendering: crisp-edges;
+}
+.chapter--pixels .chapter-label { opacity: 1; text-shadow: 1px 0 0 var(--game-black), -1px 0 0 var(--game-black), 0 1px 0 var(--game-black), 0 -1px 0 var(--game-black), 0 0 6px var(--game-black); }
+.chapter-pixels { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
 
 /* Le compteur : arbres abattus, rochers brisés (en haut à droite, discret) */
 .tally {
@@ -225,16 +238,17 @@ body {
 
 /* Flou de maquette, en ellipse autour du héros (la caméra le suit : il est au
    centre). Net autour de lui, un flou doux puis un flou fort vers les bords.
-   Chaque couche est un flou plein écran, dévoilé par un masque radial. */
+   Chaque couche est une copie de l'image en tout petit (game.js, `blurCopy`),
+   agrandie en douceur, et dévoilée par un masque radial : bien moins cher
+   qu'un flou d'arrière-plan plein écran. */
 .tilt { position: absolute; inset: 0; pointer-events: none; display: none; }
 .tilt-on .tilt { display: block; }
+.tilt canvas { display: block; width: 100%; height: 100%; image-rendering: auto; }
 .tilt.soft {
-  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
   -webkit-mask-image: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
   mask-image: radial-gradient(ellipse 34% 30% at 50% 50%, transparent 55%, #000 100%);
 }
 .tilt.strong {
-  -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px);
   -webkit-mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, transparent 50%, #000 100%);
   mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, transparent 50%, #000 100%);
 }

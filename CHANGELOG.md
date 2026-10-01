@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.23.0 — 2026-10-01
+- Le jeu est bien plus fluide sur les écrans Retina : l'image est peinte en moins de pixels, et le flou de maquette coûte beaucoup moins cher
+- L'écran d'accueil : une vraie houle sur la mer, des moutons partout, et les bords qui s'enfoncent dans le noir
+- Dans le labo, cinq propositions de fond pour l'apparition des chapitres, à comparer sur la neige, la mer et la forêt noire
+
 ## 1.22.1 — 2026-10-01
 - Outillage de playtest : un mode debug (invisible pour le joueur) qui permet de rejouer et d'observer une partie automatiquement
 

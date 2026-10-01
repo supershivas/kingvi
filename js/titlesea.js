@@ -3,11 +3,22 @@
    houle la soulève et la fait rouler, un sillage d'écume la suit, des moutons
    défilent, des icebergs plats passent au loin, il neige. Rien ne tourne quand
    l'écran d'accueil est caché. */
-import { BOAT_FRAMES, BOAT_W, BOAT_WATERLINE } from './boat.js?v=1.22.1';
-import { vikingFrames, CX, GROUND } from './viking.js?v=1.22.1';
-import { makeIceberg } from './trees.js?v=1.22.1';
-import { createSea } from './sea.js?v=1.22.1';
-import { createWeather } from './weather.js?v=1.22.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_WATERLINE } from './boat.js?v=1.23.0';
+import { vikingFrames, CX, GROUND } from './viking.js?v=1.23.0';
+import { makeIceberg } from './trees.js?v=1.23.0';
+import { createSea } from './sea.js?v=1.23.0';
+import { createWeather } from './weather.js?v=1.23.0';
+
+function hash(x, y, s) {
+  let h = (x * 374761393 + y * 668265263 + s * 1442695041) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+// Un bruit lisse sur une ligne (pour casser les crêtes : rien de droit)
+function noise1(x, s) {
+  const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f);
+  return hash(i, 0, s) + (hash(i + 1, 0, s) - hash(i, 0, s)) * u;
+}
 
 function rng(seed) {
   let a = seed >>> 0;
@@ -17,7 +28,7 @@ function rng(seed) {
 export function createTitleSea(canvas, palette) {
   const ctx = canvas.getContext('2d');
   const viking = vikingFrames().find(f => f.name === 'side-idle').grid;
-  const sea = createSea(() => 1);                     // la mer seule : pas de rivage
+  const sea = createSea(() => 1, { caps: 0.8 });      // la mer seule : pas de rivage, des moutons partout
   const weather = createWeather('bise');
   const r = rng(7);
   const bergs = Array.from({ length: 4 }, (_, i) => ({ art: makeIceberg(r), x: i * 130 + r() * 60, y: 0.06 + r() * 0.12, speed: 2 + r() * 2.5 }));
@@ -44,6 +55,39 @@ export function createTitleSea(canvas, palette) {
     });
   }
 
+  const SWELLS = 16;
+  function drawSwell(t) {
+    const top = H * 0.05;
+    for (let j = 0; j < SWELLS; j++) {
+      const k = ((j + t * 0.09) % SWELLS) / SWELLS;          // 0 au loin → 1 tout près
+      const depth = k * k;
+      const y0 = top + (H - top) * depth;
+      const fade = Math.min(1, k * 6) * Math.min(1, (1 - k) * 8);
+      const amp = 0.8 + 4.5 * depth, len = 5 + 30 * depth, seed = j * 7 + Math.floor((j + t * 0.09) / SWELLS) * 131;
+      const alpha = (0.12 + 0.4 * depth) * fade;
+      if (alpha < 0.03) continue;
+      // La crête défile un peu (la barque avance), ondule, penche par endroits
+      const shift = t * (2 + 9 * depth);
+      for (let x = 0; x < W; x++) {
+        const u = (x + shift) / len;
+        const seg = noise1(u * 0.7, seed);                    // par tronçons : la crête se forme et se défait
+        if (seg < 0.4) continue;
+        const y = Math.round(y0 + Math.sin(u * 1.7 + j + t * 0.6) * amp * 0.6
+          + (noise1(u * 2.3, seed + 1) - 0.5) * amp * 1.6 + (noise1(u * 0.25, seed + 5) - 0.5) * amp * 3);
+        if (hash(x, j, seed + 2) > 0.55 + 0.45 * depth) continue;
+        const a = alpha * (0.6 + 0.8 * (seg - 0.4));
+        put(x, y, 's', a);
+        // Les vagues proches : le dos éclairé, tramé, au-dessus de la crête ;
+        // un liseré d'écume là où elle se brise
+        if (depth > 0.25) {
+          const back = Math.round(1 + 3 * depth * seg);
+          for (let k = 1; k <= back; k++) if ((x + k + j) % 2 === 0 && hash(x, k, seed + 3) < 0.7 - k * 0.12) put(x, y - k, 's', a * (0.5 - k * 0.08));
+        }
+        if (depth > 0.4 && seg > 0.7 && hash(x, j, seed + 4) < 0.5) put(x, y + 1, 's', a * 0.8);
+      }
+    }
+  }
+
   function frame(now) {
     if (!running) return;
     const dt = Math.min(0.05, (now - last) / 1000 || 0);
@@ -56,6 +100,10 @@ export function createTitleSea(canvas, palette) {
       if (b.x < -w - 10) { b.x = W + 20 + Math.random() * 120; b.y = 0.06 + Math.random() * 0.12; }
       rows(b.art.rows, Math.round(b.x), Math.round(H * b.y));
     }
+    // La houle : des crêtes qui naissent au loin et roulent vers nous, de
+    // plus en plus espacées, amples et claires (perspective) ; brisées par le
+    // bruit, jamais une ligne droite
+    drawSwell(t);
     // Les moutons : la mer défile (la barque avance vers l'est)
     const sx = t * 9;
     sea.draw({ x: sx, y: 0, w: W, h: H }, t, (x, y, a) => put(Math.round(x - sx), y, 's', a), 1.4);

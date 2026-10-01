@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.22.1';
+} from './viking.js?v=1.23.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.22.1';
-import { createPack } from './pack.js?v=1.22.1';
-import { chapterById } from './chapters.js?v=1.22.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.22.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.22.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.22.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.22.1';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.22.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.22.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.22.1';
-import { createFauna } from './fauna.js?v=1.22.1';
-import { createWeather } from './weather.js?v=1.22.1';
-import { createSea } from './sea.js?v=1.22.1';
-import { audio } from './audio.js?v=1.22.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.22.1';
+} from './world.js?v=1.23.0';
+import { createPack } from './pack.js?v=1.23.0';
+import { chapterById } from './chapters.js?v=1.23.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.23.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.23.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.23.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.23.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow } from './daylight.js?v=1.23.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.23.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.23.0';
+import { createFauna } from './fauna.js?v=1.23.0';
+import { createWeather } from './weather.js?v=1.23.0';
+import { createSea } from './sea.js?v=1.23.0';
+import { audio } from './audio.js?v=1.23.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.23.0';
 
 const Phaser = window.Phaser;
 
@@ -48,10 +48,17 @@ const STAMINA = { attack: 0.2, run: 0.16, regen: 0.3 };
 // 125 %, Retina…) ; c'est la caméra qui agrandit, d'un facteur entier de
 // pixels physiques au repos : pixels nets, lignes du CRT alignées, pas de
 // moiré. La molette et le combat changent ce facteur, en douceur.
+// Sur un écran dense (Retina), si le facteur s'y prête, le canevas est rendu
+// en moins de pixels (2 × 2 pixels physiques par pixel du canevas, agrandi
+// sans lissage) : l'image est la même, et la carte graphique a quatre fois
+// moins à peindre. `dpr` est alors la densité du canevas, pas celle de l'écran.
 export function fitScreen(w, h) {
-  const dpr = window.devicePixelRatio || 1;
-  const zoom = Math.max(1, Math.round(h * dpr / TARGET_HEIGHT));
-  return { zoom, dpr, width: Math.ceil(w * dpr), height: Math.ceil(h * dpr) };
+  const screenDpr = window.devicePixelRatio || 1;
+  const physical = Math.max(1, Math.round(h * screenDpr / TARGET_HEIGHT));
+  let r = Math.max(1, Math.floor(screenDpr));
+  while (r > 1 && physical % r) r--;
+  const dpr = screenDpr / r;
+  return { zoom: physical / r, dpr, render: r, width: Math.ceil(w * dpr), height: Math.ceil(h * dpr) };
 }
 
 // Emprise de la maison (on ne la traverse pas)
@@ -1646,6 +1653,25 @@ export function createGame({ parent, palette, save, onSave, isPaused, wind = 'cy
       }
     };
   });
+
+  // Le flou de maquette : chaque image, une copie en tout petit (un pixel pour
+  // 3 ou 6 pixels d'écran, légèrement floutée à cette taille), que le
+  // navigateur agrandit en douceur sous un masque radial (style.css, .tilt).
+  // Faite juste après le rendu, tant que l'image du jeu est encore là.
+  const screenEl = parent.parentElement;
+  const blurLayers = [...screenEl.querySelectorAll('.tilt canvas')].map((c, i) => ({ c, ctx: c.getContext('2d'), k: i ? 6 : 3, blur: i ? 1.5 : 1 }));
+  function blurCopy() {
+    if (!screenEl.classList.contains('tilt-on') || !blurLayers.length || isTitle()) return;
+    const src = game.canvas, w = src.clientWidth, h = src.clientHeight;
+    for (const L of blurLayers) {
+      const W = Math.max(1, Math.round(w / L.k)), H = Math.max(1, Math.round(h / L.k));
+      if (L.c.width !== W || L.c.height !== H) { L.c.width = W; L.c.height = H; }
+      L.ctx.filter = `blur(${L.blur}px)`;
+      L.ctx.drawImage(src, 0, 0, W, H);
+      L.ctx.drawImage(sky, 0, 0, W, H);
+    }
+  }
+  game.events.on('postrender', blurCopy);
 
   function sizeSky(f) {
     sky.width = f.width; sky.height = f.height;

@@ -1,32 +1,32 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.22.1';
+import { startUpdateCheck } from '../app-update.js?v=1.23.0';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.22.1';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.22.1';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.22.1';
+} from './viking.js?v=1.23.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.23.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.23.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.22.1';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.22.1';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.22.1';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.22.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.22.1';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.22.1';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.22.1';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow } from './daylight.js?v=1.22.1';
-import { createSea } from './sea.js?v=1.22.1';
-import { buildStatueDoor } from './statue.js?v=1.22.1';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.22.1';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.22.1';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js?v=1.22.1';
-import * as PROPS from './props.js?v=1.22.1';
-import { audio } from './audio.js?v=1.22.1';
-import { CHAPTERS, showChapter } from './chapters.js?v=1.22.1';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.22.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.22.1';
+} from './world.js?v=1.23.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.23.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.23.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.23.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.23.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.23.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.23.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow } from './daylight.js?v=1.23.0';
+import { createSea } from './sea.js?v=1.23.0';
+import { buildStatueDoor } from './statue.js?v=1.23.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.23.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.23.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE } from './world.js?v=1.23.0';
+import * as PROPS from './props.js?v=1.23.0';
+import { audio } from './audio.js?v=1.23.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.23.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.23.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.23.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1222,6 +1222,32 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
     b.addEventListener('click', () => showChapter(stage, ch, { hold: 2200 }));
     row.append(b);
   }
+  document.querySelector('#chapitres .demos').append(el);
+})();
+
+// ══ Chapitres : le fond derrière le titre, propositions ══
+(function chapterStyles() {
+  let style = CHAPTER_STYLE, bg = 'rivage', which = 2;
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Le fond des chapitres — propositions</span></h3><p>Derrière le titre, l\'ombre ovale actuelle (A) et d\'autres idées, dessinées en pixels du jeu. Choisis une lettre, un fond, un chapitre.</p><div class="chapter-styles letters"></div><p class="chapter-about"></p><div class="chapter-styles backs"></div><div class="chapter-stage"></div><div class="chapter-styles chs"></div>';
+  const stage = el.querySelector('.chapter-stage'), about = el.querySelector('.chapter-about');
+  const show = () => showChapter(stage, CHAPTERS[which], { hold: 2600, style });
+  const group = (sel, items, current, pick) => {
+    const box = el.querySelector(sel);
+    for (const [key, label] of items) {
+      const b = document.createElement('button');
+      b.className = 'btn-ghost'; b.type = 'button'; b.textContent = label;
+      if (key === current) b.classList.add('on');
+      b.addEventListener('click', () => { box.querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); pick(key); show(); });
+      box.append(b);
+    }
+  };
+  const describe = () => { const s = CHAPTER_STYLES.find(x => x[0] === style); about.textContent = `${s[1]} · ${s[2]} — ${s[3]}`; };
+  group('.letters', CHAPTER_STYLES.map(([key, tag, title]) => [key, `${tag} · ${title}`]), style, k => { style = k; describe(); });
+  group('.backs', [['rivage', 'Rivage'], ['neige', 'Neige'], ['mer', 'Mer'], ['foret', 'Forêt noire']], bg, k => { bg = k; stage.className = `chapter-stage bg-${k}`; });
+  group('.chs', CHAPTERS.map((c, i) => [i, c.title]), which, k => { which = k; });
+  describe();
   document.querySelector('#chapitres .demos').append(el);
 })();
 

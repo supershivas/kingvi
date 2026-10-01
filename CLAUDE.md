@@ -22,8 +22,9 @@ Au lancement, un écran d'accueil, sans sous-titre : le nom en gothique
 étrange (Grenze Gotisch), tracé petit puis pixelisé et texturé (croûte de
 neige, ombre tramée, éclats, glaçons ; `drawTitle` dans `main.js`, agrandi
 d'un facteur entier), sur la mer de nuit où vogue la barque, le viking debout
-dedans (houle, roulis, sillage, moutons, icebergs au loin, neige :
-`js/titlesea.js`, arrêté quand l'accueil est caché), avec sa propre musique
+dedans (houle qui roule vers nous en crêtes tramées, roulis, sillage, moutons,
+icebergs au loin, neige, bords vignettés : `js/titlesea.js`, arrêté quand
+l'accueil est caché), avec sa propre musique
 (sourde, sombre : `isTitle` → `musicMood`), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
 la partie), Réglages. Le nom dans l'en-tête y ramène. En entrant dans le
 jeu, la musique de l'accueil se tait, l'écran reste noir le temps de placer
@@ -162,6 +163,12 @@ est cachée et ne sort que pendant l'attaque.
   taille de l'écran en pixels physiques (`devicePixelRatio`, zoom Phaser
   1/dpr) ; la caméra agrandit d'un facteur entier de pixels physiques au repos
   (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans).
+  Sur écran dense (Retina), si ce facteur est pair, le canevas est rendu à
+  demi-résolution et agrandi sans lissage (`fitScreen` : `render`, et `dpr`
+  devient la densité du canevas) : même image, quatre fois moins de pixels.
+  Le flou de maquette : une copie réduite de chaque image (`blurCopy`, après
+  le rendu), agrandie en douceur sous un masque radial ; jamais de
+  `backdrop-filter` plein écran (trop cher sur un Mac Intel).
   Les morceaux se préparent en plusieurs temps (`*loadChunk`, générateur ;
   `paintChunkSteps`), avec un budget de 5 ms par image, en avance sur la vue ;
   `cull` cache ce qui sort de l'écran (des milliers d'arbres dans la forêt
@@ -204,6 +211,9 @@ est cachée et ne sort que pendant l'attaque.
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
+  Le fond derrière le titre : `CHAPTER_STYLE` (A, l'ombre ovale, dans le jeu),
+  propositions B → F dans le labo (`CHAPTER_STYLES` : brume tramée, lambeau,
+  lettres de neige, voile du haut, pierre levée), dessinées en pixels du jeu.
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),
   moutons au large. Dans le jeu, un calque `DEPTH_WAVES` redessiné ~8 fois/s.
@@ -339,7 +349,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.22.0`) : après chaque changement de
+  portent la version (`?v=1.23.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en

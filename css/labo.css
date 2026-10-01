@@ -56,4 +56,11 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .sound-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* Chapitres : une scène de neige où le titre s'inscrit comme dans le jeu */
-.chapter-stage { position: relative; height: 220px; border-radius: var(--radius-sm); background: linear-gradient(100deg, var(--game-night) 48%, var(--game-snow) 52%); overflow: hidden; }
+.chapter-stage { position: relative; height: 300px; border-radius: var(--radius-sm); background: linear-gradient(100deg, var(--game-night) 48%, var(--game-snow) 52%); overflow: hidden; }
+
+/* Chapitres : le fond de la scène, pour juger chaque proposition sur la neige, la mer, la forêt noire */
+.chapter-stage.bg-neige { background: var(--game-snow); }
+.chapter-stage.bg-mer { background: var(--game-night); }
+.chapter-stage.bg-foret { background: repeating-linear-gradient(87deg, var(--game-black) 0 3px, var(--game-night) 3px 5px, var(--game-black) 5px 9px); }
+.chapter-styles { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.chapter-styles .btn-ghost.on { border-color: var(--accent); color: var(--accent); }

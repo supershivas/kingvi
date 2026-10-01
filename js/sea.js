@@ -23,7 +23,9 @@ function smooth(x, y, s) {
   return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
 
-export function createSea(coast) {
+// `caps` : part des cellules du large qui ont leur mouton (l'accueil, en pleine
+// mer, en veut davantage)
+export function createSea(coast, { caps = 0.42 } = {}) {
   const tiles = new Map();
   const open = new Map();
 
@@ -58,7 +60,7 @@ export function createSea(coast) {
     const key = `${cx},${cy}`;
     if (open.has(key)) return open.get(key);
     let m = null;
-    if (hash(cx, cy, 11) < 0.42) {
+    if (hash(cx, cy, 11) < caps) {
       const x = cx * CAP.w + Math.floor(hash(cx, cy, 12) * CAP.w), y = cy * CAP.h + Math.floor(hash(cx, cy, 13) * CAP.h);
       if (coast(x, y) > (SURF_REACH + 4) * PER_PX) m = { x, y, period: 4 + hash(cx, cy, 14) * 4, phase: hash(cx, cy, 15) * 10, len: 2 + Math.floor(hash(cx, cy, 16) * 3) };
     }

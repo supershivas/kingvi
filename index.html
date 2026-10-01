@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.22.1"/>
-<link rel="stylesheet" href="mobile.css?v=1.22.1"/>
+<link rel="stylesheet" href="css/style.css?v=1.23.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.23.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -39,8 +39,8 @@
 
 <main id="screen" class="screen crt">
   <div id="stage" class="stage"></div>
-  <div class="tilt soft" aria-hidden="true"></div>
-  <div class="tilt strong" aria-hidden="true"></div>
+  <div class="tilt soft" aria-hidden="true"><canvas></canvas></div>
+  <div class="tilt strong" aria-hidden="true"><canvas></canvas></div>
   <div class="crt-layer" aria-hidden="true"></div>
   <section id="title" class="title-screen" aria-labelledby="title-name">
     <canvas id="title-sea" class="title-sea" aria-hidden="true"></canvas>
@@ -153,6 +153,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.22.1"></script>
+<script type="module" src="js/main.js?v=1.23.0"></script>
 </body>
 </html>
