@@ -366,7 +366,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.25.0`) : après chaque changement de
+  portent la version (`?v=1.25.1`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en
@@ -410,5 +410,8 @@ n'est jamais implémenté automatiquement.
 - Un intérieur doit rester praticable de l'entrée au fond et retour (vérifier
   par un parcours de la grille, comme pour la grotte : les poches sont reliées
   par des boyaux).
+- Labo : ne jamais relire les pixels d'un canevas (`getImageData`) ; des
+  extensions anti-pistage le bloquent et la carte ne s'affichait plus. Préparer
+  sur un canevas caché et recopier (`drawImage`).
 - `pagehide` sauvegarde la partie : pour tester une position, écrire la
   sauvegarde avant le chargement (sinon elle est écrasée).

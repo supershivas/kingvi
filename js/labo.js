@@ -1,34 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.25.0';
+import { startUpdateCheck } from '../app-update.js?v=1.25.1';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.25.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.25.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.25.0';
+} from './viking.js?v=1.25.1';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.25.1';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.25.1';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.25.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.25.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.25.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.25.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.25.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.25.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.25.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.25.0';
-import { createSea } from './sea.js?v=1.25.0';
-import { buildStatueDoor } from './statue.js?v=1.25.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.25.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.25.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.25.0';
-import * as PROPS from './props.js?v=1.25.0';
-import { audio } from './audio.js?v=1.25.0';
-import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.0';
-import { makeColumn, makePlinth } from './ruins.js?v=1.25.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.25.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.25.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.25.0';
+} from './world.js?v=1.25.1';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.25.1';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.25.1';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.25.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.25.1';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.25.1';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.25.1';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.25.1';
+import { createSea } from './sea.js?v=1.25.1';
+import { buildStatueDoor } from './statue.js?v=1.25.1';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.25.1';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.25.1';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.25.1';
+import * as PROPS from './props.js?v=1.25.1';
+import { audio } from './audio.js?v=1.25.1';
+import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.1';
+import { makeColumn, makePlinth } from './ruins.js?v=1.25.1';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.25.1';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.25.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.25.1';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1045,8 +1045,14 @@ card('corbeaux', {
   el.append(legend);
   section.append(el);
 
-  const ctx = canvas.getContext('2d');
-  const img = ctx.createImageData(N, N);
+  // La carte se prépare sur un canevas caché, puis se recopie : jamais de
+  // relecture des pixels (getImageData), que bloquent certaines extensions
+  // anti-pistage (la carte ne s'affichait plus du tout)
+  const view = canvas.getContext('2d');
+  const baseCanvas = document.createElement('canvas');
+  baseCanvas.width = N; baseCanvas.height = N;
+  const ctx = baseCanvas.getContext('2d');
+  const img = new ImageData(N, N);
   const put = (i, hex) => { const n = parseInt(hex.slice(1), 16); img.data[i] = n >> 16; img.data[i + 1] = (n >> 8) & 255; img.data[i + 2] = n & 255; img.data[i + 3] = 255; };
   const MID = '#8a96b0', DEEP = '#4a5776';  // forêt, forêt noire (la mer reste nuit)
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
@@ -1072,14 +1078,13 @@ card('corbeaux', {
     ctx.fillStyle = SNOW; ctx.fillRect(x / S - 1, y / S - 1, 3, 3);
     ctx.fillStyle = RED; ctx.fillText(label, x / S + 4, y / S - 3);
   }
-  const base = ctx.getImageData(0, 0, N, N);
   function drawHere() {
-    ctx.putImageData(base, 0, 0);
+    view.drawImage(baseCanvas, 0, 0);
     let save = {};
     try { save = JSON.parse(localStorage.getItem('kingvi:save')) || {}; } catch { /* rien */ }
     if (save.x == null) return;
-    ctx.fillStyle = RED;
-    ctx.fillRect(Math.round(save.x / S) - 2, Math.round(save.y / S) - 2, 5, 5);
+    view.fillStyle = RED;
+    view.fillRect(Math.round(save.x / S) - 2, Math.round(save.y / S) - 2, 5, 5);
   }
   drawHere();
 

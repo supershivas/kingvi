@@ -1,9 +1,9 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.25.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.25.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.25.0';
-import { makeGroveTree } from './grove.js?v=1.25.0';
-import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.0';
-import { makeColumn, makePlinth } from './ruins.js?v=1.25.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.25.1';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.25.1';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.25.1';
+import { makeGroveTree } from './grove.js?v=1.25.1';
+import { archParts, ARCH_FW, RUIN_ARCH } from './arch.js?v=1.25.1';
+import { makeColumn, makePlinth } from './ruins.js?v=1.25.1';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.

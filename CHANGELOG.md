@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.25.1 — 2026-10-01
+- Labo : la carte de l'île s'affiche de nouveau, même avec une extension anti-pistage dans le navigateur
+
 ## 1.25.0 — 2026-10-01
 - Une arche de pierre dans la plaine, entre la plaine des morts et la forêt : dix fois la taille du viking, on passe dessous
 - Trois ruines : une colonne couchée avant le lac, un socle à degrés au sortir de la forêt noire, une arche en ruine entre la maison et la falaise
