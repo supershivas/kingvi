@@ -151,6 +151,8 @@ est cachée et ne sort que pendant l'attaque.
   mêmes modules que le jeu). Chaque section porte son thème
   (`data-theme`) ; toute nouvelle section en a un. Toute nouvelle animation y a sa carte ; une
   section Son fait entendre la musique et chaque bruitage.
+- `js/debug.js` — le mode debug du playtest, chargé seulement avec
+  `?debug=1` (voir « Playtest et agents »). Il regarde le jeu sans le changer.
 - `js/main.js` — interface : écran d'accueil, nouveau jeu (efface
   `kingvi:save` et recharge, drapeau `kingvi:start` en sessionStorage pour
   entrer directement), réglages, export, sauvegarde, mise à jour auto.
@@ -264,6 +266,64 @@ est cachée et ne sort que pendant l'attaque.
   écran d'accueil (`--font-game-title` : la gothique du titre, propre au jeu).
 - `app-update.js`, `mobile.css` — copies du design system, tenues à jour par
   `scripts/sync-design-system.sh`. Ne pas les modifier ici.
+
+## Playtest et agents
+
+Une équipe d'agents joue, teste et critique le jeu ; Jérôme tranche. Rien
+n'est jamais implémenté automatiquement.
+
+- `DESIGN.md` — la bible du jeu (intention, piliers, voyage, systèmes,
+  palette, « Ce que le jeu refuse »). Tous les agents la lisent en premier,
+  sauf les joueurs. La tenir à jour quand le jeu change.
+- **Mode debug** (`?debug=1`, `js/debug.js`) : `window.__kingvi` — `state()`
+  (position, zone, PV, endurance, ennemi, meute, jour, vent, torche,
+  chapitres, drapeaux, FPS), `events` (journal horodaté : zones, intérieurs,
+  chapitres, coups donnés et reçus, morts, réveils, loups, corbeaux, sons,
+  humeur de la musique…), `trail`, `places`, `cibles`, `teleport(lieu)`,
+  `setTime(phase)`, `setWeather(ambiance)`, `timeScale(n)` (accélère aussi
+  le jour et le vent, via `Date.now`), `setSeed(n)` (hasard du combat ;
+  aussi `&seed=n` dans l'adresse), `toScreen`, `enter()`, `reset()`. En
+  debug, la partie se sauvegarde sous `kingvi:debug:save` et les réglages ne
+  sont jamais écrits. Sans le paramètre, le module n'est même pas chargé.
+- **Harnais** `tools/playtest/` (Node + Playwright en devDependency,
+  `node_modules` ignoré) : `node run.js --aide`. Sert le dépôt en local, joue
+  un parcours scripté en suivant les traces au clavier (téléport entre les
+  étapes ; `--reel` pour tout marcher), options d'étapes, heure, météo,
+  clavier, CRT, flou, navigateur, taille, densité, graine, vitesse.
+  Conteneur neuf : `sh scripts/setup-playtest.sh` (Playwright 1.56.1, accordé
+  au Chromium de `/opt/pw-browsers` ; Firefox, WebKit et ses bibliothèques).
+- **Agents** `.claude/agents/` : designers (`gardien-du-ton` avec veto,
+  `designer-rythme`, `designer-recit`, `designer-toucher`), testeurs
+  (`testeur-fonctionnel`, `testeur-rendu`, `testeur-systemes` : BLOQUANT,
+  MAJEUR, MINEUR ; une régression est bloquante), joueurs (`joueur-10-roblox`,
+  `joueur-11-novice`, `joueur-12-mythologie`, `joueur-14-inde`,
+  `joueur-15-blase`, et `parent-referent` : ils ne lisent que le carnet et
+  ses captures), `synthetiseur` (motifs, pas des votes).
+- **Commandes** : `/playtest <question>` (harnais → 3 testeurs, arrêt au
+  premier BLOQUANT → 6 joueurs isolés → synthèse → 3 designers → gardien →
+  `decisions.md` avec une case « Jérôme tranche » par proposition) ;
+  `/playtest-light [objet]` (harnais, testeur fonctionnel, gardien).
+- **Arborescence** :
+  ```
+  playtests/
+    _templates/              retour-joueur.md, decisions.md
+    vX.Y.Z/<run-id>/         (run-id : date-heure-étiquette)
+      carnet.md              récit factuel, captures incluses (pour les joueurs)
+      captures/              JPEG, toutes les N s et à chaque événement
+      events.json            journal du jeu
+      durations.json         temps par zone et par étape, tronçons sautés, piste à pied
+      run.json               options, navigateur, FPS, erreurs, état final
+      question.md            la question posée
+      tests/                 rapports des testeurs (et leurs scripts)
+      retours/               un fichier par persona
+      synthese.md
+      designers/             propositions, verdict du gardien
+      decisions.md           ce que Jérôme tranche
+  ```
+- GitHub Pages sert tout le dépôt : `tools/` et `playtests/` y sont
+  accessibles par URL, sans lien (accepté).
+- Le conteneur n'a pas de carte graphique : le jeu y tourne vers 8 images/s.
+  Les durées sont en temps de jeu ; les FPS se comparent d'un run à l'autre.
 
 ## Exceptions aux conventions
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.22.1 — 2026-10-01
+- Outillage de playtest : un mode debug (invisible pour le joueur) qui permet de rejouer et d'observer une partie automatiquement
+
 ## 1.22.0 — 2026-10-01
 - Tous les rochers et tous les arbres finissent par céder : les rochers s'effritent coup après coup, les gros résistent longtemps ; les rochers sont des blocs trapus, plus des pyramides
 - Un compteur d'arbres abattus et de rochers brisés ; la torche éclaire de nouveau en halo tramé, avec ses ombres

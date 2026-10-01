@@ -1,0 +1,112 @@
+{
+  "unite": "secondes de temps de jeu",
+  "parZone": {
+    "greve": 9.7,
+    "noire": 43.8,
+    "bosquet": 38.4,
+    "plaine": 27.2,
+    "maison": 9.1,
+    "interieur:maison": 7.1,
+    "autre": 44.7
+  },
+  "chapitresA": {
+    "Chapitre I — La grève": 1.2,
+    "Chapitre IV — La forêt noire": 1.6,
+    "Chapitre V — Les loups": 18.1,
+    "Chapitre VI — La maison": 100.6,
+    "Chapitre VII — L'autre": 130
+  },
+  "tronconsSautes": [
+    {
+      "vers": "bosquet",
+      "pixels": 2898,
+      "secondesAPied": 161
+    },
+    {
+      "vers": "guetteur",
+      "pixels": 189,
+      "secondesAPied": 10
+    },
+    {
+      "vers": "freya-debout",
+      "pixels": 4222,
+      "secondesAPied": 235
+    },
+    {
+      "vers": "maison",
+      "pixels": 524,
+      "secondesAPied": 29
+    },
+    {
+      "vers": "viking",
+      "pixels": 701,
+      "secondesAPied": 39
+    },
+    {
+      "vers": "viking",
+      "pixels": 6016,
+      "secondesAPied": 334
+    },
+    {
+      "vers": "viking",
+      "pixels": 6016,
+      "secondesAPied": 334
+    }
+  ],
+  "pisteEntiere": {
+    "pixels": 6209,
+    "secondesAPied": 345,
+    "minutesAPied": 5.7
+  },
+  "etapes": [
+    {
+      "id": "bosquet",
+      "titre": "Le bosquet sacré et la meute",
+      "debut": 1.2,
+      "fin": 72.5,
+      "duree": 71.3
+    },
+    {
+      "id": "guetteur",
+      "titre": "Le guetteur",
+      "debut": 72.5,
+      "fin": 83,
+      "duree": 10.5
+    },
+    {
+      "id": "freya-debout",
+      "titre": "Freya debout",
+      "debut": 83,
+      "fin": 99.9,
+      "duree": 16.9
+    },
+    {
+      "id": "maison",
+      "titre": "La maison, dehors et dedans",
+      "debut": 99.9,
+      "fin": 123.5,
+      "duree": 23.6
+    },
+    {
+      "id": "viking",
+      "titre": "L'autre viking : mort volontaire",
+      "debut": 123.5,
+      "fin": 144.6,
+      "duree": 21.1
+    },
+    {
+      "id": "reveil",
+      "titre": "Le réveil à la barque",
+      "debut": 144.6,
+      "fin": 148.6,
+      "duree": 4
+    },
+    {
+      "id": "victoire",
+      "titre": "Retour au bout des traces, et victoire",
+      "debut": 148.6,
+      "fin": 181,
+      "duree": 32.4
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "kingvi-playtest",
+  "private": true,
+  "description": "Harnais de playtest de KINGVI SNO 7 (jamais servi par le jeu)",
+  "type": "module",
+  "scripts": {
+    "run": "node run.js"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

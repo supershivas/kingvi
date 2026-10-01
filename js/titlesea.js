@@ -3,11 +3,11 @@
    houle la soulève et la fait rouler, un sillage d'écume la suit, des moutons
    défilent, des icebergs plats passent au loin, il neige. Rien ne tourne quand
    l'écran d'accueil est caché. */
-import { BOAT_FRAMES, BOAT_W, BOAT_WATERLINE } from './boat.js?v=1.22.0';
-import { vikingFrames, CX, GROUND } from './viking.js?v=1.22.0';
-import { makeIceberg } from './trees.js?v=1.22.0';
-import { createSea } from './sea.js?v=1.22.0';
-import { createWeather } from './weather.js?v=1.22.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_WATERLINE } from './boat.js?v=1.22.1';
+import { vikingFrames, CX, GROUND } from './viking.js?v=1.22.1';
+import { makeIceberg } from './trees.js?v=1.22.1';
+import { createSea } from './sea.js?v=1.22.1';
+import { createWeather } from './weather.js?v=1.22.1';
 
 function rng(seed) {
   let a = seed >>> 0;

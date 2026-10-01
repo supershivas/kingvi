@@ -1,12 +1,16 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.22.0';
-import { createGame } from './game.js?v=1.22.0';
-import { showChapter } from './chapters.js?v=1.22.0';
-import { createTitleSea } from './titlesea.js?v=1.22.0';
-import { audio } from './audio.js?v=1.22.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.22.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.22.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.22.1';
+import { createGame } from './game.js?v=1.22.1';
+import { showChapter } from './chapters.js?v=1.22.1';
+import { createTitleSea } from './titlesea.js?v=1.22.1';
+import { audio } from './audio.js?v=1.22.1';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.22.1';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.22.1';
 
-const SAVE_KEY = 'kingvi:save';
+// Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
+// et les réglages ne sont jamais écrits (la vraie partie reste intacte)
+const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
+const debug = DEBUG ? await import('./debug.js?v=1.22.1') : null;
+const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
 
@@ -14,6 +18,7 @@ function read(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function write(key, value) {
+  if (DEBUG && key === PREFS_KEY) return;
   try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* stockage plein ou bloqué */ }
 }
 
@@ -263,6 +268,7 @@ title.addEventListener('keydown', e => { if (e.key === 'Escape' && hasSave()) cl
 let startNow = false;
 try { startNow = sessionStorage.getItem('kingvi:start') === '1'; sessionStorage.removeItem('kingvi:start'); } catch { /* rien */ }
 if (startNow) closeTitle(); else openTitle();
+debug?.attachDebug({ game, dayClock, enter: closeTitle });
 
 // ── En-tête : le nom ramène à l'écran d'accueil et referme les réglages ──
 $('home').addEventListener('click', e => {
