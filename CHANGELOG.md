@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.32.0 — 2026-10-02
+- Labo : un onglet Interface propose quatre nouveaux styles de boutons pour l'accueil et quatre menus Réglages, à comparer à l'actuel
+
 ## 1.31.2 — 2026-10-02
 - Les titres des chapitres redeviennent sobres : plus de voile ni d'effet, le texte seul apparaît et s'efface en fondu
 

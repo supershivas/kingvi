@@ -1,0 +1,238 @@
+/* Labo, onglet Interface : propositions pour les boutons de l'accueil et le
+   menu Réglages. Des maquettes en HTML, aux couleurs du jeu ; rien ici n'est
+   chargé par le jeu. --p : la taille d'un pixel du jeu dans les maquettes. */
+.ui-stage {
+  --p: 3px;
+  --dither: repeating-conic-gradient(var(--game-snow) 0 25%, transparent 0 50%) 0 0 / calc(var(--p) * 2) calc(var(--p) * 2);
+  position: relative; overflow: hidden; border-radius: var(--radius-sm);
+  min-height: 300px; padding: 28px 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  color: var(--game-snow);
+  /* La mer de nuit, quelques flocons, une bande de neige en bas */
+  background:
+    radial-gradient(circle at 12% 22%, var(--game-snow) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 78% 14%, var(--game-snow) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 64% 70%, var(--game-snow) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 30% 82%, var(--game-snow) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 90% 56%, var(--game-snow) 0 1.5px, transparent 2px),
+    radial-gradient(ellipse 70% 70% at 50% 50%, transparent 45%, rgba(5,7,12,.55) 100%),
+    var(--game-night);
+}
+.ui-stage .ui-name { font-family: var(--font-game-title); font-weight: 800; font-size: 2.6rem; line-height: 1; letter-spacing: .02em; }
+.ui-stage .ui-col { display: flex; flex-direction: column; gap: 10px; min-width: 230px; }
+.ui-stage button { font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.ui-stage :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ── Boutons ── */
+
+/* A · actuel : ceux du design system (title-actions) */
+.btnA .ui-col > * { width: 100%; }
+.btnA .btn-ghost { color: var(--game-snow); border-color: rgba(223,230,238,.35); }
+.btnA .btn-ghost:hover { background: rgba(223,230,238,.1); color: var(--game-snow); }
+.btnA .btn-ghost.confirm { background: var(--accent); border-color: var(--accent); }
+
+/* B · gothique nue : le mot seul ; une petite lame rouge en pixels désigne le choix */
+.btnB .ui-col { gap: 2px; align-items: center; }
+.btnB button {
+  position: relative; min-height: 44px; padding: 0 28px; background: none; border: 0;
+  color: var(--game-snow); font-family: var(--font-game-title); font-weight: 500; font-size: 1.7rem;
+  opacity: .62; transition: opacity .2s steps(3);
+}
+.btnB button::before {
+  content: ''; position: absolute; left: 2px; top: 50%; width: var(--p); height: var(--p);
+  margin-top: calc(var(--p) / -2); background: var(--accent); opacity: 0;
+  /* La lame : une garde, puis la pointe vers le mot */
+  box-shadow: 0 calc(var(--p) * -1) var(--accent), 0 var(--p) var(--accent),
+    var(--p) 0 var(--accent), calc(var(--p) * 2) 0 var(--accent), calc(var(--p) * 3) 0 var(--accent),
+    calc(var(--p) * 4) 0 var(--game-snow), calc(var(--p) * 5) 0 var(--game-snow);
+}
+.btnB button:hover, .btnB button:focus-visible, .btnB button.on { opacity: 1; outline: none; }
+.btnB button:hover::before, .btnB button:focus-visible::before, .btnB button.on::before { opacity: 1; }
+.btnB button.confirm { color: var(--accent); opacity: 1; }
+
+/* C · plaque de neige : un bloc clair aux coins grignotés en marches de pixels,
+   une ombre tramée dessous ; chaque plaque est usée à sa façon */
+.btnC button {
+  min-height: 44px; padding: 0 20px; border: 0; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--font-mono); font-size: .85rem; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--game-night);
+  background: linear-gradient(transparent calc(100% - var(--p)), rgba(31,42,68,.35) 0), var(--game-snow);
+  clip-path: polygon(3px 0, calc(100% - 6px) 0, calc(100% - 6px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 6px, 100% 6px,
+    100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%,
+    6px 100%, 6px calc(100% - 3px), 3px calc(100% - 3px), 3px calc(100% - 6px), 0 calc(100% - 6px), 0 3px, 3px 3px);
+}
+.btnC button:nth-child(2) {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 3px) calc(100% - 6px), calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 9px) calc(100% - 3px), calc(100% - 9px) 100%, 0 100%, 0 6px, 3px 6px, 3px 3px, 6px 3px);
+}
+.btnC button.primary { color: var(--game-snow); background: linear-gradient(transparent calc(100% - var(--p)), rgba(5,7,12,.35) 0), var(--accent); }
+.btnC button:hover, .btnC button.confirm { color: var(--game-snow); background: var(--game-night); box-shadow: inset 0 0 0 var(--p) var(--game-snow); }
+.btnC button.primary:hover { background: var(--accent-hover); box-shadow: none; }
+
+/* D · trame de nuit : le fond reste la mer, seul un cadre tramé (damier d'un pixel) dessine le bouton */
+.btnD button {
+  min-height: 44px; padding: 0 18px; display: inline-flex; align-items: center; gap: 12px;
+  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .22em; text-transform: uppercase; color: var(--game-snow);
+  border: var(--p) solid transparent;
+  background: linear-gradient(var(--game-night), var(--game-night)) padding-box, var(--dither) border-box;
+}
+.btnD button i { font-size: 18px; opacity: .75; }
+.btnD button:hover, .btnD button.primary {
+  background: linear-gradient(var(--game-night), var(--game-night)) padding-box,
+    repeating-conic-gradient(var(--accent) 0 25%, transparent 0 50%) 0 0 / calc(var(--p) * 2) calc(var(--p) * 2) border-box;
+}
+.btnD button.confirm { background: var(--accent); border-color: var(--accent); }
+
+/* E · lambeau de neige : une bande de neige déchirée, le mot en gothique bleu nuit ;
+   le premier porte des gouttes de sang */
+.btnE .ui-col { gap: 12px; }
+.btnE button {
+  min-height: 46px; padding: 0 26px; border: 0; color: var(--game-night);
+  font-family: var(--font-game-title); font-weight: 500; font-size: 1.45rem;
+  background: var(--game-snow);
+  clip-path: polygon(0 4px, 6% 1px, 13% 3px, 22% 0, 31% 2px, 44% 0, 52% 3px, 63% 1px, 71% 0, 82% 3px, 90% 1px, 100% 5px,
+    99% 40%, 100% 72%, 98% calc(100% - 3px), 88% 100%, 77% calc(100% - 2px), 64% 100%, 50% calc(100% - 4px), 38% 100%,
+    27% calc(100% - 1px), 15% 100%, 5% calc(100% - 3px), 0 calc(100% - 1px), 1% 60%, 0 30%);
+  transition: transform .15s steps(2);
+}
+.btnE button:nth-child(2) { transform: rotate(-1deg); }
+.btnE button:nth-child(3) { transform: rotate(.7deg); }
+.btnE button.primary {
+  background:
+    radial-gradient(circle at 9% 70%, var(--accent) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 14% 35%, var(--accent) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 93% 30%, var(--accent) 0 1.5px, transparent 2px),
+    var(--game-snow);
+}
+.btnE button:hover { transform: translateX(var(--p)); }
+.btnE button.confirm { background: var(--accent); color: var(--game-snow); }
+
+/* ── Menu Réglages ── */
+.set-stage { min-height: 560px; padding: 20px 12px; align-items: stretch; justify-content: center; }
+/* Derrière le menu : le jeu en pause (neige et mer) */
+.set-stage::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(104deg, var(--game-night) 46%, var(--game-snow) 46.5%);
+  opacity: .9;
+}
+.set-stage > * { position: relative; }
+.set-stage .set-title { font-size: 1.25rem; }
+.set-rows { display: flex; flex-direction: column; gap: 10px; }
+.set-row { display: flex; flex-direction: column; gap: 2px; font-size: .85rem; }
+.set-row .hint-text { font-size: .75rem; opacity: .7; }
+.set-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: .78rem; }
+.set-foot .version { font-family: var(--font-mono); }
+
+/* Les curseurs, dessinés en pixels : piste (--trk), poignée (--thumb), partie remplie (--fill) */
+.set-stage input[type="range"] {
+  -webkit-appearance: none; appearance: none; width: 100%; min-height: 36px; background: transparent; cursor: pointer;
+  --trk: rgba(31,42,68,.35); --thumb: var(--game-night); --fill: var(--accent);
+}
+.set-stage input[type="range"]::-webkit-slider-runnable-track { height: calc(var(--p) * 2); background: var(--trk); }
+.set-stage input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: calc(var(--p) * 3); height: calc(var(--p) * 6); margin-top: calc(var(--p) * -2);
+  background: var(--thumb); border: 0; border-radius: 0;
+}
+.set-stage input[type="range"]::-moz-range-track { height: calc(var(--p) * 2); background: var(--trk); border: 0; }
+.set-stage input[type="range"]::-moz-range-progress { height: calc(var(--p) * 2); background: var(--fill); }
+.set-stage input[type="range"]::-moz-range-thumb { width: calc(var(--p) * 3); height: calc(var(--p) * 6); background: var(--thumb); border: 0; border-radius: 0; }
+
+/* A · actuel : la modale blanche du design system */
+.setA .modal-box { width: min(100%, 400px); margin: 0 auto; gap: 12px; color: var(--text-primary); max-height: 520px; overflow: auto; }
+.setA input[type="range"] { -webkit-appearance: auto; appearance: auto; accent-color: var(--accent); }
+.setA input[type="range"]::-webkit-slider-runnable-track, .setA input[type="range"]::-webkit-slider-thumb { all: revert; }
+.setA .set-foot { color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 10px; }
+
+/* B · carnet de neige : une page claire, un cadre de pixels en marches, titres en gothique */
+.setB .set-panel {
+  width: min(100%, 400px); margin: 0 auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px;
+  background: var(--game-snow); color: var(--game-night);
+  box-shadow: 0 0 0 var(--p) var(--game-night), var(--p) var(--p) 0 var(--p) var(--game-night), calc(var(--p) * 2) calc(var(--p) * 3) 0 var(--p) rgba(5,7,12,.4);
+}
+.setB .set-head { display: flex; align-items: center; justify-content: space-between; }
+.setB .set-title { font-family: var(--font-game-title); font-weight: 800; font-size: 1.9rem; }
+.setB h4 { font-family: var(--font-game-title); font-weight: 500; font-size: 1.15rem; border-bottom: var(--p) solid; padding-bottom: 2px; }
+.setB .set-row label { font-family: var(--font-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+.setB .set-foot { font-family: var(--font-mono); border-top: var(--p) dotted var(--game-night); padding-top: 10px; }
+.setB .set-close { width: 44px; height: 44px; border: 0; background: none; color: var(--game-night); font-size: 22px; display: grid; place-items: center; }
+.setB .set-close:hover { background: var(--game-night); color: var(--game-snow); }
+
+/* C · tiroir de nuit : un pan bleu nuit sur la droite ; le jeu reste visible à gauche */
+.setC { align-items: flex-end; padding: 0; }
+.setC .set-panel {
+  width: min(88%, 330px); flex: 1; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 12px; overflow: auto;
+  background: rgba(23,31,51,.94); color: var(--game-snow);
+  border-left: var(--p) solid transparent;
+  border-image: repeating-linear-gradient(var(--game-snow) 0 var(--p), transparent 0 calc(var(--p) * 2)) 1;
+}
+.setC .set-head { display: flex; align-items: center; justify-content: space-between; }
+.setC .set-title { font-family: var(--font-mono); font-size: .8rem; letter-spacing: .3em; text-transform: uppercase; }
+.setC h4 { font-family: var(--font-mono); font-size: .7rem; font-weight: 400; letter-spacing: .25em; text-transform: uppercase; color: var(--accent); margin-top: 4px; }
+.setC .set-row { color: rgba(223,230,238,.85); }
+.setC input[type="range"] { --trk: rgba(223,230,238,.25); --thumb: var(--game-snow); }
+.setC .set-close { width: 44px; height: 44px; border: 0; background: none; color: var(--game-snow); font-size: 20px; display: grid; place-items: center; }
+.setC .set-link { min-height: 44px; display: flex; align-items: center; gap: 10px; background: none; border: 0; color: var(--game-snow); padding: 0; font-size: .85rem; }
+.setC .set-link:hover { color: var(--accent); }
+.setC .set-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(223,230,238,.18); color: rgba(223,230,238,.6); }
+
+/* D · pause plein écran : pas de boîte, la nuit couvre le jeu ; à gauche les
+   rubriques en gothique, à droite celle qui est ouverte */
+.setD { padding: 24px 20px; justify-content: center; }
+.setD::before { opacity: 1; background: radial-gradient(ellipse 70% 70% at 40% 50%, rgba(31,42,68,.9), var(--game-night)); }
+.setD .set-cols { display: grid; grid-template-columns: minmax(130px, auto) minmax(0, 300px); gap: 28px; align-items: start; justify-content: center; }
+.setD nav { display: flex; flex-direction: column; }
+.setD nav button {
+  position: relative; min-height: 44px; padding: 0 0 0 26px; text-align: left; background: none; border: 0;
+  color: var(--game-snow); font-family: var(--font-game-title); font-size: 1.6rem; opacity: .5;
+}
+.setD nav button.on, .setD nav button:hover { opacity: 1; }
+.setD nav button.on::before {
+  content: ''; position: absolute; left: 4px; top: 50%; width: calc(var(--p) * 3); height: var(--p); background: var(--accent);
+  box-shadow: 0 var(--p) var(--accent);
+}
+.setD .set-pane { display: flex; flex-direction: column; gap: 12px; padding-top: 8px; }
+.setD .set-pane[hidden] { display: none; }
+.setD .set-row label { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .15em; text-transform: uppercase; opacity: .8; }
+.setD input[type="range"] { --trk: rgba(223,230,238,.22); --thumb: var(--game-snow); }
+.setD .set-link { min-height: 44px; display: flex; align-items: center; gap: 10px; background: none; border: 0; color: var(--game-snow); padding: 0; font-size: .9rem; }
+.setD .set-link:hover { color: var(--accent); }
+.setD .set-foot { color: rgba(223,230,238,.55); font-family: var(--font-mono); }
+.setD .set-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.setD .set-chips button {
+  min-height: 36px; padding: 0 10px; background: none; color: var(--game-snow); font-family: var(--font-mono); font-size: .75rem;
+  border: 1px solid rgba(223,230,238,.3);
+}
+.setD .set-chips button.on { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 560px) { .setD .set-cols { grid-template-columns: 1fr; gap: 8px; } .setD nav { flex-direction: row; flex-wrap: wrap; } .setD nav button { font-size: 1.25rem; } }
+
+/* E · pierre rongée : une dalle claire aux bords cassés, cadre tramé ; les
+   niveaux se règlent par crans (des pierres empilées) */
+.setE .set-slab {
+  width: min(100%, 410px); margin: 0 auto; padding: calc(var(--p) * 2);
+  background: var(--dither), var(--game-night);
+  clip-path: polygon(0 2%, 7% 0, 30% 1%, 52% 0, 76% 1.2%, 93% 0, 100% 3%, 99.4% 30%, 100% 62%, 99% 97%, 88% 100%, 61% 99%, 34% 100%, 9% 99.2%, 0 100%, .8% 70%, 0 38%);
+}
+.setE .set-panel {
+  padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; background: var(--game-snow); color: var(--game-night);
+  clip-path: polygon(0 1%, 18% 0, 47% .6%, 70% 0, 100% 1%, 99.5% 40%, 100% 80%, 99.2% 100%, 72% 99.4%, 40% 100%, 12% 99.5%, 0 100%, .5% 55%);
+}
+.setE .set-head { display: flex; align-items: center; justify-content: space-between; }
+.setE .set-title { font-family: var(--font-game-title); font-weight: 800; font-size: 1.8rem; }
+.setE .set-row label { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+.setE .notches { display: flex; align-items: flex-end; gap: var(--p); min-height: 36px; cursor: pointer; touch-action: none; }
+.setE .notches span { flex: 1; background: rgba(31,42,68,.2); height: calc(var(--p) * 3); }
+.setE .notches span:nth-child(3n+1) { height: calc(var(--p) * 4); }
+.setE .notches span:nth-child(4n+2) { height: calc(var(--p) * 2.5); }
+.setE .notches span.on { background: var(--game-night); }
+.setE .notches span.tip { background: var(--accent); }
+.setE .set-close { width: 44px; height: 44px; border: 0; background: none; color: var(--game-night); font-size: 22px; display: grid; place-items: center; }
+.setE .set-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.setE .set-actions button {
+  min-height: 44px; padding: 0 14px; border: 0; display: inline-flex; align-items: center; gap: 8px;
+  background: var(--game-night); color: var(--game-snow); font-size: .85rem;
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, 100% 4px, 100% calc(100% - 2px), calc(100% - 4px) 100%, 0 100%);
+}
+.setE .set-actions button:hover { background: var(--accent); }
+.setE .set-foot { font-family: var(--font-mono); border-top: var(--p) dashed rgba(31,42,68,.4); padding-top: 10px; }
+
+@media (prefers-reduced-motion: reduce) { .ui-stage * { transition: none !important; } }

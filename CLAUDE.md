@@ -125,7 +125,7 @@ comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
 secondes quand le guetteur s'efface (`audio.hush`).
 
 La page `labo.html` regroupe toutes les animations, rangées par thèmes en
-onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son ; un
+onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son, Interface ; un
 seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
 thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), chapitres, barque, jour et nuit, viking,
@@ -134,7 +134,9 @@ grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
 (lettres A, B, C…) : pontons, seconde barque, nécropole d'après Lindholm Høje,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
-et biches.
+et biches ; dans Interface, les boutons de l'accueil et le menu Réglages
+(maquettes HTML jouables, `js/labo-ui.js`, `css/labo-ui.css` : A l'actuel,
+B à E des styles propres au jeu, rien n'est encore branché dans le jeu).
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
