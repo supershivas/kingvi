@@ -1,0 +1,113 @@
+{
+  "runId": "20261002-0606-meute",
+  "version": "1.28.0",
+  "date": "2026-10-02T06:07:27.857Z",
+  "dureeReelle": 39,
+  "options": {
+    "clavier": "azerty",
+    "qualite": 1,
+    "navigateur": "chromium",
+    "taille": "1280x800",
+    "dpr": 1,
+    "graine": 7,
+    "capture": 6,
+    "vitesse": 1,
+    "heure": null,
+    "meteo": null,
+    "from": "bosquet",
+    "to": "bosquet",
+    "lac": true,
+    "reel": false,
+    "etiquette": "meute",
+    "visible": false
+  },
+  "navigateur": "chromium 141.0.7390.37",
+  "fps": {
+    "moyen": 38,
+    "min": 29,
+    "max": 55.5
+  },
+  "erreurs": [],
+  "derniereErreurDuJeu": null,
+  "etatFinal": {
+    "pret": true,
+    "accueil": false,
+    "x": 3146.7,
+    "y": 2270,
+    "zone": "bosquet",
+    "dedans": null,
+    "enBarque": false,
+    "pv": 1,
+    "pvMax": 3,
+    "endurance": 1,
+    "mort": false,
+    "attaque": false,
+    "court": false,
+    "ennemi": {
+      "pv": 3,
+      "etat": "wait",
+      "vivant": true,
+      "engage": false,
+      "x": 5179,
+      "y": 2627,
+      "distance": 2063
+    },
+    "meute": {
+      "etat": "leaving",
+      "engagee": false,
+      "vivants": 2,
+      "morts": 2,
+      "loups": [
+        {
+          "etat": "dead",
+          "x": 3114,
+          "y": 2237
+        },
+        {
+          "etat": "hidden",
+          "x": 3118,
+          "y": 2282
+        },
+        {
+          "etat": "leave",
+          "x": 3130,
+          "y": 2234
+        },
+        {
+          "etat": "dead",
+          "x": 3143,
+          "y": 2279
+        }
+      ]
+    },
+    "vent": "calme",
+    "jour": "jour",
+    "nuit": 0,
+    "heureCycle": 448,
+    "torche": false,
+    "chapitres": [
+      "greve",
+      "noire",
+      "loups"
+    ],
+    "compteur": {
+      "trees": 0,
+      "rocks": 0
+    },
+    "drapeaux": {
+      "foeDead": false,
+      "chestOpen": false,
+      "watcherGone": false,
+      "kingBowed": false
+    },
+    "distance": 472,
+    "tempsJeu": 45.2,
+    "fps": 29,
+    "vitesse": 1,
+    "graine": 7,
+    "zoom": 1.44,
+    "morceauxEnAttente": 0,
+    "derniereErreur": null
+  },
+  "captures": 15
+}

@@ -10,7 +10,7 @@
      un pilier est plus près que l'autre) ; les piliers bloquent, on passe
      par le milieu ;
    - la colonne couchée et le socle : un seul obstacle chacun. */
-import { RUIN_ART } from './ruins-art.js?v=1.27.1';
+import { RUIN_ART } from './ruins-art.js?v=1.28.0';
 
 // Le passage de chaque arche : les colonnes du dessin où l'on passe dessous
 // (la partie claire de l'ouverture et l'intérieur sombre du passage)
@@ -76,17 +76,66 @@ export function monumentParts(key, x, y) {
     add('arch-vault', pass[0], pass[1], inMain, 0, { noShadow: true });
     add('arch', pass[1], W, inMain, FOOT[key]);
   } else add('ruin', 0, W, inMain, FOOT[key]);
-  // Les gravats : chaque morceau détaché, à son pied, on marche dessus
-  const seen = new Set();
-  for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
-    const k = id[py * W + px];
-    if (k < 0 || inMain(px, py) || seen.has(k)) continue;
-    seen.add(k);
-    let x0 = W, x1 = 0;
-    for (let i = 0; i < W * H; i++) if (id[i] === k) { x0 = Math.min(x0, i % W); x1 = Math.max(x1, i % W); }
-    add('rubble', x0, x1 + 1, (u, v) => id[v * W + u] === k, 0);
+  // Pas de gravats (les morceaux détachés du dessin sont laissés de côté) :
+  // autour, des rochers cernés, posés au hasard (toujours le même)
+  const r = rng(hashKey(key)), cx = ox + (left + right) / 2, half = (right - left) / 2;
+  const n = 4 + Math.floor(r() * 3);
+  for (let k = 0, tries = 0; k < n && tries < 40; tries++) {
+    const a = r() * Math.PI * 2, d = half + 5 + r() * 12;
+    const px = Math.round(cx + Math.cos(a) * d), py = Math.round(y + 3 + Math.sin(a) * 11);
+    // Ni sur le monument, ni devant le passage d'une arche
+    if (px > ox + left - 3 && px < ox + right + 3 && py < y + 3) continue;
+    if (pass && px > ox + pass[0] - 5 && px < ox + pass[1] + 5 && py > y - 14) continue;
+    if (parts.some(o => o.type === 'stone' && Math.abs(o.x - px) < 12 && Math.abs(o.y - py) < 6)) continue;
+    const art = makeOutlinedRock(r);
+    const w = art.rows[0].length, h = art.rows.length;
+    parts.push({ type: 'stone', x: px - (w >> 1), y: py, foot: Math.max(1, Math.round(h * 0.5)), art: { rows: art.rows, ax: 0 } });
+    k++;
   }
   return parts;
+}
+
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+const hashKey = key => [...key].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619), 2166136261);
+
+// ── Un rocher cerné, dans le style des dessins : un trait fin (un pixel, bleu
+// nuit), l'intérieur clair (neige) ; un polygone simple mais irrégulier, assis
+// sur sa base, parfois une fissure ──
+export function makeOutlinedRock(r) {
+  const W = 6 + Math.floor(r() * 6), H = 4 + Math.floor(r() * 3);
+  const cx = (W - 1) / 2, cy = (H - 1) / 2, n = 5 + Math.floor(r() * 3), a0 = r() * Math.PI;
+  const pts = [];
+  for (let i = 0; i < n; i++) {
+    const a = a0 + i / n * Math.PI * 2 + (r() - 0.5) * 0.7, k = 0.78 + r() * 0.22;
+    // (le bas aplati : il pose sur la neige)
+    pts.push([cx + Math.cos(a) * (W / 2) * k, Math.min(H - 0.6, cy + Math.sin(a) * (H / 2 + 0.4) * k)]);
+  }
+  const inside = (x, y) => {
+    let c = false;
+    for (let i = 0, j = n - 1; i < n; j = i++) {
+      const [xi, yi] = pts[i], [xj, yj] = pts[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  };
+  const g = Array.from({ length: H }, (_, y) => Array.from({ length: W }, (_, x) => inside(x + 0.5, y + 0.5)));
+  const at = (x, y) => g[y]?.[x] || false;
+  const rows = g.map((row, y) => row.map((on, x) => !on ? '.'
+    : (!at(x - 1, y) || !at(x + 1, y) || !at(x, y - 1) || !at(x, y + 1)) ? 'k' : 's'));
+  // Une fissure, parfois : quelques pixels sombres en biais
+  if (r() < 0.6 && W > 7) {
+    let x = 2 + Math.floor(r() * (W - 5)), y = 1 + Math.floor(r() * Math.max(1, H - 3));
+    for (let m = 0; m < 3 && rows[y]?.[x] === 's'; m++) { rows[y][x] = 'k'; x++; y += r() < 0.5 ? 1 : 0; }
+  }
+  // Rognure du haut et du bas vides
+  let out = rows.map(row => row.join('')).filter(row => /[^.]/.test(row));
+  const l = Math.min(...out.map(row => row.length - row.replace(/^\.+/, '').length));
+  const rgt = Math.max(...out.map(row => row.replace(/\.+$/, '').length));
+  out = out.map(row => row.slice(l, rgt));
+  return { rows: out };
 }
 
 // La largeur et la hauteur d'un dessin (pour les emprises)

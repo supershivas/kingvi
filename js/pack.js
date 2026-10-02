@@ -4,13 +4,18 @@
    s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.27.1';
-import { paintFrames } from './viking.js?v=1.27.1';
+import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.28.0';
+import { paintFrames } from './viking.js?v=1.28.0';
 
 export const WOLF_HP = 2;
 const COUNT = 4;
 const RING = { rx: 30, ry: 17 };      // ils tournent autour de lui, à distance
 const TROT = 30, GALLOP = 58, LUNGE = 125;
+// Le combat, réglé pour être lisible et gagnable : le grognement avant le
+// bond (on le voit venir), le temps entre deux attaques, la marge autour d'un
+// loup où la lame porte (il est petit), et combien d'entre eux doivent tomber
+// pour que les autres s'enfuient pour de bon
+const CROUCH = 1.0, LUNGE_GAP = { many: 2.8, few: 3.2, spread: 1.0 }, HIT = { x: 9, y: 6 }, ROUT = 2;
 
 export function createPack(scene, palette, { den, radius, isLand, onBite, bleed, dead = [] }) {
   // ── La planche ──
@@ -60,6 +65,8 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
     lie(w, d.dir || 1);
   }
   const alive = () => wolves.filter(w => w.state !== 'dead');
+  // Deux des leurs sont tombés : la meute fuit, et ne revient plus
+  const routed = () => wolves.length - alive().length >= ROUT;
 
   function moveToward(w, tx, ty, speed, dt) {
     const dx = tx - w.pos.x, dy = ty - w.pos.y, d = Math.hypot(dx, dy);
@@ -96,11 +103,16 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
     hitAt(x, y, dir, probe = false) {
       for (const w of alive()) {
         if (w.state === 'hidden' || w.state === 'leave') continue;
-        if (Math.abs(x - w.pos.x) > 7 || Math.abs(y - (w.pos.y - 2)) > 5) continue;
+        if (Math.abs(x - w.pos.x) > HIT.x || Math.abs(y - (w.pos.y - 2)) > HIT.y) continue;
         if (probe) return w;
         w.hp--;
         bleed(w.pos.x, w.pos.y, 4);
-        if (w.hp <= 0) { lie(w, dir); return w; }
+        if (w.hp <= 0) {
+          lie(w, dir);
+          // Le deuxième tombe : les autres détalent sous les arbres
+          if (pack.state === 'hunt' && routed()) { scatter(); scene.onPackSound('yelp'); }
+          return w;
+        }
         w.state = 'hurt'; w.timer = 0.45;
         w.vx = dir * 60; w.vy = 0;
         w.sprite.stop(); w.sprite.setFrame('bond-1');
@@ -119,15 +131,15 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
       const away = player.dead || player.inside || player.rowing;
 
       // On approche : un hurlement, au loin, avant de les voir
-      if (!pack.heard && !away && dDen < radius + 150 && alive().length) { pack.heard = true; scene.onPackSound('howl', { n: 3 }); }
+      if (!pack.heard && !away && dDen < radius + 150 && alive().length && !routed()) { pack.heard = true; scene.onPackSound('howl', { n: 3 }); }
       if (dDen > radius + 400) pack.heard = false;
 
       const reach = pack.scent ? radius + 140 : radius * 0.8;
-      if (pack.state === 'idle' && !away && dDen < reach && alive().length) {
+      if (pack.state === 'idle' && !away && dDen < reach && alive().length && !routed()) {
         pack.state = 'hunt';
         pack.chase = pack.scent ? radius * 4 : radius * 2.6;
         pack.scent = false;
-        pack.lungeClock = 2.4;
+        pack.lungeClock = 3;
         scene.onPackSound('howl', { n: 2 });
         for (const w of alive()) {
           w.state = 'arrive'; w.timer = w.i * 0.35;
@@ -151,13 +163,13 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
             // Celui qui est le plus près
             ready.sort((a, b) => Math.hypot(a.pos.x - p.x, a.pos.y - p.y) - Math.hypot(b.pos.x - p.x, b.pos.y - p.y));
             const w = ready[0];
-            w.state = 'crouch'; w.timer = 0.6;
+            w.state = 'crouch'; w.timer = CROUCH;
             w.sprite.setFlipX(p.x < w.pos.x);
             play(w, 'grogne');
             scene.onPackSound('growl');
           }
           const n = alive().length;
-          pack.lungeClock = (n > 2 ? 1.9 : 2.4) + Math.random() * 1.2;
+          pack.lungeClock = (n > 2 ? LUNGE_GAP.many : LUNGE_GAP.few) + Math.random() * LUNGE_GAP.spread;
         }
       }
 

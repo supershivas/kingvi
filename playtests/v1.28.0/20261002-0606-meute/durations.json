@@ -1,0 +1,34 @@
+{
+  "unite": "secondes de temps de jeu",
+  "parZone": {
+    "greve": 4.1,
+    "noire": 13.8,
+    "bosquet": 21.4
+  },
+  "chapitresA": {
+    "Chapitre I — La grève": 6.2,
+    "Chapitre IV — La forêt noire": 9.1,
+    "Chapitre V — Les loups": 25.6
+  },
+  "tronconsSautes": [
+    {
+      "vers": "bosquet",
+      "pixels": 2898,
+      "secondesAPied": 161
+    }
+  ],
+  "pisteEntiere": {
+    "pixels": 6209,
+    "secondesAPied": 345,
+    "minutesAPied": 5.7
+  },
+  "etapes": [
+    {
+      "id": "bosquet",
+      "titre": "Le bosquet sacré et la meute",
+      "debut": 8.5,
+      "fin": 45.2,
+      "duree": 36.7
+    }
+  ]
+}

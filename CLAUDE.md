@@ -45,7 +45,8 @@ noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
 clairières ; à mi-chemin, le bosquet sacré, dans une grande clairière : un arbre mort chargé
 d'offrandes qui tournent au vent, une meute de quatre loups qui sort de la forêt
 quand on y entre (hurlement au loin avant ; ils encerclent, grondent, bondissent
-l'un après l'autre pour mordre ; deux coups en abattent un ; leurs pistes errent
+l'un après l'autre pour mordre ; deux coups en abattent un ; quand deux sont
+tombés, les autres s'enfuient et ne reviennent plus ; leurs pistes errent
 autour de la clairière ; si l'on s'enfuit en saignant, ils suivent le sang :
 au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent`), et plus loin un guetteur, grande silhouette
 encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
@@ -217,7 +218,9 @@ est cachée et ne sort que pendant l'attaque.
 - `js/ruins.js` — l'arche et les ruines (colonne couchée, socle, arche en
   ruine), d'après les dessins de `assets/` : on ne retouche pas leurs pixels.
   `monumentParts(clé, x, y)` : la plus grande masse d'un seul tenant est le
-  monument, le reste devient des gravats (`rubble`, on marche dessus) ; une
+  monument ; les morceaux détachés du dessin sont laissés de côté, et des
+  rochers cernés (`makeOutlinedRock` : trait d'un pixel, intérieur clair,
+  polygone irrégulier ; type `stone`, ils bloquent) l'entourent ; une
   arche est coupée en trois tranches (pilier, passage `arch-vault`, pilier),
   chacune triée à son propre pied (`PASSAGES` : les colonnes du passage ;
   `FOOT` : la profondeur qui bloque). Placées dans `world.js` (`ARCH`,
@@ -271,7 +274,9 @@ est cachée et ne sort que pendant l'attaque.
   `treeFreq` (les petits arbres battent plus vite).
 - `js/pack.js` — la meute dans le jeu (`createPack` : repaires à la lisière
   de `WOLF_DEN`, cercle, grogne → bond → morsure `onBite`, `hitAt`,
-  retraite si on fuit ou tombe) ; `pack.engaged` compte comme un combat
+  retraite si on fuit ou tombe ; réglages `CROUCH` (1 s de grognement avant
+  le bond), `LUNGE_GAP`, `HIT` (marge de la lame), `ROUT` : deux loups tombés,
+  les autres fuient pour de bon) ; `pack.engaged` compte comme un combat
   (musique, zoom, pas de guérison).
 - `js/wolf.js` — loups, d'après le dessin fourni (`assets/loups.png` →
   `WOLF_ART` dans `ruins-art.js`) : deux temps de marche, deux de course,
@@ -380,7 +385,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.27.1`) : après chaque changement de
+  portent la version (`?v=1.28.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en

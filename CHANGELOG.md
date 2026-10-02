@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.28.0 — 2026-10-02
+- La meute est plus juste : on voit venir le bond (le loup gronde plus longtemps), elle attaque moins souvent, la lame les touche plus facilement, et quand deux loups sont tombés les autres s'enfuient pour de bon
+- Autour de l'arche et des ruines, plus de gravats : des rochers cernés d'un trait fin, dans le style des dessins
+
 ## 1.27.1 — 2026-10-02
 - Plus d'endurance : huit coups d'épée d'affilée au lieu de cinq, presque deux fois plus de course, et elle revient plus vite
 
