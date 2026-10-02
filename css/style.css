@@ -144,11 +144,34 @@ body {
    facteur entier : net, sans lissage */
 .title-name canvas { image-rendering: pixelated; image-rendering: crisp-edges; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-.title-actions { display: flex; flex-direction: column; gap: 10px; min-width: 240px; margin-top: 10px; }
-.title-actions .btn-ghost { color: var(--game-snow); border-color: rgba(223,230,238,.35); }
-.title-actions .btn-ghost:hover { background: rgba(223,230,238,.1); color: var(--game-snow); }
+.title-actions { display: flex; flex-direction: column; gap: 12px; min-width: 240px; margin-top: 10px; }
+/* Les boutons de l'accueil : des lambeaux de neige déchirés, posés un peu de
+   travers, le mot en gothique bleu nuit ; des gouttes de sang sur Reprendre
+   (proposition E du labo, onglet Interface) */
+.scrap {
+  min-height: 46px; padding: 0 26px; border: 0; cursor: pointer;
+  color: var(--game-night); font-family: var(--font-game-title); font-weight: 500; font-size: 1.45rem;
+  background: var(--game-snow);
+  clip-path: polygon(0 4px, 6% 1px, 13% 3px, 22% 0, 31% 2px, 44% 0, 52% 3px, 63% 1px, 71% 0, 82% 3px, 90% 1px, 100% 5px,
+    99% 40%, 100% 72%, 98% calc(100% - 3px), 88% 100%, 77% calc(100% - 2px), 64% 100%, 50% calc(100% - 4px), 38% 100%,
+    27% calc(100% - 1px), 15% 100%, 5% calc(100% - 3px), 0 calc(100% - 1px), 1% 60%, 0 30%);
+  transition: transform .15s steps(2);
+  -webkit-tap-highlight-color: transparent;
+}
+.scrap:nth-child(2) { transform: rotate(-1deg); }
+.scrap:nth-child(3) { transform: rotate(.7deg); }
+.scrap.primary {
+  background:
+    radial-gradient(circle at 9% 70%, var(--accent) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 14% 35%, var(--accent) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 93% 30%, var(--accent) 0 1.5px, transparent 2px),
+    var(--game-snow);
+}
+.scrap:hover, .scrap:focus-visible { transform: translateX(3px); }
+/* Le focus : le lambeau rougit au lieu d'un contour (le contour serait rogné) */
+.scrap:focus-visible { outline: none; color: var(--accent); }
+.scrap.confirm { background: var(--accent); color: var(--game-snow); }
 .btn-ghost.confirm { border-color: var(--accent); color: var(--accent); }
-.title-actions .btn-ghost.confirm { color: var(--game-snow); background: var(--accent); }
 
 /* En entrant dans le jeu : le noir s'ouvre en rond depuis le centre (--r,
    animé par main.js), comme un œil qui s'ouvre */
@@ -339,3 +362,59 @@ body {
 
 /* Curseur (moment de la journée) : grande cible, couleur d'accent */
 .field-select input[type="range"] { width: 100%; min-height: var(--tap); accent-color: var(--accent); }
+
+/* ── Réglages : une dalle de pierre aux bords cassés, dans un cadre tramé
+   (proposition E du labo, onglet Interface). Les curseurs se règlent par
+   crans (main.js, `notches`). --p : un pixel du jeu. ── */
+.modal.stone { --p: 3px; max-width: 440px; overflow: visible; }
+.stone .slab {
+  padding: calc(var(--p) * 2); max-height: 90vh; display: flex;
+  background: repeating-conic-gradient(var(--game-snow) 0 25%, transparent 0 50%) 0 0 / calc(var(--p) * 2) calc(var(--p) * 2), var(--game-night);
+  clip-path: polygon(0 7px, 7% 0, 30% 3px, 52% 0, 76% 4px, 93% 0, 100% 9px, calc(100% - 3px) 30%, 100% 62%,
+    calc(100% - 4px) calc(100% - 8px), 88% 100%, 61% calc(100% - 3px), 34% 100%, 9% calc(100% - 4px), 0 100%, 3px 70%, 0 38%);
+}
+.stone .modal-box {
+  flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain;
+  background: var(--game-snow); color: var(--game-night); border-radius: 0; box-shadow: none; gap: 14px;
+  clip-path: polygon(0 4px, 18% 0, 47% 2px, 70% 0, 100% 4px, calc(100% - 2px) 40%, 100% 80%, calc(100% - 3px) 100%,
+    72% calc(100% - 2px), 40% 100%, 12% calc(100% - 2px), 0 100%, 2px 55%);
+}
+.stone .modal-head h2 { font-family: var(--font-game-title); font-weight: 800; font-size: 1.9rem; }
+.stone .stone-close { color: var(--game-night); border-radius: 0; }
+.stone .stone-close:hover { background: var(--game-night); color: var(--game-snow); }
+.stone .field-select > label:first-child, .stone .field-select > span:first-child {
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase;
+}
+.stone .hint-text, .stone .stat-label { color: rgba(31,42,68,.7); }
+.stone .field-select select {
+  border: 0; border-radius: 0; background: rgba(31,42,68,.1); color: var(--game-night);
+  box-shadow: inset 0 calc(var(--p) * -1) 0 rgba(31,42,68,.35);
+}
+.stone .toggle input { accent-color: var(--game-night); }
+/* Les actions : de petites plaques bleu nuit écornées ; l'export en rouge */
+.stone .btn-ghost, .stone .btn-primary {
+  align-self: flex-start; border: 0; border-radius: 0; padding: 0 16px; font-size: .9rem;
+  background: var(--game-night); color: var(--game-snow);
+  clip-path: polygon(0 3px, 3px 3px, 3px 0, calc(100% - 3px) 0, 100% 4px, 100% calc(100% - 2px), calc(100% - 4px) 100%, 0 100%);
+}
+.stone .btn-ghost:hover, .stone .btn-ghost:focus-visible { background: var(--accent); color: var(--game-snow); }
+.stone .btn-primary { background: var(--accent); }
+.stone .btn-primary:hover { background: var(--accent-hover); }
+.stone .btn-ghost.confirm { background: var(--accent); color: var(--game-snow); }
+.stone :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.stone .settings-foot { border-top: var(--p) dashed rgba(31,42,68,.4); }
+.stone .version, .stone .section-label { color: rgba(31,42,68,.7); font-family: var(--font-mono); }
+.stone .changelog ul { color: rgba(31,42,68,.85); }
+
+/* Les crans : des pierres de hauteurs inégales ; le curseur (invisible) est
+   posé dessus et reste le vrai contrôle, à la souris comme au clavier */
+.notches { position: relative; display: flex; align-items: flex-end; gap: var(--p, 3px); min-height: var(--tap); }
+.notches span { flex: 1; height: calc(var(--p, 3px) * 3); background: rgba(31,42,68,.2); pointer-events: none; }
+.notches span:nth-child(3n+1) { height: calc(var(--p, 3px) * 4); }
+.notches span:nth-child(4n+2) { height: calc(var(--p, 3px) * 2.5); }
+.notches span.on { background: var(--game-night); }
+.notches span.tip { background: var(--accent); }
+.field-select .notches input[type="range"] {
+  position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; opacity: 0; cursor: pointer;
+}
+.notches:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

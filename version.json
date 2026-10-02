@@ -1,7 +1,8 @@
 {
-  "version": "1.32.0",
+  "version": "1.33.0",
   "date": "2026-10-02",
   "changes": [
-    "Labo : un onglet Interface propose quatre nouveaux styles de boutons pour l'accueil et quatre menus Réglages, à comparer à l'actuel"
+    "Les boutons de l'accueil deviennent des lambeaux de neige déchirés, en gothique",
+    "Le menu Réglages devient une dalle de pierre aux bords cassés ; les niveaux se règlent par crans"
   ]
 }

@@ -136,7 +136,8 @@ falaise, vagues, icebergs, charognards ; et des propositions à choisir
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches ; dans Interface, les boutons de l'accueil et le menu Réglages
 (maquettes HTML jouables, `js/labo-ui.js`, `css/labo-ui.css` : A l'actuel,
-B à E des styles propres au jeu, rien n'est encore branché dans le jeu).
+B à E des styles propres au jeu ; E est retenu pour les deux et branché
+dans le jeu : boutons `.scrap`, réglages `.modal.stone` avec crans `.notches`).
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
@@ -177,8 +178,11 @@ est cachée et ne sort que pendant l'attaque.
 
 ## Structure
 
-- `index.html` — en-tête, écran de jeu, écran d'accueil (`#title`),
-  réglages (`<dialog>`, « Nouveau jeu » en premier), toast.
+- `index.html` — en-tête, écran de jeu, écran d'accueil (`#title`, boutons
+  en lambeaux de neige `.scrap`), réglages (`<dialog>` `.stone` : dalle aux
+  bords cassés dans un cadre tramé, curseurs lus par crans `.notches`, posés
+  par `main.js` sous le vrai `<input type="range">` rendu invisible ;
+  « Nouveau jeu » en premier), toast.
 - `labo.html`, `js/labo.js`, `css/labo.css` — le labo d'animations (canvas 2D,
   mêmes modules que le jeu). Chaque section porte son thème
   (`data-theme`) ; toute nouvelle section en a un. Toute nouvelle animation y a sa carte ; une
@@ -415,6 +419,10 @@ n'est jamais implémenté automatiquement.
   sont propres à l'app : ce sont des couleurs de jeu, pas d'interface.
 - La police gothique du titre (Grenze Gotisch, Google Fonts) est propre au
   jeu (`--font-game-title`), hors des tokens du design system.
+- Les boutons de l'accueil et le menu Réglages sont habillés en pixels du
+  jeu (lambeaux de neige, dalle de pierre, crans) au lieu des boutons et de
+  la modale du design system ; l'en-tête et le toast restent ceux du design
+  system, et le menu garde version, changelog et export en bas.
 - Pas de mode sombre : le jeu a sa propre palette (facultatif pour une app
   secondaire).
 

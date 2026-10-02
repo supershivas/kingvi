@@ -1,15 +1,15 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.32.0';
-import { createGame } from './game.js?v=1.32.0';
-import { showChapter } from './chapters.js?v=1.32.0';
-import { createTitleSea } from './titlesea.js?v=1.32.0';
-import { audio } from './audio.js?v=1.32.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.32.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.32.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.33.0';
+import { createGame } from './game.js?v=1.33.0';
+import { showChapter } from './chapters.js?v=1.33.0';
+import { createTitleSea } from './titlesea.js?v=1.33.0';
+import { audio } from './audio.js?v=1.33.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.33.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.33.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.32.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.33.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -339,6 +339,27 @@ for (const [id, key, kind] of LEVELS) {
 }
 
 // ── Réglages ──
+// Les curseurs se lisent par crans : des pierres posées sous le curseur
+// (invisible, il reste le vrai contrôle). Qualité : un cran par niveau ;
+// les volumes et l'heure : de 0 à tout, en dix ou douze crans.
+const notched = [];
+for (const input of settings.querySelectorAll('input[type="range"]')) {
+  const steps = input.id === 'opt-quality';
+  const count = steps ? 4 : input.id === 'opt-daytime' ? 12 : 10;
+  const box = document.createElement('div');
+  box.className = 'notches';
+  input.replaceWith(box);
+  box.append(...Array.from({ length: count }, () => document.createElement('span')), input);
+  const cells = [...box.querySelectorAll('span')];
+  const paint = () => {
+    const min = Number(input.min) || 0, max = Number(input.max) || 100, v = Number(input.value);
+    const lit = steps ? v - min + 1 : Math.ceil(((v - min) / (max - min)) * count);
+    cells.forEach((c, i) => { c.classList.toggle('on', i < lit); c.classList.toggle('tip', i === lit - 1); });
+  };
+  input.addEventListener('input', paint);
+  notched.push(paint);
+}
+const paintNotches = () => notched.forEach(paint => paint());
 // La qualité de l'image : un seul curseur, du plus fluide au plus fin
 const QUALITIES = {
   1: ['Légère', 'Pour les ordinateurs anciens : l\'image en gros pixels, sans effet cathodique ni flou, moitié moins de flocons. Le plus fluide.'],
@@ -405,6 +426,7 @@ function syncDaytime() {
   const real = !prefs.dayOffset;
   $('opt-dayauto').checked = real;
   const d = daylightAt(dayNow());
+  paintNotches();
   $('daytime-label').textContent = `${DAY_LABELS[d.phase]}, ${clockText(d)}` +
     (real ? ' — suit l\'heure réelle (un jour dure 20 minutes)' : ' — le temps s\'écoule depuis le moment choisi');
 }
@@ -431,6 +453,7 @@ $('open-settings').addEventListener('click', async () => {
   $('stat-distance').textContent = (save.steps || 0).toLocaleString('fr-FR');
   $('wind-about').textContent = describeWind();
   syncDaytime();
+  paintNotches();
   settings.showModal();
   renderVersions();
 });

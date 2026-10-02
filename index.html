@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.32.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.32.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.33.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.33.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -46,15 +46,9 @@
     <canvas id="title-sea" class="title-sea" aria-hidden="true"></canvas>
     <h1 id="title-name" class="title-name"><span class="visually-hidden">Kingvi Sno 7</span><canvas id="title-art" aria-hidden="true"></canvas></h1>
     <div class="title-actions">
-      <button id="title-resume" class="btn-primary" type="button">
-        <i class="ti ti-player-play" aria-hidden="true"></i> Reprendre
-      </button>
-      <button id="title-new" class="btn-ghost" type="button">
-        <i class="ti ti-refresh" aria-hidden="true"></i> <span>Nouveau jeu</span>
-      </button>
-      <button id="title-settings" class="btn-ghost" type="button">
-        <i class="ti ti-settings" aria-hidden="true"></i> Réglages
-      </button>
+      <button id="title-resume" class="scrap primary" type="button">Reprendre</button>
+      <button id="title-new" class="scrap" type="button"><span>Nouveau jeu</span></button>
+      <button id="title-settings" class="scrap" type="button">Réglages</button>
     </div>
   </section>
   <div class="vignette" aria-hidden="true"></div>
@@ -74,11 +68,12 @@
   <p id="hint" class="hint gone">ZQSD pour marcher · Maj pour courir · clic pour frapper · molette pour zoomer un peu</p>
 </main>
 
-<dialog id="settings" class="modal" aria-labelledby="settings-title">
-  <div class="modal-box">
+<dialog id="settings" class="modal stone" aria-labelledby="settings-title">
+  <!-- Une dalle aux bords cassés dans un cadre tramé (proposition E du labo) -->
+  <div class="slab"><div class="modal-box">
     <div class="modal-head">
       <h2 id="settings-title">Réglages</h2>
-      <button id="close-settings" class="icon-btn icon-only on-light" type="button" aria-label="Fermer">
+      <button id="close-settings" class="icon-btn icon-only on-light stone-close" type="button" aria-label="Fermer">
         <i class="ti ti-x" aria-hidden="true"></i>
       </button>
     </div>
@@ -144,11 +139,11 @@
         <i class="ti ti-download" aria-hidden="true"></i> Exporter les données (JSON)
       </button>
     </div>
-  </div>
+  </div></div>
 </dialog>
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.32.0"></script>
+<script type="module" src="js/main.js?v=1.33.0"></script>
 </body>
 </html>

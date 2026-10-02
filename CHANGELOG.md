@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.33.0 — 2026-10-02
+- Les boutons de l'accueil deviennent des lambeaux de neige déchirés, en gothique
+- Le menu Réglages devient une dalle de pierre aux bords cassés ; les niveaux se règlent par crans
+
 ## 1.32.0 — 2026-10-02
 - Labo : un onglet Interface propose quatre nouveaux styles de boutons pour l'accueil et quatre menus Réglages, à comparer à l'actuel
 

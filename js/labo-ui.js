@@ -1,4 +1,4 @@
-/* Labo, onglet Interface : propositions (A actuel, B, C, D, E…) pour les
+/* Labo, onglet Interface : propositions (A l'ancien, B, C, D, E : E est retenu) pour les
    boutons de l'écran d'accueil et pour le menu Réglages. Des maquettes en
    HTML, jouables (survol, curseurs, rubriques), mais qui ne règlent rien. */
 
@@ -32,7 +32,7 @@ function confirmable(stage) {
 // ══ Boutons de l'accueil ══
 const BUTTONS = [
   {
-    tag: 'A', cls: 'btnA', title: 'Actuel : les boutons du design system',
+    tag: 'A', cls: 'btnA', title: 'Avant : les boutons du design system',
     about: 'Rouge plein pour Reprendre, cerclés clairs pour les autres, coins arrondis, Inter. Lisibles et communs à toutes les apps, mais étrangers au monde en pixels.',
     html: `<div class="ui-col">
       <button class="btn-primary" type="button">${icon('player-play')} Reprendre</button>
@@ -64,7 +64,7 @@ const BUTTONS = [
       <button type="button">${icon('settings')} Réglages</button></div>`,
   },
   {
-    tag: 'E', cls: 'btnE', title: 'Lambeaux de neige',
+    tag: 'E', cls: 'btnE', title: 'Lambeaux de neige (choisi, dans le jeu)',
     about: 'Des bandes de neige déchirées, posées un peu de travers, le mot en gothique bleu nuit. Quelques gouttes de sang sur Reprendre. Rien de droit : le plus fidèle à « rien de géométrique ».',
     html: `<div class="ui-col">
       <button type="button" class="primary">Reprendre</button>
@@ -90,7 +90,7 @@ const uid = (() => { let n = 0; return p => `ui-${p}-${n++}`; })();
 
 const SETTINGS = [
   {
-    tag: 'A', cls: 'setA', title: 'Actuel : la modale du design system',
+    tag: 'A', cls: 'setA', title: 'Avant : la modale du design system',
     about: 'La boîte blanche commune à toutes les apps : Playfair pour le titre, Inter, curseurs du système en rouge, version et export en bas. Claire et connue, mais elle éteint l\'île d\'un coup.',
     html: () => `<div class="modal-box">
       <div class="modal-head"><h2>Réglages</h2><button class="icon-btn icon-only on-light" type="button" aria-label="Fermer">${icon('x')}</button></div>
@@ -148,7 +148,7 @@ const SETTINGS = [
       </div></div>`,
   },
   {
-    tag: 'E', cls: 'setE', title: 'Pierre rongée',
+    tag: 'E', cls: 'setE', title: 'Pierre rongée (choisie, dans le jeu)',
     about: 'Une dalle claire aux bords cassés, dans un cadre tramé. Les niveaux se règlent par crans, dix pierres de hauteurs inégales (clic ou glissé, flèches au clavier) ; le dernier cran est rouge. Les actions sont de petites plaques bleu nuit écornées.',
     html: () => `<div class="set-slab"><div class="set-panel">
       <div class="set-head"><span class="set-title">Réglages</span><button class="set-close" type="button" aria-label="Fermer">${icon('x')}</button></div>
