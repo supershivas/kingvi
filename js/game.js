@@ -41,7 +41,7 @@ const DEPTH_GROUND = -1000, DEPTH_WAVES = -600, DEPTH_MARKS = -500, DEPTH_BOAT =
 const DEPTH_ROOM = 5e5;
 // L'endurance (0 → 1) : ce que coûtent un coup, une seconde de course ; ce
 // que rend une seconde de repos
-const STAMINA = { attack: 0.2, run: 0.16, regen: 0.3 };
+const STAMINA = { attack: 0.12, run: 0.09, regen: 0.45, rest: 0.5 };
 
 // Taille interne et facteur d'agrandissement entier, pour des pixels nets.
 // Le canevas a la taille de l'écran en pixels physiques (densité comprise :
@@ -546,7 +546,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     // ── L'endurance : courir et frapper la vident ; elle revient au pas ──
-    useStamina(k) { this.stamina = Math.max(0, this.stamina - k); this.staminaRest = 0.8; }
+    useStamina(k) { this.stamina = Math.max(0, this.stamina - k); this.staminaRest = STAMINA.rest; }
     updateStamina(dt) {
       if (this.running && (this.moved || this.rowing)) this.useStamina(STAMINA.run * dt);
       this.staminaRest = Math.max(0, (this.staminaRest || 0) - dt);
