@@ -49,8 +49,8 @@ souffle (sauf aux combats).
 | II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après Lindholm Høje), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
 | — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
 | III | La forêt | La forêt s'épaissit ; une statue géante de Freya ensevelie, penchée, brisée | Des dieux tombés |
-| IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, s'ouvre en clairières. Longue à traverser | L'oppression, la perte de repères |
-| V | Les loups | À mi-chemin, le bosquet sacré : un arbre mort chargé d'offrandes. Une meute de quatre loups sort quand on entre dans la clairière (hurlement au loin avant) | Le danger, le sacré |
+| IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, les loups). Longue à traverser | L'oppression, la perte de repères |
+| V | Les loups | À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes. À la sortie du noir, une grande clairière ouverte sur la plaine : une meute de quatre loups en sort quand on y entre (hurlement au loin avant) | Le danger, le sacré |
 | — | (le guetteur) | Plus loin, une grande silhouette encapuchonnée qui s'efface quand on approche ; ses pas s'arrêtent net | Une présence, sans explication |
 | VI | La maison | Une grande Freya debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
 | VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |

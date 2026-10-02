@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.30.0 — 2026-10-02
+- La forêt noire n'a plus que trois clairières : une vide, celle du grand arbre aux offrandes (plus grand), et celle des loups, bien plus vaste, à la sortie, ouverte sur la plaine
+- Les loups galopent mieux : un temps où leurs pattes se rassemblent sous le ventre
+- Les loups laissent des traces dans la neige, fines et pâles
+
 ## 1.29.0 — 2026-10-02
 - Mourir a sa scène : le noir se referme sur le corps, « Vous êtes mort », puis on se réveille à la barque, et les chapitres reviennent
 - Le titre du chapitre se voit enfin : la nuit descend du haut de l'écran, puis le nom s'y inscrit, une fois le noir d'arrivée ouvert et la neige en place

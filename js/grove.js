@@ -16,7 +16,7 @@ function rng(seed) {
 // L'arbre : un tronc épais et tordu, des branches qui se divisent en
 // s'amincissant, jamais droites. `hooks` : là où pendent les offrandes.
 export function makeGroveTree(seed = 9) {
-  const r = rng(seed), W = 44, H = 40;
+  const r = rng(seed), W = 92, H = 72;
   const g = Array.from({ length: H }, () => Array(W).fill('.'));
   const put = (x, y, c = 'b') => { x = Math.round(x); y = Math.round(y); if (x >= 0 && y >= 0 && x < W && y < H) g[y][x] = c; };
   const hooks = [];
@@ -30,7 +30,7 @@ export function makeGroveTree(seed = 9) {
     // La neige posée sur le dessus des grosses branches
     if (width >= 2 && Math.sin(angle) > -0.6) put(x, y - 1, 's');
     if (depth <= 0) {
-      if (y < H - 12 && r() < 0.7) hooks.push({ x: Math.round(x), y: Math.round(y) + 1 });
+      if (y < H - 18 && x > 2 && x < W - 3 && r() < 0.7) hooks.push({ x: Math.round(x), y: Math.round(y) + 1 });
       return;
     }
     const n = 2 + (r() < 0.4 ? 1 : 0);
@@ -42,9 +42,9 @@ export function makeGroveTree(seed = 9) {
   const bx = W / 2, by = H - 1;
   for (const [dx, a] of [[-3, Math.PI * 0.95], [3, Math.PI * 0.05], [-1, Math.PI * 0.7]]) {
     let x = bx + dx, y = by;
-    for (let i = 0; i < 4; i++) { x += Math.cos(a) + (r() - 0.5) * 0.6; y -= 0.3; put(x, y); }
+    for (let i = 0; i < 6; i++) { x += Math.cos(a) + (r() - 0.5) * 0.6; y -= 0.3; put(x, y); }
   }
-  branch(bx, by, -Math.PI / 2 - 0.12, 13, 4, 4);
+  branch(bx, by, -Math.PI / 2 - 0.12, 24, 5, 4);
   // Les offrandes pendent aux branches les plus basses, bien réparties
   hooks.sort((a, b) => b.y - a.y);
   const picked = [];

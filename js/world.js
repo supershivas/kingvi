@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.29.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.29.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.29.0';
-import { makeGroveTree } from './grove.js?v=1.29.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.29.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.30.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.30.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.30.0';
+import { makeGroveTree } from './grove.js?v=1.30.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.30.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -10,7 +10,7 @@ import { monumentParts, monumentSize } from './ruins.js?v=1.29.0';
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
 // À incrémenter quand l'île change (tracé, objets).
-export const WORLD_VERSION = 6;
+export const WORLD_VERSION = 7;
 export const WORLD = 6144;
 export const CHUNK = 256;
 export const CENTER = WORLD / 2;
@@ -185,18 +185,9 @@ const BLOOD_FROM = trail.findIndex(p => p.blood);
 // Largeur de la sente autour de chaque pas : elle s'élargit et se resserre
 trail.forEach((p, i) => { p.i = i; p.lane = 2 + 3.5 * Math.max(0, 0.5 + 1.6 * fbm(i / 14, 3, 91, 2)); });
 
-// ── Clairières semées le long de la piste, dans la forêt noire ──
-export const CLEARINGS = (() => {
-  const r = rng(SEED * 211), out = [];
-  let next = 0;
-  trail.forEach((p, i) => {
-    if (i < next || deepForest(p.x, p.y) < 0.6) return;
-    const side = (r() - 0.5) * 24;
-    out.push({ x: Math.round(p.x + Math.sin(p.heading) * side), y: Math.round(p.y - Math.cos(p.heading) * side), r: 12 + r() * 24, seed: r() * 100 });
-    next = i + 12 + Math.floor(r() * 16);
-  });
-  return out;
-})();
+// ── Les clairières de la forêt noire : trois seulement (une vide, celle de
+// l'arbre aux offrandes, celle des loups), posées plus bas avec le bosquet ──
+export const CLEARINGS = [];
 const inClearing = (x, y, margin = 0) => CLEARINGS.some(c => Math.hypot(x - c.x, y - c.y) < c.r + margin);
 
 const off = (p, d) => ({ x: Math.round(p.x + Math.sin(p.heading) * d), y: Math.round(p.y - Math.cos(p.heading) * d) });
@@ -377,28 +368,34 @@ const LANDMARKS = [
 const inArch = (x, y, m = 0) => LANDMARKS.some(L => Math.abs(x - L.x) < L.w / 2 + m && y > L.y - L.h * 0.5 - m && y < L.y + 12 + m);
 const inNecro = (x, y, m = 0) => x > NECRO.x - m && x < NECRO.x + NECRO_W + m && y > NECRO.y - m && y < NECRO.y + NECRO_H + m;
 
-// ── Le bosquet sacré : au milieu de la forêt noire (là où la traversée est la
-// plus longue), un arbre mort chargé d'offrandes au nord de la sente ; au
-// sud, un peu plus loin, le guetteur ──
-const GROVE_AT = (() => {
-  const inDeep = trail.filter(p => deepForest(p.x, p.y) > 0.6);
-  return inDeep[Math.floor(inDeep.length / 2)] || trail[Math.floor(trail.length / 2)];
-})();
+// ── La traversée de la forêt noire : trois clairières. Une vide, au premier
+// tiers ; au milieu, le bosquet sacré (un arbre mort chargé d'offrandes, au
+// nord de la sente ; au sud, un peu plus loin, le guetteur) ; à la sortie, la
+// grande clairière de la meute, ouverte sur la plaine ──
+const DEEP = trail.filter(p => deepForest(p.x, p.y) > 0.6);
+const deepAt = t => DEEP[Math.floor((DEEP.length - 1) * t)] || trail[Math.floor(trail.length * (0.3 + t * 0.3))];
+const EMPTY_AT = deepAt(0.25);
+const GROVE_AT = deepAt(0.58);
 const GROVE_ART = makeGroveTree(SEED);
-export const GROVE_TREE = off(GROVE_AT, 22);
+export const GROVE_TREE = off(GROVE_AT, 26);
 export const GROVE_HOOKS = GROVE_ART.hooks.map(h => ({ x: GROVE_TREE.x - GROVE_ART.ax + h.x, y: GROVE_TREE.y - GROVE_ART.rows.length + 1 + h.y }));
-export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 14)], -26);
-const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 3 }];
-// Deux trouées dans la forêt noire : sur la neige, l'arbre et le guetteur se
-// détachent (au noir, on ne les verrait pas)
-// La grande clairière du bosquet, où la meute attaque : la sente la traverse
-export const WOLF_DEN = { ...off(GROVE_AT, 2), r: 64 };
+export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 4)], -34);
+const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 4 }];
+// La meute : au sortir du noir, la sente la traverse, et la clairière
+// s'ouvre vers l'est sur la forêt claire puis la plaine
+const DEN_AT = trail[Math.min(trail.length - 1, (DEEP.at(-1)?.i ?? GROVE_AT.i + 60) + 2)];
+export const WOLF_DEN = { ...off(DEN_AT, 4), r: 100 };
+const DEN_MOUTH = trail[Math.min(trail.length - 1, DEN_AT.i + 12)];
 CLEARINGS.push(
+  { x: EMPTY_AT.x, y: EMPTY_AT.y - 6, r: 34, seed: 7 },
+  // (l'arbre se détache sur la neige jusqu'à la cime)
+  { ...off(GROVE_AT, 12), r: 60, seed: 17 },
+  { x: GROVE_TREE.x, y: GROVE_TREE.y - 34, r: 46, seed: 23 },
   { x: WOLF_DEN.x, y: WOLF_DEN.y, r: WOLF_DEN.r, seed: 13 },
-  { x: GROVE_TREE.x + 2, y: GROVE_TREE.y - 16, r: 38, seed: 17 },
-  { x: Math.round((GROVE_TREE.x + GROVE_AT.x) / 2), y: Math.round((GROVE_TREE.y + GROVE_AT.y) / 2), r: 16, seed: 23 },
-  { x: WATCHER_AT.x, y: WATCHER_AT.y - 5, r: 20, seed: 29 },
+  { x: DEN_MOUTH.x, y: DEN_MOUTH.y, r: 72, seed: 29 },
 );
+// Le côté ouvert de la clairière des loups (vers la plaine) : ils n'en sortent pas
+export const DEN_OPEN = Math.atan2(DEN_MOUTH.y - WOLF_DEN.y, DEN_MOUTH.x - WOLF_DEN.x);
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -686,7 +683,7 @@ const CELL = 16;
 // Quelques arbres isolés, puis la forêt, de plus en plus serrée jusqu'au
 // noir, puis de nouveau clairsemée. Clairières autour des statues et de la maison.
 export function forestDensity(x, y) {
-  if (Math.hypot(x - GROVE_TREE.x, y - GROVE_TREE.y) < 30 || Math.hypot(x - WATCHER_AT.x, y - WATCHER_AT.y) < 14) return 0;
+  if (Math.hypot(x - GROVE_TREE.x, y - GROVE_TREE.y) < 40 || Math.hypot(x - WATCHER_AT.x, y - WATCHER_AT.y) < 14) return 0;
   if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 150) return 0;
   if (Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) < 110) return 0;
   if (Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) < 120) return 0;

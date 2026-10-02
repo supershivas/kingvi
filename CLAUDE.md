@@ -42,14 +42,19 @@ une seule en ressort) : le champ des morts (navires, cercles et triangles de
 pierres levées, d'après Lindholm Høje), quelques arbres,
 une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
-noir ; la sente y file sans trop serpenter, se resserre, s'ouvre en
-clairières ; à mi-chemin, le bosquet sacré, dans une grande clairière : un arbre mort chargé
-d'offrandes qui tournent au vent, une meute de quatre loups qui sort de la forêt
-quand on y entre (hurlement au loin avant ; ils encerclent, grondent, bondissent
+noir ; la sente y file sans trop serpenter, se resserre ; trois clairières
+seulement : une vide au premier quart ; au milieu, le bosquet sacré, un grand
+arbre mort (~7 fois le viking) chargé d'offrandes qui tournent au vent, et
+juste après lui le guetteur ; à la sortie du noir, la grande clairière des
+loups, ouverte vers la plaine (`DEN_OPEN` : les repaires sont du côté de la
+forêt) : une meute de quatre loups qui sort de la forêt
+quand on y entre (galop en quatre temps, avec un temps pattes rassemblées ;
+des pas d'un pixel, pâles, dans la neige : `wolfPrint` ; hurlement au loin avant ; ils encerclent, grondent, bondissent
 l'un après l'autre pour mordre ; deux coups en abattent un ; quand deux sont
 tombés, les autres s'enfuient et ne reviennent plus ; leurs pistes errent
 autour de la clairière ; si l'on s'enfuit en saignant, ils suivent le sang :
-au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent`), et plus loin un guetteur, grande silhouette
+au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent` ; le
+guetteur : grande silhouette
 encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,

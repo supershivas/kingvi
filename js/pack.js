@@ -4,8 +4,8 @@
    s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.29.0';
-import { paintFrames } from './viking.js?v=1.29.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.30.0';
+import { paintFrames } from './viking.js?v=1.30.0';
 
 export const WOLF_HP = 2;
 const COUNT = 4;
@@ -17,7 +17,7 @@ const TROT = 30, GALLOP = 58, LUNGE = 125;
 // pour que les autres s'enfuient pour de bon
 const CROUCH = 1.0, LUNGE_GAP = { many: 2.8, few: 3.2, spread: 1.0 }, HIT = { x: 9, y: 6 }, ROUT = 2;
 
-export function createPack(scene, palette, { den, radius, isLand, onBite, bleed, dead = [] }) {
+export function createPack(scene, palette, { den, radius, open = null, isLand, onBite, bleed, print = () => {}, dead = [] }) {
   // ── La planche ──
   const frames = [];
   for (const [key, anim] of Object.entries(WOLF_ANIMS)) anim.frames.forEach((g, i) => frames.push({ name: `${key}-${i}`, grid: g }));
@@ -32,9 +32,12 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
     });
   }
 
-  // Chacun a son repaire, à la lisière, d'où il sort et où il retourne
+  // Chacun a son repaire, à la lisière, d'où il sort et où il retourne (pas
+  // du côté où la clairière s'ouvre sur la plaine : ils sortent de la forêt)
   const wolves = Array.from({ length: COUNT }, (_, i) => {
-    const a = (i / COUNT) * Math.PI * 2 + 0.6 + Math.sin(i * 7.3) * 0.4;
+    const a = open == null
+      ? (i / COUNT) * Math.PI * 2 + 0.6 + Math.sin(i * 7.3) * 0.4
+      : open + 1.1 + ((i + 0.5) / COUNT) * (Math.PI * 2 - 2.2) + Math.sin(i * 7.3) * 0.15;
     const lair = { x: den.x + Math.cos(a) * (radius + 26), y: den.y + Math.sin(a) * (radius + 26) * 0.75 };
     const sprite = scene.add.sprite(lair.x, lair.y, 'wolf', 'arret-0')
       .setOrigin(0.5, (WOLF_GROUND + 1) / WOLF_H).setVisible(false);
@@ -73,7 +76,16 @@ export function createPack(scene, palette, { den, radius, isLand, onBite, bleed,
     if (d < 1) return d;
     const s = Math.min(d, speed * dt);
     const nx = w.pos.x + dx / d * s, ny = w.pos.y + dy / d * s;
-    if (isLand(nx, ny)) { w.pos.x = nx; w.pos.y = ny; }
+    if (isLand(nx, ny)) {
+      w.pos.x = nx; w.pos.y = ny;
+      // Ses pas dans la neige : un pixel tous les trois, en quinconce
+      w.stride = (w.stride || 0) + s;
+      if (w.stride >= 3) {
+        w.stride = 0; w.foot = !w.foot;
+        const ux = dx / d, uy = dy / d, k = w.foot ? 1 : -1;
+        print(nx - uy * k, ny + 1 + ux * k * 0.5);
+      }
+    }
     if (Math.abs(dx) > 0.5) w.sprite.setFlipX(dx < 0);
     return d;
   }
