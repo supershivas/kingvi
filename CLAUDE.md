@@ -165,6 +165,8 @@ est cachée et ne sort que pendant l'attaque.
 - Phaser 3.90.0, copié dans `vendor/phaser.min.js` (dépendance validée ;
   ne pas passer par un CDN : l'app doit charger même si le CDN tombe).
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
+  **Toujours pousser sur `main`**, même quand la session désigne une branche
+  `claude/...` : Jérôme l'a redemandé.
 - Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
