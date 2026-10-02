@@ -1,8 +1,9 @@
 {
-  "version": "1.28.0",
+  "version": "1.29.0",
   "date": "2026-10-02",
   "changes": [
-    "La meute est plus juste : on voit venir le bond (le loup gronde plus longtemps), elle attaque moins souvent, la lame les touche plus facilement, et quand deux loups sont tombés les autres s'enfuient pour de bon",
-    "Autour de l'arche et des ruines, plus de gravats : des rochers cernés d'un trait fin, dans le style des dessins"
+    "Mourir a sa scène : le noir se referme sur le corps, « Vous êtes mort », puis on se réveille à la barque, et les chapitres reviennent",
+    "Le titre du chapitre se voit enfin : la nuit descend du haut de l'écran, puis le nom s'y inscrit, une fois le noir d'arrivée ouvert et la neige en place",
+    "L'arche et les ruines ont des traits plus fins, comme le reste du jeu ; plus d'ombres sans objet ni d'arche coupée en deux"
   ]
 }

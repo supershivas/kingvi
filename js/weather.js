@@ -127,6 +127,13 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
 
   function update(dt, v) {
     dt = Math.min(dt, 0.05);
+    // La vue a sauté (arrivée, réveil, téléportation) : la neige se répand
+    // partout dans la nouvelle vue, au lieu de revenir par les bords
+    if (Math.abs(v.x - view.x) > v.width / 2 || Math.abs(v.y - view.y) > v.height / 2) {
+      view = v;
+      for (const f of flakes) spawnFlake(f, 'anywhere');
+      for (const d of drifts) spawnDrift(d, true);
+    }
     view = v;
     t += dt;
     followCycle();

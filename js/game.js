@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.28.0';
+} from './viking.js?v=1.29.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.28.0';
-import { createPack } from './pack.js?v=1.28.0';
-import { chapterById } from './chapters.js?v=1.28.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.28.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.28.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.28.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.28.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.28.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.28.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.28.0';
-import { createFauna } from './fauna.js?v=1.28.0';
-import { createWeather } from './weather.js?v=1.28.0';
-import { createSea } from './sea.js?v=1.28.0';
-import { audio } from './audio.js?v=1.28.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.28.0';
+} from './world.js?v=1.29.0';
+import { createPack } from './pack.js?v=1.29.0';
+import { chapterById } from './chapters.js?v=1.29.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.29.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.29.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.29.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.29.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.29.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.29.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.29.0';
+import { createFauna } from './fauna.js?v=1.29.0';
+import { createWeather } from './weather.js?v=1.29.0';
+import { createSea } from './sea.js?v=1.29.0';
+import { audio } from './audio.js?v=1.29.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.29.0';
 
 const Phaser = window.Phaser;
 
@@ -113,7 +113,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, isTitle = () => false, onTally = () => {} }) {
+export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height, quality);
@@ -930,29 +930,35 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.player.setTexture('fallen').setOrigin(0.5, 1).setFlipX(dir < 0).setAlpha(1);
       this.cape.setVisible(false);
       this.bleed(this.pos.x, this.pos.y, 14);
-      this.time.delayedCall(2600, () => {
-        const cam = this.cameras.main;
-        cam.fadeOut(900, 31, 42, 68);
-        cam.once('camerafadeoutcomplete', () => {
-          this.dead = false;
-          this.hp = FOE_HP;
-          this.player.setTexture('viking', 'side-idle').setOrigin(ORIGIN_X, ORIGIN_Y).setFlipX(false);
-          this.cape.setVisible(true);
-          this.foe.reset();
-          this.pack.reset();
-          this.pos = { ...this.spawn };
-          this.facing = 'side'; this.flip = false;
-          this.placePlayer();
-          cam.centerOn(this.spawn.x, this.spawn.y);
-          this.updateChunks(true);
-          this.persist();
-          cam.fadeIn(1200, 31, 42, 68);
-        });
-      });
+      // (le noir se referme, puis on se relève : main.js, `onDeath`)
+      this.time.delayedCall(2600, () => onDeath(() => this.respawn()));
+    }
+
+    // On se relève près de la barque, la partie reprend ; les chapitres
+    // s'inscriront de nouveau
+    respawn() {
+      const cam = this.cameras.main;
+      this.dead = false;
+      this.hp = FOE_HP;
+      this.player.setTexture('viking', 'side-idle').setOrigin(ORIGIN_X, ORIGIN_Y).setFlipX(false);
+      this.cape.setVisible(true);
+      this.foe.reset();
+      this.pack.reset();
+      this.pos = { ...this.spawn };
+      this.facing = 'side'; this.flip = false;
+      this.placePlayer();
+      cam.centerOn(this.spawn.x, this.spawn.y);
+      this.updateChunks(true);
+      this.chapters.clear();
+      this.calm = 0;
+      this.persist();
     }
 
     update(time, delta) {
       if (isPaused() || this.dead) { this.keys.clear(); this.pad = { x: 0, y: 0, run: false }; }
+      // (le temps passé à jouer depuis l'arrivée ; quelques images pour poser la scène)
+      else this.calm = (this.calm || 0) + delta / 1000;
+      this.settle = Math.max(0, (this.settle || 0) - 1);
       this.invuln = Math.max(0, this.invuln - delta / 1000);
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
@@ -1068,7 +1074,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       let id = null;
       if (this.inside === 'cave') id = 'roi';
       else if (this.inside) id = null;
-      else if (!seen('greve') && this.time.now > 2500) id = 'greve';
+      else if (!seen('greve') && this.calm > 2.5) id = 'greve';
       else if (this.pack.engaged) id = 'loups';
       else if (this.foe.alive && this.foe.engaged) id = 'autre';
       else if (this.rowing) id = 'lac';
@@ -1208,6 +1214,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx + i, cy + j)) {
           if (o.type === 'iceberg' || o.type === 'cliff' || o.type === 'rubble' || o.noShadow || o.fallen || o.broken) continue;
+          // Pas d'ombre sans l'objet : seulement s'il est dessiné (un morceau pas
+          // encore chargé, un arbre abattu pas encore relu de la sauvegarde…)
+          if (!(o.img?.scene && (o.img.visible || o.chipImg?.visible))) continue;
           if (Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
           const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly));
           if (o.type === 'tree') cast(o.x, o.y, 1.2, Math.max(5, Math.min(40, (o.h || 10) * 18 / d)));
@@ -1716,7 +1725,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       if (!sc?.pos || !sc.chunks) return false;
       sc.cameras.main.centerOn(sc.pos.x, sc.pos.y);
       sc.updateChunks(true);
+      sc.cull();
+      sc.settle = 8;
+      sc.focused = true;
       return true;
+    },
+    // Prêt à être vu : les morceaux autour chargés, la scène posée quelques images
+    ready() {
+      const sc = game.scene.getScene('island');
+      if (!sc?.pos || !sc.chunks) return false;
+      if (!sc.focused) this.focus();
+      return !sc.jobs?.size && sc.settle <= 0;
     },
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),

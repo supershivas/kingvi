@@ -39,7 +39,7 @@ pierres levées, offrandes) et le joueur le lit.
 
 ## Le voyage, chapitre par chapitre
 
-Chaque chapitre s'inscrit une fois par partie, en haut de l'écran
+Chaque chapitre s'inscrit une fois par vie, en haut de l'écran
 (« Chapitre III » en petit, le nom en gothique), et la musique retient son
 souffle (sauf aux combats).
 
@@ -58,7 +58,8 @@ souffle (sauf aux combats).
 | IX | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
 | Interlude | Le lac | Au sud de la piste, avant la forêt : une barque (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
-Mort, on se réveille à la barque. Les traces ne disparaissent pas : on peut
+Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
+la barque ; les chapitres s'inscrivent de nouveau. Les traces ne disparaissent pas : on peut
 toujours reprendre le fil.
 
 ## Les systèmes

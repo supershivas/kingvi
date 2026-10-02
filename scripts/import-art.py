@@ -156,6 +156,60 @@ def wolves():
     return poses
 
 
+# ── Des traits plus fins, le même dessin ──
+# Les traits des dessins (deux pixels, ou plus) sont trop épais à côté du reste
+# du jeu. On les amincit à un pixel (squelette de Zhang-Suen), sans toucher aux
+# aplats sombres (ce qui reste après une ouverture 5 × 5) ; un pixel retiré
+# prend la couleur voisine la plus présente hors trait.
+THIN = {'arche', 'ruine', 'colonne', 'socle', 'pont'}
+
+
+def thin_strokes(rows):
+    h, w = len(rows), len(rows[0])
+    g = [list(r) for r in rows]
+    # Les aplats : les k couverts par un carré 5 × 5 tout en k
+    solid = [[False] * w for _ in range(h)]
+    for y in range(h - 4):
+        for x in range(w - 4):
+            if all(g[y + j][x + i] == 'k' for j in range(5) for i in range(5)):
+                for j in range(5):
+                    for i in range(5):
+                        solid[y + j][x + i] = True
+    on = [[g[y][x] == 'k' for x in range(w)] for y in range(h)]
+    O = lambda x, y: 0 <= x < w and 0 <= y < h and on[y][x]
+    changed = True
+    while changed:
+        changed = False
+        for step in (0, 1):
+            kill = []
+            for y in range(h):
+                for x in range(w):
+                    if not on[y][x] or solid[y][x]:
+                        continue
+                    n = [O(x, y - 1), O(x + 1, y - 1), O(x + 1, y), O(x + 1, y + 1),
+                         O(x, y + 1), O(x - 1, y + 1), O(x - 1, y), O(x - 1, y - 1)]
+                    b = sum(n)
+                    a = sum(1 for i in range(8) if not n[i] and n[(i + 1) % 8])
+                    if not (2 <= b <= 6 and a == 1):
+                        continue
+                    p2, p4, p6, p8 = n[0], n[2], n[4], n[6]
+                    if step == 0 and not (p2 and p4 and p6) and not (p4 and p6 and p8):
+                        kill.append((x, y))
+                    if step == 1 and not (p2 and p4 and p8) and not (p2 and p6 and p8):
+                        kill.append((x, y))
+            for x, y in kill:
+                on[y][x] = False
+            changed = changed or bool(kill)
+    out = [r[:] for r in g]
+    for y in range(h):
+        for x in range(w):
+            if g[y][x] == 'k' and not on[y][x]:
+                near = [g[y + j][x + i] for j in (-2, -1, 0, 1, 2) for i in (-2, -1, 0, 1, 2)
+                        if 0 <= x + i < w and 0 <= y + j < h and g[y + j][x + i] != 'k']
+                out[y][x] = max(set(near), key=near.count) if near else 's'
+    return [''.join(r) for r in out]
+
+
 def main():
     lines = [
         '/* Généré par scripts/import-art.py depuis assets/ : ne pas modifier à la',
@@ -166,6 +220,8 @@ def main():
     ]
     for key, name, height in SOURCES:
         rows = convert(os.path.join(ROOT, 'assets', name), height)
+        if key in THIN:
+            rows = thin_strokes(rows)
         lines.append(f'  // {name} : {len(rows[0])} × {len(rows)}')
         lines.append(f'  {key}: [')
         lines += [f"    '{r}'," for r in rows]

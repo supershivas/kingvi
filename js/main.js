@@ -1,15 +1,15 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.28.0';
-import { createGame } from './game.js?v=1.28.0';
-import { showChapter } from './chapters.js?v=1.28.0';
-import { createTitleSea } from './titlesea.js?v=1.28.0';
-import { audio } from './audio.js?v=1.28.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.28.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.28.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.29.0';
+import { createGame } from './game.js?v=1.29.0';
+import { showChapter } from './chapters.js?v=1.29.0';
+import { createTitleSea } from './titlesea.js?v=1.29.0';
+import { audio } from './audio.js?v=1.29.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.29.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.29.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.28.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.29.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -55,13 +55,15 @@ function toast(text) {
 }
 
 // ── Jeu ──
+let irisBusy = false, irisRun = 0;     // (l'iris, plus bas)
 const settings = $('settings');
 const game = createGame({
   parent: $('stage'),
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
-  isPaused: () => settings.open || !$('title').hidden,
+  // (et tant que le noir de l'iris n'est pas ouvert : rien ne se passe dans le noir)
+  isPaused: () => settings.open || !$('title').hidden || irisBusy,
   quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
@@ -72,6 +74,9 @@ const game = createGame({
   onHealth: hp => $('screen').classList.toggle('hurt', hp === 1),
   // Aux grands moments de l'aventure, un chapitre s'inscrit à l'écran
   onChapter: ch => showChapter($('screen'), ch),
+  // Mort : le noir se referme sur le corps, « Vous êtes mort », on se relève
+  // près de la barque ; le noir ne se rouvre qu'une fois l'île prête autour
+  onDeath: respawn => die(respawn),
   // Le compteur d'arbres abattus et de rochers brisés (dès le premier)
   onTally: (t, what) => {
     $('tally-trees').textContent = t.trees;
@@ -208,27 +213,62 @@ function openTitle() {
   dpad.hidden = true;
   ($('title-resume').hidden ? $('title-new') : $('title-resume')).focus();
 }
-// Le noir s'ouvre depuis le centre, lentement d'abord, puis d'un coup
-function openIris() {
-  const iris = $('iris'), screen = $('screen');
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+// L'iris : le noir s'ouvre depuis le centre (ou s'y referme). Tant qu'il
+// bouge ou couvre l'écran, le jeu attend (`irisBusy`)
+const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateIris(from, to, dur, ease) {
+  const iris = $('iris'), screen = $('screen'), run = ++irisRun;
   const max = Math.hypot(screen.clientWidth, screen.clientHeight) / 2 + 100;
+  const at = k => `${Math.round(k * max - 90)}px`;
   iris.hidden = false;
-  const t0 = performance.now(), dur = 1800;
-  const step = now => {
-    const k = Math.min(1, (now - t0) / dur);
-    const e = k < 0.25 ? k * 0.4 : 0.1 + Math.pow((k - 0.25) / 0.75, 2) * 0.9;
-    iris.style.setProperty('--r', `${Math.round(e * max - 90)}px`);
-    if (k < 1) requestAnimationFrame(step); else iris.hidden = true;
-  };
-  iris.style.setProperty('--r', '-90px');
-  requestAnimationFrame(step);
+  iris.style.setProperty('--r', at(from));
+  return new Promise(resolve => {
+    if (still()) { iris.style.setProperty('--r', at(to)); resolve(); return; }
+    const t0 = performance.now();
+    const step = now => {
+      if (run !== irisRun) { resolve(); return; }
+      const k = Math.min(1, (now - t0) / dur);
+      iris.style.setProperty('--r', at(from + (to - from) * ease(k)));
+      if (k < 1) requestAnimationFrame(step); else resolve();
+    };
+    requestAnimationFrame(step);
+  });
+}
+// S'ouvre lentement d'abord, puis d'un coup
+async function openIris() {
+  await animateIris(0, 1, 1800, k => k < 0.25 ? k * 0.4 : 0.1 + Math.pow((k - 0.25) / 0.75, 2) * 0.9);
+  $('iris').hidden = true;
+  irisBusy = false;
 }
 // Le noir, tout de suite (en attendant que le jeu soit prêt)
 function closeIris() {
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  irisRun++;
+  irisBusy = true;
   $('iris').hidden = false;
   $('iris').style.setProperty('--r', '-90px');
+}
+// Se referme : vite d'abord, puis lentement sur le centre
+function shutIris() {
+  irisBusy = true;
+  return animateIris(1, 0, 1600, k => 1 - Math.pow(1 - k, 2.2));
+}
+// L'île prête autour du viking (morceaux chargés, flocons en place), au plus
+// quelques secondes
+function whenReady(limit = 4000) {
+  const t0 = performance.now();
+  return new Promise(resolve => {
+    const check = () => (game.ready() || performance.now() - t0 > limit) ? resolve() : requestAnimationFrame(check);
+    requestAnimationFrame(check);
+  });
+}
+async function die(respawn) {
+  await shutIris();
+  closeIris();
+  const title = showChapter($('screen'), { id: 'mort', label: '', title: 'Vous êtes mort' }, { hold: 1800 });
+  respawn();
+  game.focus();
+  await Promise.all([title, whenReady()]);
+  openIris();
 }
 function closeTitle() {
   // La musique de l'accueil s'arrête : un silence, puis celle du jeu
@@ -237,12 +277,8 @@ function closeTitle() {
   title.hidden = true;
   // La caméra d'abord sur le viking, l'île chargée autour de lui ; puis l'iris
   closeIris();
-  const t0 = performance.now();
-  const ready = () => {
-    if (game.focus() || performance.now() - t0 > 4000) openIris();
-    else requestAnimationFrame(ready);
-  };
-  requestAnimationFrame(ready);
+  game.focus();
+  whenReady().then(openIris);
   dpad.hidden = !touchScreen;
   $('stage').querySelector('canvas')?.focus();
   showHint();

@@ -29,8 +29,9 @@ l'accueil est caché), avec sa propre musique
 (sourde, sombre : `isTitle` → `musicMood`), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
 la partie), Réglages. Le nom dans l'en-tête y ramène. En entrant dans le
 jeu, la musique de l'accueil se tait, l'écran reste noir le temps de placer
-la caméra sur le viking et de charger l'île autour de lui (`game.focus()`),
-puis le noir s'ouvre en rond depuis le centre, bord fondu (`openIris`,
+la caméra sur le viking et de charger l'île autour de lui (`game.focus()`,
+puis `game.ready()` : morceaux chargés, quelques images posées ; la neige
+se répand d'un coup dans une vue qui a sauté), puis le noir s'ouvre en rond depuis le centre, bord fondu (`openIris`,
 `#iris`). En jeu, les coins de l'écran sont un peu assombris (`.vignette`).
 
 On part de la grève ouest, près de la barque échouée qui flotte (une seconde
@@ -56,8 +57,11 @@ noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
 Au bout des traces, un autre viking attend : il vient au contact et frappe ;
 trois coups de part et d'autre abattent (zoom d'action, sang qui gicle, on
-saigne en marchant, les blessures se referment hors du combat). Mort, on
-repart de la barque. Quand on s'éloigne d'un cadavre, des corbeaux s'y
+saigne en marchant, les blessures se referment hors du combat). Mort, le
+noir se referme sur le corps (`shutIris`), « Vous êtes mort » s'inscrit, on
+repart de la barque (`onDeath` → `die` dans `main.js`, `respawn`), le noir se
+rouvre quand l'île est prête, et les chapitres s'inscrivent de nouveau.
+Tant que l'iris bouge ou couvre l'écran, le jeu est en pause (`irisBusy`). Quand on s'éloigne d'un cadavre, des corbeaux s'y
 abattent (l'autre viking, et les loups tués). Plus loin, une falaise gigantesque face au sud, faite de pans
 avancés ou reculés, et l'entrée d'une grotte : on y entre (il y fait toujours
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
@@ -69,9 +73,11 @@ marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
-par partie (`chapters` dans la sauvegarde) : « Chapitre I » en petit, le nom
+par vie (`chapters` dans la sauvegarde, vidé à la mort ; La grève 2,5 s de
+jeu après l'ouverture du noir, `calm`) : « Chapitre I » en petit, le nom
 en grand dans la gothique du titre, texte clair sous un voile de nuit qui
-descend du haut de l'écran, tramé, en franges comme des glaçons (lisible sur
+descend du haut de l'écran (révélé de haut en bas, puis le titre s'y
+inscrit ; il remonte à la fin), tramé, en franges comme des glaçons (lisible sur
 la neige comme sur la mer). I La grève, II La plaine
 des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
 VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
@@ -223,7 +229,9 @@ est cachée et ne sort que pendant l'attaque.
   polygone irrégulier ; type `stone`, ils bloquent) l'entourent ; une
   arche est coupée en trois tranches (pilier, passage `arch-vault`, pilier),
   chacune triée à son propre pied (`PASSAGES` : les colonnes du passage ;
-  `FOOT` : la profondeur qui bloque). Placées dans `world.js` (`ARCH`,
+  `FOOT` : la profondeur qui bloque ; toutes les pièces d'un monument sont
+  rangées dans le morceau de son pied, `home`, pour qu'il se charge d'un
+  bloc). Placées dans `world.js` (`ARCH`,
   `RUINS`, `LANDMARKS` : ni arbres ni rochers dans leur emprise).
 - `js/ruins-art.js` — leurs pixels, **générés** par `scripts/import-art.py`
   (ImageMagick) depuis `assets/` : couleurs ramenées aux trois du jeu (traits
@@ -231,7 +239,10 @@ est cachée et ne sort que pendant l'attaque.
   en neige. Les fichiers `_x1` sont à l'échelle du jeu ; `arche2.png`,
   `pont.png` sont réduites par moyenne ; `roi.png` est en négatif (traits
   blancs sur noir : la silhouette est refermée puis remplie de bleu nuit) ;
-  `loups.png` est lu sur sa grille puis réduit de moitié (`WOLF_ART`). À
+  `loups.png` est lu sur sa grille puis réduit de moitié (`WOLF_ART`).
+  Les traits de l'arche, des ruines et du pont sont amincis à un pixel
+  (`thin_strokes` : squelette, sans toucher aux aplats sombres), pour aller
+  avec le reste du jeu. À
   relancer après chaque changement d'image. Le pont n'est encore que dans le
   labo (Accostage, E).
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse

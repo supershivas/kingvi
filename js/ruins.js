@@ -10,7 +10,7 @@
      un pilier est plus près que l'autre) ; les piliers bloquent, on passe
      par le milieu ;
    - la colonne couchée et le socle : un seul obstacle chacun. */
-import { RUIN_ART } from './ruins-art.js?v=1.28.0';
+import { RUIN_ART } from './ruins-art.js?v=1.29.0';
 
 // Le passage de chaque arche : les colonnes du dessin où l'on passe dessous
 // (la partie claire de l'ouverture et l'intérieur sombre du passage)
@@ -92,6 +92,9 @@ export function monumentParts(key, x, y) {
     parts.push({ type: 'stone', x: px - (w >> 1), y: py, foot: Math.max(1, Math.round(h * 0.5)), art: { rows: art.rows, ax: 0 } });
     k++;
   }
+  // Toutes les pièces dans le morceau de terrain du pied : le monument se
+  // charge d'un bloc (sinon on le voyait un moment coupé en deux)
+  for (const o of parts) o.home = { x, y };
   return parts;
 }
 

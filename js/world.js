@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.28.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.28.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.28.0';
-import { makeGroveTree } from './grove.js?v=1.28.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.28.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.29.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.29.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.29.0';
+import { makeGroveTree } from './grove.js?v=1.29.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.29.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -758,7 +758,8 @@ export function objectsInChunk(cx, cy) {
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
   for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS, ...MONUMENT_PARTS]) {
-    if (Math.floor(o.x / CHUNK) === cx && Math.floor(o.y / CHUNK) === cy) {
+    // (un monument a toutes ses pièces dans le même morceau : il se charge d'un bloc)
+    if (Math.floor((o.home?.x ?? o.x) / CHUNK) === cx && Math.floor((o.home?.y ?? o.y) / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
     }
   }
@@ -770,7 +771,7 @@ export function objectsInChunk(cx, cy) {
 // Rochers et cairns : la moitié basse de leur silhouette.
 export function blocked(x, y) {
   const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
-  for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+  for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
     for (const o of objectsInChunk(cx + i, cy + j)) {
       if (o.fallen || o.broken) continue;                // abattu, brisé : on passe
       const dx = x - o.x, dy = y - o.y;

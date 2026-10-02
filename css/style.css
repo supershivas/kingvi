@@ -204,6 +204,19 @@ body {
 }
 .chapter--pixels .chapter-label { opacity: 1; text-shadow: 1px 0 0 var(--game-black), -1px 0 0 var(--game-black), 0 1px 0 var(--game-black), 0 -1px 0 var(--game-black), 0 0 6px var(--game-black); }
 .chapter-pixels { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+/* Le voile du haut (E, dans le jeu) : la nuit descend du haut de l'écran,
+   puis le titre s'y inscrit ; à la fin, elle remonte */
+.chapter--voile, .chapter--voile.in, .chapter--voile.out { opacity: 1; transform: none; filter: none; }
+.chapter--voile .chapter-art { clip-path: inset(0 0 100% 0); transition: clip-path 1.6s cubic-bezier(.35, .55, .3, 1); }
+.chapter--voile.in .chapter-art { clip-path: inset(0); }
+.chapter--voile .chapter-label, .chapter--voile .chapter-title {
+  opacity: 0; transform: translateY(-6px); filter: blur(2px);
+  transition: opacity 1.3s ease .9s, transform 2s ease .9s, filter 1.3s ease .9s;
+}
+.chapter--voile.in .chapter-label { opacity: .85; transform: none; filter: none; }
+.chapter--voile.in .chapter-title { opacity: 1; transform: none; filter: none; }
+.chapter--voile.out .chapter-art { transition-duration: 1.1s; transition-delay: .4s; }
+.chapter--voile.out .chapter-label, .chapter--voile.out .chapter-title { transition-delay: 0s; transition-duration: .9s; }
 
 /* Le compteur : arbres abattus, rochers brisés (en haut à droite, discret) */
 .tally {
