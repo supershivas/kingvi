@@ -10,7 +10,7 @@
      un pilier est plus près que l'autre) ; les piliers bloquent, on passe
      par le milieu ;
    - la colonne couchée et le socle : un seul obstacle chacun. */
-import { RUIN_ART } from './ruins-art.js?v=1.26.0';
+import { RUIN_ART } from './ruins-art.js?v=1.27.0';
 
 // Le passage de chaque arche : les colonnes du dessin où l'on passe dessous
 // (la partie claire de l'ouverture et l'intérieur sombre du passage)

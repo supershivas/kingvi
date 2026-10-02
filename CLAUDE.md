@@ -7,8 +7,9 @@
 Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
 enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
 couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le sang et les
-repères du labo ; un noir profond autour de l'intérieur de la maison et pour
-la coque de la barque), avec un temps qui change selon un cycle
+repères du labo). **Aucun pixel noir** : ce qui était noir (rochers, coques,
+traits des dessins, fond autour des intérieurs) est en bleu nuit (`--game-black`
+vaut le bleu nuit ; la lettre `k` des dessins existe toujours, même couleur), avec un temps qui change selon un cycle
 naturel, le jour et la nuit, un effet
 d'écran cathodique discret et un flou de maquette (en ellipse autour du
 héros), désactivables.
@@ -59,8 +60,9 @@ repart de la barque. Quand on s'éloigne d'un cadavre, des corbeaux s'y
 abattent (l'autre viking, et les loups tués). Plus loin, une falaise gigantesque face au sud, faite de pans
 avancés ou reculés, et l'entrée d'une grotte : on y entre (il y fait toujours
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
-ossements, et au fond un roi mort sur son trône : quand on approche, sa tête
-tombe et sa couronne roule à ses pieds (`kingBowed`).
+ossements, et au fond, dans une grande salle, un roi squelette immense sur son
+trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et sa
+couronne roule au pied de l'estrade (`kingBowed`).
 Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
@@ -223,14 +225,20 @@ est cachée et ne sort que pendant l'attaque.
 - `js/ruins-art.js` — leurs pixels, **générés** par `scripts/import-art.py`
   (ImageMagick) depuis `assets/` : couleurs ramenées aux trois du jeu (traits
   k, demi-teintes b, clairs s), le blanc du fond transparent, le blanc enfermé
-  en neige. Les fichiers `_x1` sont à l'échelle du jeu ; `arche2.png` est
-  réduite par moyenne. À relancer après chaque changement d'image.
+  en neige. Les fichiers `_x1` sont à l'échelle du jeu ; `arche2.png`,
+  `pont.png` sont réduites par moyenne ; `roi.png` est en négatif (traits
+  blancs sur noir : la silhouette est refermée puis remplie de bleu nuit) ;
+  `loups.png` est lu sur sa grille puis réduit de moitié (`WOLF_ART`). À
+  relancer après chaque changement d'image. Le pont n'est encore que dans le
+  labo (Accostage, E).
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
 - `js/cave.js` — la grotte : poches de galerie (`POCKETS`) au bord rongé de
-  bruit, paroi, glaçons, mare gelée, stalagmites, ossements ; le trône
-  (`THRONE_FRAMES` : assis, tête tombée) ; `caveWalkable`, `atCaveDoor`,
+  bruit, paroi, glaçons, mare gelée, stalagmites, ossements ; le roi
+  squelette (`RUIN_ART.roi`, ~11 fois le viking ; `THRONE_FRAMES` : assis,
+  et la tête tombée : la couronne `CROWN` roule au pied, le crâne `SKULL`
+  s'affaisse ; l'estrade bloque) ; `caveWalkable`, `atCaveDoor`,
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
@@ -265,11 +273,11 @@ est cachée et ne sort que pendant l'attaque.
   de `WOLF_DEN`, cercle, grogne → bond → morsure `onBite`, `hitAt`,
   retraite si on fuit ou tombe) ; `pack.engaged` compte comme un combat
   (musique, zoom, pas de guérison).
-- `js/wolf.js` — loups, d'après les
-  silhouettes de référence : petits (garrot à 4 px, oreilles à 6 ; le viking
-  en fait 9), corps long et maigre, dos droit, tête en avant, une oreille
-  pointue, pattes fines articulées (`leg`), queue touffue qui bat (`tail`,
-  `wag`) ; trot, galop, marche, arrêt, flaire, hurle, grogne, bondit, à terre, assis.
+- `js/wolf.js` — loups, d'après le dessin fourni (`assets/loups.png` →
+  `WOLF_ART` dans `ruins-art.js`) : deux temps de marche, deux de course,
+  réduits de moitié pour arriver à la hanche du viking (6 à 7 px ; il en fait
+  9), posés dans un cadre commun (`place`) ; trot, galop, marche, arrêt,
+  flaire, hurle, grogne, bondit, à terre, assis s'en servent tous.
 - `js/deer.js` — cerfs (bois) et biches : marche, bond, arrêt, broute,
   brame / alerte.
 - `js/fauna.js` — les bêtes dans le jeu : envol de corbeaux (`CROWS`, ils
@@ -372,7 +380,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.26.0`) : après chaque changement de
+  portent la version (`?v=1.27.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en

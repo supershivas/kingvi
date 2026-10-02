@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.27.0 — 2026-10-02
+- Plus de noir : tout ce qui était noir (rochers, coques, traits, le fond autour des intérieurs) est en bleu nuit
+- Les loups reprennent le dessin fourni : deux temps de marche, deux temps de course
+- Au fond de la grotte, un roi squelette immense sur son trône, d'après le dessin fourni ; dans le labo, le pont d'après le dessin
+
 ## 1.26.0 — 2026-10-01
 - L'arche et les trois ruines reprennent exactement les dessins fournis : on passe sous les deux arches, la colonne et le socle font obstacle, on marche sur les éclats
 - La vue est un peu resserrée autour du viking (80 %) : le jeu est plus fluide, le petit zoom de la molette et le zoom des combats restent

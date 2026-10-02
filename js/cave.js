@@ -6,6 +6,8 @@
    s'approche, sa tête tombe et la couronne roule à ses pieds.
    Couleurs : b pierre sombre, s pierre éclairée, glace, os ; k noir. */
 
+import { RUIN_ART } from './ruins-art.js?v=1.27.0';
+
 export const CAVE_W = 200;
 export const CAVE_H = 190;
 
@@ -31,10 +33,10 @@ const POCKETS = [
   { x: 104, y: 110, rx: 22, ry: 11 },
   { x: 128, y: 97, rx: 18, ry: 9 },
   { x: 118, y: 84, rx: 11, ry: 6 },
-  { x: 100, y: 64, rx: 46, ry: 20 },                   // la grande salle
+  { x: 100, y: 66, rx: 62, ry: 26 },                   // la grande salle (le roi est immense)
 ];
 const POOL = { x: 64, y: 136, rx: 9, ry: 4 };           // la mare gelée
-export const THRONE = { x: 100, y: 52 };                // pied du trône (au fond de la salle)
+export const THRONE = { x: 100, y: 70 };                // pied de l'estrade (au fond de la salle)
 export const CAVE_ENTRY = { x: 100, y: 176 };
 
 // Distance au bord : < 1 dans la galerie. Le bord est rongé par le bruit.
@@ -54,7 +56,7 @@ function caveD(x, y) {
 const inPool = (x, y) => Math.hypot((x - POOL.x) / POOL.rx, (y - POOL.y) / POOL.ry) + (noise(x / 3, y / 3, 9) - 0.5) * 0.3 < 1;
 
 // Stalagmites : de petites dents de pierre, là où le hasard les met
-const SPIKES = [[55, 128], [88, 146], [118, 104], [70, 60], [134, 70], [140, 95], [62, 72], [109, 118]];
+const SPIKES = [[55, 128], [88, 146], [118, 104], [140, 95], [109, 118]];
 
 export function makeCave() {
   const g = Array.from({ length: CAVE_H }, () => Array(CAVE_W).fill('k'));
@@ -116,63 +118,43 @@ export function makeCave() {
 }
 export const CAVE_ROOM = makeCave();
 
-// Le trône et son roi : assis, puis la tête tombée, la couronne à ses pieds.
-// L'image a son pied (le bas de la marche) à la ligne THRONE_FOOT.
-export const THRONE_FRAMES = {
-  seated: [
-    '.b.........b.',
-    '.bb.......bb.',
-    '.bbbbbbbbbbb.',
-    '.bbk.s.s.kbb.',
-    '.bbkssssskbb.',
-    '.bbkkbbbkkbb.',
-    '.bbkkbbbkkbb.',
-    '.bbkkkbkkkbb.',
-    '.bbbbbbbbbbb.',
-    'bbbbbbbbbbbbb',
-    'bbkbbbbbbbkbb',
-    'bssssssssssss',
-    'bbkbbbbbbbkbb',
-    'bbkkbkkkbkkbb',
-    'bbkkbkkkbkkbb',
-    'bbbbbbbbbbbbb',
-    'sssssssssssss',
-    'bbbbbbbbbbbbb',
-    '.............',
-    '.............',
-  ],
-  bowed: [
-    '.b.........b.',
-    '.bb.......bb.',
-    '.bbbbbbbbbbb.',
-    '.bbkkkkkkkbb.',
-    '.bbkkkkkkkbb.',
-    '.bbkkkkkkkbb.',
-    '.bbkkkbbkkbb.',
-    '.bbkkbbbbkbb.',
-    '.bbbbbbbbbbb.',
-    'bbbbbbbbbbbbb',
-    'bbkbbbbbbbkbb',
-    'bssssssssssss',
-    'bbkbbbbbbbkbb',
-    'bbkkbkkkbkkbb',
-    'bbkkbkkkbkkbb',
-    'bbbbbbbbbbbbb',
-    'sssssssssssss',
-    'bbbbbbbbbbbbb',
-    '.......s.s...',
-    '.......sss...',
-  ],
-};
-export const THRONE_FOOT = 17;                          // la ligne du bas de la marche
+// Le roi squelette sur son trône, immense, d'après le dessin fourni
+// (assets/roi.png → ruins-art.js) : assis, puis la tête tombée, la couronne
+// roulée au pied de l'estrade. L'image a son pied (le bas de l'estrade) à la
+// ligne THRONE_FOOT. On ne retouche pas le dessin : pour « la tête tombée »,
+// la couronne quitte la tête (CROWN) et se pose devant, le crâne s'affaisse.
+const ROI = RUIN_ART.roi;
+const CROWN = { x0: 45, x1: 55, y0: 9, y1: 16 };          // la couronne, dans le dessin
+const SKULL = { x0: 37, x1: 51, y0: 16, y1: 30 };         // le crâne
+const CROWN_AT = { x: 60, y: ROI.length - 12 };           // où elle roule
+function bowedKing() {
+  const g = ROI.map(r => [...r]);
+  const at = (x, y) => ROI[y]?.[x] ?? '.';
+  // La couronne quitte la tête
+  for (let y = CROWN.y0; y < CROWN.y1; y++) for (let x = CROWN.x0; x < CROWN.x1; x++) g[y][x] = '.';
+  // Le crâne s'affaisse de deux pixels
+  for (let y = SKULL.y1 - 1; y >= SKULL.y0; y--) for (let x = SKULL.x0; x < SKULL.x1; x++) g[y + 2][x] = at(x, y);
+  for (let y = SKULL.y0; y < SKULL.y0 + 2; y++) for (let x = SKULL.x0; x < SKULL.x1; x++) g[y][x] = 'k';
+  // Elle roule au pied de l'estrade, couchée
+  for (let y = CROWN.y0; y < CROWN.y1; y++) for (let x = CROWN.x0; x < CROWN.x1; x++) {
+    const c = at(x, y);
+    if (c === '.') continue;
+    const X = CROWN_AT.x + (y - CROWN.y0), Y = CROWN_AT.y + (x - CROWN.x0) - 4;
+    if (g[Y] && X < g[Y].length) g[Y][X] = c;
+  }
+  return g.map(r => r.join(''));
+}
+export const THRONE_FRAMES = { seated: ROI, bowed: bowedKing() };
+export const THRONE_FOOT = ROI.length - 1;               // la ligne du bas de l'estrade
 
 export function caveWalkable(x, y) {
   // Le couloir de l'entrée, jusqu'au seuil
   if (y > 172 && y < 190 && Math.abs(x - 100 + Math.max(0, y - 176) * 0.2) < 4) return true;
   if (y > 182) return false;
   if (caveD(x, y) > 0.78 || inPool(x, y)) return false;
-  if (Math.abs(x - THRONE.x) < 8 && y < THRONE.y + 3) return false;
+  // L'estrade et le trône : on n'y monte pas
+  if (Math.abs(x - THRONE.x) < ROI[0].length / 2 - 4 && y < THRONE.y + 1) return false;
   return !SPIKES.some(([sx, sy]) => Math.abs(x - sx - 0.5) < 2 && Math.abs(y - sy) < 2);
 }
 export const atCaveDoor = (x, y) => y > 184;
-export const nearThrone = (x, y) => Math.hypot(x - THRONE.x, (y - THRONE.y) * 1.5) < 26;
+export const nearThrone = (x, y) => Math.hypot(x - THRONE.x, (y - THRONE.y) * 1.5) < 40;

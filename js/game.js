@@ -4,26 +4,26 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.26.0';
+} from './viking.js?v=1.27.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.26.0';
-import { createPack } from './pack.js?v=1.26.0';
-import { chapterById } from './chapters.js?v=1.26.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.26.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.26.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.26.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.26.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.26.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.26.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.26.0';
-import { createFauna } from './fauna.js?v=1.26.0';
-import { createWeather } from './weather.js?v=1.26.0';
-import { createSea } from './sea.js?v=1.26.0';
-import { audio } from './audio.js?v=1.26.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.26.0';
+} from './world.js?v=1.27.0';
+import { createPack } from './pack.js?v=1.27.0';
+import { chapterById } from './chapters.js?v=1.27.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.27.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.27.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.27.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.27.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.27.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.27.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.27.0';
+import { createFauna } from './fauna.js?v=1.27.0';
+import { createWeather } from './weather.js?v=1.27.0';
+import { createSea } from './sea.js?v=1.27.0';
+import { audio } from './audio.js?v=1.27.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.27.0';
 
 const Phaser = window.Phaser;
 
@@ -932,7 +932,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.bleed(this.pos.x, this.pos.y, 14);
       this.time.delayedCall(2600, () => {
         const cam = this.cameras.main;
-        cam.fadeOut(900, 0, 0, 0);
+        cam.fadeOut(900, 31, 42, 68);
         cam.once('camerafadeoutcomplete', () => {
           this.dead = false;
           this.hp = FOE_HP;
@@ -946,7 +946,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           cam.centerOn(this.spawn.x, this.spawn.y);
           this.updateChunks(true);
           this.persist();
-          cam.fadeIn(1200, 0, 0, 0);
+          cam.fadeIn(1200, 31, 42, 68);
         });
       });
     }
@@ -1241,14 +1241,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     teleport(x, y, then) {
       this.moving = true;
       const cam = this.cameras.main;
-      cam.fadeOut(260, 0, 0, 0);
+      cam.fadeOut(260, 31, 42, 68);
       cam.once('camerafadeoutcomplete', () => {
         this.pos = { x, y };
         then();
         this.placePlayer();
         cam.centerOn(x, y);
         this.updateChunks(true);
-        cam.fadeIn(320, 0, 0, 0);
+        cam.fadeIn(320, 31, 42, 68);
         this.moving = false;
       });
     }

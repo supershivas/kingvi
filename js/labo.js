@@ -1,33 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.26.0';
+import { startUpdateCheck } from '../app-update.js?v=1.27.0';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.26.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.26.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.26.0';
+} from './viking.js?v=1.27.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.27.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.27.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.26.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.26.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.26.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.26.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.26.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.26.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.26.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.26.0';
-import { createSea } from './sea.js?v=1.26.0';
-import { buildStatueDoor } from './statue.js?v=1.26.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.26.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.26.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.26.0';
-import * as PROPS from './props.js?v=1.26.0';
-import { audio } from './audio.js?v=1.26.0';
-import { monumentParts } from './ruins.js?v=1.26.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.26.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.26.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.26.0';
+} from './world.js?v=1.27.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.27.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.27.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.27.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.27.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.27.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.27.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.27.0';
+import { createSea } from './sea.js?v=1.27.0';
+import { buildStatueDoor } from './statue.js?v=1.27.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.27.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.27.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.27.0';
+import * as PROPS from './props.js?v=1.27.0';
+import { audio } from './audio.js?v=1.27.0';
+import { monumentParts } from './ruins.js?v=1.27.0';
+import { RUIN_ART } from './ruins-art.js?v=1.27.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.27.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.27.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.27.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1117,6 +1118,20 @@ function landingScene(ctx, pal, t, s, v, shore) {
   const roll = Math.sin(t * 0.8 + 1);
   ctx.drawImage(s.boat[roll > 0.55 ? 'right' : roll < -0.55 ? 'left' : 'still'], bx, by);
 }
+// Le pont, d'après le dessin fourni (assets/pont.png) : des travées de
+// planches sur caissons, reliées par des cordes, vues de biais
+card('accostage', {
+  tag: 'E', title: 'Le pont, d\'après le dessin', about: 'Des travées de planches posées sur des caissons, des poteaux aux angles, des cordes de l\'un à l\'autre ; vu de biais, il file vers le large. Le viking donne l\'échelle. Où le poser : au bout de la grève, pour la barque ? Sur le lac ?',
+  wide: true, w: 220, h: 140,
+  setup(s, v) { s.img = prerender(RUIN_ART.pont, v.pal); s.weather = createWeather('bise'); },
+  draw(ctx, pal, t, dt, s, v) {
+    ctx.drawImage(s.img, 20, v.h - s.img.height - 4);
+    drawViking(ctx, pal, walkFrame('side', t), 8 + Math.round((t * 10) % (v.w - 16)), v.h - 2, { clock: t, wind: 0.3 });
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
 const PONTOONS = [
   ['A', 'Ponton de planches', 'Sur pilotis, planches claires, joints sombres ; la barque vient s\'y ranger.', () => PROPS.jetty(64)],
   ['B', 'Ponton rompu', 'Le même, abandonné : planches arrachées au large, pieux qui penchent.', () => PROPS.brokenJetty(64)],
@@ -1202,7 +1217,7 @@ card('nuit', {
 card('interieur', {
   title: 'Dans la maison', about: 'On y entre par la porte (en marchant vers elle). Pièce vue de biais, noire tout autour ; un corps au milieu, une flaque de sang, une traînée et des pas ensanglantés jusqu\'à la porte. On ressort par où l\'on est entré ; dehors, les traces qui repartent sont tachées de sang.',
   wide: true, w: 150, h: 100,
-  setup(s, v) { s.img = prerender(ROOM, { ...v.pal, k: '#05070c' }); },
+  setup(s, v) { s.img = prerender(ROOM, v.pal); },
   draw(ctx, pal, t, dt, s) {
     ctx.drawImage(s.img, 0, 0);
     // Le viking entre, s'approche du corps, s'arrête

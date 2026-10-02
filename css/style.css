@@ -38,7 +38,9 @@
   /* Propres au jeu : la neige et la nuit. Le rouge est --accent. */
   --game-snow:  #dfe6ee;
   --game-night: #1f2a44;
-  --game-black: #05070c;
+  /* Plus de noir dans le jeu : ce qui était noir (rochers, coques, traits,
+     le fond autour des intérieurs) est en bleu nuit */
+  --game-black: #1f2a44;
   /* Le titre du jeu : une gothique étrange (propre au jeu) */
   --font-game-title: 'Grenze Gotisch', 'Old English Text MT', 'Luminari', serif;
 }
