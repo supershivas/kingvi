@@ -6,7 +6,7 @@
    s'approche, sa tête tombe et la couronne roule à ses pieds.
    Couleurs : b pierre sombre, s pierre éclairée, glace, os ; k noir. */
 
-import { RUIN_ART } from './ruins-art.js?v=1.31.1';
+import { RUIN_ART } from './ruins-art.js?v=1.31.2';
 
 export const CAVE_W = 200;
 export const CAVE_H = 190;

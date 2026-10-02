@@ -189,11 +189,11 @@ body {
 .chapter.out { opacity: 0; filter: blur(2px); transition-duration: 1.6s; }
 .chapter-label {
   font-family: var(--font-mono); font-size: .8rem; letter-spacing: .35em; text-transform: uppercase; opacity: .85;
-  text-shadow: 0 0 6px rgba(5,7,12,.9);
+  text-shadow: 0 0 6px rgba(31,42,68,.9);
 }
 .chapter-title {
   font-family: var(--font-game-title); font-size: clamp(2.4rem, 6vw, 4.6rem); line-height: 1;
-  text-shadow: 0 2px 0 rgba(5,7,12,.85), 0 0 14px rgba(5,7,12,.7);
+  text-shadow: 0 2px 0 rgba(31,42,68,.85), 0 0 14px rgba(31,42,68,.7);
 }
 @media (prefers-reduced-motion: reduce) { .chapter, .chapter.in { transform: none; filter: none; } }
 /* Les autres fonds (propositions du labo, chapters.js) : dessinés en pixels */
@@ -204,7 +204,9 @@ body {
 }
 .chapter--pixels .chapter-label { opacity: 1; text-shadow: 1px 0 0 var(--game-black), -1px 0 0 var(--game-black), 0 1px 0 var(--game-black), 0 -1px 0 var(--game-black), 0 0 6px var(--game-black); }
 .chapter-pixels { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
-/* Le voile du haut (E, dans le jeu) : la nuit descend du haut de l'écran,
+/* Sobre (dans le jeu) : rien que le texte, en fondu, sans fond ni mouvement */
+.chapter--sobre, .chapter--sobre.in, .chapter--sobre.out { transform: none; filter: none; }
+/* Le voile du haut (E, proposition du labo) : la nuit descend du haut de l'écran,
    puis le titre s'y inscrit ; à la fin, elle remonte */
 .chapter--voile, .chapter--voile.in, .chapter--voile.out { opacity: 1; transform: none; filter: none; }
 .chapter--voile .chapter-art { clip-path: inset(0 0 100% 0); transition: clip-path 1.6s cubic-bezier(.35, .55, .3, 1); }

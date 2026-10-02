@@ -80,10 +80,10 @@ coffre à ouvrir (clic près de lui).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
 par vie (`chapters` dans la sauvegarde, vidé à la mort ; La grève 2,5 s de
 jeu après l'ouverture du noir, `calm`) : « Chapitre I » en petit, le nom
-en grand dans la gothique du titre, texte clair sous un voile de nuit qui
-descend du haut de l'écran (révélé de haut en bas, puis le titre s'y
-inscrit ; il remonte à la fin), tramé, en franges comme des glaçons (lisible sur
-la neige comme sur la mer). I La grève, II La plaine
+en grand dans la gothique du titre, sobre : rien que le texte clair, cerné
+d'une ombre bleu nuit discrète (lisible sur la neige comme sur la mer), qui
+apparaît et s'efface en fondu, sans fond ni mouvement (`CHAPTER_STYLE`
+`sobre`). I La grève, II La plaine
 des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
 VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
 IX Le roi sous la roche (dans la grotte) ; Interlude, Le lac (en barque).
@@ -279,8 +279,8 @@ est cachée et ne sort que pendant l'attaque.
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
-  Le fond derrière le titre : `CHAPTER_STYLE` (E, le voile du haut, dans le
-  jeu) ; les autres propositions restent dans le labo (`CHAPTER_STYLES` : brume tramée, lambeau,
+  Le fond derrière le titre : `CHAPTER_STYLE` (G, sobre : pas de fond, dans
+  le jeu) ; les autres propositions restent dans le labo (`CHAPTER_STYLES` : brume tramée, lambeau,
   lettres de neige, voile du haut, pierre levée), dessinées en pixels du jeu.
 - `js/sea.js` — les vagues, partagées jeu/labo : rouleaux qui avancent vers
   la grève puis se retirent (pixels du rivage mis en cache par carreau),

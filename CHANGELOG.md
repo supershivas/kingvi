@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.31.2 — 2026-10-02
+- Les titres des chapitres redeviennent sobres : plus de voile ni d'effet, le texte seul apparaît et s'efface en fondu
+
 ## 1.31.1 — 2026-10-02
 - Le tourbillon impressionne : la lame trace un anneau autour du viking, puis un souffle chasse la neige tout autour
 - Les secousses de l'écran sont réduites au minimum : plus rien pour la neige, le bois ou la pierre, à peine un pixel pour un vrai coup

@@ -1,10 +1,10 @@
 /* Les bêtes du jeu : cerfs et biches dans la forêt (toujours loin, ils
    s'enfuient à l'approche), un envol de corbeaux avant la forêt, et les
    charognards qui s'abattent sur un cadavre quand on s'en éloigne. */
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_H, DEER_GROUND } from './deer.js?v=1.31.1';
-import { paintFrames } from './viking.js?v=1.31.1';
-import { isLand, blocked, forestDensity, deepForest, CROWS } from './world.js?v=1.31.1';
-import { audio } from './audio.js?v=1.31.1';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_H, DEER_GROUND } from './deer.js?v=1.31.2';
+import { paintFrames } from './viking.js?v=1.31.2';
+import { isLand, blocked, forestDensity, deepForest, CROWS } from './world.js?v=1.31.2';
+import { audio } from './audio.js?v=1.31.2';
 
 const DEER_ENABLED = false;
 const DEER_MAX = 4;
