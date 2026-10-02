@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.30.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.30.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.30.0';
-import { makeGroveTree } from './grove.js?v=1.30.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.30.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.31.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.31.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.31.0';
+import { makeGroveTree } from './grove.js?v=1.31.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.31.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -10,7 +10,7 @@ import { monumentParts, monumentSize } from './ruins.js?v=1.30.0';
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
 // À incrémenter quand l'île change (tracé, objets).
-export const WORLD_VERSION = 7;
+export const WORLD_VERSION = 8;
 export const WORLD = 6144;
 export const CHUNK = 256;
 export const CENTER = WORLD / 2;
@@ -352,7 +352,11 @@ const ARCH_AT = trail.find(p => p.x > LANDING.shore + 1250) || trail[Math.floor(
 export const ARCH = off(ARCH_AT, 58);
 const ruinAt = (dx, d) => off(trail.find(p => p.x > LANDING.shore + dx) || trail.at(-1), d);
 export const RUINS = { colonne: ruinAt(450, -90), socle: ruinAt(3300, 90), arche: ruinAt(4100, -90) };
+// Le ponton du lac : il part de la rive nord (le bout côté terre sur la
+// grève) et file en biais dans l'eau, sans toucher l'îlot ; on marche dessus
+export const PIER = { x: LAKE.x + 3, y: LAKE.y - 36 };
 const MONUMENT_PARTS = [
+  ...monumentParts('pont', PIER.x, PIER.y),
   ...monumentParts('arche', ARCH.x, ARCH.y),
   ...monumentParts('colonne', RUINS.colonne.x, RUINS.colonne.y),
   ...monumentParts('socle', RUINS.socle.x, RUINS.socle.y),
@@ -360,11 +364,21 @@ const MONUMENT_PARTS = [
 ];
 // Leurs emprises, où ne poussent ni arbres ni rochers
 const LANDMARKS = [
+  { ...PIER, ...monumentSize('pont') },
   { ...ARCH, ...monumentSize('arche') },
   { ...RUINS.colonne, ...monumentSize('colonne') },
   { ...RUINS.socle, ...monumentSize('socle') },
   { ...RUINS.arche, ...monumentSize('ruine') },
 ];
+// Ce sur quoi l'on monte (le dessus du socle, le ponton) : la hauteur à
+// laquelle on se tient en (x, y) au sol, 0 si l'on est par terre
+const DECKS = MONUMENT_PARTS.filter(o => o.deck).map(o => o.deck);
+export function deckLift(x, y) {
+  for (const d of DECKS) if (inPoly(d.poly, x, y - d.lift)) return d.lift;
+  return 0;
+}
+// Où la barque du lac attend au début : contre le bout du ponton
+export const PIER_MOOR = { x: PIER.x - 67, y: PIER.y - 11 };
 const inArch = (x, y, m = 0) => LANDMARKS.some(L => Math.abs(x - L.x) < L.w / 2 + m && y > L.y - L.h * 0.5 - m && y < L.y + 12 + m);
 const inNecro = (x, y, m = 0) => x > NECRO.x - m && x < NECRO.x + NECRO_W + m && y > NECRO.y - m && y < NECRO.y + NECRO_H + m;
 

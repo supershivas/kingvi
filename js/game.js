@@ -4,26 +4,27 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.30.0';
+} from './viking.js?v=1.31.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-} from './world.js?v=1.30.0';
-import { createPack } from './pack.js?v=1.30.0';
-import { chapterById } from './chapters.js?v=1.30.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.30.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.30.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.30.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.30.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.30.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.30.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.30.0';
-import { createFauna } from './fauna.js?v=1.30.0';
-import { createWeather } from './weather.js?v=1.30.0';
-import { createSea } from './sea.js?v=1.30.0';
-import { audio } from './audio.js?v=1.30.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.30.0';
+  deckLift, PIER_MOOR,
+} from './world.js?v=1.31.0';
+import { createPack } from './pack.js?v=1.31.0';
+import { chapterById } from './chapters.js?v=1.31.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.31.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.31.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.31.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.31.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.31.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.31.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.31.0';
+import { createFauna } from './fauna.js?v=1.31.0';
+import { createWeather } from './weather.js?v=1.31.0';
+import { createSea } from './sea.js?v=1.31.0';
+import { audio } from './audio.js?v=1.31.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.31.0';
 
 const Phaser = window.Phaser;
 
@@ -41,7 +42,11 @@ const DEPTH_GROUND = -1000, DEPTH_WAVES = -600, DEPTH_MARKS = -500, DEPTH_BOAT =
 const DEPTH_ROOM = 5e5;
 // L'endurance (0 → 1) : ce que coûtent un coup, une seconde de course ; ce
 // que rend une seconde de repos ; le temps avant qu'elle revienne
-const STAMINA = { attack: 0.12, run: 0.09, regen: 0.45, rest: 0.5 };
+const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5 };
+// Le coup tourbillonnant : le bouton maintenu tant de secondes
+const WHIRL_HOLD = 2;
+// Le tour : les huit directions, une image de lame chacune (vue, retourné)
+const WHIRL_TURN = [['side', false], ['diagdown', false], ['front', false], ['diagdown', true], ['side', true], ['diagup', true], ['back', false], ['diagup', false]];
 
 // Taille interne et facteur d'agrandissement entier, pour des pixels nets.
 // Le canevas a la taille de l'écran en pixels physiques (densité comprise :
@@ -74,7 +79,8 @@ export function fitScreen(w, h, quality = QUALITY.initial) {
 // Emprise de la barque échouée (posée dans create)
 const boatRects = [];
 const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
-const walkable = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y);
+// (sur le ponton, on marche au-dessus de l'eau)
+const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y);
 
 // Les intérieurs (la maison, la crypte de la statue du lac) sont posés loin en
 // mer, hors de l'île : quand on y entre, on y est téléporté ; tout autour, un
@@ -98,7 +104,7 @@ const INTERIORS = {
   },
 };
 // La barque du lac flotte là où l'eau est assez profonde pour sa coque
-const afloat = (x, y) => inLake(x, y) && coast(x, y) > 0.0035 && inLake(x - 7, y) && inLake(x + 7, y);
+const afloat = (x, y) => inLake(x, y) && coast(x, y) > 0.0035 && inLake(x - 7, y) && inLake(x + 7, y) && !deckLift(x, y);
 
 // Le point praticable le plus proche (une sauvegarde ou une téléportation
 // peut tomber sur un tronc ou dans la maison)
@@ -210,7 +216,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // descend en abordant une rive
       this.rowing = false;
       this.boardArmed = true;
-      const rb = save.rowboat && afloat(save.rowboat.x, save.rowboat.y) ? save.rowboat : (() => {
+      const rb = save.rowboat && afloat(save.rowboat.x, save.rowboat.y) ? save.rowboat : afloat(PIER_MOOR.x, PIER_MOOR.y) ? PIER_MOOR : (() => {
         for (let y = LAKE.y - LAKE.ry - 20; y < LAKE.y; y++) if (afloat(LAKE.x - 40, y + 3)) return { x: LAKE.x - 40, y: y + 3 };
         return { x: LAKE.x, y: LAKE.y - 40 };
       })();
@@ -300,7 +306,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         // Dans la crypte, un clic près du coffre l'ouvre
         if (this.inside === 'crypt' && !this.chestOpen && this.nearChest()) { this.openChest(); return; }
         this.attack(p.worldX, p.worldY);
+        // Maintenu, le bouton arme le coup tourbillonnant
+        this.charge = { t: 0 };
       });
+      this.input.on('pointerup', () => { this.charge = null; });
+      this.input.on('gameout', () => { this.charge = null; });
 
       // ── L'autre viking, au bout des traces ──
       this.art('fallen', CORPSE);
@@ -497,8 +507,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
     // Le sprite est posé sur un demi-pixel : son origine est au milieu d'une
     // colonne, ses bords tombent ainsi sur des pixels entiers.
+    // Sur le socle ou le ponton, on est dessiné plus haut (`lift`, qui suit
+    // la hauteur du dessus en un instant : on y monte, on en descend)
     placePlayer() {
-      const px = Math.round(this.pos.x), py = Math.round(this.pos.y);
+      const px = Math.round(this.pos.x), py = Math.round(this.pos.y) - Math.round(this.lift || 0);
       const depth = this.pos.y + (this.inside ? DEPTH_ROOM : 0);
       this.player.setPosition(px + 0.5, py).setDepth(depth);
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
@@ -531,7 +543,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     leavePrint(side) {
-      const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y) - Math.round(this.lift || 0);
       const horizontal = this.facing === 'side';
       const px = x + (horizontal ? 0 : side);
       const py = y - 1 + (horizontal ? (side > 0 ? 0 : -1) : 0);
@@ -566,7 +578,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const g = this.staminaBar, show = (this.stamina < 0.999 || this.staminaFlash) && !this.dead && !this.rowing;
       g.clear();
       if (!show) return;
-      const x = Math.round(this.pos.x) - 4, y = Math.round(this.pos.y) - 12;
+      const x = Math.round(this.pos.x) - 4, y = Math.round(this.pos.y - (this.lift || 0)) - 12;
       g.setDepth(this.pos.y + 0.03 + (this.inside ? DEPTH_ROOM : 0));
       g.fillStyle(hex(palette.b), 0.22); g.fillRect(x, y, 9, 1);
       g.fillStyle(hex(this.staminaFlash > 0 && Math.floor(this.staminaFlash * 8) % 2 ? palette.r : palette.b), 0.9);
@@ -581,7 +593,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.useStamina(STAMINA.attack);
       // Huit directions : profil, face, dos, et les quatre diagonales (jouées
       // de profil, la lame en travers)
-      const dx = tx - this.pos.x, dy = ty - (this.pos.y - 5);
+      const dx = tx - this.pos.x, dy = ty - (this.pos.y - (this.lift || 0) - 5);
       const a = Math.atan2(dy, Math.abs(dx)) * 180 / Math.PI;   // -90 (haut) → 90 (bas)
       if (a < -67.5) { this.facing = 'back'; this.swingView = 'back'; }
       else if (a > 67.5) { this.facing = 'front'; this.swingView = 'front'; }
@@ -595,10 +607,109 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.player.play(`${this.swingView}-attack`);
     }
 
+    // ── Le coup tourbillonnant : bouton maintenu WHIRL_HOLD secondes ──
+    // En attendant, la neige se met à tourner autour des pieds, de plus en plus
+    updateCharge(dt) {
+      const g = this.chargeG || (this.chargeG = this.add.graphics());
+      g.clear();
+      const c = this.charge;
+      if (!c || isPaused() || this.dead || this.rowing || this.inside === 'crypt' && this.nearChest()) { if (c && (this.dead || this.rowing)) this.charge = null; return; }
+      c.t += dt;
+      if (c.t >= WHIRL_HOLD && !this.whirling) { this.charge = null; this.whirl(); return; }
+      const k = Math.max(0, (c.t - 0.35) / (WHIRL_HOLD - 0.35));
+      if (!k) return;
+      const x = this.pos.x, y = this.pos.y - (this.lift || 0);
+      const n = Math.round(3 + k * 14), spin = c.t * (3 + k * 9);
+      g.setDepth(this.pos.y + 0.6);
+      for (let i = 0; i < n; i++) {
+        const a = spin + i / n * Math.PI * 2, wob = Math.sin(i * 12.9898) * 2;   // pas un cercle : un remous
+        const px = Math.round(x + Math.cos(a) * (9 + wob)), py = Math.round(y - 2 + Math.sin(a) * (5 + wob * 0.5));
+        g.fillStyle(hex(i % 3 ? palette.s : palette.b), 0.35 + 0.5 * k);
+        g.fillRect(px, py, 1, 1);
+      }
+    }
+
+    whirl() {
+      if (this.whirling || this.dead || this.rowing) return;
+      if (this.stamina < STAMINA.whirl * 0.6) { this.staminaFlash = 0.6; return; }
+      this.useStamina(STAMINA.whirl);
+      this.whirling = true;
+      this.attacking = true;
+      this.player.stop();
+      this.player.anims.timeScale = 1;
+      audio.play('swing');
+      const steps = [...WHIRL_TURN, WHIRL_TURN[0]];
+      steps.forEach(([view, flip], i) => this.time.delayedCall(i * 48, () => {
+        if (this.dead) return;
+        this.flip = flip;
+        this.player.setFlipX(flip).setFrame(`${view}-attack-2`);
+        this.placePlayer();
+        if (i === 4) { audio.play('swing'); this.whirlStrike(); }
+      }));
+      this.time.delayedCall(steps.length * 48 + 140, () => {
+        this.whirling = false;
+        this.attacking = false;
+        if (this.dead) return;
+        this.facing = 'side';
+        this.player.setFlipX(this.flip).setFrame('side-idle');
+      });
+    }
+
+    // Tout ce qui est autour, à portée de lame, est touché une fois
+    whirlStrike() {
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
+      // La traînée : un remous de pixels autour du viking, pas un cercle
+      const g = this.add.graphics().setDepth(this.pos.y + 0.5);
+      for (let i = 0; i < 70; i++) {
+        const a = i / 70 * Math.PI * 2, r = 10 + Math.sin(i * 0.9) * 1.5 + Math.sin(i * 2.7) * 0.8;
+        g.fillStyle(hex(palette.b), 0.25 + 0.5 * Math.abs(Math.sin(a * 1.5 + 1)));
+        g.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 3 + Math.sin(a) * r * 0.55), 1, 1);
+      }
+      this.tweens.add({ targets: g, alpha: 0, duration: 380, ease: 'Quad.easeOut', onComplete: () => g.destroy() });
+      this.dust.setConfig({
+        lifespan: { min: 300, max: 800 }, speed: { min: 15, max: 50 }, angle: { min: 0, max: 360 },
+        gravityY: 50, alpha: { start: 0.9, end: 0 }, emitting: false,
+      });
+      this.dust.explode(26, x, this.pos.y);
+      this.cameras.main.shake(100, 0.003);
+      // Les points de la lame tout autour : chacun ne prend qu'un coup
+      const hits = new Set();
+      let flesh = false;
+      for (let i = 0; i < 16; i++) {
+        const a = i / 16 * Math.PI * 2, bx = x + Math.cos(a) * 11, by = this.pos.y + Math.sin(a) * 6;
+        const dir = Math.cos(a) >= 0 ? 1 : -1;
+        if (!hits.has('foe') && this.foe.hitAt(bx, by, dir, true)) {
+          hits.add('foe'); flesh = true;
+          this.foe.hitAt(this.foe.pos.x, this.foe.pos.y - 2, dir);
+          this.spurt(this.foe.pos.x, this.foe.pos.y - 5, dir, this.foe.alive ? 18 : 30);
+          if (!this.foe.alive) this.pool(this.foe.pos.x, this.foe.pos.y);
+        }
+        const w = !this.inside && this.pack.hitAt(bx, by, dir, true);
+        if (w && !hits.has(w)) {
+          hits.add(w); flesh = true;
+          this.pack.hitAt(w.pos.x, w.pos.y - 2, dir);
+          audio.play('yelp');
+          const down = w.state === 'dead';
+          this.spurt(w.pos.x, w.pos.y - 3, dir, down ? 22 : 12);
+          if (down) { this.pool(w.pos.x, w.pos.y); this.persist(); }
+        }
+        // Les arbres tout près tremblent et perdent leur neige
+        const s = !this.inside && this.struckObject(bx, by);
+        if (s?.kind === 'tree' && !hits.has(s.o)) { hits.add(s.o); this.shakeTree(s.o, dir); audio.play('wood'); }
+      }
+      audio.play(flesh ? 'flesh' : 'snow');
+      // Le cercle reste dans la neige, effrité
+      for (let i = 0; i < 26; i++) {
+        if (Math.random() < 0.3) continue;
+        const a = i / 26 * Math.PI * 2;
+        this.mark(Math.round(x + Math.cos(a) * 9), Math.round(this.pos.y + Math.sin(a) * 5), 1, 1, 20000);
+      }
+    }
+
     swing() {
       audio.play('swing');
       const dir = this.flip ? -1 : 1;
-      const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
       const g = this.add.graphics().setDepth(this.pos.y + 0.5);
       for (const p of smearPixels(this.swingView)) {
         g.fillStyle(hex(palette.b), p.a);
@@ -794,7 +905,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     impact() {
       const dir = this.flip ? -1 : 1;
       const view = this.swingView, off = IMPACT[view];
-      const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y) + off.y;
+      const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y - (this.lift || 0)) + off.y;
       // L'autre viking d'abord ; sinon, un arbre ou une pierre sous la lame ?
       if (!this.foe.hitAt(x, y, dir || 1, true) && !this.pack.hitAt(x, y, dir || 1, true) && !this.inside) {
         const struck = this.struckObject(x, y);
@@ -969,6 +1080,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // (le temps passé à jouer depuis l'arrivée ; quelques images pour poser la scène)
       else this.calm = (this.calm || 0) + delta / 1000;
       this.settle = Math.max(0, (this.settle || 0) - 1);
+      const lift = this.inside || this.rowing ? 0 : deckLift(this.pos.x, this.pos.y);
+      this.lift = this.lift == null || Math.abs(lift - this.lift) > 30 ? lift
+        : this.lift + Math.max(-1, Math.min(1, lift - this.lift)) * Math.min(Math.abs(lift - this.lift), 90 * delta / 1000);
       this.invuln = Math.max(0, this.invuln - delta / 1000);
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
@@ -994,6 +1108,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const life = this.dead ? 0 : this.hp;
       if (life !== this.lastLife) { this.lastLife = life; onHealth(life); }
       this.updateStamina(delta / 1000);
+      this.updateCharge(delta / 1000);
 
       if (this.rowing) this.row(mx, my, delta / 1000);
       else if (!this.attacking && !this.dead) {
@@ -1031,7 +1146,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.foe.update(delta / 1000, this, this.cape.frame.name);
       if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, delta / 1000, this.foe.hp);
       if (!this.inside) this.pack.update(delta / 1000, this);
-      drawPips(this.playerPips, this.pos.x, this.pos.y, this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
+      drawPips(this.playerPips, this.pos.x, this.pos.y - (this.lift || 0), this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
       if (!this.inside) {
         const corpses = this.pack.deadList.map(w => ({ x: w.x, y: w.y, small: true }));
         if (!this.foe.alive) corpses.push(this.foe.pos);
@@ -1130,7 +1245,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // ── La nuit : le voile, et la torche qu'il sort quand il fait noir ──
     // Où brûle la torche (la main libre, du côté où il regarde)
     torchPoint() {
-      const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
+      const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
       if (this.rowing) return { x: x + (this.rowboat.flip ? 3 : -3), y: y - 10, behind: false };
       const dir = this.flip ? -1 : 1;
       if (this.facing === 'side') return { x: x + dir * 3, y: y - 8, behind: false };
@@ -1211,13 +1326,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       sg.clear();
       if (lit < 0.05) return;
       sg.fillStyle(hex(palette.b), 1);
-      const lx = tp.x, ly = this.pos.y + 1, R = 90;
+      const lx = tp.x, ly = this.pos.y - (this.lift || 0) + 1, R = 90;
       // Les pixels d'ombre, par paliers (comme le halo de la torche)
       let alpha = -1;
       const put = (px, py, a) => { if (a !== alpha) { alpha = a; sg.fillStyle(hex(palette.b), a); } sg.fillRect(px, py, 1, 1); };
       const cast = (x, y, half, len) => castShadow(put, x, y, lx, ly, half, len, R);
       // Sa propre ombre : courte, du côté opposé à la torche
-      if (!this.rowing) cast(this.pos.x, this.pos.y + 0.5, 1.5, 5);
+      if (!this.rowing) cast(this.pos.x, this.pos.y - (this.lift || 0) + 0.5, 1.5, 5);
       if (this.inside) return;
       if (this.foe.alive && Math.hypot(this.foe.pos.x - lx, this.foe.pos.y - ly) < R) cast(this.foe.pos.x, this.foe.pos.y, 1.5, 8);
       const cx = Math.floor(this.pos.x / CHUNK), cy = Math.floor(this.pos.y / CHUNK);
@@ -1564,7 +1679,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           const tree = o.type === 'tree';
           const rest = tree ? LEANS.indexOf(0) : 0;
           const im = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
-            .setOrigin(0, 1).setDepth(o.y);
+            .setOrigin(0, 1).setDepth(o.depthY ?? o.y);
           images.push(im);
           o.img = im;
           // Abattu ou brisé lors d'une partie précédente : on le montre tel quel

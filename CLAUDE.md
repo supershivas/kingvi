@@ -129,7 +129,7 @@ onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son ; un
 seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
 thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), chapitres, barque, jour et nuit, viking,
-cape, attaques (8 directions, arbre qui tombe, rocher qui éclate), torche, meute,
+cape, attaques (8 directions, tourbillon, arbre qui tombe, rocher qui éclate), torche, meute,
 grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
 (lettres A, B, C…) : pontons, seconde barque, nécropole d'après Lindholm Høje,
@@ -139,7 +139,12 @@ et biches.
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
 les diagonales se jouent de profil, lame en travers), molette pour un léger
-zoom (90 à 110 % ; nets seulement à 100 %). Sur écran tactile : la croix
+zoom (90 à 110 % ; nets seulement à 100 %). Le bouton maintenu
+`WHIRL_HOLD` secondes (2, à régler dans `game.js`) : un remous de neige
+grossit autour des pieds (`updateCharge`), puis le coup tourbillonnant, un
+tour complet lame sortie qui touche une fois tout ce qui est autour (l'autre
+viking, chaque loup ; les arbres tremblent) et coûte plus d'endurance
+(`whirl`, `whirlStrike`, `STAMINA.whirl`). Sur écran tactile : la croix
 pour marcher (au bord pour courir), toucher l'écran pour frapper. L'épée
 est cachée et ne sort que pendant l'attaque.
 
@@ -238,6 +243,15 @@ est cachée et ne sort que pendant l'attaque.
   rangées dans le morceau de son pied, `home`, pour qu'il se charge d'un
   bloc). Placées dans `world.js` (`ARCH`,
   `RUINS`, `LANDMARKS` : ni arbres ni rochers dans leur emprise).
+  Ce sur quoi l'on monte (`DECKS`) : le dessus du socle et le tablier du
+  ponton, un contour sur le dessin (`poly`) et une hauteur (`lift`) ; au sol,
+  l'emprise est ce contour descendu de `lift` (`deckLift` dans `world.js`) ;
+  dessus, le viking est dessiné `lift` pixels plus haut (`this.lift`, qui
+  suit en un instant) ; le dessus est trié à son bord arrière (`depthY`), les
+  colonnes sont découpées à part et bloquent. Sur le ponton, on marche
+  au-dessus de l'eau (`walkable`). L'arche principale est texturée au
+  chargement (`texture`, `TEXTURED` : grain en taches, fissures, pied rongé),
+  sans toucher aux traits.
 - `js/ruins-art.js` — leurs pixels, **générés** par `scripts/import-art.py`
   (ImageMagick) depuis `assets/` : couleurs ramenées aux trois du jeu (traits
   k, demi-teintes b, clairs s), le blanc du fond transparent, le blanc enfermé
@@ -248,8 +262,9 @@ est cachée et ne sort que pendant l'attaque.
   Les traits de l'arche, des ruines et du pont sont amincis à un pixel
   (`thin_strokes` : squelette, sans toucher aux aplats sombres), pour aller
   avec le reste du jeu. À
-  relancer après chaque changement d'image. Le pont n'est encore que dans le
-  labo (Accostage, E).
+  relancer après chaque changement d'image. Le pont (90 px de haut) est le
+  ponton du lac (`PIER`, au bord nord ; la barque attend à son bout,
+  `PIER_MOOR`).
 - `js/crypt.js` — la crypte de la statue du lac, creusée (sol en ellipse
   cabossée, dalles et moellons en cellules de Voronoï), runes, ossements, et le
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).

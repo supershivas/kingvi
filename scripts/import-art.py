@@ -20,7 +20,7 @@ SOURCES = [
     # (le roi : traits blancs sur fond noir, voir `negative`)
     ('roi', 'roi.png', 104),
     # (le pont : réduit pour que ses traits fassent un ou deux pixels)
-    ('pont', 'pont.png', 120),
+    ('pont', 'pont.png', 90),
     # (clé, fichier, hauteur visée en pixels du jeu, ou None : telle quelle)
     ('arche', 'arche2.png', 116),
     ('ruine', 'arche.png', None),

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.31.0 — 2026-10-02
+- Nouveau coup : bouton de la souris maintenu deux secondes, la neige tourne autour des pieds, puis un coup tourbillonnant qui touche tout autour
+- Le pont est un ponton au bord du lac : on y marche au-dessus de l'eau, la barque attend à son bout ; on monte aussi sur le socle en ruine, mais pas à travers ses colonnes
+- L'arche est texturée (pierre usée, fissures) ; le voile des chapitres descend toujours jusque sous le titre
+
 ## 1.30.0 — 2026-10-02
 - La forêt noire n'a plus que trois clairières : une vide, celle du grand arbre aux offrandes (plus grand), et celle des loups, bien plus vaste, à la sortie, ouverte sur la plaine
 - Les loups galopent mieux : un temps où leurs pattes se rassemblent sous le ventre

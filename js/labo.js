@@ -1,34 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.30.0';
+import { startUpdateCheck } from '../app-update.js?v=1.31.0';
 import {
   vikingFrames, capeGrid, smearPixels, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.30.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.30.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.30.0';
+} from './viking.js?v=1.31.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.31.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.31.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.30.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.30.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.30.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.30.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.30.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.30.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.30.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.30.0';
-import { createSea } from './sea.js?v=1.30.0';
-import { buildStatueDoor } from './statue.js?v=1.30.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.30.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.30.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.30.0';
-import * as PROPS from './props.js?v=1.30.0';
-import { audio } from './audio.js?v=1.30.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.30.0';
-import { RUIN_ART } from './ruins-art.js?v=1.30.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.30.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.30.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.30.0';
+} from './world.js?v=1.31.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.31.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.31.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.31.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.31.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.31.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.31.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.31.0';
+import { createSea } from './sea.js?v=1.31.0';
+import { buildStatueDoor } from './statue.js?v=1.31.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.31.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.31.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.31.0';
+import * as PROPS from './props.js?v=1.31.0';
+import { audio } from './audio.js?v=1.31.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.31.0';
+import { RUIN_ART } from './ruins-art.js?v=1.31.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.31.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.31.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.31.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -293,6 +293,49 @@ attackDemo('En bas à droite', 'diagdown', false);
 attackDemo('En haut à droite', 'diagup', false);
 attackDemo('En bas à gauche', 'diagdown', true);
 attackDemo('En haut à gauche', 'diagup', true);
+// Le coup tourbillonnant : le bouton maintenu deux secondes, la neige se met
+// à tourner autour des pieds ; puis un tour complet, lame sortie
+card('attaques', {
+  title: 'Tourbillon (bouton maintenu)', w: 48, h: 36,
+  setup(s) { s.dust = []; s.cycle = -1; },
+  draw(ctx, pal, t, dt, s) {
+    const fx = 24, fy = 24, hold = 2, period = 3.4, local = t % period, cycle = Math.floor(t / period);
+    const TURN = [['side', false], ['diagdown', false], ['front', false], ['diagdown', true], ['side', true], ['diagup', true], ['back', false], ['diagup', false], ['side', false]];
+    // La charge : un remous de neige qui grossit et accélère
+    if (local < hold) {
+      const k = Math.max(0, (local - 0.35) / (hold - 0.35)), n = Math.round(3 + k * 14), spin = local * (3 + k * 9);
+      if (k > 0) for (let i = 0; i < n; i++) {
+        const a = spin + i / n * Math.PI * 2, wob = Math.sin(i * 12.9898) * 2;
+        ctx.globalAlpha = 0.35 + 0.5 * k; ctx.fillStyle = i % 3 ? pal.s : pal.b;
+        ctx.fillRect(Math.round(fx + Math.cos(a) * (9 + wob)), Math.round(fy - 2 + Math.sin(a) * (5 + wob * 0.5)), 1, 1);
+      }
+    }
+    const step = Math.floor((local - hold) / 0.048);
+    if (local >= hold + 4 * 0.048 && s.cycle !== cycle) {
+      s.cycle = cycle;
+      for (let k = 0; k < 26; k++) {
+        const a = Math.random() * Math.PI * 2, sp = 15 + Math.random() * 35;
+        s.dust.push({ x: fx, y: fy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.6, life: 0.3 + Math.random() * 0.5, age: 0 });
+      }
+    }
+    // La traînée : un remous de pixels autour, pas un cercle
+    const since = local - (hold + 4 * 0.048);
+    if (since > 0 && since < 0.4) for (let i = 0; i < 70; i++) {
+      const a = i / 70 * Math.PI * 2, r = 10 + Math.sin(i * 0.9) * 1.5 + Math.sin(i * 2.7) * 0.8;
+      ctx.globalAlpha = (0.25 + 0.5 * Math.abs(Math.sin(a * 1.5 + 1))) * (1 - since / 0.4); ctx.fillStyle = pal.b;
+      ctx.fillRect(Math.round(fx + Math.cos(a) * r), Math.round(fy - 3 + Math.sin(a) * r * 0.55), 1, 1);
+    }
+    for (const d of s.dust) {
+      d.age += dt; d.vy += 50 * dt; d.x += d.vx * dt; d.y += d.vy * dt;
+      ctx.globalAlpha = Math.max(0, 0.9 * (1 - d.age / d.life)); ctx.fillStyle = pal.b;
+      ctx.fillRect(Math.round(d.x), Math.round(d.y), 1, 1);
+    }
+    s.dust = s.dust.filter(d => d.age < d.life);
+    ctx.globalAlpha = 1;
+    const turn = step >= 0 && step < TURN.length ? TURN[step] : null;
+    drawViking(ctx, pal, turn ? `${turn[0]}-attack-2` : 'side-idle', fx, fy, { flip: turn ? turn[1] : false, clock: t });
+  },
+});
 // Sur un arbre : il tremble et sa neige tombe ; sur un rocher : des
 // étincelles, et le coup s'arrête net, la lame rebondit
 card('attaques', {

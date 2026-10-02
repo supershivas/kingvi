@@ -155,7 +155,11 @@ export function showChapter(host, ch, { hold = 3800, style = CHAPTER_STYLE } = {
       const box = el.getBoundingClientRect(), hostBox = host.getBoundingClientRect();
       const top = style === 'voile' ? hostBox.top - box.top : -box.height * 0.15;
       const cssW = style === 'voile' ? hostBox.width : Math.min(hostBox.width, el.querySelector('.chapter-title').getBoundingClientRect().width + 260);
-      const cssH = (style === 'voile' ? box.bottom - hostBox.top : box.height) * 1.3;
+      // (le voile descend toujours au moins jusque sous le titre, même si la
+      // police n'est pas encore là quand on mesure)
+      const cssH = style === 'voile'
+        ? Math.max(box.bottom - hostBox.top, hostBox.height * 0.16 + 190) * 1.3
+        : box.height * 1.3;
       const W = Math.ceil(cssW * dpr / S), H = Math.ceil(cssH * dpr / S);
       const art = BACKDROPS[style](W, H, colors(), seed);
       art.className = 'chapter-art';

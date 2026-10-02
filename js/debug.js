@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.30.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.30.0';
-import { chapterById } from './chapters.js?v=1.30.0';
-import { audio } from './audio.js?v=1.30.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.30.0';
-import { CHEST } from './crypt.js?v=1.30.0';
-import { ROOM_ENTRY } from './interior.js?v=1.30.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.31.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.31.0';
+import { chapterById } from './chapters.js?v=1.31.0';
+import { audio } from './audio.js?v=1.31.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.31.0';
+import { CHEST } from './crypt.js?v=1.31.0';
+import { ROOM_ENTRY } from './interior.js?v=1.31.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
-  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS,
-} from './world.js?v=1.30.0';
+  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER,
+} from './world.js?v=1.31.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -130,6 +130,7 @@ export function attachDebug({ game, dayClock, enter }) {
     arche: () => nearFree({ x: ARCH.x, y: ARCH.y + 30 }),
     colonne: () => nearFree({ x: RUINS.colonne.x, y: RUINS.colonne.y + 30 }),
     socle: () => nearFree({ x: RUINS.socle.x, y: RUINS.socle.y + 30 }),
+    pont: () => nearFree({ x: PIER.x + 72, y: PIER.y - 68 }),
     ruine: () => nearFree({ x: RUINS.arche.x, y: RUINS.arche.y + 30 }),
     foret: () => firstOnTrail((x, y) => forestDensity(x, y) > 0.12),
     'freya-ensevelie': () => before(STATUE_BASE, 70),
@@ -323,6 +324,15 @@ export function attachDebug({ game, dayClock, enter }) {
         const cible = sc.foe.hp < foeHp ? 'ennemi' : s.includes('yelp') ? 'loup' : s.includes('wood') ? 'arbre'
           : s.includes('clang') ? 'pierre' : 'air';
         log('coup-donne', { cible, ennemiPv: cible === 'ennemi' ? sc.foe.hp : undefined });
+      }
+    });
+    // Le coup tourbillonnant : tout ce qu'il a touché autour
+    wrap('whirlStrike', run => {
+      tickSounds = [];
+      const foeHp = sc.foe.hp;
+      try { return run(); } finally {
+        const s = tickSounds; tickSounds = null;
+        log('tourbillon', { ennemi: sc.foe.hp < foeHp, loups: s.filter(n => n === 'yelp').length, arbres: s.filter(n => n === 'wood').length });
       }
     });
     // (la mort arrive au milieu de la blessure : on la note après elle)

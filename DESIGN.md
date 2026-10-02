@@ -47,7 +47,7 @@ souffle (sauf aux combats).
 |---|---|---|---|
 | I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues | Ils étaient deux |
 | II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après Lindholm Høje), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
-| — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
+| — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire (on monte dessus, les piliers bloquent) ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
 | III | La forêt | La forêt s'épaissit ; une statue géante de Freya ensevelie, penchée, brisée | Des dieux tombés |
 | IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, les loups). Longue à traverser | L'oppression, la perte de repères |
 | V | Les loups | À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes. À la sortie du noir, une grande clairière ouverte sur la plaine : une meute de quatre loups en sort quand on y entre (hurlement au loin avant) | Le danger, le sacré |
@@ -56,7 +56,7 @@ souffle (sauf aux combats).
 | VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |
 | VIII | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte | Au-delà du récit des traces |
 | IX | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
-| Interlude | Le lac | Au sud de la piste, avant la forêt : une barque (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
+| Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
 la barque ; les chapitres s'inscrivent de nouveau. Les traces ne disparaissent pas : on peut
@@ -80,6 +80,9 @@ portent une ombre opposée. Dans la grotte, il fait toujours nuit.
 ### Le combat
 - Clic : un coup vers le pointeur, en huit directions. L'épée est cachée et
   ne sort que pendant l'attaque.
+- Bouton maintenu deux secondes : la neige se met à tourner autour des pieds,
+  puis un coup tourbillonnant, un tour complet, qui touche tout autour (plus
+  cher en endurance).
 - Trois coups abattent l'autre viking, trois coups nous abattent ; un loup
   tombe en deux coups. On voit venir le coup de l'autre (il arme).
 - L'endurance (une barre au-dessus du viking) : frapper et courir la vident.
@@ -114,7 +117,7 @@ légère à haute) règle l'effet cathodique, le flou de maquette et la finesse.
 
 ### Commandes
 ZQSD / WASD (touches physiques) ou flèches, Maj pour courir, clic pour
-frapper, molette pour un léger zoom (90 à 110 %). Tactile : une croix (au
+frapper (maintenu deux secondes : le tourbillon), molette pour un léger zoom (90 à 110 %). Tactile : une croix (au
 bord pour courir), toucher l'écran pour frapper.
 
 ## Palette
