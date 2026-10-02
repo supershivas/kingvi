@@ -1,9 +1,7 @@
 {
-  "version": "1.27.0",
+  "version": "1.27.1",
   "date": "2026-10-02",
   "changes": [
-    "Plus de noir : tout ce qui était noir (rochers, coques, traits, le fond autour des intérieurs) est en bleu nuit",
-    "Les loups reprennent le dessin fourni : deux temps de marche, deux temps de course",
-    "Au fond de la grotte, un roi squelette immense sur son trône, d'après le dessin fourni ; dans le labo, le pont d'après le dessin"
+    "Plus d'endurance : huit coups d'épée d'affilée au lieu de cinq, presque deux fois plus de course, et elle revient plus vite"
   ]
 }

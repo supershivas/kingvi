@@ -380,7 +380,7 @@ n'est jamais implémenté automatiquement.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
-  portent la version (`?v=1.27.0`) : après chaque changement de
+  portent la version (`?v=1.27.1`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en

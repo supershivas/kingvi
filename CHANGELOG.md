@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.27.1 — 2026-10-02
+- Plus d'endurance : huit coups d'épée d'affilée au lieu de cinq, presque deux fois plus de course, et elle revient plus vite
+
 ## 1.27.0 — 2026-10-02
 - Plus de noir : tout ce qui était noir (rochers, coques, traits, le fond autour des intérieurs) est en bleu nuit
 - Les loups reprennent le dessin fourni : deux temps de marche, deux temps de course
