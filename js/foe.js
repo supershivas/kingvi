@@ -5,7 +5,7 @@
 
    Le module ne connaît la scène que par ce qu'on lui passe : le sprite
    partagé du viking (animations globales), et quelques fonctions. */
-import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.31.0';
+import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.31.1';
 
 export const FOE_HP = 3;
 const SIGHT = 110;          // il nous voit venir de là
@@ -49,7 +49,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
   function strike() {
     const dir = foe.flip ? -1 : 1;
     const ix = foe.pos.x + IMPACT.side.x * dir, iy = foe.pos.y + IMPACT.side.y;
-    scene.cameras.main.shake(90, 0.004);
+    scene.jolt?.(0.004);
     onStrike(ix, iy, dir);
   }
 

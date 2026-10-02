@@ -240,6 +240,43 @@ export const ATTACK_VIEWS = ['side', 'front', 'back', 'diagdown', 'diagup'];
 // Traînée du coup, en pixels relatifs aux pieds : { x, y, a (opacité) }.
 // Profil : un arc qui part de derrière, passe au-dessus et plonge devant.
 // Face et dos : un arc vertical qui passe par le côté droit.
+// ── Le tourbillon ──
+// L'anneau que trace la lame, de l'angle a0 à a1 (radians, 0 à droite, le
+// sens des aiguilles d'une montre à l'écran) : un trait épais, ovale (vu de
+// biais), bosselé, jamais un cercle parfait. Pixels { x, y, a, front }
+// relatifs au centre (les pieds, 3 pixels plus haut) ; `front` : devant le
+// viking (la moitié basse de l'ovale)
+export function whirlArc(a0, a1, R = 12) {
+  const out = [], seen = new Set();
+  const n = Math.max(2, Math.ceil(Math.abs(a1 - a0) * R * 1.6));
+  for (let i = 0; i <= n; i++) {
+    const a = a0 + (a1 - a0) * i / n;
+    const wob = Math.sin(a * 3 + 1) * 0.9 + Math.sin(a * 7 + 2) * 0.5;
+    for (const [dr, al] of [[0, 1], [1, 0.75], [-1, 0.45]]) {
+      const r = R + wob + dr;
+      const x = Math.round(Math.cos(a) * r), y = Math.round(Math.sin(a) * r * 0.55);
+      const k = `${x},${y}`;
+      if (seen.has(k)) continue;
+      seen.add(k);
+      out.push({ x, y, a: al, front: Math.sin(a) > 0 });
+    }
+  }
+  return out;
+}
+// Le souffle : une onde qui s'élargit (rayon r) et se déchire en s'éloignant
+export function blastRing(r, seed = 1) {
+  const out = [], n = Math.ceil(r * 5);
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2;
+    const h = Math.sin(i * 12.9898 + seed * 78.233) * 43758.5453;
+    const tear = h - Math.floor(h);
+    if (tear < Math.min(0.75, r / 60)) continue;                                // des trous, de plus en plus
+    const rr = r + Math.sin(a * 5 + seed) * r * 0.06;
+    out.push({ x: Math.round(Math.cos(a) * rr), y: Math.round(Math.sin(a) * rr * 0.55) });
+  }
+  return out;
+}
+
 export function smearPixels(view) {
   const out = [];
   const arc = (cx, cy, rx0, rx1, ry0, ry1, from, to) => {

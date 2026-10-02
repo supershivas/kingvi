@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.31.1 — 2026-10-02
+- Le tourbillon impressionne : la lame trace un anneau autour du viking, puis un souffle chasse la neige tout autour
+- Les secousses de l'écran sont réduites au minimum : plus rien pour la neige, le bois ou la pierre, à peine un pixel pour un vrai coup
+
 ## 1.31.0 — 2026-10-02
 - Nouveau coup : bouton de la souris maintenu deux secondes, la neige tourne autour des pieds, puis un coup tourbillonnant qui touche tout autour
 - Le pont est un ponton au bord du lac : on y marche au-dessus de l'eau, la barque attend à son bout ; on monte aussi sur le socle en ruine, mais pas à travers ses colonnes

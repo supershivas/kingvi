@@ -81,14 +81,15 @@ portent une ombre opposée. Dans la grotte, il fait toujours nuit.
 - Clic : un coup vers le pointeur, en huit directions. L'épée est cachée et
   ne sort que pendant l'attaque.
 - Bouton maintenu deux secondes : la neige se met à tourner autour des pieds,
-  puis un coup tourbillonnant, un tour complet, qui touche tout autour (plus
+  puis un coup tourbillonnant, un tour complet qui trace un anneau, puis un
+  souffle qui chasse la neige alentour ; il touche tout autour (plus
   cher en endurance).
 - Trois coups abattent l'autre viking, trois coups nous abattent ; un loup
   tombe en deux coups. On voit venir le coup de l'autre (il arme).
 - L'endurance (une barre au-dessus du viking) : frapper et courir la vident.
 - Blessé, on saigne en marchant ; hors combat, les blessures se referment.
   À un point de vie, l'écran se teinte de rouge.
-- Zoom d'action pendant le combat, secousses légères, sang qui gicle et
+- Zoom d'action pendant le combat, secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
   reste.
 - La meute : elle encercle, gronde, bondit l'un après l'autre. Si l'on
   s'enfuit en saignant, elle suit le sang (au retour, elle sort plus tôt et

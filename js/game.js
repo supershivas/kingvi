@@ -2,29 +2,29 @@
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
 import {
-  paintSheet, paintFrames, capeFrames, smearPixels, IMPACT, ATTACK_VIEWS,
+  paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.31.0';
+} from './viking.js?v=1.31.1';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.31.0';
-import { createPack } from './pack.js?v=1.31.0';
-import { chapterById } from './chapters.js?v=1.31.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.31.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.31.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.31.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.31.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.31.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.31.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.31.0';
-import { createFauna } from './fauna.js?v=1.31.0';
-import { createWeather } from './weather.js?v=1.31.0';
-import { createSea } from './sea.js?v=1.31.0';
-import { audio } from './audio.js?v=1.31.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.31.0';
+} from './world.js?v=1.31.1';
+import { createPack } from './pack.js?v=1.31.1';
+import { chapterById } from './chapters.js?v=1.31.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.31.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.31.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.31.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.31.1';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.31.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.31.1';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.31.1';
+import { createFauna } from './fauna.js?v=1.31.1';
+import { createWeather } from './weather.js?v=1.31.1';
+import { createSea } from './sea.js?v=1.31.1';
+import { audio } from './audio.js?v=1.31.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.31.1';
 
 const Phaser = window.Phaser;
 
@@ -607,6 +607,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.player.play(`${this.swingView}-attack`);
     }
 
+    // Les secousses d'écran, au plus juste : rien pour la neige, le bois ou la
+    // pierre ; pour un vrai coup, un pixel du jeu tout au plus, un instant
+    jolt(k) {
+      if (k < 0.003) return;
+      const cam = this.cameras.main;
+      cam.shake(k >= 0.004 ? 60 : 40, { x: 0.9 / cam.width, y: 0.45 / cam.height });
+    }
+
     // ── Le coup tourbillonnant : bouton maintenu WHIRL_HOLD secondes ──
     // En attendant, la neige se met à tourner autour des pieds, de plus en plus
     updateCharge(dt) {
@@ -638,15 +646,30 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.player.stop();
       this.player.anims.timeScale = 1;
       audio.play('swing');
-      const steps = [...WHIRL_TURN, WHIRL_TURN[0]];
-      steps.forEach(([view, flip], i) => this.time.delayedCall(i * 48, () => {
+      // L'anneau de la lame se trace pendant le tour : la moitié du fond
+      // derrière le viking, celle de devant devant lui
+      const cx = Math.round(this.pos.x), cy = Math.round(this.pos.y - (this.lift || 0)) - 3;
+      const back = this.add.graphics().setPosition(cx, cy).setDepth(this.pos.y - 0.2);
+      const front = this.add.graphics().setPosition(cx, cy).setDepth(this.pos.y + 0.6);
+      const steps = [...WHIRL_TURN, WHIRL_TURN[0]], STEP = 48;
+      steps.forEach(([view, flip], i) => this.time.delayedCall(i * STEP, () => {
         if (this.dead) return;
         this.flip = flip;
         this.player.setFlipX(flip).setFrame(`${view}-attack-2`);
         this.placePlayer();
-        if (i === 4) { audio.play('swing'); this.whirlStrike(); }
+        if (i > 0) for (const p of whirlArc((i - 1) * Math.PI / 4, i * Math.PI / 4)) {
+          const g = p.front ? front : back;
+          g.fillStyle(hex(palette.b), p.a);
+          g.fillRect(p.x, p.y, 1, 1);
+        }
+        if (i === 4) audio.play('swing');
+        if (i === steps.length - 1) this.whirlStrike();
       }));
-      this.time.delayedCall(steps.length * 48 + 140, () => {
+      // L'anneau reste un instant, puis s'efface en s'élargissant à peine
+      this.time.delayedCall(steps.length * STEP + 60, () => {
+        this.tweens.add({ targets: [back, front], alpha: 0, duration: 520, ease: 'Quad.easeIn', onComplete: () => { back.destroy(); front.destroy(); } });
+      });
+      this.time.delayedCall(steps.length * STEP + 140, () => {
         this.whirling = false;
         this.attacking = false;
         if (this.dead) return;
@@ -658,20 +681,27 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // Tout ce qui est autour, à portée de lame, est touché une fois
     whirlStrike() {
       const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
-      // La traînée : un remous de pixels autour du viking, pas un cercle
-      const g = this.add.graphics().setDepth(this.pos.y + 0.5);
-      for (let i = 0; i < 70; i++) {
-        const a = i / 70 * Math.PI * 2, r = 10 + Math.sin(i * 0.9) * 1.5 + Math.sin(i * 2.7) * 0.8;
-        g.fillStyle(hex(palette.b), 0.25 + 0.5 * Math.abs(Math.sin(a * 1.5 + 1)));
-        g.fillRect(Math.round(x + Math.cos(a) * r), Math.round(y - 3 + Math.sin(a) * r * 0.55), 1, 1);
-      }
-      this.tweens.add({ targets: g, alpha: 0, duration: 380, ease: 'Quad.easeOut', onComplete: () => g.destroy() });
-      this.dust.setConfig({
-        lifespan: { min: 300, max: 800 }, speed: { min: 15, max: 50 }, angle: { min: 0, max: 360 },
-        gravityY: 50, alpha: { start: 0.9, end: 0 }, emitting: false,
+      // Le souffle : une onde qui part de lui et se déchire en s'élargissant,
+      // la neige du sol soufflée tout autour, les flocons chassés
+      const wave = this.add.graphics().setPosition(x, y - 1).setDepth(this.pos.y + 0.7);
+      const seed = Math.random() * 10;
+      this.tweens.addCounter({
+        from: 12, to: 46, duration: 520, ease: 'Quad.easeOut',
+        onUpdate: tw => {
+          const r = tw.getValue(), fade = 1 - (r - 12) / 34;
+          wave.clear();
+          for (const p of blastRing(r, seed)) { wave.fillStyle(hex(palette.b), 0.15 + 0.7 * fade); wave.fillRect(p.x, p.y, 1, 1); }
+          for (const p of blastRing(r - 3, seed + 1)) { wave.fillStyle(hex(palette.s), 0.6 * fade); wave.fillRect(p.x, p.y, 1, 1); }
+        },
+        onComplete: () => wave.destroy(),
       });
-      this.dust.explode(26, x, this.pos.y);
-      this.cameras.main.shake(100, 0.003);
+      this.dust.setConfig({
+        lifespan: { min: 400, max: 1000 }, speed: { min: 30, max: 90 }, angle: { min: 0, max: 360 },
+        gravityY: 40, alpha: { start: 0.9, end: 0 }, emitting: false,
+      });
+      this.dust.explode(48, x, y);
+      if (!this.inside) weather.blast(x, y - 3, 70, 260);
+      this.jolt(0.004);
       // Les points de la lame tout autour : chacun ne prend qu'un coup
       const hits = new Set();
       let flesh = false;
@@ -768,7 +798,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         targets: im, angle, duration: 900, ease: 'Quad.easeIn',
         onComplete: () => {
           audio.play('snow');
-          this.cameras.main.shake(90, 0.002);
+          this.jolt(0.002);
           // La neige soulevée tout le long du tronc
           for (let k = 2; k < o.h; k += 3) this.snowfall.explode(2, o.x + dir * k, o.y - 1);
           this.dust.setConfig({ lifespan: { min: 300, max: 800 }, speed: { min: 6, max: 30 }, angle: { min: 200, max: 340 }, gravityY: 50, alpha: { start: 0.8, end: 0 }, emitting: false });
@@ -782,7 +812,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       o.broken = true;
       this.tally.rocks++; onTally(this.tally, 'rocks');
       audio.play('clang'); audio.play('snow');
-      this.cameras.main.shake(100, 0.003);
+      this.jolt(0.002);
       const cx = o.x - o.art.ax + o.w / 2;
       this.dust.setConfig({ lifespan: { min: 300, max: 900 }, speed: { min: 15, max: 55 }, angle: { min: 190, max: 350 }, gravityY: 90, alpha: { start: 0.9, end: 0 }, emitting: false });
       this.dust.explode(22, cx, o.y - 3);
@@ -885,7 +915,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // La lame sur la pierre : étincelles, et le coup s'arrête net
     strikeRock(x, y, dir, view) {
       audio.play('clang');
-      this.cameras.main.shake(70, 0.003);
+      this.jolt(0.002);
       const back = dir > 0 ? { min: 150, max: 250 } : { min: -70, max: 30 };
       this.sparks.setConfig({ lifespan: { min: 120, max: 380 }, speed: { min: 40, max: 110 }, gravityY: 180, angle: back, alpha: { start: 1, end: 0 }, emitting: false });
       this.sparks.explode(5, x, y - 1);
@@ -934,13 +964,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
             this.persist();
           }
           audio.play('wood');
-          this.cameras.main.shake(60, 0.0015);
+          this.jolt(0.0015);
           this.shakeTree(struck.o, dir);
           this.mark(x - dir, y - 2, 1, 2, 30000);             // l'entaille dans l'écorce
           return;
         }
       }
-      this.cameras.main.shake(80, 0.002);
+      this.jolt(0.002);
       const up = view !== 'front' && view !== 'back' ? (dir > 0 ? { min: 200, max: 330 } : { min: 210, max: 340 }) : { min: 200, max: 340 };
       this.dust.setConfig({
         lifespan: { min: 350, max: 900 }, speed: { min: 10, max: 45 }, angle: up,
@@ -963,13 +993,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const wolf = !hit && !this.inside && this.pack.hitAt(x, y, dir || 1);
       audio.play(hit || wolf ? 'flesh' : 'snow');
       if (hit) {
-        this.cameras.main.shake(110, 0.004);
+        this.jolt(0.004);
         this.spurt(this.foe.pos.x, this.foe.pos.y - 5, dir || 1, this.foe.alive ? 18 : 30);
         if (!this.foe.alive) this.pool(this.foe.pos.x, this.foe.pos.y);
       }
       if (wolf) {
         audio.play('yelp');
-        this.cameras.main.shake(90, 0.003);
+        this.jolt(0.003);
         const down = wolf.state === 'dead';
         this.spurt(wolf.pos.x, wolf.pos.y - 3, dir || 1, down ? 22 : 12);
         if (down) { this.pool(wolf.pos.x, wolf.pos.y); this.persist(); }
@@ -1033,7 +1063,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.bleed(this.pos.x, this.pos.y, 8);
       audio.play('flesh');
       this.spurt(this.pos.x, this.pos.y - 5, dir, this.hp > 0 ? 18 : 30);
-      this.cameras.main.shake(130, 0.005);
+      this.jolt(0.005);
       if (this.hp <= 0) { this.pool(this.pos.x, this.pos.y); this.fall(dir); return; }
       // Recul, et on clignote
       for (let k = 0; k < 6; k++) {
@@ -1426,7 +1456,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.time.delayedCall(1300, () => {
         this.throne.setTexture('throne-bowed');
         audio.play('clang');
-        this.cameras.main.shake(60, 0.0015);
+        this.jolt(0.0015);
         this.persist();
       });
     }
@@ -1445,7 +1475,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.chest.setTexture('chest-ajar');
       this.time.delayedCall(380, () => {
         this.chest.setTexture('chest-open');
-        this.cameras.main.shake(80, 0.002);
+        this.jolt(0.002);
         // Des éclats montent du coffre
         const x = this.chest.x, y = this.chest.y - 4;
         for (let i = 0; i < 14; i++) {

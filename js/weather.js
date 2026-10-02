@@ -86,6 +86,15 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     gust: 0, wind: P.base, preset: presetName, density: 1, phase: fixed(presetName) ? presetName : null,
     setPreset(name) { w.preset = name; if (fixed(name)) { P = fixed(name); w.phase = name; } },
     update, draw,
+    // Un souffle en (x, y) : les flocons proches sont chassés vers l'extérieur
+    blast(x, y, R, force) {
+      for (const f of flakes) {
+        const dx = f.x - x, dy = (f.y - y) / 0.6, d = Math.hypot(dx, dy);
+        if (d > R || d < 0.5) continue;
+        const k = force * (1 - d / R);
+        f.vx += dx / d * k; f.vy += dy / d * k * 0.6;
+      }
+    },
   };
   const followCycle = () => {
     if (fixed(w.preset)) return;

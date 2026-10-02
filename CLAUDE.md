@@ -91,7 +91,7 @@ Hors des combats, la musique se tait un instant (`checkChapters` dans
 `game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
 Une barre d'endurance au-dessus du viking (frapper et courir la vident,
 `STAMINA`) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
-`.hurt`). Les secousses d'écran restent légères. À l'intérieur, la cape
+`.hurt`). Les secousses d'écran sont minimes (`jolt` : rien pour la neige, le bois ou la pierre ; un pixel du jeu tout au plus, un instant, pour un vrai coup). À l'intérieur, la cape
 ne bat pas.
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
 tramés autour de lui, arbres et rochers portent une ombre à l'opposé, tramée
@@ -142,7 +142,10 @@ les diagonales se jouent de profil, lame en travers), molette pour un léger
 zoom (90 à 110 % ; nets seulement à 100 %). Le bouton maintenu
 `WHIRL_HOLD` secondes (2, à régler dans `game.js`) : un remous de neige
 grossit autour des pieds (`updateCharge`), puis le coup tourbillonnant, un
-tour complet lame sortie qui touche une fois tout ce qui est autour (l'autre
+tour complet lame sortie, qui trace un anneau épais et bosselé (`whirlArc`,
+moitié derrière, moitié devant le viking), puis un souffle : une onde qui
+s'élargit en se déchirant (`blastRing`), la neige soufflée, les flocons
+chassés (`weather.blast`) ; il touche une fois tout ce qui est autour (l'autre
 viking, chaque loup ; les arbres tremblent) et coûte plus d'endurance
 (`whirl`, `whirlStrike`, `STAMINA.whirl`). Sur écran tactile : la croix
 pour marcher (au bord pour courir), toucher l'écran pour frapper. L'épée
