@@ -1,15 +1,16 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.36.0';
-import { createGame } from './game.js?v=1.36.0';
-import { showChapter } from './chapters.js?v=1.36.0';
-import { createTitleSea } from './titlesea.js?v=1.36.0';
-import { audio } from './audio.js?v=1.36.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.36.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.36.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.37.0';
+import { createGame } from './game.js?v=1.37.0';
+import { loadDesigns } from './designs.js?v=1.37.0';
+import { showChapter } from './chapters.js?v=1.37.0';
+import { createTitleSea } from './titlesea.js?v=1.37.0';
+import { audio } from './audio.js?v=1.37.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.37.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.37.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.36.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.37.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -64,6 +65,8 @@ function toast(text) {
 
 // ── Jeu ──
 let irisBusy = false, irisRun = 0;     // (l'iris, plus bas)
+// Les dessins du décor redessinés à la main (assets/design, ou importés dans le labo)
+await loadDesigns();
 const settings = $('settings');
 const game = createGame({
   parent: $('stage'),

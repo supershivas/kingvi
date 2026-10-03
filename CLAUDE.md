@@ -249,6 +249,21 @@ est cachée et ne sort que pendant l'attaque.
   de son dessin : on passe sous les branches du grand arbre mort du bosquet,
   entre les racines, autour d'une statue. `foot` doit rester la profondeur du
   pied, pas la hauteur de l'objet.
+- `js/designs.js`, `js/labo-designs.js`, `assets/design/` — **les dessins du
+  décor redessinables à la main** (la maison, la pièce, les barques, le coffre,
+  la crypte, la grotte, le roi sur son trône, le guetteur, une offrande, un
+  corps : `DESIGNS`, 20 images ; **arbres et rochers restent générés**). Onglet
+  Dessins du labo : télécharger le PNG 1 × 1, le retoucher dans un éditeur de
+  pixels, le réimporter (un ou plusieurs, par nom de fichier). Sources, de la
+  plus forte à la plus faible : importé dans ce navigateur (`kingvi:designs`,
+  localStorage), fichier `assets/design/<nom>.png` du dépôt (à publier par
+  « Upload files » sur GitHub, visible au bout de ~10 min), dessin du code.
+  `loadDesigns()` (avant `createGame`, `main.js`) ; `art()` de `game.js` passe
+  par `designRows`. Taille exigée identique à l'original (portes, obstacles,
+  positions en dépendent ; la hitbox de la maison ne suit pas son dessin) ;
+  trois couleurs. PNG décodé sans canevas (`decodePng`, `DecompressionStream`).
+  Un fichier absent est normal (404 attendus, ignorés par le harnais).
+  Les démos du labo ne reflètent pas les imports (seul l'onglet Dessins).
 - `js/ground.js` — les tuiles du sol (`createGround`) : peinture d'origine
   (`pristine`) et toile affichée, réserve des tuiles hors de vue (48 Mo, les
   moins récemment vues partent), marques qui pâlissent par paliers (la tuile

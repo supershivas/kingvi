@@ -64,3 +64,16 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .chapter-stage.bg-foret { background: repeating-linear-gradient(87deg, var(--game-black) 0 3px, var(--game-night) 3px 5px, var(--game-black) 5px 9px); }
 .chapter-styles { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
 .chapter-styles .btn-ghost.on { border-color: var(--accent); color: var(--accent); }
+
+/* ── Onglet Dessins : redessiner le décor ── */
+.design-steps { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; font-size: .88rem; }
+.design-steps code { font-family: var(--font-mono); font-size: .8rem; background: rgba(31,42,68,.08); padding: 0 4px; border-radius: 3px; }
+.design-card { align-items: flex-start; }
+.design-view { background: #7f8aa3; padding: 12px; border-radius: var(--radius-md); max-width: 100%; overflow: auto; }
+.design-view canvas { display: block; image-rendering: pixelated; }
+.design-size, .design-src, .design-note { font-size: .78rem; color: var(--text-muted); }
+.design-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.design-btn { min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--card-bg); color: var(--text-primary); font: inherit; font-size: .85rem; cursor: pointer; }
+.design-btn:hover { border-color: var(--accent); }
+.design-btn.quiet { color: var(--text-muted); }
+.design-btn[hidden] { display: none; }

@@ -111,7 +111,7 @@ async function main() {
   page.on('console', m => {
     if (m.type() !== 'error') return;
     const url = m.location()?.url || '';
-    if (/Failed to load resource/.test(m.text()) && !url.startsWith('http://127.0.0.1')) return;
+    if (/Failed to load resource/.test(m.text()) && (!url.startsWith('http://127.0.0.1') || url.includes('/assets/design/'))) return;
     consoleErrors.push({ t: Date.now(), message: m.text(), url });
   });
 
