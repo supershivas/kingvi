@@ -180,7 +180,7 @@ est cachée et ne sort que pendant l'attaque.
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
-  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
+  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
 
 ## Structure
@@ -270,10 +270,17 @@ est cachée et ne sort que pendant l'attaque.
   `biche-…`, `decor-…`). **Mise à jour en direct** dans un autre onglet du même
   navigateur (événement `storage`) : textures d'`art()` (`redrawArt`), planches
   du viking et de la cape, loup (`pack.repaint`) ; ruines, arches, cerfs et biches
-  au prochain lancement (ils sont cuits dans les morceaux de l'île). Publier :
-  « Copier mes modifications » (`designsToText`) → Jérôme colle le texte dans la
-  conversation → `node scripts/designs-vers-png.mjs texte.txt` écrit les PNG et
-  met `index.json` à jour (à valider, version à monter). PNG décodé sans canevas
+  au prochain lancement (ils sont cuits dans les morceaux de l'île). **Publier
+  pour tous** (`designs-publish.js`, voulu par Jérôme pour ne pas passer par
+  Claude) : le bouton du labo écrit les PNG et `assets/design/index.json` dans le
+  dépôt, en un seul commit sur `main` (API Git de GitHub : blobs, arbre, commit,
+  mise à jour de la référence), avec un jeton personnel fin (droit « Contents :
+  Read and write » sur ce seul dépôt) collé une fois et gardé dans ce
+  navigateur (`kingvi:gh-token`) ; GitHub Pages republie, le jeu lit les images
+  à son lancement. Une retouche locale identique à la publiée est abandonnée
+  au chargement (`loadDesigns`) : le navigateur suit alors le dépôt. Repli :
+  « Copier mes modifications » (`designsToText`) → texte collé à Claude →
+  `node scripts/designs-vers-png.mjs texte.txt`. PNG décodé sans canevas
   (`decodePng`, `DecompressionStream`).
 - `js/ground.js` — les tuiles du sol (`createGround`) : peinture d'origine
   (`pristine`) et toile affichée, réserve des tuiles hors de vue (48 Mo, les

@@ -1,8 +1,8 @@
 {
-  "version": "1.39.0",
+  "version": "1.40.0",
   "date": "2026-10-03",
   "changes": [
-    "L'éditeur de pixels du labo redessine aussi les poses du viking, de sa cape, du loup, des cerfs et biches, et les ruines et arches",
-    "Les animations de chaque groupe tournent avec vos dessins ; le jeu ouvert dans un autre onglet repeint le viking, sa cape et le loup en direct"
+    "Labo, onglet Dessins : « Publier pour tous » envoie vos dessins dans le jeu, sur tous les appareils, sans passer par Claude",
+    "Une clé GitHub à coller une seule fois (le guide s'affiche), limitée à ce dépôt"
   ]
 }

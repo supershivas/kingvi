@@ -6,8 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.39.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.39.0';
+} from './designs.js?v=1.40.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.40.0';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.40.0';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
@@ -33,22 +34,64 @@ intro.innerHTML = `
   <ol class="design-steps">
     <li><b>Dessiner</b> : ouvrez un groupe ci-dessous (décor, ruines et arches, poses du viking, de sa cape, du loup, des cerfs et des biches), puis « Dessiner » sur une image. L'éditeur s'ouvre (crayon, gomme, pot de peinture, formes, symétries, annuler, zoom). Un viking à côté donne l'échelle ; pour une pose, le « fantôme » de l'image d'avant aide à caler le mouvement.</li>
     <li><b>Voir</b> : chaque trait est enregistré aussitôt, et les animations de chaque groupe tournent avec vos dessins. Ouvrez le jeu dans un autre onglet <em>du même navigateur</em> : l'élément, le viking, sa cape et le loup se repeignent tout seuls ; le reste (ruines, arches, cerfs) au prochain lancement.</li>
-    <li><b>Publier</b> pour tous les appareils : « Copier mes modifications », puis collez le texte à Claude dans la conversation, qui les ajoute au jeu.</li>
+    <li><b>Publier pour tous</b> : le bouton ci-dessous écrit vos dessins dans le dépôt du jeu ; une à dix minutes plus tard, ils sont dans le jeu sur tous les appareils (la première fois, il demande une clé GitHub : le guide s'affiche).</li>
   </ol>
   <p>La taille d'une image ne change pas (la porte, les obstacles, les positions et les animations en dépendent). Les arbres, les rochers et les statues restent générés par le code.</p>
   <div class="design-actions">
-    <button type="button" class="design-btn primary" data-copy>Copier mes modifications</button>
+    <button type="button" class="design-btn primary" data-publish>Publier pour tous</button>
+    <button type="button" class="design-btn" data-copy title="Pour les envoyer à Claude">Copier mes modifications</button>
     <span class="design-note" role="status"></span>
   </div>
+  <div class="design-token" hidden>
+    <p><b>Une clé GitHub, une seule fois.</b> Elle autorise ce labo à écrire dans le dépôt du jeu, et rien d'autre. Elle reste dans ce navigateur et ne part que vers GitHub.</p>
+    <ol class="design-steps">
+      <li>Ouvrez <a href="${TOKEN_URL}" target="_blank" rel="noopener">la page de création d'un jeton GitHub</a> (connectez-vous si besoin).</li>
+      <li><b>Token name</b> : « kingvi dessins ». <b>Expiration</b> : un an. <b>Repository access</b> : « Only select repositories », puis <code>${REPO}</code>.</li>
+      <li><b>Permissions</b> → « Repository permissions » → <b>Contents</b> : « Read and write ». Rien d'autre.</li>
+      <li>« Generate token », copiez le texte qui commence par <code>github_pat_</code> et collez-le ici :</li>
+    </ol>
+    <div class="design-actions">
+      <input type="password" class="design-input" placeholder="github_pat_…" autocomplete="off" spellcheck="false">
+      <button type="button" class="design-btn primary" data-save-token>Enregistrer la clé et publier</button>
+    </div>
+  </div>
+  <p class="design-keyinfo" hidden>Clé GitHub enregistrée dans ce navigateur. <button type="button" class="design-link" data-forget>L'oublier</button></p>
   <details class="design-files">
     <summary>Préférer un autre éditeur ? PNG à télécharger et importer</summary>
-    <p>Chaque image se télécharge en PNG 1 × 1 (un pixel du fichier = un pixel du jeu) et se réimporte ; plusieurs PNG d'un coup, nommés comme l'image (<code>house.png</code>…). Ils ne restent que dans ce navigateur : pour les publier, « Copier mes modifications ».</p>
+    <p>Chaque image se télécharge en PNG 1 × 1 (un pixel du fichier = un pixel du jeu) et se réimporte ; plusieurs PNG d'un coup, nommés comme l'image (<code>house.png</code>…). Une fois importés, « Publier pour tous » les envoie dans le jeu.</p>
     <div class="design-actions">
       <label class="design-btn">Importer plusieurs PNG<input type="file" accept="image/png" multiple hidden></label>
     </div>
   </details>`;
 host.append(intro);
 const note = intro.querySelector('.design-note');
+const tokenBox = intro.querySelector('.design-token'), keyInfo = intro.querySelector('.design-keyinfo');
+const syncKey = () => { keyInfo.hidden = !getToken(); };
+syncKey();
+async function runPublish() {
+  const n = pending().length;
+  if (!n) { note.textContent = 'Rien à publier : aucun dessin retouché dans ce navigateur.'; return; }
+  const btn = intro.querySelector('[data-publish]');
+  btn.disabled = true;
+  try {
+    const done = await publish(t => { note.textContent = t; });
+    note.textContent = `Publié : ${done} dessin${done > 1 ? 's' : ''}. Dans le jeu sur tous les appareils d'ici une à dix minutes (le temps que GitHub republie le site).`;
+  } catch (e) {
+    note.textContent = e.message;
+    if (/jeton|Jeton/.test(e.message)) { setToken(''); syncKey(); tokenBox.hidden = false; }
+  } finally { btn.disabled = false; }
+}
+intro.querySelector('[data-publish]').addEventListener('click', () => {
+  if (!pending().length) { note.textContent = 'Rien à publier : aucun dessin retouché dans ce navigateur.'; return; }
+  if (!getToken()) { tokenBox.hidden = false; tokenBox.scrollIntoView({ block: 'nearest' }); return; }
+  runPublish();
+});
+intro.querySelector('[data-save-token]').addEventListener('click', () => {
+  const input = tokenBox.querySelector('input');
+  if (!/^(github_pat_|ghp_)/.test(input.value.trim())) { note.textContent = 'Cette clé ne ressemble pas à un jeton GitHub (elle commence par github_pat_).'; return; }
+  setToken(input.value); input.value = ''; tokenBox.hidden = true; syncKey(); runPublish();
+});
+intro.querySelector('[data-forget]').addEventListener('click', () => { setToken(''); syncKey(); note.textContent = 'Clé oubliée.'; });
 intro.querySelector('[data-copy]').addEventListener('click', async () => {
   const text = designsToText();
   if (!text) { note.textContent = 'Rien à copier : aucun dessin retouché.'; return; }
@@ -61,7 +104,7 @@ intro.querySelector('[data-copy]').addEventListener('click', async () => {
     box.select();
   }
 });
-intro.querySelector('input').addEventListener('change', async e => {
+intro.querySelector('input[type=file]').addEventListener('change', async e => {
   const lines = [];
   for (const file of e.target.files) {
     const name = file.name.replace(/\.png$/i, '');

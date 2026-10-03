@@ -170,8 +170,16 @@ export async function loadDesigns() {
       } catch { /* un fichier illisible : le dessin d'origine */ }
     }));
   } catch { /* hors ligne : les dessins d'origine */ }
+  // Ce qui est retouché ici et que le dépôt publie désormais à l'identique n'a plus
+  // besoin d'être gardé ici : ce navigateur suit alors le dépôt, comme les autres
   local.clear();
-  for (const [name, rows] of Object.entries(readLocal())) local.set(name, rows);
+  const mine = readLocal();
+  let dropped = false;
+  for (const [name, rows] of Object.entries(mine)) {
+    if (depot.get(name)?.join('\n') === rows.join('\n')) { delete mine[name]; dropped = true; continue; }
+    local.set(name, rows);
+  }
+  if (dropped) try { localStorage.setItem(LOCAL_KEY, JSON.stringify(mine)); } catch { /* rien */ }
 }
 
 // Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et

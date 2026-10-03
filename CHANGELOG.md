@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.40.0 — 2026-10-03
+- Onglet Dessins : « Publier pour tous » écrit les dessins retouchés dans le dépôt du jeu (un seul commit), pour qu'ils apparaissent sur tous les appareils
+- Une clé GitHub à coller une seule fois, limitée à ce dépôt, avec un guide pas à pas
+- Un dessin publié n'est plus gardé à part dans le navigateur : il suit le dépôt
+
 ## 1.39.0 — 2026-10-03
 - Éditeur de pixels : on redessine aussi les poses du viking (avec son ombre au sol), de sa cape, du loup, des cerfs et des biches, ainsi que les ruines et les arches
 - Les animations de chaque groupe tournent avec vos dessins, avec le « fantôme » de l'image précédente pour caler le mouvement
