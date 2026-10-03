@@ -175,7 +175,7 @@ est cachée et ne sort que pendant l'attaque.
 - Hébergement : GitHub Pages, branche `main`, racine du dépôt (`.nojekyll`).
   **Toujours pousser sur `main`**, même quand la session désigne une branche
   `claude/...` : Jérôme l'a redemandé.
-- Données : `localStorage` uniquement (`kingvi:save` : position, orientation,
+- Données : `localStorage` uniquement (`kingvi:island` : le numéro de l'île de la partie, tiré à « Nouveau jeu » ; `kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
@@ -230,7 +230,7 @@ est cachée et ne sort que pendant l'attaque.
   `paintAtlas`), ils sont gardés en réserve quand ils sortent de la vue ;
   `cull` cache ce qui sort de l'écran (des milliers d'arbres dans la forêt
   noire) ; les planches d'objets s'écrivent en ImageData, pas pixel par pixel. Le vent est dessiné sur un canvas 2D posé sur le jeu.
-  `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
+  **L'île de la partie** (`ISLAND` dans `world.js` ; 0 = l'île d'origine, `?ile=n` dans l'adresse, 0 en debug sauf `&ile=n` ; gardée dans la sauvegarde, `island`) : elle fait varier le tracé de la piste (`chooseTrail` essaie des variantes jusqu'à une qui reste de la bonne longueur, hors de l'eau et du lac, avec une forêt noire de même épaisseur), la forêt, les arbres et les rochers ; les lieux fixes (maison, falaise, lac, nécropole) et leur ordre ne bougent pas. `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
   incrémenter quand l'île change, les anciennes positions sauvegardées
   repartent alors de la barque. Les pas, le sang, les entailles (`mark`,
   `wolfPrint`) et les traces permanentes (sillon de la barque, pistes de
@@ -512,6 +512,8 @@ n'est jamais implémenté automatiquement.
   secondaire).
 
 ## Pièges connus
+
+- Dans la grotte, la caméra monte près du trône (`updateLook`, `LOOK_UP`, `setFollowOffset`) : le roi fait ~100 px, plus que la moitié de l'écran.
 
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec

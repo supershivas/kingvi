@@ -4,29 +4,29 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.42.2';
+} from './viking.js?v=1.43.0';
 import {
-  WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
+  WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.42.2';
-import { createPack } from './pack.js?v=1.42.2';
-import { createGround } from './ground.js?v=1.42.2';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.42.2';
-import { chapterById } from './chapters.js?v=1.42.2';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.42.2';
-import { BUNDLE, WATCHER } from './grove.js?v=1.42.2';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.42.2';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.42.2';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.42.2';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.42.2';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.42.2';
-import { createFauna } from './fauna.js?v=1.42.2';
-import { createWeather } from './weather.js?v=1.42.2';
-import { createSea } from './sea.js?v=1.42.2';
-import { audio } from './audio.js?v=1.42.2';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.42.2';
+} from './world.js?v=1.43.0';
+import { createPack } from './pack.js?v=1.43.0';
+import { createGround } from './ground.js?v=1.43.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.43.0';
+import { chapterById } from './chapters.js?v=1.43.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.43.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.43.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.43.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.43.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.43.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.43.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.43.0';
+import { createFauna } from './fauna.js?v=1.43.0';
+import { createWeather } from './weather.js?v=1.43.0';
+import { createSea } from './sea.js?v=1.43.0';
+import { audio } from './audio.js?v=1.43.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.43.0';
 
 const Phaser = window.Phaser;
 
@@ -50,6 +50,7 @@ const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5, s
 const STEP = 1 / 60, MAX_FRAME = 0.5;
 // Le cercle de vue, en hauteurs d'écran : ses rayons, et où le noir commence
 // à monter (fraction du rayon) ; au-delà, tout est noir
+const LOOK_UP = 62;     // de combien la vue monte devant le roi (pixels du jeu)
 const SIGHT = { rx: 0.73, ry: 0.60, fade: 0.76 };
 // Le flou garde l'échelle d'avant l'élargissement de la vue (le noir est plus loin)
 const BLUR_SCALE = { rx: 0.56, ry: 0.46 };
@@ -128,7 +129,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
-  if (save.world !== WORLD_VERSION) save = { steps: save.steps };
+  if (save.world !== WORLD_VERSION || (save.island || 0) !== ISLAND) save = { steps: save.steps };
 
   const weather = createWeather(wind);
   // Le sol en tuiles peintes une fois ; les pas et le sang s'y écrivent
@@ -1216,6 +1217,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         audio.setMood(this.musicMood());
       }
       if (!this.dead) this.placePlayer(alpha);
+      this.updateLook(dt);
       if (this.rowing) this.placeRowboat(alpha);
       this.updateCape(dt * 1000);
       this.drawStamina();
@@ -1590,6 +1592,18 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     // ── La grotte : le roi mort ──
+    // Près du trône, la vue monte pour que le roi tienne en entier à l'écran
+    updateLook(dt) {
+      const cam = this.cameras.main;
+      let want = 0;
+      if (this.inside === 'cave') {
+        const C = INTERIORS.cave.at, d = Math.hypot(this.pos.x - C.x - THRONE.x, this.pos.y - C.y - THRONE.y);
+        want = Math.max(0, Math.min(1, (130 - d) / 60)) * LOOK_UP;
+      }
+      this.look = (this.look || 0) + (want - (this.look || 0)) * Math.min(1, dt * 2.5);
+      cam.setFollowOffset(0, Math.round(this.look));
+    }
+
     nearKing() {
       const C = INTERIORS.cave.at;
       return nearThrone(this.pos.x - C.x, this.pos.y - C.y);
@@ -1932,7 +1946,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
     persist() {
       onSave({
-        world: WORLD_VERSION,
+        world: WORLD_VERSION, island: ISLAND,
         // Dedans, on retient le seuil (la pièce est hors de l'île)
         x: Math.round(this.inside ? INTERIORS[this.inside].exit.x : this.pos.x),
         y: Math.round(this.inside ? INTERIORS[this.inside].exit.y : this.pos.y),

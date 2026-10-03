@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.43.0 — 2026-10-03
+- Nouveau jeu : une île tirée au sort (la piste, la forêt noire, les arbres et les rochers changent ; les lieux et leur ordre restent). La partie en cours garde son île
+- Grotte : près du trône, la vue monte et le roi se voit en entier
+
 ## 1.42.2 — 2026-10-03
 - Vue plus large (environ un tiers) : le noir est repoussé, le flou reste à la même échelle
 

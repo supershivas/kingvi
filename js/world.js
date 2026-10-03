@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.42.2';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.42.2';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.42.2';
-import { makeGroveTree } from './grove.js?v=1.42.2';
-import { monumentParts, monumentSize } from './ruins.js?v=1.42.2';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.43.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.43.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.43.0';
+import { makeGroveTree } from './grove.js?v=1.43.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.43.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -16,6 +16,16 @@ export const CHUNK = 256;
 export const CENTER = WORLD / 2;
 const RADIUS = 2500;
 const SEED = 7;
+// L'île de la partie : 0 est l'île d'origine ; « Nouveau jeu » en tire une autre
+// (`kingvi:island`, ou `?ile=n` dans l'adresse). Elle varie : le tracé de la
+// piste, la forêt, les arbres, les rochers. Les lieux et leur ordre ne changent pas.
+export const ISLAND = (() => {
+  try {
+    const q = new URLSearchParams(location.search);
+    const n = q.has('ile') ? +q.get('ile') : q.has('debug') ? 0 : +localStorage.getItem('kingvi:island');
+    return Number.isInteger(n) && n > 0 ? n % 100000 : 0;
+  } catch { return 0; }
+})();
 
 // ── Hasard déterministe ──
 function hash(x, y, s = SEED) {
@@ -107,7 +117,7 @@ function rawForest(x, y) {
   const dx = forestDx(x, y);
   const sparse = dx > 300 ? 0.03 : 0;
   const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2850, 3150, dx));
-  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71, 3);
+  const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71 + ISLAND * 5, 3);
   return Math.max(sparse, core * Math.max(0, patchy), deepForest(x, y));
 }
 
@@ -122,9 +132,9 @@ export const HOUSE_DOOR_OUT = { x: HOUSE.x - 8, y: HOUSE.y - 8 };
 const STRIDE = 7;
 const TRAIL_STEPS = 2400;
 
-function buildTrail() {
+function buildTrail(salt) {
   const { shore, y: ly } = landing();
-  const r = rng(SEED * 101);
+  const r = rng(SEED * 101 + salt * 7919);
   // Elles partent juste devant le drakkar, là où le viking pose le pied
   let x = shore + 40, y = ly - 4;
   let heading = 0; // vers l'est
@@ -156,7 +166,7 @@ function buildTrail() {
     // Dans la forêt noire, la piste hésite un peu (sans trop serpenter)
     const lost = deepForest(x, y);
     const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012 * (1 - 0.5 * lost);
-    heading += 0.09 * (1 + 1.0 * lost) * fbm(i / (40 - 8 * lost), 0, 42, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.02 * lost);
+    heading += 0.09 * (1 + 1.0 * lost) * fbm(i / (40 - 8 * lost), 0, 42 + salt * 3, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.02 * lost);
     // Ne jamais marcher vers la mer
     if (seaCoast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
       const toCenter = Math.atan2(CENTER - y, CENTER - x);
@@ -180,7 +190,21 @@ function buildTrail() {
   });
 }
 
-export const trail = buildTrail();
+// La piste de cette île : on en essaie jusqu'à en trouver une qui ne se perde
+// pas (ni trop longue, ni dans l'eau ni dans le lac)
+const deepCount = t => t.filter(p => deepForest(p.x, p.y) > 0.6).length;
+function chooseTrail() {
+  const base = ISLAND ? deepCount(buildTrail(0)) : 0;
+  // (la traversée du noir garde à peu près sa longueur, et le bosquet reste loin du rivage)
+  const ok = t => t.length < 1000 && t.length > 650 && !t.some(p => inLake(p.x, p.y) || coast(p.x, p.y) > -0.03) &&
+    Math.abs(deepCount(t) - base) < base * 0.3 && t.filter(p => deepForest(p.x, p.y) > 0.6).every(p => coast(p.x, p.y) < -0.4);
+  for (let k = 0; k < 40; k++) {
+    const t = buildTrail(ISLAND ? ISLAND * 41 + k : 0);
+    if (!ISLAND || ok(t)) return t;
+  }
+  return buildTrail(0);
+}
+export const trail = chooseTrail();
 const BLOOD_FROM = trail.findIndex(p => p.blood);
 // Largeur de la sente autour de chaque pas : elle s'élargit et se resserre
 trail.forEach((p, i) => { p.i = i; p.lane = 2 + 3.5 * Math.max(0, 0.5 + 1.6 * fbm(i / 14, 3, 91, 2)); });
@@ -649,7 +673,7 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
   ctx.putImageData(img, 0, 0);
 
   // Objets rares, jamais dans l'eau
-  const r = rng(cx * 7919 + cy * 104729 + SEED);
+  const r = rng(cx * 7919 + cy * 104729 + SEED + ISLAND * 31);
   const place = (w, h) => {
     const x = Math.floor(r() * (CHUNK - w)), y = Math.floor(r() * (CHUNK - h));
     return coast(x0 + x, y0 + y + h) < -0.02 && coast(x0 + x + w, y0 + y) < -0.02 ? { x, y } : null;
@@ -734,7 +758,7 @@ export function objectsInChunk(cx, cy) {
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {
-      const r = rng(hash(x0 + gx, y0 + gy, 77) * 4294967296);
+      const r = rng(hash(x0 + gx, y0 + gy, 77 + ISLAND * 13) * 4294967296);
       const x = x0 + gx + Math.floor(r() * CELL), y = y0 + gy + Math.floor(r() * CELL);
       // En mer, pas trop loin des côtes : de rares icebergs plats
       const sea = coast(x, y);

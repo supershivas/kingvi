@@ -1,7 +1,8 @@
 {
-  "version": "1.42.2",
+  "version": "1.43.0",
   "date": "2026-10-03",
   "changes": [
-    "La vue du héros est plus large : le noir est repoussé, le flou garde la même échelle"
+    "Chaque nouvelle partie a sa propre île : piste, forêt, arbres et rochers changent, les lieux restent dans le même ordre",
+    "Dans la grotte, la vue monte devant le trône : le roi se voit en entier"
   ]
 }
