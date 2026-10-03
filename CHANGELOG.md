@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.39.0 — 2026-10-03
+- Éditeur de pixels : on redessine aussi les poses du viking (avec son ombre au sol), de sa cape, du loup, des cerfs et des biches, ainsi que les ruines et les arches
+- Les animations de chaque groupe tournent avec vos dessins, avec le « fantôme » de l'image précédente pour caler le mouvement
+- Le jeu ouvert dans un autre onglet repeint le viking, sa cape et le loup pendant qu'on dessine
+
 ## 1.38.0 — 2026-10-03
 - Labo, onglet Dessins : un éditeur de pixels intégré (crayon, gomme, pot de peinture, formes, symétries, annuler, zoom, aperçu avec le viking) pour redessiner le décor
 - Chaque trait est enregistré : le jeu ouvert dans un autre onglet se redessine tout seul

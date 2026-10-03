@@ -6,7 +6,8 @@
    s'approche, sa tête tombe et la couronne roule à ses pieds.
    Couleurs : b pierre sombre, s pierre éclairée, glace, os ; k noir. */
 
-import { RUIN_ART } from './ruins-art.js?v=1.38.0';
+import { RUIN_ART } from './ruins-art.js?v=1.39.0';
+import { designRows } from './design-store.js?v=1.39.0';
 
 export const CAVE_W = 200;
 export const CAVE_H = 190;
@@ -123,7 +124,7 @@ export const CAVE_ROOM = makeCave();
 // roulée au pied de l'estrade. L'image a son pied (le bas de l'estrade) à la
 // ligne THRONE_FOOT. On ne retouche pas le dessin : pour « la tête tombée »,
 // la couronne quitte la tête (CROWN) et se pose devant, le crâne s'affaisse.
-const ROI = RUIN_ART.roi;
+const ROI = designRows('decor-roi', RUIN_ART.roi);
 const CROWN = { x0: 45, x1: 55, y0: 9, y1: 16 };          // la couronne, dans le dessin
 const SKULL = { x0: 37, x1: 51, y0: 16, y1: 30 };         // le crâne
 const CROWN_AT = { x: 60, y: ROI.length - 12 };           // où elle roule

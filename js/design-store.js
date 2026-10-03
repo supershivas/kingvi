@@ -1,0 +1,189 @@
+/* Les dessins redessinés à la main : ce qu'on sait d'eux, sans rien d'autre
+   (ce module n'importe rien, pour pouvoir être chargé AVANT le monde : le décor,
+   la meute, le viking se construisent au chargement de leurs modules).
+
+   Trois sources, de la plus forte à la plus faible :
+   1. retouché dans l'éditeur du labo, gardé dans ce navigateur (localStorage) ;
+   2. le fichier `assets/design/<nom>.png` du dépôt, listé dans
+      `assets/design/index.json` (publié par Claude) ;
+   3. le dessin d'origine, fait par le code.
+
+   Un dessin est une liste de rangées de lettres : s neige, b ou k bleu nuit,
+   r rouge, h ombre portée (bleu nuit à 30 %, viking seulement), . vide.
+   Une image dont la taille n'est pas celle de l'original est ignorée. */
+
+export const LOCAL_KEY = 'kingvi:designs';
+// nom → rangées : ce qui est retouché ici (local), et ce que publie le dépôt
+const local = new Map(), depot = new Map();
+const pick = name => (local.has(name) ? { rows: local.get(name), from: 'local' } : depot.has(name) ? { rows: depot.get(name), from: 'depot' } : null);
+
+export const designSource = name => pick(name)?.from || null;
+
+// Le dessin à utiliser : celui qu'on a refait (de la même taille), ou l'original
+export function designRows(name, original) {
+  const o = pick(name);
+  if (!o) return original;
+  if (o.rows.length !== original.length || o.rows[0].length !== original[0].length) return original;
+  return o.rows;
+}
+// Pareil pour une grille de caractères (null : vide) : les poses du viking, du loup, des cerfs
+export function designGrid(name, grid) {
+  const o = pick(name);
+  if (!o || o.rows.length !== grid.length || o.rows[0].length !== grid[0].length) return grid;
+  return o.rows.map(r => [...r].map(c => (c === '.' ? null : c)));
+}
+export const gridToRows = grid => grid.map(row => row.map(c => c || '.').join(''));
+
+// ── Lecture des fichiers PNG, sans canevas (certaines extensions anti-pistage
+// bloquent la relecture d'un canevas) ──
+async function inflate(bytes) {
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+export async function decodePng(buffer) {
+  const u8 = new Uint8Array(buffer), dv = new DataView(buffer);
+  if ([137, 80, 78, 71, 13, 10, 26, 10].some((v, i) => u8[i] !== v)) throw new Error('Ce fichier n\'est pas un PNG.');
+  let p = 8, head = null, plte = null, trns = null;
+  const idat = [];
+  while (p + 8 <= u8.length) {
+    const len = dv.getUint32(p), type = String.fromCharCode(...u8.subarray(p + 4, p + 8)), data = u8.subarray(p + 8, p + 8 + len);
+    if (type === 'IHDR') head = { w: dv.getUint32(p + 8), h: dv.getUint32(p + 12), depth: u8[p + 16], type: u8[p + 17], interlace: u8[p + 20] };
+    else if (type === 'PLTE') plte = data;
+    else if (type === 'tRNS') trns = data;
+    else if (type === 'IDAT') idat.push(data);
+    else if (type === 'IEND') break;
+    p += 12 + len;
+  }
+  if (!head || !idat.length) throw new Error('PNG illisible.');
+  if (head.interlace) throw new Error('PNG entrelacé non pris en charge : exportez-le sans entrelacement.');
+  const { w, h, depth, type } = head, channels = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[type];
+  if (!channels) throw new Error('Type de PNG non pris en charge.');
+  const raw = await inflate(idat.length === 1 ? idat[0] : Uint8Array.from(idat.flatMap(a => [...a])));
+  const bits = channels * depth, bpp = Math.max(1, bits >> 3), stride = Math.ceil(w * bits / 8);
+  const px = new Uint8Array(stride * h);
+  for (let y = 0; y < h; y++) {                       // les filtres de chaque ligne
+    const f = raw[y * (stride + 1)], src = y * (stride + 1) + 1, dst = y * stride;
+    for (let i = 0; i < stride; i++) {
+      const x = raw[src + i], a = i >= bpp ? px[dst + i - bpp] : 0, b = y ? px[dst - stride + i] : 0, c = y && i >= bpp ? px[dst - stride + i - bpp] : 0;
+      let v;
+      if (f === 0) v = x;
+      else if (f === 1) v = x + a;
+      else if (f === 2) v = x + b;
+      else if (f === 3) v = x + ((a + b) >> 1);
+      else {
+        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
+        v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
+      }
+      px[dst + i] = v & 255;
+    }
+  }
+  const out = new Uint8Array(w * h * 4), max = (1 << Math.min(depth, 8)) - 1;
+  const sample = (y, idx) => {
+    if (depth === 8) return px[y * stride + idx];
+    if (depth === 16) return px[y * stride + idx * 2];
+    const bit = idx * depth;
+    return (px[y * stride + (bit >> 3)] >> (8 - depth - (bit & 7))) & max;
+  };
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const o = (y * w + x) * 4;
+    let r, g, b, a = 255;
+    if (type === 6) { r = sample(y, x * 4); g = sample(y, x * 4 + 1); b = sample(y, x * 4 + 2); a = sample(y, x * 4 + 3); }
+    else if (type === 2) { r = sample(y, x * 3); g = sample(y, x * 3 + 1); b = sample(y, x * 3 + 2); }
+    else if (type === 4) { r = g = b = sample(y, x * 2); a = sample(y, x * 2 + 1); }
+    else if (type === 0) { r = g = b = sample(y, x) * 255 / max; }
+    else {
+      const i = sample(y, x);
+      r = plte?.[i * 3] ?? 0; g = plte?.[i * 3 + 1] ?? 0; b = plte?.[i * 3 + 2] ?? 0; a = trns?.[i] ?? 255;
+    }
+    out[o] = r; out[o + 1] = g; out[o + 2] = b; out[o + 3] = a;
+  }
+  return { w, h, data: out };
+}
+
+// Les trois couleurs du jeu, lues dans la feuille de style
+export function gamePalette() {
+  const css = getComputedStyle(document.documentElement);
+  const read = v => {
+    const n = parseInt(css.getPropertyValue(v).trim().slice(1), 16);
+    return [n >> 16, (n >> 8) & 255, n & 255];
+  };
+  return { s: read('--game-snow'), b: read('--game-night'), r: read('--accent') };
+}
+
+// Un nom de dessin : quelle lettre pour le bleu nuit, et l'ombre portée est-elle permise
+const nightLetter = name => (name.startsWith('decor-') ? 'k' : 'b');
+const allowsShade = name => name.startsWith('viking-');
+
+// Une image → les rangées de lettres du jeu ; `off` : combien de pixels étaient
+// d'une autre couleur (ramenés à la plus proche)
+export function imageToRows(img, name) {
+  const pal = gamePalette(), night = nightLetter(name);
+  const letters = [['s', pal.s], [night, pal.b], ['r', pal.r]];
+  const rows = [];
+  let off = 0;
+  for (let y = 0; y < img.h; y++) {
+    let row = '';
+    for (let x = 0; x < img.w; x++) {
+      const o = (y * img.w + x) * 4, a = img.data[o + 3];
+      if (a < (allowsShade(name) ? 20 : 128)) { row += '.'; continue; }
+      if (allowsShade(name) && a < 200) { row += 'h'; continue; }       // l'ombre au sol, translucide
+      let best = null, bd = Infinity;
+      for (const [ch, c] of letters) {
+        const d = (img.data[o] - c[0]) ** 2 + (img.data[o + 1] - c[1]) ** 2 + (img.data[o + 2] - c[2]) ** 2;
+        if (d < bd) { bd = d; best = ch; }
+      }
+      if (bd > 40 * 40) off++;
+      row += best;
+    }
+    rows.push(row);
+  }
+  return { rows, off };
+}
+
+// ── Ce qui est retouché ici, dans ce navigateur ──
+export function readLocal() {
+  try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; } catch { return {}; }
+}
+export function setLocalDesign(name, rows) {
+  const all = readLocal();
+  if (rows) all[name] = rows; else delete all[name];
+  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(all)); } catch { return false; }
+  return true;
+}
+export function applyLocal(name, rows) {
+  if (rows) local.set(name, rows); else local.delete(name);
+}
+
+// Au lancement : les fichiers du dépôt (ceux de `assets/design/index.json`),
+// puis ce qui est retouché ici par-dessus. Rien n'est demandé au réseau pour
+// les dessins qui n'existent pas.
+export async function loadDesigns() {
+  try {
+    const res = await fetch('assets/design/index.json', { cache: 'no-cache' });
+    const names = res.ok ? await res.json() : [];
+    await Promise.all(names.filter(n => /^[a-z0-9-]+$/.test(n)).map(async name => {
+      try {
+        const png = await fetch(`assets/design/${name}.png`, { cache: 'no-cache' });
+        if (!png.ok) return;
+        depot.set(name, imageToRows(await decodePng(await png.arrayBuffer()), name).rows);
+      } catch { /* un fichier illisible : le dessin d'origine */ }
+    }));
+  } catch { /* hors ligne : les dessins d'origine */ }
+  local.clear();
+  for (const [name, rows] of Object.entries(readLocal())) local.set(name, rows);
+}
+
+// Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et
+// dire quels dessins ont changé (le jeu ouvert les redessine aussitôt)
+export function refreshLocal() {
+  const changed = [], now = readLocal();
+  for (const name of new Set([...Object.keys(now), ...local.keys()])) {
+    const rows = now[name], was = local.get(name);
+    if (rows && was?.join('') === rows.join('')) continue;
+    if (!rows && !was) continue;
+    if (rows) local.set(name, rows); else local.delete(name);
+    changed.push(name);
+  }
+  return changed;
+}

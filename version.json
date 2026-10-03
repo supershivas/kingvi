@@ -1,8 +1,8 @@
 {
-  "version": "1.38.0",
+  "version": "1.39.0",
   "date": "2026-10-03",
   "changes": [
-    "Labo, onglet Dessins : un éditeur de pixels intégré pour redessiner la maison, les barques, le coffre, la grotte, le roi… ; le jeu se met à jour pendant qu'on dessine",
-    "« Copier mes modifications » pour publier les dessins ; plus besoin d'exporter et d'importer des fichiers"
+    "L'éditeur de pixels du labo redessine aussi les poses du viking, de sa cape, du loup, des cerfs et biches, et les ruines et arches",
+    "Les animations de chaque groupe tournent avec vos dessins ; le jeu ouvert dans un autre onglet repeint le viking, sa cape et le loup en direct"
   ]
 }

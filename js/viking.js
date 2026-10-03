@@ -7,6 +7,8 @@
    Le corps est centré sur la colonne CX : un retournement horizontal ne le
    décale pas (origine au milieu de la colonne CX). */
 
+import { designGrid } from './design-store.js?v=1.39.0';
+
 export const FRAME_W = 32;
 export const FRAME_H = 26;
 export const CX = 15;
@@ -301,9 +303,10 @@ export function smearPixels(view) {
 }
 
 // Toutes les images, dans l'ordre de la planche.
-export function vikingFrames() {
+// (`raw` : sans les poses redessinées à la main, designs.js)
+export function vikingFrames(raw = false) {
   const frames = [];
-  const push = (name, f) => frames.push({ name, grid: f.g, cape: f.cape });
+  const push = (name, f) => frames.push({ name, grid: raw ? f.g : designGrid(`viking-${name}`, f.g), cape: f.cape });
   push('side-idle', figure(SIDE_BODY, SIDE_HEM[0], SIDE_LEGS.stand));
   for (let i = 0; i < 4; i++) push(`side-walk-${i}`, sideWalk(i));
   for (let i = 0; i < 4; i++) push(`side-attack-${i}`, sideAttack(i));
@@ -352,10 +355,13 @@ export function capeGrid(strength, phase) {
   return g;
 }
 
-export function capeFrames() {
+export function capeFrames(raw = false) {
   const frames = [];
   CAPE_LEVELS.forEach((s, level) => {
-    for (let i = 0; i < CAPE_PHASES; i++) frames.push({ name: `cape-${level}-${i}`, grid: capeGrid(s, i) });
+    for (let i = 0; i < CAPE_PHASES; i++) {
+      const name = `cape-${level}-${i}`, g = capeGrid(s, i);
+      frames.push({ name, grid: raw ? g : designGrid(name, g) });
+    }
   });
   return frames;
 }

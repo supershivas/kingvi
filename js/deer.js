@@ -2,6 +2,8 @@
    « loups », qui ressemblaient à des cerfs. Pattes fines, queue courte ; le cerf
    porte des bois. Chaque image fait DEER_W × DEER_H ; les sabots touchent DEER_GROUND. */
 
+import { designGrid } from './design-store.js?v=1.39.0';
+
 export const DEER_W = 18;
 export const DEER_H = 14;
 export const DEER_GROUND = 12;
@@ -120,5 +122,13 @@ function deerAnims(stag) {
   };
 }
 
-export const STAG_ANIMS = deerAnims(true);
-export const DOE_ANIMS = deerAnims(false);
+// Les poses redessinées à la main (designs.js) remplacent celles du code
+function withDesigns(anims, who) {
+  for (const [key, anim] of Object.entries(anims)) anim.frames = anim.frames.map((g, i) => designGrid(`${who}-${key}-${i}`, g));
+  return anims;
+}
+
+export const STAG_RAW = deerAnims(true);
+export const DOE_RAW = deerAnims(false);
+export const STAG_ANIMS = withDesigns(deerAnims(true), 'cerf');
+export const DOE_ANIMS = withDesigns(deerAnims(false), 'biche');

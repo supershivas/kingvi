@@ -7,11 +7,11 @@
 
    `openPixelEditor({ name, label, original, rows, onSave, onReset })` ouvre
    l'éditeur ; `onSave(rows)` est appelé après chaque trait. */
-import { gamePalette } from './designs.js?v=1.38.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.38.0';
+import { gamePalette } from './design-store.js?v=1.39.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.39.0';
 
-const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3;
-const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED };
+const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
+const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
 const TOOLS = [
   ['pencil', 'Crayon', 'b', 'pencil'], ['eraser', 'Gomme', 'e', 'eraser'], ['bucket', 'Pot de peinture', 'g', 'bucket'],
   ['line', 'Ligne', 'l', 'line'], ['rect', 'Rectangle', 'r', 'square'], ['ellipse', 'Ellipse', 'o', 'circle'],
@@ -59,6 +59,7 @@ function build() {
         <label><input type="checkbox" data-opt="mirrorH"> Symétrie gauche / droite</label>
         <label><input type="checkbox" data-opt="mirrorV"> Symétrie haut / bas</label>
         <label><input type="checkbox" data-opt="grid" checked> Grille</label>
+        <label class="pxe-ghost-opt" hidden><input type="checkbox" data-opt="ghost"> Fantôme de l'image précédente</label>
         <h4>Aperçu en grandeur du jeu</h4>
         <div class="pxe-bgs">
           <button type="button" data-bg="snow">Neige</button><button type="button" data-bg="night">Nuit</button><button type="button" data-bg="mid">Gris</button>
@@ -72,15 +73,17 @@ function build() {
   return d;
 }
 
-export function openPixelEditor({ name, label, original, rows, onSave, onReset }) {
+export function openPixelEditor({ name, label, original, rows, ghost = null, onSave, onReset }) {
   dlg?.remove();
   dlg = build();
   const pal = gamePalette();
   const hex = c => `#${c.map(v => v.toString(16).padStart(2, '0')).join('')}`;
   pal.sHex = hex(pal.s); pal.bHex = hex(pal.b); pal.rHex = hex(pal.r);
-  const rgb = [null, pal.s, pal.b, pal.r];
+  // (l'ombre au sol du viking : le bleu nuit à 30 %, vu ici sur le gris de l'aperçu)
+  const rgb = [null, pal.s, pal.b, pal.r, pal.b.map((v, i) => Math.round(v * 0.3 + [127, 138, 163][i] * 0.7))];
+  const hasShade = original.join('').includes('h') || rows.join('').includes('h');
   const night = original.join('').includes('k') ? 'k' : 'b';
-  const letter = ['.', 's', night, 'r'];
+  const letter = ['.', 's', night, 'r', 'h'];
   const w = rows[0].length, h = rows.length;
   return start();
 
@@ -93,7 +96,8 @@ export function openPixelEditor({ name, label, original, rows, onSave, onReset }
     const toGrid = rs => Uint8Array.from(rs.join('').split('').map(c => CODE[c] ?? EMPTY));
     const toRows = g => Array.from({ length: h }, (_, y) => Array.from(g.subarray(y * w, y * w + w), c => letter[c]).join(''));
     let grid = toGrid(rows), hist = [], hp = -1;
-    const st = { tool: 'pencil', color: SNOW, fill: false, mirrorH: false, mirrorV: false, grid: true, bg: 'mid', z: Math.max(2, Math.min(32, Math.floor(Math.min(760 / w, 560 / h)))) };
+    const st = { tool: 'pencil', color: SNOW, fill: false, mirrorH: false, mirrorV: false, grid: true, ghost: false, bg: 'mid', z: Math.max(2, Math.min(32, Math.floor(Math.min(760 / w, 560 / h)))) };
+    const ghostRows = typeof ghost === 'function' ? ghost() : ghost;
     let drag = null, saveTimer = 0, changed = false;
 
     $('.pxe-title').textContent = label;
@@ -102,7 +106,7 @@ export function openPixelEditor({ name, label, original, rows, onSave, onReset }
     // ── Outils et couleurs ──
     $('.pxe-tools').innerHTML = TOOLS.map(([id, t, key, icon]) =>
       `<button type="button" data-tool="${id}" title="${t} (${key.toUpperCase()})"><i class="ti ti-${icon}"></i></button>`).join('');
-    const swatches = [[SNOW, 'Neige', '1'], [NIGHT, 'Bleu nuit', '2'], [RED, 'Rouge', '3'], [EMPTY, 'Vide (transparent)', '4']];
+    const swatches = [[SNOW, 'Neige', '1'], [NIGHT, 'Bleu nuit', '2'], [RED, 'Rouge', '3'], [EMPTY, 'Vide (transparent)', '4'], ...(hasShade ? [[SHADE, 'Ombre au sol (bleu nuit translucide)', '5']] : [])];
     $('.pxe-colors').innerHTML = swatches.map(([c, t, key]) =>
       `<button type="button" data-color="${c}" title="${t} (${key})" class="${c ? '' : 'empty'}" ${c ? `style="background:${hex(rgb[c])}"` : ''}></button>`).join('');
     const sync = () => {
@@ -132,18 +136,26 @@ export function openPixelEditor({ name, label, original, rows, onSave, onReset }
         for (let x = 1; x < w; x++) vctx.fillRect(x * st.z, 0, 1, view.height);
         for (let y = 1; y < h; y++) vctx.fillRect(0, y * st.z, view.width, 1);
       }
+      if (st.ghost && ghostRows) {                // l'image d'avant, en rouge pâle, pour caler l'animation
+        vctx.fillStyle = 'rgba(192,57,43,.38)';
+        ghostRows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.') vctx.fillRect(x * st.z + 1, y * st.z + 1, st.z - 2, st.z - 2); }));
+      }
       renderPreview();
       sync();
     }
     function renderPreview() {
-      const k = Math.max(1, Math.min(4, Math.floor(300 / (w + FRAME_W + 6)), Math.floor(260 / Math.max(h, FRAME_H))));
+      const k = Math.max(1, Math.min(6, Math.floor(300 / (w + FRAME_W + 6)), Math.floor(260 / Math.max(h, FRAME_H))));
       const pw = w + FRAME_W + 6, ph = Math.max(h, FRAME_H);
       prevCv.width = pw; prevCv.height = ph;
       prevCv.style.width = `${pw * k}px`; prevCv.style.height = `${ph * k}px`;
       pctx.fillStyle = bgColor(); pctx.fillRect(0, 0, pw, ph);
       pctx.drawImage(viking(pal), 0, ph - FRAME_H);
       const o = pctx.createImageData(w, h), d = o.data;
-      for (let i = 0; i < w * h; i++) { const c = grid[i]; if (!c) continue; d[i * 4] = rgb[c][0]; d[i * 4 + 1] = rgb[c][1]; d[i * 4 + 2] = rgb[c][2]; d[i * 4 + 3] = 255; }
+      for (let i = 0; i < w * h; i++) {
+        const c = grid[i]; if (!c) continue;
+        const v = c === SHADE ? pal.b : rgb[c];
+        d[i * 4] = v[0]; d[i * 4 + 1] = v[1]; d[i * 4 + 2] = v[2]; d[i * 4 + 3] = c === SHADE ? 77 : 255;
+      }
       const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h; tmp.getContext('2d').putImageData(o, 0, 0);
       pctx.drawImage(tmp, FRAME_W + 6, ph - h);
     }
@@ -271,6 +283,7 @@ export function openPixelEditor({ name, label, original, rows, onSave, onReset }
       }
       render();
     });
+    if (ghostRows) dlg.querySelector('.pxe-ghost-opt').hidden = false;
     for (const inp of dlg.querySelectorAll('[data-opt]')) {
       inp.checked = !!st[inp.dataset.opt];
       inp.addEventListener('change', () => { st[inp.dataset.opt] = inp.checked; render(); });
@@ -285,7 +298,7 @@ export function openPixelEditor({ name, label, original, rows, onSave, onReset }
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const t = TOOLS.find(x => x[2] === k);
       if (t) st.tool = t[0];
-      else if (k >= '1' && k <= '4') st.color = [SNOW, NIGHT, RED, EMPTY][+k - 1];
+      else if (k >= '1' && k <= '5') st.color = [SNOW, NIGHT, RED, EMPTY, SHADE][+k - 1];
       else if (k === '+' || k === '=') return zoom(1);
       else if (k === '-') return zoom(-1);
       else if (k === 'x') { st.grid = !st.grid; dlg.querySelector('[data-opt="grid"]').checked = st.grid; }

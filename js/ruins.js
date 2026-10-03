@@ -10,7 +10,8 @@
      un pilier est plus près que l'autre) ; les piliers bloquent, on passe
      par le milieu ;
    - la colonne couchée et le socle : un seul obstacle chacun. */
-import { RUIN_ART } from './ruins-art.js?v=1.38.0';
+import { RUIN_ART } from './ruins-art.js?v=1.39.0';
+import { designRows } from './design-store.js?v=1.39.0';
 
 // Le passage de chaque arche : les colonnes du dessin où l'on passe dessous
 // (la partie claire de l'ouverture et l'intérieur sombre du passage)
@@ -76,7 +77,9 @@ function cut(rows, x0, x1, keep) {
 
 // Les pièces d'un monument posé au pied (x, y) : le milieu du bas de sa masse
 export function monumentParts(key, x, y) {
-  const rows = TEXTURED[key] ? texture(RUIN_ART[key], hashKey(key)) : RUIN_ART[key];
+  // (un monument redessiné à la main remplace celui du dessin importé : designs.js)
+  const art = designRows(`decor-${key}`, RUIN_ART[key]);
+  const rows = TEXTURED[key] ? texture(art, hashKey(key)) : art;
   const { inMain, id, W, H } = mainMass(rows);
   // Le pied et le milieu de la masse
   let bottom = 0, left = W, right = 0;
@@ -218,4 +221,4 @@ export function makeOutlinedRock(r) {
 }
 
 // La largeur et la hauteur d'un dessin (pour les emprises)
-export const monumentSize = key => ({ w: RUIN_ART[key][0].length, h: RUIN_ART[key].length });
+export const monumentSize = key => { const r = designRows(`decor-${key}`, RUIN_ART[key]); return { w: r[0].length, h: r.length }; };

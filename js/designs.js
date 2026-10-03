@@ -1,165 +1,100 @@
-/* Les dessins uniques du décor (la maison, les barques, le coffre, le roi sur
-   son trône, la crypte…) qu'on peut redessiner à la main : on télécharge le
-   PNG à l'échelle 1 × 1 dans le labo (onglet Dessins), on le retouche dans un
-   éditeur de pixels, on le réimporte, et le jeu s'en sert à la place du dessin
-   fait par le code.
+/* Le catalogue des dessins qu'on peut redessiner à la main dans l'éditeur du
+   labo (onglet Dessins) : les éléments uniques du décor, les ruines et les
+   arches, les poses du viking, de sa cape, du loup, des cerfs et des biches.
+   Les arbres et les rochers restent générés par le code.
 
-   Trois sources, de la plus forte à la plus faible :
-   1. importé dans ce navigateur (localStorage : pour essayer chez soi) ;
-   2. le fichier `assets/design/<nom>.png` du dépôt (pour tout le monde) ;
-   3. le dessin d'origine, fait par le code.
+   Ce qu'on a refait est gardé par design-store.js (qui n'importe rien et se
+   charge avant le monde) ; ce module-ci connaît les dessins d'origine, donc
+   leurs tailles : une image doit avoir exactement celle de l'original (les
+   positions, les portes, les obstacles en dépendent). Les couleurs sont
+   ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
+   viking (bleu nuit translucide) est permise pour ses poses. */
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.39.0';
+import { HOUSE_ART } from './world.js?v=1.39.0';
+import { ROOM, CORPSE } from './interior.js?v=1.39.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.39.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.39.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.39.0';
+import { RUIN_ART } from './ruins-art.js?v=1.39.0';
+import { vikingFrames, capeFrames } from './viking.js?v=1.39.0';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.39.0';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.39.0';
+import { gridToRows, decodePng, imageToRows, gamePalette } from './design-store.js?v=1.39.0';
 
-   Les arbres et les rochers restent générés : ils n'en font pas partie.
-   Une image importée doit avoir exactement la taille de l'original (les
-   positions, la porte, les obstacles en dépendent) ; ses couleurs sont
-   ramenées aux trois du jeu (neige, bleu nuit, rouge), le reste est
-   transparent. Le décodage du PNG est fait ici, sans relire un canevas
-   (certaines extensions anti-pistage le bloquent). */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.38.0';
-import { HOUSE_ART } from './world.js?v=1.38.0';
-import { ROOM, CORPSE } from './interior.js?v=1.38.0';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.38.0';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.38.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.38.0';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, LOCAL_KEY, gamePalette } from './design-store.js?v=1.39.0';
 
-const entries = (prefix, frames) => Object.entries(frames).map(([k, rows]) => [`${prefix}-${k}`, rows]);
+export const GROUPS = [
+  { id: 'decor', title: 'Éléments du décor', about: 'La maison, la pièce, les barques, le coffre, la crypte, la grotte, le roi sur son trône, le guetteur…' },
+  { id: 'ruines', title: 'Ruines et arches', about: 'L\'arche, la colonne couchée, le socle, l\'arche en ruine et le ponton du lac. Le dessin donne aussi la zone bloquée ; l\'endroit où l\'on monte (socle, ponton) reste celui d\'origine.' },
+  { id: 'viking', title: 'Le viking : poses', about: 'Chaque image de la marche et des coups, de profil, de face, de dos et en diagonale. Une ombre au sol est possible (4e couleur).' },
+  { id: 'cape', title: 'La cape du viking', about: 'Trois forces de vent, six temps chacune. Le coin d\'en haut à gauche est l\'épaule.' },
+  { id: 'loup', title: 'Le loup : poses', about: 'Les neuf poses d\'où se montent la marche, le trot, le galop, le bond et le loup à terre.' },
+  { id: 'cerfs', title: 'Cerfs et biches : poses', about: 'Codés, mais retirés du jeu pour le moment : on peut les redessiner d\'avance.' },
+];
 
-// nom → [libellé, dessin d'origine] ; le nom est celui de la texture du jeu
+const entry = (name, label, rows, group) => ({ name, label, rows, w: rows[0].length, h: rows.length, group });
+const frameEntries = (prefix, frames, label, group) => frames.map(f => entry(`${prefix}${f.name}`, label(f.name), gridToRows(f.grid), group));
+
+// ── Libellés ──
+const VIEWS = { side: 'de profil', front: 'de face', back: 'de dos', diagdown: 'en diagonale basse', diagup: 'en diagonale haute' };
+const ACTS = { idle: 'immobile', walk: 'marche', attack: 'coup' };
+const vikingLabel = n => {
+  const [view, act, i] = n.split('-');
+  return `Viking ${VIEWS[view]}, ${ACTS[act]}${i != null ? ` ${+i + 1}` : ''}`;
+};
+
 export const DESIGNS = [
-  ['house', 'La maison, vue de dehors', HOUSE_ART],
-  ['room', 'La pièce de la maison', ROOM],
-  ['fallen', 'Un corps à terre', CORPSE],
-  ['boat-still', 'La barque échouée (calme)', BOAT_FRAMES.still],
-  ['boat-left', 'La barque échouée (roule à gauche)', BOAT_FRAMES.left],
-  ['boat-right', 'La barque échouée (roule à droite)', BOAT_FRAMES.right],
-  ['boat2', 'La seconde barque, halée sur la grève', BOAT2],
-  ['rowboat-empty', 'La barque du lac, vide', ROWBOAT_FRAMES.empty],
-  ['rowboat-row0', 'La barque du lac, rame 1', ROWBOAT_FRAMES.row0],
-  ['rowboat-row1', 'La barque du lac, rame 2', ROWBOAT_FRAMES.row1],
-  ['rowboat-row2', 'La barque du lac, rame 3', ROWBOAT_FRAMES.row2],
-  ['crypt', 'La crypte', CRYPT],
-  ...entries('chest', CHEST_FRAMES).map(([n, rows]) => [n, `Le coffre (${n.slice(6)})`, rows]),
-  ['cave', 'La grotte', CAVE_ROOM],
-  ...entries('throne', THRONE_FRAMES).map(([n, rows]) => [n, `Le roi sur son trône (${n.slice(7)})`, rows]),
-  ['bundle', 'Une offrande pendue', BUNDLE],
-  ['watcher', 'Le guetteur', WATCHER],
-].map(([name, label, rows]) => ({ name, label, rows, w: rows[0].length, h: rows.length }));
+  ...[
+    ['house', 'La maison, vue de dehors', HOUSE_ART],
+    ['room', 'La pièce de la maison', ROOM],
+    ['fallen', 'Un corps à terre', CORPSE],
+    ['boat-still', 'La barque échouée (calme)', BOAT_FRAMES.still],
+    ['boat-left', 'La barque échouée (roule à gauche)', BOAT_FRAMES.left],
+    ['boat-right', 'La barque échouée (roule à droite)', BOAT_FRAMES.right],
+    ['boat2', 'La seconde barque, halée sur la grève', BOAT2],
+    ['rowboat-empty', 'La barque du lac, vide', ROWBOAT_FRAMES.empty],
+    ['rowboat-row0', 'La barque du lac, rame 1', ROWBOAT_FRAMES.row0],
+    ['rowboat-row1', 'La barque du lac, rame 2', ROWBOAT_FRAMES.row1],
+    ['rowboat-row2', 'La barque du lac, rame 3', ROWBOAT_FRAMES.row2],
+    ['crypt', 'La crypte', CRYPT],
+    ...Object.entries(CHEST_FRAMES).map(([k, rows]) => [`chest-${k}`, `Le coffre (${k})`, rows]),
+    ['cave', 'La grotte', CAVE_ROOM],
+    ...Object.entries(THRONE_FRAMES).map(([k, rows]) => [`throne-${k}`, `Le roi sur son trône (${k})`, rows]),
+    ['bundle', 'Une offrande pendue', BUNDLE],
+    ['watcher', 'Le guetteur', WATCHER],
+  ].map(([n, l, r]) => entry(n, l, r, 'decor')),
+  ...[
+    ['decor-pont', 'Le ponton du lac', RUIN_ART.pont],
+    ['decor-arche', 'L\'arche', RUIN_ART.arche],
+    ['decor-ruine', 'L\'arche en ruine', RUIN_ART.ruine],
+    ['decor-colonne', 'La colonne couchée', RUIN_ART.colonne],
+    ['decor-socle', 'Le socle', RUIN_ART.socle],
+  ].map(([n, l, r]) => entry(n, l, r, 'ruines')),
+  ...frameEntries('viking-', vikingFrames(true), vikingLabel, 'viking'),
+  ...frameEntries('', capeFrames(true), n => { const [, l, p] = n.split('-'); return `Cape, vent ${['faible', 'moyen', 'fort'][l]}, temps ${+p + 1}`; }, 'cape'),
+  ...Object.entries(WOLF_POSES_RAW).map(([k, g]) => entry(`loup-${k}`, `Loup : ${WOLF_LABELS[k]}`, gridToRows(g), 'loup')),
+  ...[['cerf', 'Cerf', STAG_RAW], ['biche', 'Biche', DOE_RAW]].flatMap(([who, name, anims]) =>
+    Object.entries(anims).flatMap(([key, anim]) => anim.frames.map((g, i) => entry(`${who}-${key}-${i}`, `${name} : ${anim.label.toLowerCase()} ${i + 1}`, gridToRows(g), 'cerfs')))),
+];
 
 const BY_NAME = new Map(DESIGNS.map(d => [d.name, d]));
-const LOCAL_KEY = 'kingvi:designs';
-// nom → { rows, from: 'local' | 'depot' }
-const overrides = new Map();
+export const originalRows = name => BY_NAME.get(name)?.rows;
 
-// Les trois couleurs du jeu, lues dans la feuille de style
-export function gamePalette() {
-  const css = getComputedStyle(document.documentElement);
-  const read = v => {
-    const n = parseInt(css.getPropertyValue(v).trim().slice(1), 16);
-    return [n >> 16, (n >> 8) & 255, n & 255];
-  };
-  return { s: read('--game-snow'), b: read('--game-night'), r: read('--accent') };
-}
-const hex = c => `#${c.map(v => v.toString(16).padStart(2, '0')).join('')}`;
-
-// Le dessin à utiliser pour cette texture : celui qu'on a remplacé, ou l'original
-export function designRows(name, original) {
-  return overrides.get(name)?.rows || original;
-}
-// D'où vient le dessin : 'local', 'depot', ou null (celui du code)
-export const designSource = name => overrides.get(name)?.from || null;
-
-// ── Décodage d'un PNG (sans canevas) ──
-async function inflate(bytes) {
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate'));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
-}
-
-export async function decodePng(buffer) {
-  const u8 = new Uint8Array(buffer), dv = new DataView(buffer);
-  if ([137, 80, 78, 71, 13, 10, 26, 10].some((v, i) => u8[i] !== v)) throw new Error('Ce fichier n\'est pas un PNG.');
-  let p = 8, head = null, plte = null, trns = null;
-  const idat = [];
-  while (p + 8 <= u8.length) {
-    const len = dv.getUint32(p), type = String.fromCharCode(...u8.subarray(p + 4, p + 8)), data = u8.subarray(p + 8, p + 8 + len);
-    if (type === 'IHDR') head = { w: dv.getUint32(p + 8), h: dv.getUint32(p + 12), depth: u8[p + 16], type: u8[p + 17], interlace: u8[p + 20] };
-    else if (type === 'PLTE') plte = data;
-    else if (type === 'tRNS') trns = data;
-    else if (type === 'IDAT') idat.push(data);
-    else if (type === 'IEND') break;
-    p += 12 + len;
-  }
-  if (!head || !idat.length) throw new Error('PNG illisible.');
-  if (head.interlace) throw new Error('PNG entrelacé non pris en charge : exportez-le sans entrelacement.');
-  const { w, h, depth, type } = head, channels = { 0: 1, 2: 3, 3: 1, 4: 2, 6: 4 }[type];
-  if (!channels) throw new Error('Type de PNG non pris en charge.');
-  const raw = await inflate(idat.length === 1 ? idat[0] : Uint8Array.from(idat.flatMap(a => [...a])));
-  const bits = channels * depth, bpp = Math.max(1, bits >> 3), stride = Math.ceil(w * bits / 8);
-  // Les filtres de chaque ligne
-  const px = new Uint8Array(stride * h);
-  for (let y = 0; y < h; y++) {
-    const f = raw[y * (stride + 1)], src = y * (stride + 1) + 1, dst = y * stride;
-    for (let i = 0; i < stride; i++) {
-      const x = raw[src + i], a = i >= bpp ? px[dst + i - bpp] : 0, b = y ? px[dst - stride + i] : 0, c = y && i >= bpp ? px[dst - stride + i - bpp] : 0;
-      let v;
-      if (f === 0) v = x;
-      else if (f === 1) v = x + a;
-      else if (f === 2) v = x + b;
-      else if (f === 3) v = x + ((a + b) >> 1);
-      else {
-        const pa = Math.abs(b - c), pb = Math.abs(a - c), pc = Math.abs(a + b - 2 * c);
-        v = x + (pa <= pb && pa <= pc ? a : pb <= pc ? b : c);
-      }
-      px[dst + i] = v & 255;
-    }
-  }
-  // En RGBA 8 bits
-  const out = new Uint8Array(w * h * 4), max = (1 << Math.min(depth, 8)) - 1;
-  const sample = (y, idx) => {                    // l'échantillon n° idx de la ligne y
-    if (depth === 8) return px[y * stride + idx];
-    if (depth === 16) return px[y * stride + idx * 2];
-    const bit = idx * depth;
-    return (px[y * stride + (bit >> 3)] >> (8 - depth - (bit & 7))) & max;
-  };
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const o = (y * w + x) * 4;
-    let r, g, b, a = 255;
-    if (type === 6) { r = sample(y, x * 4); g = sample(y, x * 4 + 1); b = sample(y, x * 4 + 2); a = sample(y, x * 4 + 3); }
-    else if (type === 2) { r = sample(y, x * 3); g = sample(y, x * 3 + 1); b = sample(y, x * 3 + 2); }
-    else if (type === 4) { r = g = b = sample(y, x * 2); a = sample(y, x * 2 + 1); }
-    else if (type === 0) { r = g = b = sample(y, x) * 255 / max; }
-    else {
-      const i = sample(y, x);
-      r = plte?.[i * 3] ?? 0; g = plte?.[i * 3 + 1] ?? 0; b = plte?.[i * 3 + 2] ?? 0; a = trns?.[i] ?? 255;
-    }
-    out[o] = r; out[o + 1] = g; out[o + 2] = b; out[o + 3] = a;
-  }
-  return { w, h, data: out };
-}
-
-// Une image → les rangées de lettres du jeu (s neige, b/k bleu nuit, r rouge, . vide).
-// `off` : combien de pixels étaient d'une autre couleur (ramenés à la plus proche)
-export function imageToRows(img, original) {
-  const pal = gamePalette(), night = original.join('').includes('k') ? 'k' : 'b';
-  const letters = [['s', pal.s], [night, pal.b], ['r', pal.r]];
-  const rows = [];
-  let off = 0;
-  for (let y = 0; y < img.h; y++) {
-    let row = '';
-    for (let x = 0; x < img.w; x++) {
-      const o = (y * img.w + x) * 4;
-      if (img.data[o + 3] < 128) { row += '.'; continue; }
-      let best = null, bd = Infinity;
-      for (const [ch, c] of letters) {
-        const d = (img.data[o] - c[0]) ** 2 + (img.data[o + 1] - c[1]) ** 2 + (img.data[o + 2] - c[2]) ** 2;
-        if (d < bd) { bd = d; best = ch; }
-      }
-      if (bd > 40 * 40) off++;
-      row += best;
-    }
-    rows.push(row);
-  }
-  return { rows, off };
-}
+// Les enchaînements d'images, pour voir l'animation tourner : { label, names, fps }
+export const SEQUENCES = {
+  viking: [
+    ...['side', 'front', 'back'].map(v => ({ label: `Marche ${VIEWS[v]}`, names: [0, 1, 2, 3].map(i => `viking-${v}-walk-${i}`), fps: 7 })),
+    ...Object.keys(VIEWS).map(v => ({ label: `Coup ${VIEWS[v]}`, names: [0, 1, 2, 3].map(i => `viking-${v}-attack-${i}`), fps: 5 })),
+  ],
+  cape: [0, 1, 2].map(l => ({ label: `Cape, vent ${['faible', 'moyen', 'fort'][l]}`, names: [0, 1, 2, 3, 4, 5].map(p => `cape-${l}-${p}`), fps: 8 })),
+  loup: [
+    { label: 'Marche', names: ['marche-0', 'marche-1'].map(n => `loup-${n}`), fps: 4 },
+    { label: 'Galop', names: ['course-0', 'course-rassemble', 'course-1', 'course-rassemble'].map(n => `loup-${n}`), fps: 13 },
+    { label: 'Bond', names: ['bond-0', 'bond-1', 'bond-2'].map(n => `loup-${n}`), fps: 8 },
+  ],
+  cerfs: [['cerf', STAG_RAW], ['biche', DOE_RAW]].flatMap(([who, anims]) =>
+    Object.entries(anims).map(([key, a]) => ({ label: `${who === 'cerf' ? 'Cerf' : 'Biche'} : ${a.label.toLowerCase()}`, names: a.frames.map((_, i) => `${who}-${key}-${i}`), fps: a.fps }))),
+};
 
 // Un fichier PNG → rangées, vérifiées contre l'original ; { rows, off } ou { error }
 export async function importDesign(name, buffer) {
@@ -168,13 +103,14 @@ export async function importDesign(name, buffer) {
   try {
     const img = await decodePng(buffer);
     if (img.w !== d.w || img.h !== d.h) return { error: `Taille ${img.w} × ${img.h} : il faut exactement ${d.w} × ${d.h}.` };
-    return imageToRows(img, d.rows);
+    return imageToRows(img, name);
   } catch (e) { return { error: e.message || 'Fichier illisible.' }; }
 }
 
-// Des rangées → un PNG à l'échelle 1 × 1 (fond transparent)
+// Des rangées → un PNG à l'échelle 1 × 1 (fond transparent ; h : ombre translucide)
 export function rowsToPng(rows) {
-  const pal = gamePalette(), color = { s: hex(pal.s), b: hex(pal.b), k: hex(pal.b), r: hex(pal.r) };
+  const pal = gamePalette(), rgba = c => `rgb(${c.join(',')})`;
+  const color = { s: rgba(pal.s), b: rgba(pal.b), k: rgba(pal.b), r: rgba(pal.r), h: `rgba(${pal.b.join(',')},.3)` };
   const c = document.createElement('canvas');
   c.width = rows[0].length; c.height = rows.length;
   const ctx = c.getContext('2d');
@@ -185,70 +121,14 @@ export function rowsToPng(rows) {
   return new Promise(resolve => c.toBlob(resolve, 'image/png'));
 }
 
-// ── Ce qui est importé ici, dans ce navigateur ──
-function readLocal() {
-  try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; } catch { return {}; }
-}
-export function setLocalDesign(name, rows) {
-  const all = readLocal();
-  if (rows) all[name] = rows; else delete all[name];
-  try { localStorage.setItem(LOCAL_KEY, JSON.stringify(all)); } catch { return false; }
-  return true;
-}
-
-// Au lancement : les fichiers du dépôt, puis ce qui est importé ici par-dessus.
-// Un fichier absent est le cas normal (le dessin d'origine reste).
-export async function loadDesigns() {
-  await Promise.all(DESIGNS.map(async d => {
-    try {
-      const res = await fetch(`assets/design/${d.name}.png`, { cache: 'no-cache' });
-      if (!res.ok || !(res.headers.get('content-type') || '').includes('image/png')) return;
-      const out = await importDesign(d.name, await res.arrayBuffer());
-      if (out.rows) overrides.set(d.name, { rows: out.rows, from: 'depot' });
-    } catch { /* hors ligne, extension : le dessin d'origine */ }
-  }));
-  for (const [name, rows] of Object.entries(readLocal())) {
-    const d = BY_NAME.get(name);
-    if (d && rows.length === d.h && rows[0].length === d.w) overrides.set(name, { rows, from: 'local' });
-  }
-}
-
-// Pour le labo : relire après un import, sans recharger
-export function applyLocal(name, rows) {
-  if (rows) overrides.set(name, { rows, from: 'local' });
-  else overrides.delete(name);
-}
-
-// Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et
-// dire quels dessins ont changé (le jeu ouvert les redessine aussitôt)
-export function refreshLocal() {
-  const changed = [];
-  const local = readLocal();
-  for (const d of DESIGNS) {
-    const was = overrides.get(d.name), rows = local[d.name];
-    const ok = rows && rows.length === d.h && rows[0].length === d.w;
-    if (ok) {
-      if (was?.from === 'local' && was.rows.join('') === rows.join('')) continue;
-      overrides.set(d.name, { rows, from: 'local' });
-      changed.push(d.name);
-    } else if (was?.from === 'local') {
-      overrides.delete(d.name);
-      changed.push(d.name);
-    }
-  }
-  return changed;
-}
-export const DESIGNS_STORAGE_KEY = LOCAL_KEY;
-export const originalRows = name => BY_NAME.get(name)?.rows;
-
-// Les retouches gardées ici, en une seule ligne de texte par dessin (lignes
-// séparées par « | », une suite de caractères répétés écrite « s12 ») : à
-// coller dans la conversation, d'où elles sont transformées en PNG du dépôt
+// Les retouches gardées ici, en une ligne de texte par dessin (lignes séparées
+// par « | », une suite de caractères répétés écrite « s12 ») : à coller dans la
+// conversation, d'où elles sont transformées en PNG du dépôt
 // (scripts/designs-vers-png.mjs)
 export function designsToText() {
-  const local = readLocal(), out = ['KINGVI-DESSINS 1'];
+  const now = JSON.parse(localStorage.getItem('kingvi:designs') || '{}'), out = ['KINGVI-DESSINS 1'];
   for (const d of DESIGNS) {
-    const rows = local[d.name];
+    const rows = now[d.name];
     if (!rows || rows.length !== d.h) continue;
     out.push(`${d.name} ${d.w}x${d.h} ` + rows.map(r => r.replace(/(.)\1*/g, m => m[0] + m.length)).join('|'));
   }

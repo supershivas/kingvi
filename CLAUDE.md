@@ -249,29 +249,32 @@ est cachée et ne sort que pendant l'attaque.
   de son dessin : on passe sous les branches du grand arbre mort du bosquet,
   entre les racines, autour d'une statue. `foot` doit rester la profondeur du
   pied, pas la hauteur de l'objet.
-- `js/designs.js`, `js/labo-designs.js`, `js/pixel-editor.js`, `assets/design/` —
-  **les dessins du décor redessinables à la main** (la maison, la pièce, les
-  barques, le coffre, la crypte, la grotte, le roi sur son trône, le guetteur,
-  une offrande, un corps : `DESIGNS`, 20 images ; **arbres et rochers restent
-  générés**). Onglet Dessins du labo : un **éditeur de pixels intégré**
+- `js/design-store.js`, `js/designs.js`, `js/labo-designs.js`,
+  `js/pixel-editor.js`, `assets/design/` — **les dessins redessinables à la
+  main**, dans l'onglet Dessins du labo (6 groupes, 129 images : éléments du
+  décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
+  cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
+  rochers et statues restent générés**). Un **éditeur de pixels intégré**
   (`openPixelEditor`, inspiré de pixel-studio : crayon, gomme, pot, ligne,
   rectangle, ellipse, pipette, symétries, annuler, zoom, grille, aperçu avec le
-  viking), chaque trait enregistré aussitôt ; le jeu ouvert dans un autre onglet
-  du même navigateur se redessine sur place (événement `storage` →
-  `redrawArt`, textures repeintes même taille, jamais retirées). Publier :
+  viking, « fantôme » de l'image précédente d'une animation) ; chaque trait est
+  enregistré, et les animations de chaque groupe tournent avec les dessins du
+  moment. **`design-store.js` n'importe rien** et se charge avant tout : `main.js`
+  fait `await loadDesigns()` puis `import('./game.js')` (le monde, la meute, le
+  viking se construisent à l'import de leurs modules : `viking.js`, `wolf.js`,
+  `deer.js`, `ruins.js`, `cave.js` lisent `designRows` / `designGrid`). Sources :
+  retouché dans ce navigateur (`kingvi:designs`) > fichier `assets/design/<nom>.png`
+  listé dans `assets/design/index.json` > dessin du code ; une image de taille
+  différente de l'original est ignorée. `designs.js` : le catalogue (`DESIGNS`,
+  `GROUPS`, `SEQUENCES`, noms `viking-…`, `cape-…`, `loup-…`, `cerf-…`,
+  `biche-…`, `decor-…`). **Mise à jour en direct** dans un autre onglet du même
+  navigateur (événement `storage`) : textures d'`art()` (`redrawArt`), planches
+  du viking et de la cape, loup (`pack.repaint`) ; ruines, arches, cerfs et biches
+  au prochain lancement (ils sont cuits dans les morceaux de l'île). Publier :
   « Copier mes modifications » (`designsToText`) → Jérôme colle le texte dans la
-  conversation → `node scripts/designs-vers-png.mjs texte.txt` écrit les PNG
-  dans `assets/design/` (à valider, version à monter). Repli : télécharger /
-  importer des PNG 1 × 1 (ou les déposer par « Upload files » sur GitHub).
-  Sources, de la plus forte à la plus faible : retouché dans ce navigateur
-  (`kingvi:designs`, localStorage), fichier `assets/design/<nom>.png` du dépôt,
-  dessin du code.
-  `loadDesigns()` (avant `createGame`, `main.js`) ; `art()` de `game.js` passe
-  par `designRows`. Taille exigée identique à l'original (portes, obstacles,
-  positions en dépendent ; la hitbox de la maison ne suit pas son dessin) ;
-  trois couleurs. PNG décodé sans canevas (`decodePng`, `DecompressionStream`).
-  Un fichier absent est normal (404 attendus, ignorés par le harnais).
-  Les démos du labo ne reflètent pas les imports (seul l'onglet Dessins).
+  conversation → `node scripts/designs-vers-png.mjs texte.txt` écrit les PNG et
+  met `index.json` à jour (à valider, version à monter). PNG décodé sans canevas
+  (`decodePng`, `DecompressionStream`).
 - `js/ground.js` — les tuiles du sol (`createGround`) : peinture d'origine
   (`pristine`) et toile affichée, réserve des tuiles hors de vue (48 Mo, les
   moins récemment vues partent), marques qui pâlissent par paliers (la tuile

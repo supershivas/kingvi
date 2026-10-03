@@ -4,8 +4,8 @@
    s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.38.0';
-import { paintFrames } from './viking.js?v=1.38.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.39.0';
+import { paintFrames } from './viking.js?v=1.39.0';
 
 export const WOLF_HP = 2;
 const COUNT = 3;
@@ -99,7 +99,17 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
   Object.defineProperty(pack, 'engaged', { get: () => pack.state === 'hunt' && alive().length > 0 });
   Object.defineProperty(pack, 'deadList', { get: () => wolves.filter(w => w.state === 'dead').map(w => ({ i: w.i, x: Math.round(w.pos.x), y: Math.round(w.pos.y), dir: w.dir })) });
 
+  // Une pose du loup retouchée dans l'éditeur du labo, dans un autre onglet :
+  // la planche est repeinte sur place (mêmes images, même taille)
+  const repaint = () => {
+    const f = [];
+    for (const [key, anim] of Object.entries(wolfAnims())) anim.frames.forEach((g, i) => f.push({ name: `${key}-${i}`, grid: g }));
+    paintFrames(sheet, f, WOLF_W, WOLF_H, palette);
+    tex.refresh();
+  };
+
   return Object.assign(pack, {
+    repaint,
     // Le loup le plus proche de (x, y), s'il y en a un qui chasse
     nearest(x, y) {
       let best = null, bd = Infinity;

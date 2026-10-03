@@ -116,3 +116,22 @@ body.labo-page { height: auto; min-height: 100%; overflow: visible; display: blo
 .pxe-quiet { min-height: 40px; border: 1px solid #b4bfd0; border-radius: 6px; background: #fff; cursor: pointer; font: inherit; color: #5b6784; }
 .pxe-quiet.confirm { background: var(--accent); color: #fff; border-color: var(--accent); }
 @media (max-width: 820px) { .pxe-body { flex-direction: column; } .pxe-side { width: auto; max-height: 40%; } .pxe-tools { flex-direction: row; flex-wrap: wrap; } }
+
+/* ── Onglet Dessins : les groupes et leurs cellules ── */
+.design-group summary { cursor: pointer; display: flex; align-items: baseline; gap: 10px; min-height: var(--tap); font-size: 1rem; }
+.design-group summary .tag { font: .75rem var(--font-mono); color: var(--accent); }
+.design-about { font-size: .85rem; color: var(--text-muted); margin: 0 0 10px; }
+.design-anims { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 12px; }
+.design-anim { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.design-anim canvas { display: block; image-rendering: pixelated; background: #7f8aa3; padding: 6px; border-radius: var(--radius-md); }
+.design-anim figcaption { font: .68rem var(--font-mono); color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; max-width: 160px; }
+.design-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.design-cell { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1px solid var(--border); border-radius: var(--radius-md); max-width: 100%; }
+.design-cell.mine { border-color: var(--accent); }
+.design-cell .design-view { padding: 8px; align-self: flex-start; max-width: 100%; }
+.design-label { font-size: .85rem; }
+.design-meta { font: .7rem var(--font-mono); color: var(--text-muted); }
+.design-src { font-size: .72rem; color: var(--accent); min-height: 1em; }
+.design-more { font-size: .8rem; }
+.design-more summary { cursor: pointer; min-height: var(--tap); display: inline-flex; align-items: center; padding: 0 10px; color: var(--text-muted); }
+.design-more[open] { display: flex; flex-direction: column; gap: 6px; }
