@@ -6,9 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.40.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.40.0';
-import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.40.0';
+} from './designs.js?v=1.40.1';
+import { openPixelEditor } from './pixel-editor.js?v=1.40.1';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.40.1';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
@@ -55,6 +55,7 @@ intro.innerHTML = `
       <button type="button" class="design-btn primary" data-save-token>Enregistrer la clé et publier</button>
     </div>
   </div>
+  <p class="design-status" role="status"></p>
   <p class="design-keyinfo" hidden>Clé GitHub enregistrée dans ce navigateur. <button type="button" class="design-link" data-forget>L'oublier</button></p>
   <details class="design-files">
     <summary>Préférer un autre éditeur ? PNG à télécharger et importer</summary>
@@ -66,7 +67,15 @@ intro.innerHTML = `
 host.append(intro);
 const note = intro.querySelector('.design-note');
 const tokenBox = intro.querySelector('.design-token'), keyInfo = intro.querySelector('.design-keyinfo');
-const syncKey = () => { keyInfo.hidden = !getToken(); };
+const syncKey = () => { keyInfo.hidden = !getToken(); status(); };
+// Où en sont les dessins : ce que le dépôt publie (donc tous les appareils), ce qui n'est que ici
+function status() {
+  const src = DESIGNS.map(d => designSource(d.name));
+  const pub = src.filter(s => s === 'depot').length, mine = src.filter(s => s === 'local').length;
+  intro.querySelector('.design-status').textContent =
+    `Publiés dans le jeu (visibles partout) : ${pub} · Retouchés ici, pas encore publiés : ${mine} · ` +
+    (getToken() ? 'Clé GitHub enregistrée sur cet appareil (pour publier).' : 'Pas de clé GitHub sur cet appareil (inutile pour voir, nécessaire pour publier).');
+}
 syncKey();
 async function runPublish() {
   const n = pending().length;
@@ -75,7 +84,7 @@ async function runPublish() {
   btn.disabled = true;
   try {
     const done = await publish(t => { note.textContent = t; });
-    note.textContent = `Publié : ${done} dessin${done > 1 ? 's' : ''}. Dans le jeu sur tous les appareils d'ici une à dix minutes (le temps que GitHub republie le site).`;
+    note.textContent = `Publié : ${done} dessin${done > 1 ? 's' : ''}. Dans le jeu sur tous les appareils d'ici une à dix minutes (le temps que GitHub republie le site) ; rechargez la page sur l'autre appareil.`;
   } catch (e) {
     note.textContent = e.message;
     if (/jeton|Jeton/.test(e.message)) { setToken(''); syncKey(); tokenBox.hidden = false; }
@@ -203,6 +212,7 @@ function refresh(name, el = cells.get(name)) {
   const src = designSource(name);
   el.querySelector('.design-src').textContent = src === 'local' ? 'Retouché ici' : src === 'depot' ? 'Publié dans le jeu' : '';
   el.classList.toggle('mine', src === 'local');
+  if (typeof status === 'function' && intro.isConnected) status();
   el.querySelector('[data-reset]').hidden = src !== 'local';
 }
 

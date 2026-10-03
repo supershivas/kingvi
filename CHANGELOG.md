@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.40.1 — 2026-10-03
+- Onglet Dessins : une ligne dit combien de dessins sont publiés (visibles partout) et combien ne sont retouchés que sur cet appareil
+
 ## 1.40.0 — 2026-10-03
 - Onglet Dessins : « Publier pour tous » écrit les dessins retouchés dans le dépôt du jeu (un seul commit), pour qu'ils apparaissent sur tous les appareils
 - Une clé GitHub à coller une seule fois, limitée à ce dépôt, avec un guide pas à pas

@@ -7,8 +7,8 @@
 
    `openPixelEditor({ name, label, original, rows, onSave, onReset })` ouvre
    l'éditeur ; `onSave(rows)` est appelé après chaque trait. */
-import { gamePalette } from './design-store.js?v=1.40.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.40.0';
+import { gamePalette } from './design-store.js?v=1.40.1';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.40.1';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };

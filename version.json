@@ -1,8 +1,7 @@
 {
-  "version": "1.40.0",
+  "version": "1.40.1",
   "date": "2026-10-03",
   "changes": [
-    "Labo, onglet Dessins : « Publier pour tous » envoie vos dessins dans le jeu, sur tous les appareils, sans passer par Claude",
-    "Une clé GitHub à coller une seule fois (le guide s'affiche), limitée à ce dépôt"
+    "Onglet Dessins : une ligne dit ce qui est publié (visible partout) et ce qui n'est retouché que sur cet appareil"
   ]
 }
