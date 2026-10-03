@@ -424,10 +424,15 @@ body {
 .notches:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* ── Inventaire : les reliques en cases, les manquantes en creux ── */
-.inv-slots { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
-.inv-slot { width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--game-night); background: rgba(31,42,68,.12); cursor: pointer; padding: 0; }
-.inv-slot:hover, .inv-slot:focus-visible { background: rgba(31,42,68,.22); outline: 2px solid var(--accent); }
-.inv-slot canvas { image-rendering: pixelated; display: block; }
-.inv-slot.empty canvas { filter: brightness(0); opacity: .2; }
+#inventory.modal.stone { max-width: 600px; }
+.inv-count { margin: 0; }
+.inv-belt { position: relative; width: 100%; margin: 12px 0 6px; }
+.inv-belt > canvas, .belt-hook canvas, .belt-ghost { image-rendering: pixelated; display: block; }
+.belt-hook { position: absolute; display: flex; align-items: flex-start; justify-content: center; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; }
+.belt-hook.free { cursor: pointer; }
+.belt-hook:hover, .belt-hook:focus-visible, .belt-hook.over { outline: 2px dashed var(--game-night); outline-offset: -2px; }
+.belt-hook.held { outline: 2px solid var(--accent); outline-offset: -2px; }
+.belt-hook.dragging canvas { opacity: .25; }
+.belt-ghost { position: fixed; z-index: 1000; pointer-events: none; transform: translate(-50%, -30%); }
 .inv-name { font-weight: 600; margin: 0; min-height: 1.4em; }
 #open-inventory.new { color: var(--accent); }

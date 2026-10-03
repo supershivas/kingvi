@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.45.0 — 2026-10-03
+- Chapitre VIII, L'incendie : l'autre mort, on revient à la maison et on met le feu au corps du compagnon (clic près de lui). La fumée chasse de la pièce, le toit brûle et s'effondre ; dans les cendres, une nouvelle relique
+- Chapitre IX, La falaise : une sente en lacets dans la face, qu'on gravit sous les chutes de pierres (un filet de neige les annonce) ; en haut, un plateau
+- Chapitre XI, Le megamoth : un papillon de nuit géant qui tourne autour de la torche et plonge pour l'éteindre ; on ne l'atteint que quand il plonge
+- Les reliques pendent à la ceinture du viking : dans l'inventaire, on les déplace d'un crochet à l'autre (glisser, ou clic puis clic)
+- L'endurance est retirée pour le moment
+- Placeholders à redessiner dans l'atelier du labo : maison en feu, ruine, flammes, megamoth, pierre qui tombe, ceinture, la boucle et l'écaille
+
 ## 1.44.2 — 2026-10-03
 - Une relique a deux dessins : celui de l'inventaire (10 × 10) et celui qu'on voit à terre sur l'île (4 × 4 au plus), chacun redessinable dans l'atelier
 

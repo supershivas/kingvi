@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.44.2';
-import { WEATHER_PRESETS } from './weather.js?v=1.44.2';
-import { chapterById } from './chapters.js?v=1.44.2';
-import { audio } from './audio.js?v=1.44.2';
-import { THRONE, caveWalkable } from './cave.js?v=1.44.2';
-import { CHEST } from './crypt.js?v=1.44.2';
-import { ROOM_ENTRY } from './interior.js?v=1.44.2';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.45.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.45.0';
+import { chapterById } from './chapters.js?v=1.45.0';
+import { audio } from './audio.js?v=1.45.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.45.0';
+import { CHEST } from './crypt.js?v=1.45.0';
+import { ROOM_ENTRY } from './interior.js?v=1.45.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
-  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER,
-} from './world.js?v=1.44.2';
+  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
+} from './world.js?v=1.45.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -63,6 +63,8 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
   const zoneOf = () => {
     if (sc.inside) return `interieur:${INSIDE_NAMES[sc.inside] || sc.inside}`;
     if (sc.rowing) return 'lac';
+    if (sc.climb) return 'sente';
+    if (Math.hypot(sc.pos.x - MOTH_LAIR.x, sc.pos.y - MOTH_LAIR.y) < 220 && sc.pos.y < LEDGE.top.y + 4) return 'plateau';
     const { x, y } = sc.pos, end = trail.at(-1);
     if (x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) return 'falaise';
     if (Math.hypot(x - end.x, y - end.y) < 160) return 'autre';
@@ -144,6 +146,10 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
     viking: () => before(trail.at(-1), 170),
     falaise: () => nearFree({ x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 60 }),
     grotte: () => nearFree({ x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 14 }),
+    // Au pied de la sente, et en haut, sur le plateau ; le megamoth un peu plus loin
+    sente: () => nearFree({ x: LEDGE.bottom.x, y: LEDGE.bottom.y + 10 }),
+    plateau: () => ({ ...LEDGE.top }),
+    megamoth: () => nearFree({ x: MOTH_LAIR.x, y: MOTH_LAIR.y + 80 }),
     roi: () => nearFree({ x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 14 }),
     lac: () => lakeShore(),
     ilot: () => nearFree({ x: STATUE3_DOOR_OUT.x, y: STATUE3_DOOR_OUT.y + 6 }),
@@ -236,6 +242,10 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
       x: Math.round(sc.pos.x * 10) / 10, y: Math.round(sc.pos.y * 10) / 10, zone: zoneOf(),
       dedans: sc.inside ? INSIDE_NAMES[sc.inside] : null, enBarque: !!sc.rowing,
       pv: sc.dead ? 0 : sc.hp, pvMax: sc.maxHp, endurance: Math.round(sc.stamina * 100) / 100,
+      sente: sc.climb ? Math.round(sc.climb.t) : null,
+      incendie: sc.fire == null ? null : Math.round(sc.fire * 10) / 10,
+      megamoth: { etat: sc.moth.state, pv: sc.moth.hp, haut: Math.round(sc.moth.alt), x: Math.round(sc.moth.pos.x), y: Math.round(sc.moth.pos.y) },
+      ceinture: [...(sc.belt || [])],
       mort: !!sc.dead, attaque: !!sc.attacking, court: !!sc.running,
       ennemi: { pv: f.hp, etat: f.state, vivant: f.alive, engage: !!f.engaged, x: Math.round(f.pos.x), y: Math.round(f.pos.y),
         distance: Math.round(Math.hypot(f.pos.x - sc.pos.x, f.pos.y - sc.pos.y)) },
@@ -243,7 +253,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
         loups: p.wolves.map(w => ({ etat: w.state, x: Math.round(w.pos.x), y: Math.round(w.pos.y) })) },
       vent: game.windPhase() || 'cycle',
       jour: d.phase, nuit: Math.round(d.night * 100) / 100, heureCycle: Math.round(((dayClock() % DAY_LENGTH) + DAY_LENGTH) % DAY_LENGTH),
-      torche: (sc.torchOn || 0) > 0.5,
+      torche: (sc.torchOn || 0) > 0.5, torcheSoufflee: (sc.torchOut || 0) > 0,
       chapitres: [...sc.chapters], compteur: { ...sc.tally },
       drapeaux: { foeDead: !f.alive, chestOpen: !!sc.chestOpen, watcherGone: !!sc.watcherGone, kingBowed: !!sc.kingBowed },
       distance: Math.round(sc.distance), tempsJeu: Math.round(gameTime * 10) / 10,
@@ -270,11 +280,16 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
       watcher: !!(sc.watcherGone || sc.watcher?.fading), chest: !!sc.chestOpen, king: !!sc.kingBowed,
       torch: (sc.torchOn || 0) > 0.5, chapters: sc.chapters.size, trees: sc.tally.trees, rocks: sc.tally.rocks,
       day: sc.daylight?.phase, wind: game.windPhase(), flash: (sc.staminaFlash || 0) > 0.3,
+      climb: !!sc.climb, fire: sc.fire == null ? -1 : sc.fire >= 70 ? 2 : 1, moth: sc.moth.state, snuffed: (sc.torchOut || 0) > 0,
       title: !document.getElementById('title').hidden,
     };
     if (!prev) { prev = s; log('debut', { zone: s.zone, jour: s.day, vent: s.wind }); return; }
     const was = prev; prev = s;
     if (s.title !== was.title) log(s.title ? 'accueil' : 'entree-en-jeu');
+    if (s.climb !== was.climb) log(s.climb ? 'sente-montee' : 'sente-quittee');
+    if (s.fire !== was.fire) log(s.fire === 1 ? 'incendie' : s.fire === 2 ? 'toit-effondre' : 'feu');
+    if (s.moth !== was.moth) log('megamoth', { etat: s.moth });
+    if (s.snuffed && !was.snuffed) log('torche-soufflee');
     if (s.zone !== was.zone) log('zone', { de: was.zone, vers: s.zone });
     if (s.inside !== was.inside) {
       if (was.inside) log('sortie', { lieu: INSIDE_NAMES[was.inside] });

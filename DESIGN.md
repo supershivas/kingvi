@@ -57,8 +57,10 @@ souffle (sauf aux combats).
 | — | (le guetteur) | Plus loin, une grande silhouette encapuchonnée qui s'efface quand on approche ; ses pas s'arrêtent net | Une présence, sans explication |
 | VI | La maison | Une grande Freya debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
 | VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |
-| VIII | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte | Au-delà du récit des traces |
-| IX | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
+| VIII | L'incendie | L'autre mort, on revient à la maison et on met le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; une ruine qui fume, la boucle du compagnon dans les cendres | Le bûcher, le deuil |
+| IX | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte ; une sente en lacets dans la face, des pierres qui tombent (un filet de neige les annonce) | L'ascension, au-delà du récit des traces |
+| X | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
+| XI | Le megamoth | En haut de la falaise, un papillon de nuit géant posé comme une bosse de neige ; il s'éveille, tourne autour de la torche, plonge et la souffle. On ne l'atteint que quand il plonge | Ce qui vit dans le noir et cherche la lumière |
 | Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
@@ -86,11 +88,10 @@ portent une ombre opposée. Dans la grotte, il fait toujours nuit.
   ne sort que pendant l'attaque.
 - Bouton maintenu deux secondes : la neige se met à tourner autour des pieds,
   puis un coup tourbillonnant, un tour complet qui trace un anneau, puis un
-  souffle qui chasse la neige alentour ; il touche tout autour (plus
-  cher en endurance).
+  souffle qui chasse la neige alentour ; il touche tout autour.
 - Trois coups abattent l'autre viking, trois coups nous abattent ; un loup
   tombe en deux coups. On voit venir le coup de l'autre (il arme).
-- L'endurance (une barre au-dessus du viking) : frapper et courir la vident.
+- L'endurance est retirée pour le moment : frapper et courir ne coûtent rien.
 - Blessé, on saigne en marchant ; hors combat, les blessures se referment.
   À un point de vie, l'écran se teinte de rouge.
 - Pas de zoom de caméra, secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
@@ -114,7 +115,8 @@ quelques secondes quand le guetteur s'efface ou que le roi s'incline.
 
 ### L'interface qui existe
 Volontairement mince : l'écran d'accueil (titre gothique sur la mer de nuit),
-les chapitres, la barre d'endurance (seulement quand elle n'est pas pleine),
+les chapitres, l'inventaire (touche I : la ceinture du viking, où pendent
+les reliques ; on les déplace d'un crochet à l'autre),
 les points de vie (seulement en combat), le compteur d'arbres et de rochers
 (dès le premier), la teinte rouge à un point de vie, une consigne de
 commandes qui s'efface d'elle-même. Un curseur de qualité de l'image (de

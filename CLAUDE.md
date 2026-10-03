@@ -75,8 +75,26 @@ noir se referme sur le corps (`shutIris`), « Vous êtes mort » s'inscrit, on
 repart de la barque (`onDeath` → `die` dans `main.js`, `respawn`), le noir se
 rouvre quand l'île est prête, et les chapitres s'inscrivent de nouveau.
 Tant que l'iris bouge ou couvre l'écran, le jeu est en pause (`irisBusy`). Quand on s'éloigne d'un cadavre, des corbeaux s'y
-abattent (l'autre viking, et les loups tués). Plus loin, une falaise gigantesque face au sud, faite de pans
-avancés ou reculés, et l'entrée d'une grotte : on y entre (il y fait toujours
+abattent (l'autre viking, et les loups tués). **L'incendie** : l'autre mort, on revient à la maison ; un clic près du corps,
+dans la pièce, met le feu au bûcher (`lightPyre`, `js/fire.js` : `FIRE`, les
+durées) ; la fumée de la pièce blesse au bout de 14 s (il faut sortir) ;
+dehors, les flammes gagnent le toit, fumée tramée qui file au vent
+(`drawSmoke`), escarbilles, la nuit s'ouvre autour (`firelight`), crépitements
+(`audio.fire`) ; le toit s'effondre (`collapseHouse`) : ruine qui fume, neige
+fondue (`meltSnow`), la boucle du compagnon dans les cendres ; on n'entre plus
+(`fire` dans la sauvegarde : secondes de feu, null si jamais).
+Plus loin, une falaise gigantesque face au sud, faite de pans
+avancés ou reculés, une **sente** taillée en lacets dans la face (`LEDGE`,
+`ledgeAt` dans `world.js`, peinte dans les tranches de la falaise) : on y
+monte en marchant vers la roche au pied (`LEDGE.bottom`) ou vers le bord en
+haut (`LEDGE.top`) ; dessus, on ne fait qu'avancer ou reculer (`climb`,
+`climbStep`, `CLIMB`), dessiné devant toute la falaise (`baseDepth`) ; des
+pierres tombent du rebord, annoncées par un filet de neige (`updateRockfall`).
+En haut, le plateau du **megamoth** (`js/moth.js`, `MOTH_LAIR`) : un papillon
+de nuit géant posé (une bosse de neige), qui s'éveille à l'approche, tourne
+autour de la torche, plonge et la souffle (`snuffTorch`, `torchOut` : 7 s de
+noir) ; on ne l'atteint que quand il plonge ; `MOTH_HP` (4) coups l'abattent
+(`mothDead`, l'écaille). Et l'entrée d'une grotte : on y entre (il y fait toujours
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
 ossements, et au fond, dans une grande salle, un roi squelette immense sur son
 trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et sa
@@ -93,12 +111,14 @@ d'une ombre bleu nuit discrète (lisible sur la neige comme sur la mer), qui
 apparaît et s'efface en fondu, sans fond ni mouvement (`CHAPTER_STYLE`
 `sobre`). I La grève, II La plaine
 des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
-VI La maison, VII L'autre (il vient au contact), VIII La falaise (après lui),
-IX Le roi sous la roche (dans la grotte) ; Interlude, Le lac (en barque).
+VI La maison, VII L'autre (il vient au contact),
+VIII L'incendie (le feu pris, près de la maison), IX La falaise (sur la
+sente, ou près de la falaise après lui), X Le roi sous la roche (dans la
+grotte), XI Le megamoth (il s'éveille) ; Interlude, Le lac (en barque).
 Hors des combats, la musique se tait un instant (`checkChapters` dans
 `game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
-Une barre d'endurance au-dessus du viking (frapper et courir la vident,
-`STAMINA`) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
+L'endurance est retirée pour le moment (`STAMINA_ON = false` dans `game.js` :
+courir et frapper ne coûtent rien, pas de barre ; le code reste) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
 `.hurt`). Les secousses d'écran sont minimes (`jolt` : rien pour la neige, le bois ou la pierre ; un pixel du jeu tout au plus, un instant, pour un vrai coup). À l'intérieur, la cape
 ne bat pas.
 La nuit, le viking sort une torche : le voile de nuit s'ouvre en paliers
@@ -156,7 +176,7 @@ tour complet lame sortie, qui trace un anneau épais et bosselé (`whirlArc`,
 moitié derrière, moitié devant le viking), puis un souffle : une onde qui
 s'élargit en se déchirant (`blastRing`), la neige soufflée, les flocons
 chassés (`weather.blast`) ; il touche une fois tout ce qui est autour (l'autre
-viking, chaque loup ; les arbres tremblent) et coûte plus d'endurance
+viking, chaque loup ; les arbres tremblent) et coûterait plus d'endurance (retirée pour le moment)
 (`whirl`, `whirlStrike`, `STAMINA.whirl`). Sur écran tactile : la croix
 pour marcher (au bord pour courir), toucher l'écran pour frapper. L'épée
 est cachée et ne sort que pendant l'attaque.
@@ -178,7 +198,8 @@ est cachée et ne sort que pendant l'attaque.
 - Données : `localStorage` uniquement (`kingvi:island` : le numéro de l'île de la partie, tiré à « Nouveau jeu » ; `kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
-  `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
+  `wolvesDead` (loups tués, là où ils sont tombés), `fire` (l'incendie),
+  `mothDead` (le megamoth abattu, là où il est tombé), `belt` (la ceinture), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
@@ -251,7 +272,8 @@ est cachée et ne sort que pendant l'attaque.
   pied, pas la hauteur de l'objet.
 - `js/design-store.js`, `js/designs.js`, `js/labo-designs.js`,
   `js/pixel-editor.js`, `assets/design/` — **les dessins redessinables à la
-  main** (atelier : l'asset choisi à gauche, les dossiers à droite avec recherche, aide dans une boîte « ? » ; **assets créés** : `addCustom`, nom `custom-<id>` ou `custom-<id>-<n>`, type décor / animation / relique / autre, taille 4 → 160, catalogue dans `kingvi:custom` et `assets/design/custom.json`, publiés avec le reste ; dossiers « Mes … »), dans l'onglet Dessins du labo (6 groupes, 129 images : éléments du
+  main** (atelier : l'asset choisi à gauche, les dossiers à droite avec recherche, aide dans une boîte « ? » ; **assets créés** : `addCustom`, nom `custom-<id>` ou `custom-<id>-<n>`, type décor / animation / relique / autre, taille 4 → 160, catalogue dans `kingvi:custom` et `assets/design/custom.json`, publiés avec le reste ; dossiers « Mes … »), dans l'onglet Dessins du labo (10 groupes, 159 images, dont les placeholders de
+l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques : éléments du
   décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
   cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
   rochers et statues restent générés**). Un **éditeur de pixels intégré**
@@ -376,10 +398,24 @@ est cachée et ne sort que pendant l'attaque.
   le roi (`knockKing`, dans la grotte), le médaillon posé sur la table de la
   maison (visible seulement dedans), le sceau qui jaillit du coffre de la crypte,
   l'anneau de l'autre viking et la dent du premier loup abattu (`checkBodyRelics` :
-  aussi pour ce qui était déjà fait avant le chargement, sans chute). Sauvegarde : `relics`, `relicDrops`
-  (tombées, pas ramassées). Inventaire : touche I ou le sac de l'en-tête
-  (`#inventory`, `renderInventory` dans `main.js`, `game.relics()` ; pause
-  pendant qu'il est ouvert), `onRelic` → un toast.
+  aussi pour ce qui était déjà fait avant le chargement, sans chute), la boucle dans les cendres
+  de la maison, l'écaille du megamoth. Sauvegarde : `relics`, `relicDrops`
+  (tombées, pas ramassées), `belt`. **Les reliques pendent à la ceinture du
+  viking** (invisible en jeu) : `BELT_SLOTS` (10) crochets, un id ou null
+  chacun (`normalBelt`, une trouvaille au premier crochet libre). Inventaire :
+  touche I ou le sac de l'en-tête (`#inventory`, `renderInventory` dans
+  `main.js` : la ceinture dessinée (`BELT`, dessin `ceinture` de l'atelier),
+  agrandie d'un facteur entier ; on y déplace les reliques par glisser-déposer
+  ou clic puis clic, `game.belt()`, `game.moveRelic(de, vers)` ; pause pendant
+  qu'il est ouvert), `onRelic` → un toast.
+- `js/fire.js` — l'incendie : `FIRE` (les temps), flammes `FIRE_FRAMES`,
+  `HOUSE_BURNING`, `HOUSE_RUIN` (générés d'après la maison), où poser les
+  flammes (`ROOF_FLAMES`, `RUIN_FLAMES`, `ROOM_FLAMES`), le bûcher (`PYRE`,
+  `nearPyre`). Placeholders à redessiner (dossier « L'incendie »).
+- `js/moth.js` — le megamoth : dessins placeholders (`MOTH_FRAMES` : posé,
+  quatre temps de vol, à terre ; dossier « Le megamoth »), `createMoth`
+  (repos, éveil, orbite autour de la flamme, plongée, recul, retour au nid,
+  chute) ; l'ombre au sol tramée, accrochée au monde.
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
   Le fond derrière le titre : `CHAPTER_STYLE` (G, sobre : pas de fond, dans

@@ -4,32 +4,36 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.44.2';
+} from './viking.js?v=1.45.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
-  deckLift, PIER_MOOR,
-} from './world.js?v=1.44.2';
-import { createPack } from './pack.js?v=1.44.2';
-import { createGround } from './ground.js?v=1.44.2';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.2';
-import { chapterById } from './chapters.js?v=1.44.2';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.2';
-import { BUNDLE, WATCHER } from './grove.js?v=1.44.2';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.2';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.2';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.2';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.2';
-import { RELICS, RELIC_GROUND_SIZE, relicDesign, relicGround, relicById } from './relics.js?v=1.44.2';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.2';
-import { createFauna } from './fauna.js?v=1.44.2';
-import { createWeather } from './weather.js?v=1.44.2';
-import { createSea } from './sea.js?v=1.44.2';
-import { audio } from './audio.js?v=1.44.2';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.2';
+  deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE,
+} from './world.js?v=1.45.0';
+import { createPack } from './pack.js?v=1.45.0';
+import { createGround } from './ground.js?v=1.45.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.45.0';
+import { chapterById } from './chapters.js?v=1.45.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.45.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.45.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.45.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.45.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.45.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.45.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.45.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.45.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.45.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.45.0';
+import { createFauna } from './fauna.js?v=1.45.0';
+import { createWeather } from './weather.js?v=1.45.0';
+import { createSea } from './sea.js?v=1.45.0';
+import { audio } from './audio.js?v=1.45.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.45.0';
 
 const Phaser = window.Phaser;
+// La trame 4 × 4 (fumée de l'incendie), accrochée au monde
+const DITHER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
 const RUN = 2.4;               // Maj enfoncée : il court
@@ -46,6 +50,12 @@ const DEPTH_ROOM = 5e5;
 // que rend une seconde de repos ; le temps avant qu'elle revienne ; à bout
 // de souffle, ce qu'il faut retrouver avant de pouvoir courir de nouveau
 const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5, second: 0.35 };
+// L'endurance est retirée pour le moment : courir et frapper ne coûtent rien,
+// la barre ne s'affiche plus (le code reste, prêt à revenir)
+const STAMINA_ON = false;
+// La sente de la falaise : on y monte moins vite ; les pierres qui tombent
+// (une toutes les `every` secondes environ, annoncée par un filet de neige)
+const CLIMB = { speed: 0.55, every: [3.5, 7], warn: 1.1 };
 // La logique avance par pas fixes ; au-delà d'une demi-seconde d'un coup
 // (onglet revenu, gel), le temps est perdu plutôt que rattrapé
 const STEP = 1 / 60, MAX_FRAME = 0.5;
@@ -208,12 +218,28 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
       // La maison, vers le bout des traces
       this.house = this.add.image(HOUSE.x, HOUSE.y + 1, 'house').setOrigin(0.5, 1).setDepth(HOUSE.y);
+      // ── L'incendie : `save.fire`, les secondes de feu depuis qu'il a pris (null : jamais) ──
+      this.fire = typeof save.fire === 'number' ? save.fire : null;
+      const HL = HOUSE.x - HOUSE_ART[0].length / 2, HT = HOUSE.y + 1 - HOUSE_ART.length;
+      const flame = f => this.add.image(HL + f.x + 0.5, HT + f.y + 1, 'feu-0').setOrigin(0.5, 1).setVisible(false);
+      this.roofFlames = ROOF_FLAMES.map(flame);
+      this.ruinFlames = RUIN_FLAMES.map(flame);
+      this.smokePuffs = [];
+      this.smokeG = this.add.graphics().setDepth(DEPTH_SKY - 3);
+      this.fireSparks = this.add.particles(0, 0, 'blood', {
+        lifespan: { min: 700, max: 1600 }, speedX: { min: 2, max: 18 }, speedY: { min: -38, max: -14 },
+        gravityY: -6, alpha: { start: 1, end: 0 }, emitting: false,
+      }).setDepth(DEPTH_SKY - 2);
+      if (this.fire != null && this.fire >= FIRE.collapse) this.meltSnow();
       for (const I of Object.values(INTERIORS)) {
         I.black = this.add.rectangle(I.at.x - 700, I.at.y - 500, I.w + 1400, I.h + 1000, hex(palette.k))
           .setOrigin(0, 0).setDepth(DEPTH_ROOM - 2).setVisible(false);
         I.image = this.add.image(I.at.x, I.at.y, I.key).setOrigin(0, 0).setDepth(DEPTH_ROOM - 1).setVisible(false);
       }
       this.doorArmed = true;
+      // Le feu dans la pièce, autour du corps
+      const RA = INTERIORS.house.at;
+      this.roomFlames = ROOM_FLAMES.map(f => this.add.image(RA.x + f.x + 0.5, RA.y + f.y + 1, 'feu-0').setOrigin(0.5, 1).setDepth(DEPTH_ROOM + RA.y + f.y + 0.5).setVisible(false));
       // Le coffre de la crypte
       const C = INTERIORS.crypt;
       this.chestOpen = !!save.chestOpen;
@@ -282,6 +308,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // ── Les reliques : trouvées (inventaire) ou tombées et pas encore ramassées ──
       this.relics = new Set(save.relics || []);
       this.relicDrops = { ...(save.relicDrops || {}) };
+      // Ce qu'on a trouvé pend à la ceinture (un crochet chacun ; on les déplace dans l'inventaire)
+      this.belt = this.normalBelt(save.belt);
       this.drops = [];
 
       // ── Le bosquet sacré : les offrandes pendues, le guetteur ──
@@ -326,6 +354,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         if (isPaused() || this.dead || this.rowing || p.button !== 0) return;
         // Dans la crypte, un clic près du coffre l'ouvre
         if (this.inside === 'crypt' && !this.chestOpen && this.nearChest()) { this.openChest(); return; }
+        // Dans la maison, l'autre mort, un clic près du corps : le bûcher
+        if (this.inside === 'house' && this.fire == null && !this.foe.alive && this.nearBody()) { this.lightPyre(); return; }
         this.attack(p.worldX, p.worldY);
         // Maintenu, le bouton arme le coup tourbillonnant
         this.charge = { t: 0 };
@@ -363,6 +393,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         bleed: (x, y, n) => this.bleed(x, y, n),
         print: (x, y) => this.wolfPrint(x, y),
       });
+      // ── Le megamoth, sur le plateau en haut de la falaise ──
+      this.mothDead = save.mothDead || null;
+      this.moth = createMoth(this, {
+        lair: MOTH_LAIR, dead: this.mothDead, palette,
+        onWake: () => { audio.play('presence'); audio.hush(5); },
+        onSnuff: () => this.snuffTorch(),
+        onHit: dir => { audio.play('flesh'); audio.play('rustle'); this.jolt(0.003); },
+        onFall: () => audio.play('rustle'),
+        onDie: at => { this.mothDead = at; audio.play('snow'); this.persist(); },
+        onFlap: d => { if (d < 150) audio.play('flap', { v: 1 - d / 150 }); },
+      });
 
       this.time.addEvent({ delay: 4000, loop: true, callback: () => this.persist() });
 
@@ -373,6 +414,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // creuse un halo de lumière
       this.makeShade(256, 256);
       this.lightStamp = this.make.image({ key: 'torchlight-0-0' }, false).setOrigin(0.5);
+      this.fireStamp = this.make.image({ key: 'firelight-0-0' }, false).setOrigin(0.5);
+      this.fireGlow = this.add.image(HOUSE.x, HOUSE.y - 14, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setScale(2.4, 1.5).setAlpha(0);
       this.glow = this.add.image(0, 0, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setAlpha(0);
       this.torchOn = 0;
       this.flame = this.add.graphics();
@@ -478,6 +521,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       for (const [k, rows] of Object.entries(BOAT_FRAMES)) art(`boat-${k}`, rows);
       art('boat2', BOAT2);
       art('house', HOUSE_ART);
+      art('house-burning', HOUSE_BURNING);
+      art('house-ruin', HOUSE_RUIN);
+      FIRE_FRAMES.forEach((rows, i) => art(`feu-${i}`, rows));
+      for (const [k, rows] of Object.entries(MOTH_FRAMES)) art(mothKey(k), rows);
+      art('pierre-chute', FALLING_STONE);
       art('room', ROOM);
       art('crypt', CRYPT);
       art('cave', CAVE_ROOM);
@@ -504,6 +552,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // La lumière de la torche, sa trame calée sur les 4 × 4 positions
       // possibles du monde (elle ne glisse pas quand on marche)
       for (let oy = 0; oy < 4; oy++) for (let ox = 0; ox < 4; ox++) this.textures.addCanvas(`torchlight-${ox}-${oy}`, torchLight(1, ox, oy));
+      // La lumière de l'incendie : la même, en bien plus grand
+      for (let oy = 0; oy < 4; oy++) for (let ox = 0; ox < 4; ox++) this.textures.addCanvas(`firelight-${ox}-${oy}`, torchLight(1.9, ox, oy));
       art('dust', ['b']);
       art('snowdust', ['s']);
     }
@@ -537,6 +587,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // la hauteur du dessus en un instant : on y monte, on en descend)
     // `alpha` (0 → 1) : où l'on en est entre les deux derniers pas de logique ;
     // sans lui (téléportation, tour sur soi), on se pose là où l'on est
+    // La profondeur du viking : celle de ses pieds ; dans une pièce, au-dessus
+    // du dehors ; sur la sente, devant toute la falaise
+    baseDepth() { return this.climb ? CLIFF.y + 60 : this.pos.y + (this.inside ? DEPTH_ROOM : 0); }
+
     placePlayer(alpha) {
       let { x, y } = this.pos;
       const p = this.prevPos;
@@ -544,7 +598,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       else { x = p.x + (x - p.x) * alpha; y = p.y + (y - p.y) * alpha; }
       this.drawPos = { x, y };
       const px = Math.round(x), py = Math.round(y) - Math.round(this.lift || 0);
-      const depth = this.pos.y + (this.inside ? DEPTH_ROOM : 0);
+      const depth = this.baseDepth();
       this.player.setPosition(px + 0.5, py).setDepth(depth);
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
       const a = this.capeAnchor[this.player.frame.name];
@@ -596,7 +650,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     // ── L'endurance : courir et frapper la vident ; elle revient au pas ──
-    useStamina(k) { this.stamina = Math.max(0, this.stamina - k); this.staminaRest = STAMINA.rest; }
+    useStamina(k) { if (!STAMINA_ON) return; this.stamina = Math.max(0, this.stamina - k); this.staminaRest = STAMINA.rest; }
     updateStamina(dt) {
       if (this.running && (this.moved || this.rowing)) this.useStamina(STAMINA.run * dt);
       this.staminaRest = Math.max(0, (this.staminaRest || 0) - dt);
@@ -605,12 +659,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
     // La barre : sous les marques de vie, seulement quand elle n'est pas pleine
     drawStamina() {
-      const g = this.staminaBar, show = (this.stamina < 0.999 || this.staminaFlash) && !this.dead && !this.rowing;
+      const g = this.staminaBar, show = STAMINA_ON && (this.stamina < 0.999 || this.staminaFlash) && !this.dead && !this.rowing;
       g.clear();
       if (!show) return;
       const at = this.drawPos || this.pos;
       const x = Math.round(at.x) - 4, y = Math.round(at.y - (this.lift || 0)) - 12;
-      g.setDepth(this.pos.y + 0.03 + (this.inside ? DEPTH_ROOM : 0));
+      g.setDepth(this.baseDepth() + 0.03);
       g.fillStyle(hex(palette.b), 0.22); g.fillRect(x, y, 9, 1);
       g.fillStyle(hex(this.staminaFlash > 0 && Math.floor(this.staminaFlash * 8) % 2 ? palette.r : palette.b), 0.9);
       g.fillRect(x, y, Math.round(9 * this.stamina), 1);
@@ -664,7 +718,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const at = this.drawPos || this.pos;
       const x = at.x, y = at.y - (this.lift || 0);
       const n = Math.round(3 + k * 14), spin = c.t * (3 + k * 9);
-      g.setDepth(this.pos.y + 0.6);
+      g.setDepth(this.baseDepth() + 0.6);
       for (let i = 0; i < n; i++) {
         const a = spin + i / n * Math.PI * 2, wob = Math.sin(i * 12.9898) * 2;   // pas un cercle : un remous
         const px = Math.round(x + Math.cos(a) * (9 + wob)), py = Math.round(y - 2 + Math.sin(a) * (5 + wob * 0.5));
@@ -685,8 +739,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // L'anneau de la lame se trace pendant le tour : la moitié du fond
       // derrière le viking, celle de devant devant lui
       const cx = Math.round(this.pos.x), cy = Math.round(this.pos.y - (this.lift || 0)) - 3;
-      const back = this.add.graphics().setPosition(cx, cy).setDepth(this.pos.y - 0.2);
-      const front = this.add.graphics().setPosition(cx, cy).setDepth(this.pos.y + 0.6);
+      const back = this.add.graphics().setPosition(cx, cy).setDepth(this.baseDepth() - 0.2);
+      const front = this.add.graphics().setPosition(cx, cy).setDepth(this.baseDepth() + 0.6);
       const steps = [...WHIRL_TURN, WHIRL_TURN[0]], STEP = 48;
       steps.forEach(([view, flip], i) => this.time.delayedCall(i * STEP, () => {
         if (this.dead) return;
@@ -719,7 +773,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
       // Le souffle : une onde qui part de lui et se déchire en s'élargissant,
       // la neige du sol soufflée tout autour, les flocons chassés
-      const wave = this.add.graphics().setPosition(x, y - 1).setDepth(this.pos.y + 0.7);
+      const wave = this.add.graphics().setPosition(x, y - 1).setDepth(this.baseDepth() + 0.7);
       const seed = Math.random() * 10;
       this.tweens.addCounter({
         from: 12, to: 46, duration: 520, ease: 'Quad.easeOut',
@@ -759,6 +813,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           this.spurt(w.pos.x, w.pos.y - 3, dir, down ? 22 : 12);
           if (down) { this.pool(w.pos.x, w.pos.y); this.persist(); }
         }
+        // Le megamoth, s'il plonge tout près
+        if (!hits.has('moth') && !this.inside && this.moth.hitAt(bx, by - 8, dir, true)) {
+          hits.add('moth'); flesh = true;
+          this.moth.hitAt(this.moth.pos.x, this.moth.pos.y - this.moth.alt - 3, dir);
+        }
         // Les arbres tout près tremblent et perdent leur neige
         const s = !this.inside && this.struckObject(bx, by);
         if (s?.kind === 'tree' && !hits.has(s.o)) { hits.add(s.o); this.shakeTree(s.o, dir); audio.play('wood'); }
@@ -776,7 +835,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       audio.play('swing');
       const dir = this.flip ? -1 : 1;
       const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
-      const g = this.add.graphics().setDepth(this.pos.y + 0.5);
+      const g = this.add.graphics().setDepth(this.baseDepth() + 0.5);
       for (const p of smearPixels(this.swingView)) {
         g.fillStyle(hex(palette.b), p.a);
         g.fillRect(x + p.x * dir, y + p.y, 1, 1);
@@ -974,7 +1033,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // Le roi mort, dans la grotte : sa poitrine rend le rubis
       if (this.inside === 'cave' && this.knockKing(x, y, dir, view)) return;
       // L'autre viking d'abord ; sinon, un arbre ou une pierre sous la lame ?
-      if (!this.foe.hitAt(x, y, dir || 1, true) && !this.pack.hitAt(x, y, dir || 1, true) && !this.inside) {
+      if (!this.foe.hitAt(x, y, dir || 1, true) && !this.pack.hitAt(x, y, dir || 1, true) && !this.inside && !this.moth.hitAt(x, y, dir || 1, true)) {
         const struck = this.struckObject(x, y);
         if (struck?.kind === 'rock') {
           const o = struck.o;
@@ -1029,7 +1088,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // L'autre viking est-il sous la lame ?
       const hit = this.foe.hitAt(x, y, dir || 1);
       const wolf = !hit && !this.inside && this.pack.hitAt(x, y, dir || 1);
-      audio.play(hit || wolf ? 'flesh' : 'snow');
+      const moth = !hit && !wolf && !this.inside && this.moth.hitAt(x, y, dir || 1);
+      audio.play(hit || wolf || moth ? 'flesh' : 'snow');
       if (hit) {
         this.jolt(0.004);
         this.spurt(this.foe.pos.x, this.foe.pos.y - 5, dir || 1, this.foe.alive ? 18 : 30);
@@ -1133,6 +1193,15 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.cape.setVisible(true);
       this.foe.reset();
       this.pack.reset();
+      this.moth.reset();
+      this.climb = null; this.torchOut = 0;
+      // (tombé dans une pièce : la maison en feu)
+      if (this.inside) {
+        const I = INTERIORS[this.inside];
+        I.image.setVisible(false); I.black.setVisible(false); I.armed = false;
+        this.chest.setVisible(false); this.throne.setVisible(false);
+        this.inside = null;
+      }
       this.pos = { ...this.spawn };
       this.facing = 'side'; this.flip = false;
       this.placePlayer();
@@ -1167,6 +1236,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.lift = this.lift == null || Math.abs(lift - this.lift) > 30 ? lift
         : this.lift + Math.max(-1, Math.min(1, lift - this.lift)) * Math.min(Math.abs(lift - this.lift), 90 * dt);
       this.invuln = Math.max(0, this.invuln - dt);
+      this.torchOut = Math.max(0, (this.torchOut || 0) - dt);
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
         this.healClock = (this.healClock || 0) + dt;
@@ -1185,6 +1255,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.updateCharge(dt);
 
       if (this.rowing) this.row(mx, my, dt);
+      else if (this.climb) { if (!this.dead) this.climbStep(mx, my, dt); }
       else if (!this.attacking && !this.dead) {
         if (mx || my) {
           const len = Math.hypot(mx, my);
@@ -1199,6 +1270,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           else if (my && ok(x, ny)) this.pos.y = ny;
           this.checkDoor(mx, my);
           this.checkBoat(mx, my);
+          this.checkLedge(mx, my);
           if (this.inside === 'crypt' && my < 0 && !this.chestOpen && this.nearChest()) this.openChest();
           if (this.inside === 'cave' && !this.kingBowed && this.nearKing()) this.bowKing();
           this.drip(this.pos.x, this.pos.y, dt, this.hp);
@@ -1219,6 +1291,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.foe.update(dt, this, this.cape.frame.name);
       if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, dt, this.foe.hp);
       if (!this.inside) this.pack.update(dt, this);
+      const tp = this.torchPoint();
+      this.moth.update(dt, { px: this.pos.x, py: this.pos.y, tx: tp.x, ty: tp.y, lit: this.torchOn > 0.5 && !this.torchOut, away: !!this.inside || this.dead || this.rowing || isPaused() });
+      this.updateRockfall(dt);
     }
 
     // ── Une image : ce qu'on voit, à l'instant `alpha` entre deux pas ──
@@ -1234,6 +1309,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       if (this.windSound <= 0) {
         this.windSound = 200;
         audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7);
+        audio.fire(this.fireHeard());
         audio.setMood(this.musicMood());
       }
       if (!this.dead) this.placePlayer(alpha);
@@ -1244,6 +1320,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.drawCharge();
       this.foe.render(alpha);
       if (!this.inside) this.pack.render(alpha);
+      this.moth.setVisible(!this.inside);
+      if (!this.inside) this.moth.render(alpha);
       const at = this.drawPos || this.pos;
       drawPips(this.playerPips, at.x, at.y - (this.lift || 0), this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
       if (!this.inside) {
@@ -1262,6 +1340,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.swayClock = (this.swayClock || 0) - dt * 1000;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
+      this.updateFire(dt, time);
       this.updateRelics();
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
       if (this.chapterClock <= 0) { this.chapterClock = 400; this.checkChapters(); }
@@ -1302,7 +1381,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // La portée de la vue dans chaque direction (0,4 → 1 de l'ellipse de base)
     castSight(out) {
       const S = sightShape, N = SIGHT_N, { rx, ry } = S;
-      if (this.inside || this.dead) { out.fill(1); return; }
+      if (this.inside || this.dead || this.climb) { out.fill(1); return; }
       const px = this.pos.x, py = this.pos.y - 3, CELL = 3;
       const reach = Math.max(rx, ry) + 8, gx0 = Math.floor(px - reach), gy0 = Math.floor(py - reach);
       const gw = Math.ceil(reach * 2 / CELL) + 1, grid = this.sightGrid && this.sightGrid.length === gw * gw ? this.sightGrid : (this.sightGrid = new Float32Array(gw * gw));
@@ -1372,6 +1451,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       let energy;
       if (this.dead) energy = 0.05;                                         // on est tombé
       else if ((f.alive && f.engaged && dFoe < 140) || this.pack.engaged) energy = 1;   // le combat
+      else if (this.moth.engaged) energy = 0.7;                             // le megamoth tourne autour de la flamme
       else if (f.alive && dFoe < 320) energy = 0.55 + 0.4 * (1 - dFoe / 320);   // il est là, on le sent
       else if (this.foeDownAt != null && now - this.foeDownAt < 25000) energy = 0.12;   // après : le silence
       else if (this.inside) energy = 0.15;
@@ -1393,6 +1473,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       else if (this.pack.engaged) id = 'loups';
       else if (this.foe.alive && this.foe.engaged) id = 'autre';
       else if (this.rowing) id = 'lac';
+      else if (this.moth.engaged) id = 'megamoth';
+      else if (this.climb) id = 'falaise';
+      else if (this.fire != null && this.fire < FIRE.out && near(HOUSE, 220)) id = 'incendie';
       // (la falaise, après la rencontre au bout des traces)
       else if ((seen('autre') || !this.foe.alive) && x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) id = 'falaise';
       else if (near(HOUSE, 90)) id = 'maison';
@@ -1464,7 +1547,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     updateNight(dt, time) {
       // Dans la grotte, il fait toujours nuit (la torche est allumée)
       const dark = INTERIORS[this.inside]?.dark, night = dark ? 1 : this.daylight?.night || 0, t = time / 1000;
-      const want = night > 0.4 && !this.dead ? 1 : 0;
+      // (le megamoth l'a soufflée : elle se rallume après quelques secondes)
+      const want = night > 0.4 && !this.dead && !this.torchOut ? 1 : 0;
       this.torchOn += (want - this.torchOn) * Math.min(1, dt * 1.5);
       if (Math.abs(this.torchOn - want) < 0.01) this.torchOn = want;
       const lit = this.torchOn * night;
@@ -1501,13 +1585,28 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           this.shadows.setAlpha(veil);
           rt.draw(this.shadows, -rt.x, -rt.y);
         }
+        // L'incendie ouvre la nuit autour de la maison (ou, dedans, autour du bûcher)
+        const fl = this.fireLevel || 0, room = this.inside === 'house';
+        if (fl > 0.01 && (!this.inside || room)) {
+          const R = INTERIORS.house.at;
+          const fx = room ? R.x + PYRE.x : HOUSE.x, fy = room ? R.y + PYRE.y : HOUSE.y - 14;
+          // (dans la pièce, une lumière de la taille de la torche ; la trame reste accrochée au monde)
+          const kind = room ? 'torchlight' : 'firelight', src = this.textures.get(`${kind}-0-0`).source[0];
+          if (fx > v.x - src.width && fx < v.right + src.width && fy > v.y - src.height && fy < v.bottom + src.height) {
+            const ox = ((Math.round(fx - src.width / 2) % 4) + 4) % 4, oy = ((Math.round(fy - src.height / 2) % 4) + 4) % 4;
+            this.fireStamp.setTexture(`${kind}-${ox}-${oy}`).setPosition(Math.round(fx) - rt.x, Math.round(fy) - rt.y)
+              .setAlpha(Math.min(1, fl * (0.88 + 0.12 * flick)));
+            rt.erase(this.fireStamp);
+          }
+        }
       }
       this.glow.setPosition(tp.x, tp.y + 3).setScale(0.55, 0.38).setAlpha(0.1 * lit * flick);
+      this.fireGlow.setAlpha(this.inside ? 0 : 0.14 * (this.fireLevel || 0) * flick);
       // La flamme : un manche sombre, un cœur clair, des langues rouges
       const g = this.flame;
       g.clear();
       if (this.torchOn > 0.05 && !this.dead) {
-        g.setDepth(this.pos.y + (this.inside ? DEPTH_ROOM : 0) + (tp.behind ? -0.02 : 0.02));
+        g.setDepth(this.baseDepth() + (tp.behind ? -0.02 : 0.02));
         g.fillStyle(hex(palette.b), 1);
         g.fillRect(tp.x, tp.y + 1, 1, 3);
         const k = Math.floor(t * 12);
@@ -1562,6 +1661,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       if (this.moving) return;
       if (!this.inside) {
         for (const [key, I] of Object.entries(INTERIORS)) {
+          // (la maison brûle, ou n'est plus qu'une ruine : on n'y entre plus)
+          if (key === 'house' && this.fire != null) continue;
           const d = Math.hypot(this.pos.x - I.door.x, this.pos.y - I.door.y);
           if (d > 12) I.armed = true;
           // On y entre en marchant vers la porte
@@ -1580,6 +1681,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       cam.fadeOut(260, 31, 42, 68);
       cam.once('camerafadeoutcomplete', () => {
         this.pos = { x, y };
+        this.climb = null;
         then();
         this.placePlayer();
         cam.centerOn(x, y);
@@ -1674,7 +1776,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // Les reliques qui tombent d'un corps (l'autre viking, le premier loup), y compris
     // quand c'était déjà fait avant le chargement de la partie
     checkBodyRelics() {
-      const was = this.bodiesAtLoad || (this.bodiesAtLoad = { foe: !this.foe.alive, wolf: this.pack.deadList.length > 0, chest: this.chestOpen });
+      const was = this.bodiesAtLoad || (this.bodiesAtLoad = { foe: !this.foe.alive, wolf: this.pack.deadList.length > 0, chest: this.chestOpen, moth: !!this.mothDead, ruin: this.fire != null && this.fire >= FIRE.collapse });
+      // Le megamoth abattu : une écaille de son aile
+      const md = this.mothDead;
+      if (md && !this.relics.has('ecaille') && !this.relicDrops.ecaille) {
+        this.dropRelic('ecaille', was.moth ? null : { x: md.x, y: md.y - 4 }, this.bodySpot(md.x, md.y), null, 'snow');
+      }
+      // La maison effondrée : dans les cendres, devant la porte, la boucle du compagnon
+      if (this.fire != null && this.fire >= FIRE.collapse && !this.relics.has('boucle') && !this.relicDrops.boucle) {
+        const spot = nearestWalkable(HOUSE_DOOR_OUT.x + 4, HOUSE_DOOR_OUT.y + 7) || { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y + 8 };
+        this.dropRelic('boucle', was.ruin ? null : { x: HOUSE.x - 8, y: HOUSE.y - 14 }, spot, null, 'clang');
+      }
       if (!this.foe.alive && !this.relics.has('viking') && !this.relicDrops.viking && !this.dead) {
         const p = this.foe.pos;
         this.dropRelic('viking', was.foe ? null : { x: p.x, y: p.y - 5 }, this.bodySpot(p.x, p.y), null, 'clang');
@@ -1708,10 +1820,259 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       d.taken = true; d.ready = false;
       this.relics.add(d.id);
       delete this.relicDrops[d.id];
+      // (au premier crochet libre de la ceinture)
+      const hook = this.belt.indexOf(null);
+      if (hook >= 0 && !this.belt.includes(d.id)) this.belt[hook] = d.id;
       audio.play('clang');
       this.tweens.add({ targets: d.img, y: d.img.y - 10, alpha: 0, duration: 520, ease: 'Quad.easeOut', onComplete: () => d.img.destroy() });
       this.persist();
       onRelic(d.id, [...this.relics]);
+    }
+
+    // La ceinture : un id ou rien par crochet ; ce qui a été trouvé y pend
+    // toujours (une ancienne partie sans ceinture : au premier crochet libre)
+    normalBelt(saved) {
+      const seen = new Set();
+      const belt = Array.from({ length: BELT_SLOTS }, (_, i) => {
+        const id = Array.isArray(saved) ? saved[i] : null;
+        if (!id || seen.has(id) || !relicById(id) || !this.relics.has(id)) return null;
+        seen.add(id);
+        return id;
+      });
+      for (const id of this.relics) if (!seen.has(id) && relicById(id)) { const i = belt.indexOf(null); if (i >= 0) { belt[i] = id; seen.add(id); } }
+      return belt;
+    }
+
+    // ── L'incendie : le bûcher du compagnon, la maison qui brûle ──
+    nearBody() {
+      const H = INTERIORS.house.at;
+      return nearPyre(this.pos.x - H.x, this.pos.y - H.y);
+    }
+
+    // Il met le feu au corps : la torche, la paille, le plancher
+    lightPyre() {
+      this.fire = 0;
+      this.smokeIn = 0;
+      audio.play('ignite');
+      this.jolt(0.0015);
+      const H = INTERIORS.house.at;
+      this.embers.setConfig({ lifespan: { min: 200, max: 600 }, speed: { min: 10, max: 40 }, angle: { min: 220, max: 320 }, gravityY: -20, alpha: { start: 1, end: 0 }, emitting: false });
+      this.embers.explode(14, H.x + PYRE.x, H.y + PYRE.y - 2);
+      this.persist();
+    }
+
+    // Combien on entend le feu (0 → 1) : selon sa force et la distance
+    fireHeard() {
+      const fl = this.fireLevel || 0;
+      if (!fl) return 0;
+      if (this.inside === 'house') return fl;
+      if (this.inside) return 0;
+      return fl * Math.max(0, 1 - Math.hypot(this.pos.x - HOUSE.x, this.pos.y - HOUSE.y) / 360);
+    }
+
+    updateFire(dt, time) {
+      if (this.fire == null) { this.fireLevel = 0; return; }
+      const before = this.fire;
+      if (!isPaused()) this.fire += dt;
+      const t = this.fire, k = Math.floor(time / 110), outside = !this.inside;
+      // La maison : intacte, trouée par le feu, puis la ruine
+      const tex = t >= FIRE.collapse ? 'house-ruin' : t >= FIRE.spread * 0.6 ? 'house-burning' : 'house';
+      if (this.house.texture.key !== tex) this.house.setTexture(tex);
+      if (before < FIRE.collapse && t >= FIRE.collapse) this.collapseHouse();
+      // Les flammes gagnent le toit de la porte vers le fond ; dans la ruine, elles baissent
+      const ruinK = t < FIRE.collapse ? 0 : Math.max(0, 1 - (t - FIRE.collapse) / (FIRE.out - FIRE.collapse));
+      const nRoof = t < FIRE.roof || t >= FIRE.collapse ? 0 : Math.ceil(this.roofFlames.length * Math.min(1, (t - FIRE.roof + 1) / (FIRE.spread - FIRE.roof)));
+      const nRuin = Math.ceil(this.ruinFlames.length * ruinK);
+      const depth = this.house.depth + 0.05;
+      const show = (list, n, on) => list.forEach((im, i) => {
+        const v = on && i < n;
+        im.setVisible(v);
+        if (v) im.setTexture(`feu-${(k + i * 3) % 4}`).setDepth(depth);
+      });
+      show(this.roofFlames, nRoof, outside);
+      show(this.ruinFlames, nRuin, outside);
+      const nRoom = Math.min(this.roomFlames.length, 1 + Math.floor(t / 1.6));
+      this.roomFlames.forEach((im, i) => {
+        const v = this.inside === 'house' && t < FIRE.collapse && i < nRoom;
+        im.setVisible(v);
+        if (v) im.setTexture(`feu-${(k + i) % 4}`);
+      });
+      // Sa force (0 → 1) : la lumière, la fumée, le bruit ; des braises, à la fin
+      this.fireLevel = t < FIRE.roof ? 0.3 + 0.5 * t / FIRE.roof : t < FIRE.collapse ? 1 : 0.18 + 0.82 * ruinK;
+      // La fumée et les escarbilles, que le vent emporte
+      this.smokeClock = (this.smokeClock || 0) + dt;
+      if (this.smokeClock >= 0.066) {
+        const step = this.smokeClock;
+        this.smokeClock = 0;
+        const near = outside && Math.hypot(this.pos.x - HOUSE.x, this.pos.y - HOUSE.y) < 460;
+        const HL = HOUSE.x - HOUSE_ART[0].length / 2, HT = HOUSE.y + 1 - HOUSE_ART.length;
+        if (near) {
+          const spots = t < FIRE.collapse ? this.roofFlames.slice(0, Math.max(2, nRoof)) : this.ruinFlames;
+          const rate = 9 * this.fireLevel * step;
+          for (let n = rate + Math.random(); n >= 1; n--) {
+            const im = spots[Math.floor(Math.random() * spots.length)];
+            this.smokePuffs.push({ x: im.x + (Math.random() - 0.5) * 4, y: im.y - FIRE_H, age: 0, life: 3 + Math.random() * 2.5, a: 0.5 + 0.5 * this.fireLevel, v: Math.random() * 6 });
+          }
+          if (t < FIRE.out && Math.random() < 8 * this.fireLevel * step) this.fireSparks.explode(1, HL + 10 + Math.random() * (HOUSE_ART[0].length - 20), HT + 10 + Math.random() * 20);
+        }
+        if (this.inside === 'house' && t < FIRE.collapse) {
+          for (let n = 6 * step + Math.random(); n >= 1; n--) {
+            const im = this.roomFlames[Math.floor(Math.random() * nRoom)];
+            this.smokePuffs.push({ x: im.x, y: im.y - FIRE_H, age: 0, life: 2.5 + Math.random() * 2, a: 0.8, v: Math.random() * 4 });
+          }
+        }
+        this.drawSmoke(step);
+      }
+      // Dans la pièce, la fumée : il faut sortir ; et le toit s'effondre
+      if (this.inside === 'house' && !this.dead && !this.moving) {
+        if (!isPaused()) this.smokeIn = (this.smokeIn || 0) + dt;
+        if (this.smokeIn > FIRE.smoke) {
+          this.smokeHurt = (this.smokeHurt || 0) - dt;
+          if (this.smokeHurt <= 0) { this.smokeHurt = 3; this.hurt(this.flip ? 1 : -1); }
+        }
+        if (t >= FIRE.collapse) this.goOutside();
+      } else { this.smokeIn = this.inside === 'house' ? this.smokeIn : 0; this.smokeHurt = 0; }
+    }
+
+    // La fumée : des bouffées tramées (la trame accrochée au monde) qui
+    // montent, s'élargissent, pâlissent et filent vers l'est avec le vent
+    drawSmoke(dt) {
+      const g = this.smokeG, list = this.smokePuffs;
+      g.clear();
+      const drift = 3 + weather.wind * 0.09;
+      for (const p of list) { p.age += dt; p.y -= (8 + p.v) * dt; p.x += drift * dt * Math.min(1, p.age / 1.2); }
+      this.smokePuffs = list.filter(p => p.age < p.life);
+      g.fillStyle(hex(palette.b), 0.9);
+      for (const p of this.smokePuffs) {
+        const k = p.age / p.life, r = 1 + k * 4.5, dens = (1 - k) * (1 - k) * p.a * 0.85;
+        const cx = Math.round(p.x), cy = Math.round(p.y);
+        for (let y = Math.floor(-r); y <= r; y++) for (let x = Math.floor(-r * 1.3); x <= r * 1.3; x++) {
+          if ((x / 1.3) ** 2 + y * y > r * r) continue;
+          const px = cx + x, py = cy + y;
+          if (dens * 16 > DITHER[(py & 3) * 4 + (px & 3)] + 0.5) g.fillRect(px, py, 1, 1);
+        }
+      }
+    }
+
+    // Le toit s'effondre : un fracas, une gerbe d'escarbilles, la neige fond autour
+    collapseHouse() {
+      audio.play('collapse');
+      this.jolt(0.003);
+      this.fireSparks.explode(40, HOUSE.x, HOUSE.y - 18);
+      this.dust.setConfig({ lifespan: { min: 600, max: 1400 }, speed: { min: 10, max: 40 }, angle: { min: 200, max: 340 }, gravityY: 20, alpha: { start: 0.9, end: 0 }, emitting: false });
+      this.dust.explode(40, HOUSE.x, HOUSE.y - 6);
+      this.meltSnow();
+      this.persist();
+    }
+
+    // Autour de la ruine, la neige a fondu par plaques (marques permanentes)
+    meltSnow() {
+      let a = 9173;
+      const r = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
+      for (let i = 0; i < 160; i++) {
+        const ang = r() * Math.PI * 2, d = 0.7 + r() * 0.55;
+        const x = Math.round(HOUSE.x + Math.cos(ang) * 64 * d), y = Math.round(HOUSE.y - 16 + Math.sin(ang) * 36 * d);
+        if (!isLand(x, y)) continue;
+        ground.decal(x, y, 1 + Math.floor(r() * 3), 1, 'b', 0.15 + r() * 0.2);
+      }
+    }
+
+    // ── Le megamoth souffle la torche : le noir, quelques secondes ──
+    snuffTorch() {
+      this.torchOut = 7;
+      this.torchOn = 0;
+      audio.play('snuff');
+      const tp = this.torchPoint();
+      this.dust.setConfig({ lifespan: { min: 400, max: 1000 }, speed: { min: 4, max: 18 }, angle: { min: 230, max: 310 }, gravityY: -10, alpha: { start: 0.8, end: 0 }, emitting: false });
+      this.dust.explode(10, tp.x, tp.y);
+    }
+
+    // ── La sente de la falaise ──
+    // Au pied, en marchant vers la roche ; en haut, en marchant vers le bord
+    checkLedge(mx, my) {
+      if (this.inside || this.moving || this.rowing) return;
+      const b = LEDGE.bottom, t = LEDGE.top;
+      if (my < 0 && Math.hypot(this.pos.x - b.x, this.pos.y - b.y) < 7) this.startClimb(0);
+      else if (my > 0 && Math.hypot(this.pos.x - t.x, this.pos.y - t.y) < 7) this.startClimb(LEDGE.len);
+    }
+
+    startClimb(t) {
+      this.climb = { t, dir: t ? -1 : 1, rock: 2 + Math.random() * 2 };
+      const p = ledgeAt(t);
+      this.pos = { x: p.x, y: p.y };
+      this.prevPos = { ...this.pos };
+    }
+
+    // Sur la sente, on ne fait qu'avancer ou reculer : la touche qui va dans
+    // le sens du lacet fait monter ; haut monte toujours, bas descend
+    climbStep(mx, my, dt) {
+      const c = this.climb;
+      if (this.attacking) return;
+      const at = ledgeAt(c.t), len = Math.hypot(mx, my);
+      let dir = 0;
+      if (len) {
+        const along = (mx * at.ux + my * at.uy) / len;
+        dir = Math.abs(along) > 0.2 ? Math.sign(along) : my < 0 ? 1 : my > 0 ? -1 : 0;
+      }
+      if (!dir) {
+        if (this.player.anims.isPlaying) { this.player.stop(); this.player.setFrame(`${this.facing}-idle`); }
+        return;
+      }
+      const step = SPEED * CLIMB.speed * dt;
+      c.t += dir * step; c.dir = dir;
+      this.distance += step;
+      if (c.t < 0) { this.leaveLedge(LEDGE.bottom, 'front'); return; }
+      if (c.t > LEDGE.len) { this.leaveLedge(LEDGE.top, 'back'); return; }
+      const p = ledgeAt(c.t);
+      this.pos = { x: p.x, y: p.y };
+      this.facing = 'side'; this.flip = p.ux * dir < 0;
+      this.player.setFlipX(this.flip);
+      if (this.player.anims.currentAnim?.key !== 'side-walk' || !this.player.anims.isPlaying) this.player.play('side-walk', true);
+      this.player.anims.timeScale = 0.75;
+      this.drip(this.pos.x, this.pos.y, dt, this.hp);
+    }
+
+    leaveLedge(at, facing) {
+      this.climb = null;
+      this.pos = { x: at.x, y: at.y };
+      this.prevPos = { ...this.pos };
+      this.facing = facing;
+      this.player.play(`${facing}-walk`, true);
+    }
+
+    // Des pierres se détachent du rebord et tombent le long de la face : un
+    // filet de neige d'abord, puis la pierre ; sur la sente, elle blesse
+    updateRockfall(dt) {
+      const c = this.climb;
+      this.rocks = this.rocks || [];
+      if (c && !this.dead && !isPaused()) {
+        c.rock -= dt;
+        if (c.rock <= 0) {
+          c.rock = CLIMB.every[0] + Math.random() * (CLIMB.every[1] - CLIMB.every[0]);
+          const p = ledgeAt(c.t + (Math.random() * 24 - 6) * c.dir);
+          const x = Math.round(p.x), top = cliffFoot(x) - cliffHeight(x) + 2;
+          this.rocks.push({ x, y: top, ledge: Math.round(p.y), foot: cliffFoot(x) + 3, warn: CLIMB.warn, vy: 0 });
+        }
+      }
+      for (const r of this.rocks) {
+        if (r.warn > 0) {
+          r.warn -= dt;
+          if (Math.random() < dt * 16) this.snowfall.explode(1, r.x + Math.round((Math.random() - 0.5) * 3), r.y + Math.random() * 4);
+          if (r.warn <= 0) { r.img = this.add.image(r.x + 0.5, Math.round(r.y), 'pierre-chute').setOrigin(0.5, 1).setDepth(CLIFF.y + 61); audio.play('snow'); }
+          continue;
+        }
+        r.vy += 240 * dt; r.y += r.vy * dt;
+        if (!r.passed && r.y >= r.ledge - 1) {
+          r.passed = true;
+          this.dust.setConfig({ lifespan: { min: 250, max: 600 }, speed: { min: 8, max: 30 }, angle: { min: 200, max: 340 }, gravityY: 80, alpha: { start: 0.8, end: 0 }, emitting: false });
+          this.dust.explode(5, r.x, r.ledge);
+          if (this.climb && !this.dead && Math.abs(this.pos.x - r.x) < 3 && Math.abs(this.pos.y - r.ledge) < 5) { audio.play('clang'); this.hurt(this.pos.x >= r.x ? 1 : -1); }
+          r.vy *= 0.35;
+        }
+        if (r.y >= r.foot) { r.done = true; r.img?.destroy(); this.dust.explode(4, r.x, r.foot); }
+        else r.img?.setY(Math.round(r.y));
+      }
+      this.rocks = this.rocks.filter(r => !r.done);
     }
 
     // ── La grotte : le roi mort ──
@@ -2072,14 +2433,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       onSave({
         world: WORLD_VERSION, island: ISLAND,
         // Dedans, on retient le seuil (la pièce est hors de l'île)
-        x: Math.round(this.inside ? INTERIORS[this.inside].exit.x : this.pos.x),
-        y: Math.round(this.inside ? INTERIORS[this.inside].exit.y : this.pos.y),
+        // (sur la sente, au pied de la falaise)
+        x: Math.round(this.inside ? INTERIORS[this.inside].exit.x : this.climb ? LEDGE.bottom.x : this.pos.x),
+        y: Math.round(this.inside ? INTERIORS[this.inside].exit.y : this.climb ? LEDGE.bottom.y : this.pos.y),
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
         chapters: [...this.chapters],
         kingBowed: this.kingBowed,
-        relics: [...this.relics], relicDrops: this.relicDrops,
+        relics: [...this.relics], relicDrops: this.relicDrops, belt: this.belt,
+        fire: this.fire == null ? null : Math.round(this.fire * 10) / 10,
+        mothDead: this.mothDead,
         wrecked: Object.fromEntries(this.wrecked),
         chips: Object.fromEntries(this.chips),
         tally: this.tally,
@@ -2091,6 +2455,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     backToShore() {
+      this.climb = null;
       if (this.rowing) { this.rowing = false; this.rowboatSprite.setTexture('rowboat-empty'); this.player.setVisible(true); this.cape.setVisible(true); }
       if (this.inside) {
         const I = INTERIORS[this.inside];
@@ -2315,6 +2680,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     save: () => game.scene.getScene('island')?.persist(),
     // L'inventaire : les reliques et celles déjà trouvées
     relics: () => RELICS.map(r => ({ id: r.id, name: r.name, about: r.about, rows: designRows(relicDesign(r.id), r.rows), found: !!game.scene.getScene('island')?.relics?.has(r.id) })),
+    // La ceinture : un id ou null par crochet ; déplacer une relique d'un crochet à un autre (échange)
+    belt: () => [...(game.scene.getScene('island')?.belt || [])],
+    moveRelic(from, to) {
+      const sc = game.scene.getScene('island'), b = sc?.belt;
+      if (!b || from === to || from < 0 || to < 0 || from >= b.length || to >= b.length) return;
+      [b[from], b[to]] = [b[to], b[from]];
+      sc.persist();
+    },
     setWind: name => weather.setPreset(name),
     // La qualité de l'image (Réglages) : les flocons (CRT et flou : main.js)
     setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; },

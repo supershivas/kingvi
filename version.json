@@ -1,7 +1,9 @@
 {
-  "version": "1.44.2",
+  "version": "1.45.0",
   "date": "2026-10-03",
   "changes": [
-    "Reliques : un dessin à part pour l'île (de 1 à 4 pixels, dossier « Reliques sur l'île » de l'atelier) ; celui de l'inventaire garde sa taille"
+    "Trois chapitres : L'incendie (mettre le feu au bûcher du compagnon), La falaise (gravir la sente sous les chutes de pierres), Le megamoth (un papillon de nuit géant qui souffle la torche)",
+    "Les reliques pendent à la ceinture du viking : dans l'inventaire, on les déplace d'un crochet à l'autre",
+    "L'endurance est retirée pour le moment ; placeholders à redessiner dans l'atelier (incendie, megamoth, ceinture, nouvelles reliques)"
   ]
 }

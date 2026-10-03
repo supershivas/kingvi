@@ -27,6 +27,7 @@ let duckUntil = 0;
 const vol = { music: 0.7, sfx: 0.8, wind: 0.35 };
 let windBus;
 let windGain, windFilter, whistleGain, whistleFilter;
+let fireGain = null, fireFilter;                    // l'incendie : un grondement, des crépitements
 let nextStep = 0, stepIndex = 0, timer = null;
 
 function makeNoise() {
@@ -324,6 +325,21 @@ const SOUNDS = {
     o.frequency.setValueAtTime(900, t); o.frequency.exponentialRampToValueAtTime(1500, t + 0.05); o.frequency.exponentialRampToValueAtTime(600, t + 0.25);
     o.connect(envGain(t, 0.22, 0.01, 0.25, sfxBus)); o.start(t); o.stop(t + 0.3);
   },
+  // Le bruit sourd des ailes du megamoth (`v` : plus fort de près)
+  flap: ({ v = 1 } = {}) => { const t = ctx.currentTime; whoosh(t, 0.16, 260, 110, 0.22 * v); thud(t, 48, 0.18 * v, 0.1); },
+  // Un froissement sec d'ailes (touché, il tombe)
+  rustle: () => { const t = ctx.currentTime; for (let k = 0; k < 5; k++) whoosh(t + k * 0.045, 0.05, 5200, 2400, 0.16); },
+  // La torche soufflée : un chuintement
+  snuff: () => { const t = ctx.currentTime; whoosh(t, 0.5, 2600, 500, 0.3); },
+  // Le feu prend : un souffle qui monte
+  ignite: () => { const t = ctx.currentTime; whoosh(t, 0.9, 200, 1400, 0.3); thud(t, 70, 0.3, 0.3); },
+  // Le toit s'effondre : un fracas de bois, sourd et long
+  collapse: () => {
+    const t = ctx.currentTime;
+    thud(t, 45, 0.9, 0.6); thud(t + 0.12, 70, 0.6, 0.35); thud(t + 0.3, 55, 0.5, 0.4);
+    for (let k = 0; k < 6; k++) { thud(t + 0.05 + k * 0.09, 120 + k * 15, 0.25, 0.08); whoosh(t + k * 0.08, 0.12, 1500, 500, 0.2); }
+    whoosh(t, 1.6, 900, 150, 0.3);
+  },
   // Un coffre qui s'ouvre : un grincement de bois
   creak: () => { const t = ctx.currentTime; whoosh(t, 0.5, 300, 180, 0.2); thud(t + 0.4, 90, 0.35); },
 };
@@ -357,6 +373,27 @@ export const audio = {
     windFilter.frequency.setTargetAtTime(250 + 700 * k + 300 * gust, t, 0.5);
     whistleGain.gain.setTargetAtTime(Math.max(0, k - 0.45) * 0.12 * (0.4 + gust), t, 0.3);
     whistleFilter.frequency.setTargetAtTime(1100 + 900 * gust, t, 0.3);
+  },
+  // L'incendie : son grondement et ses crépitements, selon ce qu'on en entend (0 → 1)
+  fire(level) {
+    if (!ctx || (!level && !fireGain)) return;
+    const t = ctx.currentTime;
+    if (!fireGain) {
+      const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true; src.playbackRate.value = 0.5;
+      fireFilter = ctx.createBiquadFilter(); fireFilter.type = 'lowpass'; fireFilter.frequency.value = 300;
+      fireGain = ctx.createGain(); fireGain.gain.value = 0;
+      src.connect(fireFilter).connect(fireGain).connect(sfxBus); src.start();
+    }
+    fireGain.gain.setTargetAtTime(0.35 * level, t, 0.4);
+    fireFilter.frequency.setTargetAtTime(220 + 500 * level, t, 0.4);
+    // Les crépitements : de petits claquements secs, au hasard
+    const n = Math.floor(level * 3 + Math.random() * level * 2);
+    for (let k = 0; k < n; k++) {
+      const at = t + Math.random() * 0.2, s = ctx.createBufferSource(); s.buffer = noise;
+      const hp = ctx.createBiquadFilter(); hp.type = 'bandpass'; hp.frequency.value = 1800 + Math.random() * 2500; hp.Q.value = 2;
+      s.connect(hp).connect(envGain(at, 0.12 * level, 0.001, 0.02 + Math.random() * 0.03, sfxBus));
+      s.start(at, Math.random() * 1.5); s.stop(at + 0.08);
+    }
   },
   // L'humeur du moment, voulue par le jeu : { energy, dark, muffled } (0 → 1)
   setMood(m) { Object.assign(mood, m); },

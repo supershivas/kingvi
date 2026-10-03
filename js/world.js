@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.44.2';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.44.2';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.44.2';
-import { makeGroveTree } from './grove.js?v=1.44.2';
-import { monumentParts, monumentSize } from './ruins.js?v=1.44.2';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.45.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.45.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.45.0';
+import { makeGroveTree } from './grove.js?v=1.45.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.45.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -262,6 +262,46 @@ function cliffJump(x) {
 export const cliffHeight = x => Math.max(60, Math.round(135 + 38 * fbm(x / 160, 0, 131, 3) * 2 + 10 * fbm(x / 30, 0, 133, 2) * 2 +
   cliffJump(x) +
   28 * smoothstep(CAVE.x - 160, CAVE.x, x) * (1 - smoothstep(CAVE.x, CAVE.x + 200, x))));
+// ── La sente : un chemin taillé en lacets dans la face, du pied au sommet ;
+// on la monte (game.js, `climb`), elle mène au plateau du megamoth ──
+// Ses tournants : (x, part de la hauteur) ; le premier au pied, le dernier au rebord
+const LEDGE_TURNS = [[4905, 0], [4972, 0.34], [4914, 0.68], [4984, 1]];
+const LEDGE_PTS = LEDGE_TURNS.map(([x, k]) => ({ x, y: cliffFoot(x) - Math.round(k * cliffHeight(x)) + (k === 1 ? 2 : 0) }));
+const LEDGE_SEGS = LEDGE_PTS.slice(1).map((b, i) => {
+  const a = LEDGE_PTS[i], len = Math.hypot(b.x - a.x, b.y - a.y);
+  return { a, b, len, ux: (b.x - a.x) / len, uy: (b.y - a.y) / len };
+});
+export const LEDGE = {
+  pts: LEDGE_PTS, segs: LEDGE_SEGS, len: LEDGE_SEGS.reduce((n, s) => n + s.len, 0),
+  // Où l'on se tient avant d'y monter : au pied, et en haut, sur le plateau
+  bottom: { x: LEDGE_PTS[0].x, y: LEDGE_PTS[0].y + 4 },
+  top: { x: LEDGE_PTS.at(-1).x, y: LEDGE_PTS.at(-1).y - 6 },
+};
+// Le point de la sente à la distance `t` du pied (et le sens de son tronçon)
+export function ledgeAt(t) {
+  t = Math.max(0, Math.min(LEDGE.len, t));
+  for (const s of LEDGE_SEGS) {
+    if (t <= s.len || s === LEDGE_SEGS.at(-1)) return { x: s.a.x + s.ux * t, y: s.a.y + s.uy * t, ux: s.ux, uy: s.uy };
+    t -= s.len;
+  }
+}
+// La hauteur de la sente sur la colonne `x` (une liste : les lacets se superposent)
+function ledgeRows(x) {
+  const out = [];
+  for (const s of LEDGE_SEGS) {
+    const x0 = Math.min(s.a.x, s.b.x) - 2, x1 = Math.max(s.a.x, s.b.x) + 2;
+    if (x < x0 || x > x1) continue;
+    const k = Math.max(0, Math.min(1, (x - s.a.x) / (s.b.x - s.a.x)));
+    out.push(Math.round(s.a.y + (s.b.y - s.a.y) * k));
+  }
+  return out;
+}
+// La pierre qui se détache du rebord et tombe le long de la sente (placeholder,
+// `pierre-chute` dans l'atelier)
+export const FALLING_STONE = ['.bb.', 'bbsb', '.bb.'];
+// ── Le plateau, au-dessus de la falaise : le megamoth s'y pose ──
+export const MOTH_LAIR = { x: 4945, y: LEDGE_PTS.at(-1).y - 95 };
+
 const inCliff = (x, y, margin = 0) => {
   if (x < CLIFF.x0 - margin || x > CLIFF.x1 + margin) return false;
   const cx = Math.max(CLIFF.x0, Math.min(CLIFF.x1, x)), f = cliffFoot(cx);
@@ -281,6 +321,15 @@ function buildCliff() {
       for (let i = 0; i < w; i++) {
         const wx = x0 + i, depth = wy - ty[i];                     // 0 : le rebord
         if (depth < 0 || wy > fy[i]) { row += '.'; continue; }
+        // La sente : un rebord de neige tassée, deux pixels, l'ombre du roc dessous ;
+        // usée par endroits, et une marche à chaque tournant
+        const lr = ledgeRows(wx);
+        if (lr.some(ly => wy === ly || (wy === ly - 1 && hash(wx, ly, 223) < 0.8))) { row += 's'; continue; }
+        if (lr.some(ly => wy === ly + 1)) { row += 'b'; continue; }
+        if (lr.some(ly => wy === ly + 2 && hash(wx, wy, 225) < 0.3)) { row += 's'; continue; }
+        // Au-dessus, la paroi creusée, plâtrée de neige (tramée, de plus en plus
+        // rare en montant) : le viking, sombre, s'y découpe
+        if (lr.some(ly => wy < ly - 1 && wy >= ly - 11 && hash(wx, wy, 227) < (wy >= ly - 6 ? 0.55 : 0.25) * (0.6 + 0.8 * valueNoise(wx / 5, wy / 3, 229)))) { row += 's'; continue; }
         // Les extrémités s'effondrent en éboulis
         const end = Math.min(wx - CLIFF.x0, CLIFF.x1 - wx);
         if (end < 30 && depth < (30 - end) * 3.5 * (0.7 + 0.6 * hash(wx, 7, 141))) { row += '.'; continue; }
@@ -343,7 +392,7 @@ function buildCliff() {
   const r = rng(SEED * 163);
   for (let i = 0; i < 70; i++) {
     const x = Math.round(CLIFF.x0 + r() * (CLIFF.x1 - CLIFF.x0));
-    if (Math.abs(x - CAVE.x) < 16) continue;
+    if (Math.abs(x - CAVE.x) < 16 || Math.abs(x - LEDGE.bottom.x) < 12) continue;
     const w = 1 + Math.floor(r() * 3);
     parts.push({ type: 'rubble', x, y: cliffFoot(x) + 1 + Math.floor(r() * 6), art: { rows: [w > 2 ? '.' + 'b'.repeat(w - 1) : 'b'.repeat(w), 'b'.repeat(w)].slice(w > 1 ? 0 : 1), ax: 0 }, foot: 0 });
   }
@@ -754,7 +803,8 @@ export function objectsInChunk(cx, cy) {
     Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80 &&
     Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) > 80 &&
     Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110 &&
-    !inCliff(x, y, 8) && !inNecro(x, y, 12) && !inArch(x, y, 14) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
+    !inCliff(x, y, 8) && Math.hypot(x - LEDGE.top.x, y - LEDGE.top.y) > 30 && Math.hypot(x - LEDGE.bottom.x, y - LEDGE.bottom.y) > 20 &&
+    Math.hypot(x - MOTH_LAIR.x, y - MOTH_LAIR.y) > 55 && !inNecro(x, y, 12) && !inArch(x, y, 14) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
 
   for (let gy = 0; gy < CHUNK; gy += CELL) {
     for (let gx = 0; gx < CHUNK; gx += CELL) {

@@ -1,10 +1,11 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.44.2';
-import { loadDesigns } from './design-store.js?v=1.44.2';
-import { showChapter } from './chapters.js?v=1.44.2';
-import { createTitleSea } from './titlesea.js?v=1.44.2';
-import { audio } from './audio.js?v=1.44.2';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.44.2';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.44.2';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.45.0';
+import { loadDesigns, designRows } from './design-store.js?v=1.45.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.45.0';
+import { showChapter } from './chapters.js?v=1.45.0';
+import { createTitleSea } from './titlesea.js?v=1.45.0';
+import { audio } from './audio.js?v=1.45.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.45.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.45.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -12,8 +13,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.44.2');
-const debug = DEBUG ? await import('./debug.js?v=1.44.2') : null;
+const { createGame } = await import('./game.js?v=1.45.0');
+const debug = DEBUG ? await import('./debug.js?v=1.45.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -106,39 +107,100 @@ const game = createGame({
 });
 let resetting = false;
 
-// ── L'inventaire (touche I) : les reliques trouvées, les autres en creux ──
+// ── L'inventaire (touche I) : la ceinture du viking, où pendent les reliques
+// trouvées. On les déplace d'un crochet à l'autre : glisser-déposer, ou un
+// clic pour la prendre et un clic sur le crochet voulu (clavier : Entrée) ──
+let held = null, shown = null, dragDone = false;
+const pixelCanvas = (rows, scale) => {
+  const cv = document.createElement('canvas'), h = rows.length, w = rows[0].length;
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.' && palette[ch]) { ctx.fillStyle = palette[ch]; ctx.fillRect(x, y, 1, 1); } }));
+  cv.style.width = `${w * scale}px`; cv.style.height = `${h * scale}px`;
+  return cv;
+};
 function renderInventory() {
-  const slots = $('inv-slots'), list = game.relics();
-  slots.replaceChildren();
+  const list = game.relics(), byId = new Map(list.map(r => [r.id, r])), belt = game.belt();
+  const wrap = $('inv-belt'), rows = designRows('ceinture', BELT), W = rows[0].length;
+  // (un facteur entier : des pixels nets)
+  const k = Math.max(2, Math.min(5, Math.floor((wrap.clientWidth || 480) / W)));
+  wrap.replaceChildren(pixelCanvas(rows, k));
+  wrap.style.height = `${(rows.length - 2 + 10) * k + 8}px`;
   const show = r => {
-    $('inv-name').textContent = r.found ? r.name : '???';
-    $('inv-about').textContent = r.found ? r.about : 'Pas encore trouvée.';
+    shown = r?.id || null;
+    $('inv-name').textContent = r ? r.name : '';
+    $('inv-about').textContent = r ? r.about : 'Rien n\'y pend encore.';
   };
-  for (const r of list) {
+  belt.forEach((id, i) => {
+    const r = id && byId.get(id);
     const b = document.createElement('button');
-    b.type = 'button'; b.className = `inv-slot${r.found ? '' : ' empty'}`;
-    b.setAttribute('aria-label', r.found ? r.name : 'Relique pas encore trouvée');
-    const cv = document.createElement('canvas');
-    const h = r.rows.length, w = r.rows[0].length;
-    cv.width = w; cv.height = h;
-    const ctx = cv.getContext('2d');
-    r.rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.' && palette[ch]) { ctx.fillStyle = palette[ch]; ctx.fillRect(x, y, 1, 1); } }));
-    cv.style.width = `${w * 5}px`; cv.style.height = `${h * 5}px`;
-    b.append(cv);
-    b.addEventListener('click', () => show(r)); b.addEventListener('focus', () => show(r)); b.addEventListener('mouseenter', () => show(r));
-    slots.append(b);
-  }
-  const first = list.find(r => r.found) || list[0];
-  if (first) show(first);
+    b.type = 'button';
+    b.className = `belt-hook${r ? '' : ' free'}${held === i ? ' held' : ''}`;
+    b.dataset.slot = i;
+    b.style.left = `${(BELT_LEFT + i * 12) * k}px`; b.style.top = `${7 * k}px`;
+    b.style.width = `${12 * k}px`; b.style.height = `${Math.max(44, 11 * k)}px`;
+    b.setAttribute('aria-label', r ? `${r.name}, crochet ${i + 1}` : `Crochet ${i + 1}, libre`);
+    if (r) b.append(pixelCanvas(r.rows, k));
+    b.addEventListener('mouseenter', () => r && show(r));
+    b.addEventListener('focus', () => r && show(r));
+    b.addEventListener('click', () => {
+      if (dragDone) { dragDone = false; return; }
+      if (held == null) { if (r) { held = i; show(r); } }
+      else { game.moveRelic(held, i); held = null; }
+      renderInventory();
+      wrap.querySelector(`[data-slot="${i}"]`)?.focus();
+    });
+    if (r) b.addEventListener('pointerdown', e => startDrag(e, i, b));
+    wrap.append(b);
+  });
+  const found = list.filter(r => r.found).length;
+  $('inv-count').textContent = `${found} relique${found > 1 ? 's' : ''} sur ${list.length} · ${BELT_SLOTS} crochets`;
+  const pick = byId.get(shown) || (held != null && byId.get(belt[held])) || byId.get(belt.find(Boolean));
+  show(pick?.found ? pick : null);
+}
+// Glisser une relique d'un crochet à l'autre (souris, doigt, stylet)
+function startDrag(e, from, el) {
+  if (e.button > 0) return;
+  const x0 = e.clientX, y0 = e.clientY;
+  let ghost = null;
+  const move = ev => {
+    if (!ghost && Math.hypot(ev.clientX - x0, ev.clientY - y0) < 6) return;
+    if (!ghost) {
+      ghost = el.querySelector('canvas').cloneNode();
+      ghost.getContext('2d').drawImage(el.querySelector('canvas'), 0, 0);
+      ghost.className = 'belt-ghost';
+      el.classList.add('dragging');
+      inventory.append(ghost);                 // (dans la modale : elle est au premier plan)
+    }
+    ghost.style.left = `${ev.clientX}px`; ghost.style.top = `${ev.clientY}px`;
+    for (const h of document.querySelectorAll('.belt-hook')) h.classList.toggle('over', h === document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.belt-hook'));
+  };
+  const up = ev => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    window.removeEventListener('pointercancel', up);
+    if (!ghost) return;
+    ghost.remove();
+    dragDone = true;
+    setTimeout(() => { dragDone = false; }, 0);
+    const to = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('.belt-hook');
+    if (to && ev.type === 'pointerup') game.moveRelic(from, +to.dataset.slot);
+    held = null;
+    renderInventory();
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
 }
 function toggleInventory(force) {
   const open = force ?? !inventory.open;
   if (open === inventory.open) return;
   if (!open) { inventory.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open) return;
-  renderInventory();
+  held = null;
   $('open-inventory').classList.remove('new');
   inventory.showModal();
+  renderInventory();
 }
 $('open-inventory').addEventListener('click', () => toggleInventory());
 $('close-inventory').addEventListener('click', () => inventory.close());
