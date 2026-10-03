@@ -1,8 +1,10 @@
 /* Labo, onglet Dessins : redessiner à la main les éléments uniques du décor
-   (voir designs.js). Télécharger le PNG 1 × 1, le retoucher dans un éditeur de
-   pixels, le réimporter : le jeu s'en sert. Arbres et rochers restent
-   générés. */
-import { DESIGNS, designRows, designSource, rowsToPng, importDesign, setLocalDesign, applyLocal, loadDesigns } from './designs.js?v=1.37.0';
+   (voir designs.js) dans l'éditeur de pixels intégré (pixel-editor.js) : chaque
+   trait est enregistré, et le jeu, s'il est ouvert dans un autre onglet, se
+   redessine tout seul. Les PNG 1 × 1 à télécharger / importer restent là pour
+   qui préfère un autre éditeur. Arbres et rochers restent générés. */
+import { DESIGNS, designRows, designSource, designsToText, rowsToPng, importDesign, setLocalDesign, applyLocal, loadDesigns } from './designs.js?v=1.38.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.38.0';
 
 const host = document.querySelector('#dessins .demos');
 const cards = new Map();
@@ -16,7 +18,7 @@ function download(name, blob) {
 }
 
 const SOURCES = {
-  local: 'Importé dans ce navigateur : visible dans votre jeu seulement, tant que vous ne le publiez pas.',
+  local: 'Retouché ici : visible dans le jeu de ce navigateur ; « Copier mes modifications » pour le publier.',
   depot: 'Fichier du dépôt (assets/design) : visible par tout le monde.',
   none: 'Dessin d\'origine, fait par le code.',
 };
@@ -25,21 +27,38 @@ const SOURCES = {
 const intro = document.createElement('article');
 intro.className = 'demo wide';
 intro.innerHTML = `
-  <h3><span class="tag">Mode d'emploi</span><span>Redessiner un élément</span></h3>
+  <h3><span class="tag">Mode d'emploi</span><span>Redessiner le décor</span></h3>
   <ol class="design-steps">
-    <li><b>Télécharger</b> le PNG de l'élément (à l'échelle 1 × 1, un pixel du fichier = un pixel du jeu).</li>
-    <li><b>Le retoucher</b> dans votre éditeur de pixels. Trois couleurs seulement : neige, bleu nuit, rouge (le reste est ramené à la plus proche, le vide reste transparent). <b>Ne changez pas la taille</b> : la porte, les obstacles et les positions en dépendent.</li>
-    <li><b>L'importer</b> ici : l'aperçu se met à jour et le jeu s'en sert la prochaine fois qu'on l'ouvre dans ce navigateur. Vous pouvez importer plusieurs PNG d'un coup : leur nom de fichier doit être celui de l'élément (<code>house.png</code>…).</li>
-    <li><b>Publier</b> pour tout le monde : sur GitHub, dans le dépôt <code>supershivas/kingvi</code>, ouvrez le dossier <code>assets/design</code>, « Add file » puis « Upload files », glissez les PNG et validez (« Commit changes »). Ils sont visibles dans le jeu au bout de dix minutes environ.</li>
+    <li><b>Dessiner</b> : choisissez un élément ci-dessous. L'éditeur s'ouvre (crayon, gomme, pot de peinture, formes, symétries, annuler, zoom) avec trois couleurs et le vide. Un viking à côté donne l'échelle.</li>
+    <li><b>Voir dans le jeu</b> : chaque trait est enregistré aussitôt. Ouvrez le jeu dans un autre onglet <em>du même navigateur</em> : il se redessine tout seul pendant que vous dessinez (ou à son prochain lancement).</li>
+    <li><b>Publier</b> pour tous les appareils : « Copier mes modifications », puis collez le texte à Claude dans la conversation, qui les ajoute au jeu.</li>
   </ol>
-  <p>Les arbres et les rochers restent générés par le code : ils ne sont pas dans cette liste.</p>
+  <p>La taille d'un élément ne change pas (la porte, les obstacles et les positions en dépendent). Les arbres et les rochers restent générés par le code.</p>
   <div class="design-actions">
-    <label class="design-btn">Importer plusieurs PNG<input type="file" accept="image/png" multiple hidden></label>
-    <button type="button" class="design-btn" data-all>Tout télécharger</button>
+    <button type="button" class="design-btn primary" data-copy>Copier mes modifications</button>
     <span class="design-note" role="status"></span>
-  </div>`;
+  </div>
+  <details class="design-files">
+    <summary>Préférer un autre éditeur ? PNG à télécharger et importer</summary>
+    <p>Chaque élément se télécharge en PNG 1 × 1 (un pixel du fichier = un pixel du jeu) et se réimporte ; plusieurs PNG d'un coup, nommés comme l'élément (<code>house.png</code>…). Pour publier ces PNG : dépôt <code>supershivas/kingvi</code> sur GitHub, dossier <code>assets/design</code>, « Add file » puis « Upload files ».</p>
+    <div class="design-actions">
+      <label class="design-btn">Importer plusieurs PNG<input type="file" accept="image/png" multiple hidden></label>
+      <button type="button" class="design-btn" data-all>Tout télécharger</button>
+    </div>
+  </details>`;
 host.append(intro);
 const note = intro.querySelector('.design-note');
+intro.querySelector('[data-copy]').addEventListener('click', async () => {
+  const text = designsToText();
+  if (!text) { note.textContent = 'Rien à copier : aucun dessin retouché.'; return; }
+  try { await navigator.clipboard.writeText(text); note.textContent = `Copié (${text.split('\n').length - 1} dessin${text.includes('\n', text.indexOf('\n') + 1) ? 's' : ''}) : collez-le dans la conversation.`; }
+  catch {
+    const box = document.createElement('textarea');
+    box.value = text; box.readOnly = true; box.className = 'design-paste';
+    note.replaceChildren('Sélectionnez et copiez ce texte, puis collez-le dans la conversation :', box);
+    box.select();
+  }
+});
 
 intro.querySelector('input').addEventListener('change', async e => {
   const lines = [];
@@ -74,14 +93,21 @@ for (const d of DESIGNS) {
     <p class="design-size">${d.w} × ${d.h} pixels</p>
     <p class="design-src"></p>
     <div class="design-actions">
-      <button type="button" class="design-btn" data-dl>Télécharger</button>
-      <label class="design-btn">Importer<input type="file" accept="image/png" hidden></label>
-      <button type="button" class="design-btn quiet" data-reset hidden>Retirer l'import</button>
+      <button type="button" class="design-btn primary" data-draw>Dessiner</button>
+      <button type="button" class="design-btn" data-dl title="PNG 1 × 1">Télécharger</button>
+      <label class="design-btn" title="PNG 1 × 1">Importer<input type="file" accept="image/png" hidden></label>
+      <button type="button" class="design-btn quiet" data-reset hidden>Retirer mes retouches</button>
     </div>
     <p class="design-note" role="status"></p>`;
   el.querySelector('h3 span:last-child').textContent = d.label;
   host.append(el);
   cards.set(d.name, el);
+  el.querySelector('[data-draw]').addEventListener('click', () => openPixelEditor({
+    name: d.name, label: d.label, original: d.rows, rows: designRows(d.name, d.rows),
+    // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
+    onSave: (rows, done) => { setLocalDesign(d.name, rows); applyLocal(d.name, rows); refresh(d.name); },
+    onReset: async () => { setLocalDesign(d.name, null); applyLocal(d.name, null); await loadDesigns(); refresh(d.name); },
+  }));
   el.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(designRows(d.name, d.rows))));
   el.querySelector('input').addEventListener('change', async e => {
     const f = e.target.files[0];
@@ -93,7 +119,7 @@ for (const d of DESIGNS) {
     applyLocal(d.name, null);
     await loadDesigns();                     // (le fichier du dépôt, s'il y en a un, revient)
     refresh(d.name);
-    el.querySelector('.design-note').textContent = 'Import retiré.';
+    el.querySelector('.design-note').textContent = 'Retouches retirées.';
   });
   refresh(d.name);
 }

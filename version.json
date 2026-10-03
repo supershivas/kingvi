@@ -1,8 +1,8 @@
 {
-  "version": "1.37.0",
+  "version": "1.38.0",
   "date": "2026-10-03",
   "changes": [
-    "Labo, onglet Dessins : on télécharge chaque élément unique du décor en PNG 1 × 1, on le retouche sur son ordinateur et on le réimporte : le jeu s'en sert",
-    "Les arbres et les rochers restent générés"
+    "Labo, onglet Dessins : un éditeur de pixels intégré pour redessiner la maison, les barques, le coffre, la grotte, le roi… ; le jeu se met à jour pendant qu'on dessine",
+    "« Copier mes modifications » pour publier les dessins ; plus besoin d'exporter et d'importer des fichiers"
   ]
 }

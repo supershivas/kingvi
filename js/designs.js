@@ -15,12 +15,12 @@
    ramenées aux trois du jeu (neige, bleu nuit, rouge), le reste est
    transparent. Le décodage du PNG est fait ici, sans relire un canevas
    (certaines extensions anti-pistage le bloquent). */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.37.0';
-import { HOUSE_ART } from './world.js?v=1.37.0';
-import { ROOM, CORPSE } from './interior.js?v=1.37.0';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.37.0';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.37.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.37.0';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.38.0';
+import { HOUSE_ART } from './world.js?v=1.38.0';
+import { ROOM, CORPSE } from './interior.js?v=1.38.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.38.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.38.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.38.0';
 
 const entries = (prefix, frames) => Object.entries(frames).map(([k, rows]) => [`${prefix}-${k}`, rows]);
 
@@ -217,4 +217,40 @@ export async function loadDesigns() {
 export function applyLocal(name, rows) {
   if (rows) overrides.set(name, { rows, from: 'local' });
   else overrides.delete(name);
+}
+
+// Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et
+// dire quels dessins ont changé (le jeu ouvert les redessine aussitôt)
+export function refreshLocal() {
+  const changed = [];
+  const local = readLocal();
+  for (const d of DESIGNS) {
+    const was = overrides.get(d.name), rows = local[d.name];
+    const ok = rows && rows.length === d.h && rows[0].length === d.w;
+    if (ok) {
+      if (was?.from === 'local' && was.rows.join('') === rows.join('')) continue;
+      overrides.set(d.name, { rows, from: 'local' });
+      changed.push(d.name);
+    } else if (was?.from === 'local') {
+      overrides.delete(d.name);
+      changed.push(d.name);
+    }
+  }
+  return changed;
+}
+export const DESIGNS_STORAGE_KEY = LOCAL_KEY;
+export const originalRows = name => BY_NAME.get(name)?.rows;
+
+// Les retouches gardées ici, en une seule ligne de texte par dessin (lignes
+// séparées par « | », une suite de caractères répétés écrite « s12 ») : à
+// coller dans la conversation, d'où elles sont transformées en PNG du dépôt
+// (scripts/designs-vers-png.mjs)
+export function designsToText() {
+  const local = readLocal(), out = ['KINGVI-DESSINS 1'];
+  for (const d of DESIGNS) {
+    const rows = local[d.name];
+    if (!rows || rows.length !== d.h) continue;
+    out.push(`${d.name} ${d.w}x${d.h} ` + rows.map(r => r.replace(/(.)\1*/g, m => m[0] + m.length)).join('|'));
+  }
+  return out.length > 1 ? out.join('\n') : '';
 }

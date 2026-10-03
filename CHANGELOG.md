@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.38.0 — 2026-10-03
+- Labo, onglet Dessins : un éditeur de pixels intégré (crayon, gomme, pot de peinture, formes, symétries, annuler, zoom, aperçu avec le viking) pour redessiner le décor
+- Chaque trait est enregistré : le jeu ouvert dans un autre onglet se redessine tout seul
+- « Copier mes modifications » pour les publier ; le téléchargement et l'import de PNG restent en repli
+
 ## 1.37.0 — 2026-10-03
 - Labo, onglet Dessins : télécharger en PNG 1 × 1 la maison, les barques, le coffre, la crypte, la grotte, le roi, le guetteur…, les retoucher, les réimporter ; le jeu s'en sert
 - Les images à publier se déposent dans assets/design du dépôt (mode d'emploi dans l'onglet)
