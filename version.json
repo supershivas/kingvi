@@ -1,8 +1,7 @@
 {
-  "version": "1.42.1",
+  "version": "1.42.2",
   "date": "2026-10-03",
   "changes": [
-    "Dessins publiés : l'iPad et le MacBook voient les mêmes images (une retouche envoyée ne masque plus la version du dépôt), état « pas encore publiés » dans le labo, publication automatique en option",
-    "Pelure d'oignon bien visible (rouge avant, bleu après) avec boutons sous le dessin"
+    "La vue du héros est plus large : le noir est repoussé, le flou garde la même échelle"
   ]
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.42.2 — 2026-10-03
+- Vue plus large (environ un tiers) : le noir est repoussé, le flou reste à la même échelle
+
 ## 1.42.1 — 2026-10-03
 - Dessins publiés : une retouche envoyée est gardée 15 min puis laisse la place à la version du dépôt, pour que l'iPad et le MacBook voient la même chose
 - Labo : l'état des dessins dit combien ne sont pas encore publiés ; case « Publier automatiquement » (désactivée par défaut)

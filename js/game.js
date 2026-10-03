@@ -4,29 +4,29 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.42.1';
+} from './viking.js?v=1.42.2';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.42.1';
-import { createPack } from './pack.js?v=1.42.1';
-import { createGround } from './ground.js?v=1.42.1';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.42.1';
-import { chapterById } from './chapters.js?v=1.42.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.42.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.42.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.42.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.42.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.42.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.42.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.42.1';
-import { createFauna } from './fauna.js?v=1.42.1';
-import { createWeather } from './weather.js?v=1.42.1';
-import { createSea } from './sea.js?v=1.42.1';
-import { audio } from './audio.js?v=1.42.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.42.1';
+} from './world.js?v=1.42.2';
+import { createPack } from './pack.js?v=1.42.2';
+import { createGround } from './ground.js?v=1.42.2';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.42.2';
+import { chapterById } from './chapters.js?v=1.42.2';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.42.2';
+import { BUNDLE, WATCHER } from './grove.js?v=1.42.2';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.42.2';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.42.2';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.42.2';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.42.2';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.42.2';
+import { createFauna } from './fauna.js?v=1.42.2';
+import { createWeather } from './weather.js?v=1.42.2';
+import { createSea } from './sea.js?v=1.42.2';
+import { audio } from './audio.js?v=1.42.2';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.42.2';
 
 const Phaser = window.Phaser;
 
@@ -50,7 +50,9 @@ const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5, s
 const STEP = 1 / 60, MAX_FRAME = 0.5;
 // Le cercle de vue, en hauteurs d'écran : ses rayons, et où le noir commence
 // à monter (fraction du rayon) ; au-delà, tout est noir
-const SIGHT = { rx: 0.56, ry: 0.46, fade: 0.76 };
+const SIGHT = { rx: 0.73, ry: 0.60, fade: 0.76 };
+// Le flou garde l'échelle d'avant l'élargissement de la vue (le noir est plus loin)
+const BLUR_SCALE = { rx: 0.56, ry: 0.46 };
 // La caméra est fixée sur le viking : elle avance du même pixel que lui, au
 // même instant. Elle le rattrapait en douceur, mais à son propre rythme : le
 // viking et toutes les trames du monde tremblaient d'un pixel à l'écran
@@ -2086,8 +2088,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     });
     paintSight();
     // La taille du cercle, en pixels CSS, pour les masques du flou
-    screenEl.style.setProperty('--sight-rx', `${(rx / k).toFixed(1)}px`);
-    screenEl.style.setProperty('--sight-ry', `${(ry / k).toFixed(1)}px`);
+    screenEl.style.setProperty('--sight-rx', `${(BLUR_SCALE.rx * cy * 2 / k).toFixed(1)}px`);
+    screenEl.style.setProperty('--sight-ry', `${(BLUR_SCALE.ry * cy * 2 / k).toFixed(1)}px`);
   }
   // La forme : le noir plein, et la bande tramée autour (pixel, niveau × 16)
   function paintSight() {

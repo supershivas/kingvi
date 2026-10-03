@@ -6,9 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.42.1';
-import { openPixelEditor } from './pixel-editor.js?v=1.42.1';
-import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.42.1';
+} from './designs.js?v=1.42.2';
+import { openPixelEditor } from './pixel-editor.js?v=1.42.2';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.42.2';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
