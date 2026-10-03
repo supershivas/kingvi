@@ -4,28 +4,28 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.35.0';
+} from './viking.js?v=1.35.1';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.35.0';
-import { createPack } from './pack.js?v=1.35.0';
-import { createGround } from './ground.js?v=1.35.0';
-import { chapterById } from './chapters.js?v=1.35.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.35.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.0';
-import { createFauna } from './fauna.js?v=1.35.0';
-import { createWeather } from './weather.js?v=1.35.0';
-import { createSea } from './sea.js?v=1.35.0';
-import { audio } from './audio.js?v=1.35.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.0';
+} from './world.js?v=1.35.1';
+import { createPack } from './pack.js?v=1.35.1';
+import { createGround } from './ground.js?v=1.35.1';
+import { chapterById } from './chapters.js?v=1.35.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.35.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.1';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.1';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.1';
+import { createFauna } from './fauna.js?v=1.35.1';
+import { createWeather } from './weather.js?v=1.35.1';
+import { createSea } from './sea.js?v=1.35.1';
+import { audio } from './audio.js?v=1.35.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.1';
 
 const Phaser = window.Phaser;
 
@@ -50,9 +50,10 @@ const STEP = 1 / 60, MAX_FRAME = 0.5;
 // Le cercle de vue, en hauteurs d'écran : ses rayons, et où le noir commence
 // à monter (fraction du rayon) ; au-delà, tout est noir
 const SIGHT = { rx: 0.56, ry: 0.46, fade: 0.76 };
-// La caméra rejoint le viking de 8 % de l'écart par soixantième de seconde :
-// elle le serre de près (il reste au milieu du cercle de vue)
-const FOLLOW = 0.08;
+// La caméra est fixée sur le viking : elle avance du même pixel que lui, au
+// même instant. Elle le rattrapait en douceur, mais à son propre rythme : le
+// viking et toutes les trames du monde tremblaient d'un pixel à l'écran
+const FOLLOW = 1;
 // Le coup tourbillonnant : le bouton maintenu tant de secondes
 const WHIRL_HOLD = 2;
 // Le tour : les huit directions, une image de lame chacune (vue, retourné)
@@ -345,7 +346,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // Le voile de nuit est une texture (posée sur la vue) : la torche y
       // creuse un halo de lumière
       this.makeShade(256, 256);
-      this.lightStamp = this.make.image({ key: 'torchlight1' }, false).setOrigin(0.5);
+      this.lightStamp = this.make.image({ key: 'torchlight-0-0' }, false).setOrigin(0.5);
       this.glow = this.add.image(0, 0, 'torchglow').setBlendMode(Phaser.BlendModes.ADD).setDepth(DEPTH_SKY + 7).setAlpha(0);
       this.torchOn = 0;
       this.flame = this.add.graphics();
@@ -449,8 +450,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       };
       const rgbOf = h => { const n = parseInt(h.slice(1), 16); return `${n >> 16},${(n >> 8) & 255},${n & 255}`; };
       halo('torchglow', rgbOf(palette.r), 128);
-      // La lumière de la torche : trois tailles, pour le vacillement
-      TORCH_SIZES.forEach((k, n) => this.textures.addCanvas(`torchlight${n}`, torchLight(k)));
+      // La lumière de la torche, sa trame calée sur les 4 × 4 positions
+      // possibles du monde (elle ne glisse pas quand on marche)
+      for (let oy = 0; oy < 4; oy++) for (let ox = 0; ox < 4; ox++) this.textures.addCanvas(`torchlight-${ox}-${oy}`, torchLight(1, ox, oy));
       art('dust', ['b']);
       art('snowdust', ['s']);
     }
@@ -1197,9 +1199,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // Devant ou derrière la maison, selon le pied de ses murs
       const front = houseFrontY(this.pos.x);
       this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
-      // La caméra rejoint le viking à la même allure quelle que soit la cadence
-      const lerp = 1 - Math.pow(1 - FOLLOW, dt * 60);
-      this.cameras.main.setLerp(lerp, lerp);
       this.updateChunks();
       // Ne dessiner que ce qui est à l'écran : dans la forêt noire, des milliers
       // d'arbres sont chargés autour de la vue
@@ -1305,7 +1304,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // ── La nuit : le voile, et la torche qu'il sort quand il fait noir ──
     // Où brûle la torche (la main libre, du côté où il regarde)
     torchPoint() {
-      const x = Math.round(this.pos.x), y = Math.round(this.pos.y - (this.lift || 0));
+      // (là où le viking est dessiné, entre deux pas de logique)
+      const at = this.drawPos || this.pos;
+      const x = Math.round(at.x), y = Math.round(at.y - (this.lift || 0));
       if (this.rowing) return { x: x + (this.rowboat.flip ? 3 : -3), y: y - 10, behind: false };
       const dir = this.flip ? -1 : 1;
       if (this.facing === 'side') return { x: x + dir * 3, y: y - 8, behind: false };
@@ -1351,8 +1352,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         rt.clear();
         rt.fill(hex(palette.b), veil);
         if (lit > 0.01) {
-          const size = flick > 1.04 ? 2 : flick < 0.96 ? 0 : 1;
-          this.lightStamp.setTexture(`torchlight${size}`).setPosition(Math.round(tp.x - rt.x), Math.round(tp.y + 4 - rt.y)).setAlpha(Math.min(1, this.torchOn * 1.1));
+          // Centrée sur le viking (pas sur la main : elle sauterait quand il
+          // se retourne) ; la flamme vacille en intensité, pas en taille
+          // (changer de taille rebattait toute la trame)
+          const at = this.drawPos || this.pos;
+          const lx = Math.round(at.x), ly = tp.y + 4, src = this.textures.get('torchlight-0-0').source[0];
+          const ox = ((lx - src.width / 2) % 4 + 4) % 4, oy = ((ly - src.height / 2) % 4 + 4) % 4;
+          const glow = 0.9 + 0.1 * Math.max(0, Math.min(1, (flick - 0.9) / 0.2));
+          this.lightStamp.setTexture(`torchlight-${ox}-${oy}`).setPosition(lx - rt.x, ly - rt.y).setAlpha(Math.min(1, this.torchOn * 1.1) * glow);
           rt.erase(this.lightStamp);
           // Là où un obstacle arrête la lumière, la nuit revient : jamais plus
           // sombre qu'hors du halo
@@ -1360,7 +1367,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           rt.draw(this.shadows, -rt.x, -rt.y);
         }
       }
-      this.glow.setPosition(tp.x, tp.y + 3).setScale(0.55 * flick, 0.38 * flick).setAlpha(0.1 * lit);
+      this.glow.setPosition(tp.x, tp.y + 3).setScale(0.55, 0.38).setAlpha(0.1 * lit * flick);
       // La flamme : un manche sombre, un cœur clair, des langues rouges
       const g = this.flame;
       g.clear();
@@ -1938,9 +1945,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
   // Le cercle de vue : net autour du viking, flou vers son bord (les masques
   // des calques flous, style.css, lisent sa taille), puis le noir, tramé par
   // paliers comme le halo de la torche, au bord rongé (rien de géométrique).
-  // En pixels du canevas : il a la taille et l'agrandissement du jeu.
+  // En pixels du canevas : il a la taille et l'agrandissement du jeu. Sa
+  // forme reste au milieu de l'écran, mais sa trame est accrochée au monde
+  // (comme celle de la torche) : elle ne fait pas grille fixe devant le
+  // paysage qui défile (`placeSight`, à chaque pixel de défilement).
   const sightCanvas = screenEl.querySelector('#sight');
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  const sight = { band: null, img: null, ctx: null, ox: -1, oy: -1 };
   function drawSight() {
     if (!sightCanvas) return;
     const c = game.canvas, W = c.width, H = c.height;
@@ -1954,21 +1965,41 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     const img = ctx.createImageData(W, H), d = img.data, rgb = RGB.k;
     // Le bord, d'un angle à l'autre : des bosses irrégulières
     const edge = a => 1 + 0.05 * Math.sin(a * 3 + 1.3) + 0.035 * Math.sin(a * 7 + 4.1) + 0.02 * Math.sin(a * 13 + 0.7);
+    // Le noir plein est posé une fois ; la bande tramée (pixel, niveau ×16)
+    // se redessine quand la trame se décale
+    const band = [];
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
         const dist = Math.hypot(dx, dy) / edge(Math.atan2(dy, dx));
         const t = (dist - SIGHT.fade) / (1 - SIGHT.fade);
-        if (t <= 0 || (t < 1 && t * 16 <= BAYER[(y & 3) * 4 + (x & 3)])) continue;
+        if (t <= 0) continue;
         const i = (y * W + x) * 4;
         d[i] = rgb[0]; d[i + 1] = rgb[1]; d[i + 2] = rgb[2]; d[i + 3] = 255;
+        if (t < 1) band.push(x, y, t * 16);
       }
     }
-    ctx.putImageData(img, 0, 0);
+    Object.assign(sight, { band, img, ctx, W, ox: -1, oy: -1 });
+    placeSight();
     // La taille du cercle, en pixels CSS, pour les masques du flou
     screenEl.style.setProperty('--sight-rx', `${(rx / k).toFixed(1)}px`);
     screenEl.style.setProperty('--sight-ry', `${(ry / k).toFixed(1)}px`);
   }
+  // La trame du bord suit le défilement de la vue (modulo 4)
+  function placeSight() {
+    if (!sight.img) return;
+    const v = game.scene.getScene('island')?.cameras?.main?.worldView;
+    const ox = v ? ((Math.floor(v.x) % 4) + 4) % 4 : 0, oy = v ? ((Math.floor(v.y) % 4) + 4) % 4 : 0;
+    if (ox === sight.ox && oy === sight.oy) return;
+    sight.ox = ox; sight.oy = oy;
+    const { band, img, W } = sight, d = img.data;
+    for (let n = 0; n < band.length; n += 3) {
+      const x = band[n], y = band[n + 1];
+      d[(y * W + x) * 4 + 3] = band[n + 2] > BAYER[((y + oy) & 3) * 4 + ((x + ox) & 3)] ? 255 : 0;
+    }
+    sight.ctx.putImageData(img, 0, 0);
+  }
+  game.events.on('postrender', placeSight);
 
   // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de base
   function resize() {

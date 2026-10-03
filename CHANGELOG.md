@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.35.1 — 2026-10-03
+- Moins de scintillement en marchant : la trame de la lumière de la torche et celle du bord du cercle de vue restent accrochées au sol
+- La torche vacille en intensité, plus en taille ; la caméra suit le viking pixel pour pixel
+
 ## 1.35.0 — 2026-10-03
 - Par défaut, il fait nuit et la tempête souffle (réglable dans les Réglages : « Toujours la nuit », météo)
 - La caméra se rapproche du viking, le suit de plus près et ne zoome plus (ni molette, ni combat, ni dans les intérieurs)

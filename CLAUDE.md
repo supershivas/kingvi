@@ -14,8 +14,8 @@ naturel, le jour et la nuit (par défaut : la nuit, toujours, et la tempête ;
 `prefs.dayNight`, `wind: 'tempete'`), un effet
 d'écran cathodique discret et un flou de maquette, désactivables.
 La vue est rapprochée (écran d'environ 280 pixels du jeu de haut), sans
-aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra serre
-le viking (`FOLLOW`) ; on ne voit qu'à distance de vue du héros : net autour
+aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra est
+fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
 de lui, flou vers le bord du cercle de vue, puis le noir, tramé par paliers,
 au bord rongé (`SIGHT`, `drawSight`, canevas `#sight`).
 **Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
@@ -480,6 +480,13 @@ n'est jamais implémenté automatiquement.
 - Il doit rester petit (environ 9 pixels de haut, écran d'environ 280 pixels
   de haut : `TARGET_HEIGHT`, rapproché de 440 à 352 puis à 280 ; le facteur
   restant entier, la vue varie un peu selon l'écran) et se lire comme une masse : pas de visage ni de détail.
+- **Trames et déplacement** : une trame (halo de la torche, ombres, bord du
+  cercle de vue) est toujours accrochée au monde (indice de Bayer pris sur les
+  coordonnées du monde, `torchLight(k, ox, oy)`, `placeSight`), jamais à
+  l'objet qui bouge : sinon, à chaque pixel de marche, toute la trame glisse
+  et scintille. Pas de vacillement par changement de taille d'une trame
+  (la torche vacille en intensité), et pas de caméra qui rattrape le viking
+  à son propre rythme (il tremblait d'un pixel à l'écran).
 - Le debug `setTime` sort de la nuit perpétuelle (`freeTime`) : sinon
   l'heure forcée du harnais n'aurait aucun effet.
 - Tout se mesure au viking : porte de la maison ≈ sa taille, loup à la

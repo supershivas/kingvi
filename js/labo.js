@@ -1,34 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.35.0';
+import { startUpdateCheck } from '../app-update.js?v=1.35.1';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.35.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.35.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.35.0';
+} from './viking.js?v=1.35.1';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.35.1';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.35.1';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.35.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.35.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.35.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.35.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.35.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.35.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.35.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.0';
-import { createSea } from './sea.js?v=1.35.0';
-import { buildStatueDoor } from './statue.js?v=1.35.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.35.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.35.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.35.0';
-import * as PROPS from './props.js?v=1.35.0';
-import { audio } from './audio.js?v=1.35.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.35.0';
-import { RUIN_ART } from './ruins-art.js?v=1.35.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.35.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.35.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.35.0';
+} from './world.js?v=1.35.1';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.35.1';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.35.1';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.35.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.35.1';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.35.1';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.35.1';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.1';
+import { createSea } from './sea.js?v=1.35.1';
+import { buildStatueDoor } from './statue.js?v=1.35.1';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.35.1';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.35.1';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.35.1';
+import * as PROPS from './props.js?v=1.35.1';
+import { audio } from './audio.js?v=1.35.1';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.35.1';
+import { RUIN_ART } from './ruins-art.js?v=1.35.1';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.35.1';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.35.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.35.1';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
