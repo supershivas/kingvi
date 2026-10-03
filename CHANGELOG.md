@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.44.2 — 2026-10-03
+- Une relique a deux dessins : celui de l'inventaire (10 × 10) et celui qu'on voit à terre sur l'île (4 × 4 au plus), chacun redessinable dans l'atelier
+
 ## 1.44.1 — 2026-10-03
 - Le coffre de la crypte rend un sceau, l'autre viking laisse tomber un anneau, le premier loup abattu une dent (dessins provisoires, dossier « Reliques » de l'atelier)
 

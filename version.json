@@ -1,7 +1,7 @@
 {
-  "version": "1.44.1",
+  "version": "1.44.2",
   "date": "2026-10-03",
   "changes": [
-    "Trois reliques de plus : le sceau (dans le coffre de la crypte), l'anneau (l'autre viking) et la dent (le premier loup abattu)"
+    "Reliques : un dessin à part pour l'île (de 1 à 4 pixels, dossier « Reliques sur l'île » de l'atelier) ; celui de l'inventaire garde sa taille"
   ]
 }

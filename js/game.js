@@ -4,30 +4,30 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.44.1';
+} from './viking.js?v=1.44.2';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.44.1';
-import { createPack } from './pack.js?v=1.44.1';
-import { createGround } from './ground.js?v=1.44.1';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.1';
-import { chapterById } from './chapters.js?v=1.44.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.44.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.1';
-import { RELICS, relicDesign, relicById } from './relics.js?v=1.44.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.1';
-import { createFauna } from './fauna.js?v=1.44.1';
-import { createWeather } from './weather.js?v=1.44.1';
-import { createSea } from './sea.js?v=1.44.1';
-import { audio } from './audio.js?v=1.44.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.1';
+} from './world.js?v=1.44.2';
+import { createPack } from './pack.js?v=1.44.2';
+import { createGround } from './ground.js?v=1.44.2';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.2';
+import { chapterById } from './chapters.js?v=1.44.2';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.2';
+import { BUNDLE, WATCHER } from './grove.js?v=1.44.2';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.2';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.2';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.2';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.2';
+import { RELICS, RELIC_GROUND_SIZE, relicDesign, relicGround, relicById } from './relics.js?v=1.44.2';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.2';
+import { createFauna } from './fauna.js?v=1.44.2';
+import { createWeather } from './weather.js?v=1.44.2';
+import { createSea } from './sea.js?v=1.44.2';
+import { audio } from './audio.js?v=1.44.2';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.2';
 
 const Phaser = window.Phaser;
 
@@ -485,7 +485,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
       art('blood', ['r']);
-      for (const r of RELICS) art(relicDesign(r.id), r.rows);
+      for (const r of RELICS) { art(relicDesign(r.id), r.rows); art(relicGround(r.id), r.ground); }
       art('bundle', BUNDLE);
       art('watcher', WATCHER);
       // Halo de la torche : une tache ronde, pleine au centre, qui s'efface
@@ -1614,8 +1614,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     // ── Les reliques ──
+    // (un dessin de largeur paire se pose sur un bord de pixel, pas au milieu)
+    dropX(x) { return Math.round(x) + (RELIC_GROUND_SIZE.w % 2 ? 0.5 : 0); }
+
     spawnDrop(id, x, y, where) {
-      const img = this.add.image(Math.round(x) + 0.5, Math.round(y), relicDesign(id)).setOrigin(0.5, 1).setVisible(false);
+      const img = this.add.image(this.dropX(x), Math.round(y), relicGround(id)).setOrigin(0.5, 1).setVisible(false);
       const d = { id, x, y, where, img, ready: true };
       img.setDepth(where ? DEPTH_ROOM + y : y + 1);
       this.drops.push(d);
@@ -1632,7 +1635,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       d.ready = false;
       d.img.setDepth(where ? DEPTH_ROOM + to.y + 1 : to.y + 1);
       audio.play(sound);
-      this.tweens.add({ targets: d.img, x: Math.round(to.x) + 0.5, duration: 480, ease: 'Quad.easeOut' });
+      this.tweens.add({ targets: d.img, x: this.dropX(to.x), duration: 480, ease: 'Quad.easeOut' });
       this.tweens.add({ targets: d.img, y: Math.round(to.y), duration: 480, ease: 'Bounce.easeOut', onComplete: () => { d.ready = true; } });
       this.persist();
     }

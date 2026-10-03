@@ -9,24 +9,25 @@
    positions, les portes, les obstacles en dépendent). Les couleurs sont
    ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
    viking (bleu nuit translucide) est permise pour ses poses. */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.44.1';
-import { HOUSE_ART } from './world.js?v=1.44.1';
-import { ROOM, CORPSE } from './interior.js?v=1.44.1';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.44.1';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.44.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.44.1';
-import { RUIN_ART } from './ruins-art.js?v=1.44.1';
-import { vikingFrames, capeFrames } from './viking.js?v=1.44.1';
-import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.44.1';
-import { STAG_RAW, DOE_RAW } from './deer.js?v=1.44.1';
-import { RELICS } from './relics.js?v=1.44.1';
-import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.44.1';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.44.2';
+import { HOUSE_ART } from './world.js?v=1.44.2';
+import { ROOM, CORPSE } from './interior.js?v=1.44.2';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.44.2';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.44.2';
+import { BUNDLE, WATCHER } from './grove.js?v=1.44.2';
+import { RUIN_ART } from './ruins-art.js?v=1.44.2';
+import { vikingFrames, capeFrames } from './viking.js?v=1.44.2';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.44.2';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.44.2';
+import { RELICS } from './relics.js?v=1.44.2';
+import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.44.2';
 
-export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot } from './design-store.js?v=1.44.1';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot } from './design-store.js?v=1.44.2';
 
 export const GROUPS = [
   { id: 'decor', title: 'Éléments du décor', about: 'La maison, la pièce, les barques, le coffre, la crypte, la grotte, le roi sur son trône, le guetteur…' },
   { id: 'reliques', title: 'Reliques', about: 'Ce qu\'on ramasse en chemin et qui va dans l\'inventaire (touche I). Placeholders à redessiner : 10 × 10 pixels.' },
+  { id: 'reliques-sol', title: 'Reliques sur l\'île', about: 'Les mêmes reliques vues à terre dans le jeu : de 1 à 4 pixels, 4 × 4 au plus. Celles de l\'inventaire sont dans « Reliques ».' },
   { id: 'ruines', title: 'Ruines et arches', about: 'L\'arche, la colonne couchée, le socle, l\'arche en ruine et le ponton du lac. Le dessin donne aussi la zone bloquée ; l\'endroit où l\'on monte (socle, ponton) reste celui d\'origine.' },
   { id: 'viking', title: 'Le viking : poses', about: 'Chaque image de la marche et des coups, de profil, de face, de dos et en diagonale. Une ombre au sol est possible (4e couleur).' },
   { id: 'cape', title: 'La cape du viking', about: 'Trois forces de vent, six temps chacune. Le coin d\'en haut à gauche est l\'épaule.' },
@@ -72,6 +73,7 @@ export const DESIGNS = [
     ['watcher', 'Le guetteur', WATCHER],
   ].map(([n, l, r]) => entry(n, l, r, 'decor')),
   ...RELICS.map(r => entry(`relique-${r.id}`, r.name, r.rows, 'reliques')),
+  ...RELICS.map(r => entry(`relique-${r.id}-sol`, `${r.name}, à terre`, r.ground, 'reliques-sol')),
   ...[
     ['decor-pont', 'Le ponton du lac', RUIN_ART.pont],
     ['decor-arche', 'L\'arche', RUIN_ART.arche],

@@ -1,7 +1,9 @@
 /* Les reliques de l'île : ce qu'on ramasse en chemin et qui va dans
    l'inventaire (touche I). Chacune a son dessin, à redessiner dans l'atelier
-   du labo (onglet Dessins, dossier « Reliques ») : ceux d'ici ne sont que des
-   placeholders, de la taille qu'il faut garder (RELIC_SIZE).
+   du labo (onglet Dessins) : ceux d'ici ne sont que des placeholders, de la
+   taille qu'il faut garder. Deux dessins par relique : celui de l'inventaire
+   (`rows`, RELIC_SIZE, dossier « Reliques ») et celui qu'on voit à terre sur
+   l'île (`ground`, RELIC_GROUND_SIZE, dossier « Reliques sur l'île »).
 
    Où on les trouve (game.js : `dropRelic`, `updateRelics`) :
    - la poupée : on frappe l'arbre sacré, une offrande tombe ;
@@ -11,7 +13,8 @@
    - l'anneau : il tombe de la main de l'autre viking quand il meurt ;
    - la dent : elle tombe du premier loup abattu. */
 
-export const RELIC_SIZE = { w: 10, h: 10 };
+export const RELIC_SIZE = { w: 10, h: 10 };            // le dessin de l'inventaire
+export const RELIC_GROUND_SIZE = { w: 4, h: 4 };       // la relique vue sur l'île : de 1 à 4 pixels (le viking en fait 9)
 
 export const RELICS = [
   {
@@ -28,6 +31,12 @@ export const RELICS = [
       '..bb..bb..',
       '..........',
     ],
+    ground: [
+      '.b..',
+      'bsb.',
+      '.s..',
+      'b.b.',
+    ],
   },
   {
     id: 'rubis', name: 'Le rubis du roi', about: 'Tombé de la poitrine du roi mort quand on l\'a frappé.',
@@ -42,6 +51,12 @@ export const RELICS = [
       '....bb....',
       '..........',
       '..........',
+    ],
+    ground: [
+      '....',
+      '.rr.',
+      'rsrr',
+      '.rr.',
     ],
   },
   {
@@ -58,6 +73,12 @@ export const RELICS = [
       '..bsssbb..',
       '...bbbb...',
     ],
+    ground: [
+      '.bb.',
+      'b..b',
+      'bssb',
+      '.bb.',
+    ],
   },
   {
     id: 'sceau', name: 'Le sceau de la crypte', about: 'Dans le coffre de la crypte, sous la statue de l\'îlot.',
@@ -72,6 +93,12 @@ export const RELICS = [
       '.bsssssbb.',
       '..bbbbbb..',
       '..........',
+    ],
+    ground: [
+      '.bb.',
+      'bssb',
+      'bssb',
+      '.bb.',
     ],
   },
   {
@@ -88,6 +115,12 @@ export const RELICS = [
       '...bbb....',
       '..........',
     ],
+    ground: [
+      '.bb.',
+      'b..b',
+      'b.rb',
+      '.bb.',
+    ],
   },
   {
     id: 'loup', name: 'La dent du loup', about: 'Arrachée à l\'un des loups de la forêt noire.',
@@ -103,8 +136,15 @@ export const RELICS = [
       '.....bb...',
       '..........',
     ],
+    ground: [
+      '..s.',
+      '.bs.',
+      '.bs.',
+      '..b.',
+    ],
   },
 ];
 
 export const relicDesign = id => `relique-${id}`;
+export const relicGround = id => `relique-${id}-sol`;
 export const relicById = id => RELICS.find(r => r.id === id);

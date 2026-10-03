@@ -369,7 +369,7 @@ est cachée et ne sort que pendant l'attaque.
   s'affaisse ; l'estrade bloque) ; `caveWalkable`, `atCaveDoor`,
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
 - `js/relics.js` — les reliques (`RELICS` : id, nom, texte, dessin placeholder
-  10 × 10 `relique-<id>`, à redessiner dans l'atelier, dossier « Reliques »).
+  10 × 10 `relique-<id>` pour l'inventaire, et `relique-<id>-sol`, 4 × 4, celui qu'on voit à terre sur l'île, dossiers « Reliques » et « Reliques sur l'île » de l'atelier).
   Dans le jeu (`game.js`) : `dropRelic` (elle tombe en rebondissant et reste au
   sol jusqu'à ce qu'on marche dessus : `updateRelics`, `collectRelic`), la
   poupée quand on frappe l'arbre sacré (`knockGrove`), le rubis quand on frappe
