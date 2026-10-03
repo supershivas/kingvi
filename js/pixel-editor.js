@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.42.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.42.0';
+import { gamePalette } from './design-store.js?v=1.42.1';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.42.1';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -35,7 +35,7 @@ const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 const DENSITIES = [['25 %', 4], ['50 %', 8], ['75 %', 12]];
 const HIST_MAX = 80;
 // La pelure d'oignon : les images d'avant en rouge, celles d'après en bleu, de moins en moins visibles
-const ONION = { prev: '192,57,43', next: '41,121,255', alpha: [0.42, 0.2] };
+const ONION = { prev: '229,72,77', next: '59,130,246', alpha: [0.7, 0.38] };
 
 let dlg = null, vikingCanvas = null;
 
@@ -135,7 +135,7 @@ function build() {
   return d;
 }
 
-export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset }) {
+export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {} }) {
   dlg?.remove();
   dlg = build();
   const pal = gamePalette();
@@ -181,12 +181,17 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const strip = $('.pxe-frames');
   if (n > 1) {
     strip.hidden = false; $('.pxe-anim').hidden = false; $('.pxe-nav').hidden = false;
-    strip.innerHTML = frames.map((f, i) => `<button type="button" data-frame="${i}" title="${f.label}"><canvas></canvas><span>${i + 1}</span></button>`).join('');
+    strip.innerHTML = frames.map((f, i) => `<button type="button" data-frame="${i}" title="${f.label}"><canvas></canvas><span>${i + 1}</span></button>`).join('') + `
+      <div class="pxe-strip-tools">
+        <button type="button" data-toggle="onion" title="Pelure d'oignon : les images voisines (N)"><i class="ti ti-layers-subtract"></i> Pelure d'oignon</button>
+        <button type="button" data-toggle="all" title="Chaque trait sur toutes les images (A)"><i class="ti ti-link"></i> Toutes les images</button>
+        <button type="button" data-act="play" title="Lecture (P)"><i class="ti ti-player-play"></i> Lecture</button>
+      </div>`;
   }
   const thumbK = Math.max(1, Math.min(8, Math.floor(110 / w), Math.floor(80 / h)));
   function drawThumbs() {
     if (n < 2) return;
-    strip.querySelectorAll('button').forEach((b, i) => {
+    strip.querySelectorAll('button[data-frame]').forEach((b, i) => {
       const cv = b.querySelector('canvas'), c = cv.getContext('2d');
       cv.width = w; cv.height = h; cv.style.width = `${w * thumbK}px`; cv.style.height = `${h * thumbK}px`;
       c.fillStyle = '#7f8aa3'; c.fillRect(0, 0, w, h);
@@ -212,7 +217,8 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     $('.pxe-sub').textContent = `${frames[fi].name} · ${w} × ${h} pixels`;
     $('.pxe-fnum').textContent = `${fi + 1} / ${n}`;
     $('.pxe-fps').textContent = `${pfps} im/s`;
-    $('[data-act="play"] i').className = `ti ti-player-${playing ? 'pause' : 'play'}`;
+    for (const i of dlg.querySelectorAll('[data-act="play"] i')) i.className = `ti ti-player-${playing ? 'pause' : 'play'}`;
+    for (const b of dlg.querySelectorAll('[data-toggle]')) b.classList.toggle('on', !!st[b.dataset.toggle]);
     $('[data-opt="all"]').checked = st.all; $('[data-opt="onion"]').checked = st.onion;
     $('.pxe-body').classList.toggle('all-frames', st.all && n > 1);
   };
@@ -236,13 +242,21 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
       for (let x = 1; x < w; x++) vctx.fillRect(x * st.z, 0, 1, view.height);
       for (let y = 1; y < h; y++) vctx.fillRect(0, y * st.z, view.width, 1);
     }
-    if (st.onion && n > 1) {                        // les images voisines, en transparence
+    if (st.onion && n > 1) {
+      // Les images voisines : là où le dessin en cours est vide, leur case est colorée ;
+      // là où il est plein, un point (on voit ainsi ce qui bouge, partout)
+      const dot = Math.max(2, Math.round(st.z / 3));
       for (let k = st.onionN; k >= 1; k--) {
         for (const [dir, col] of [[-1, ONION.prev], [1, ONION.next]]) {
           const g = grids[(((fi + dir * k) % n) + n) % n];
           if (g === grid) continue;
           vctx.fillStyle = `rgba(${col},${ONION.alpha[k - 1]})`;
-          for (let i = 0; i < w * h; i++) if (g[i]) vctx.fillRect((i % w) * st.z + 1, ((i / w) | 0) * st.z + 1, Math.max(1, st.z - 2), Math.max(1, st.z - 2));
+          for (let i = 0; i < w * h; i++) {
+            if (!g[i]) continue;
+            const x = (i % w) * st.z, y = ((i / w) | 0) * st.z;
+            if (grid[i]) vctx.fillRect(x + ((st.z - dot) >> 1), y + ((st.z - dot) >> 1), dot, dot);
+            else vctx.fillRect(x, y, st.z, st.z);
+          }
         }
       }
     }
@@ -468,6 +482,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     else if (b.dataset.frame) return goto(+b.dataset.frame);
     else if (b.dataset.nudge) return nudge(...b.dataset.nudge.split(',').map(Number));
     else if (b.dataset.onion) st.onionN = +b.dataset.onion;
+    else if (b.dataset.toggle) st[b.dataset.toggle] = !st[b.dataset.toggle];
     else if (b.dataset.act === 'undo') return undo(-1);
     else if (b.dataset.act === 'redo') return undo(1);
     else if (b.dataset.act === 'zoomin') return zoom(1);
@@ -536,6 +551,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     document.documentElement.classList.remove('pxe-open');
     clearInterval(timer); clearTimeout(saveTimer);
     if (changed) flush(true);
+    onClose(changed);
   }, { once: true });
 
   document.documentElement.classList.add('pxe-open');      // (la page derrière ne défile plus)

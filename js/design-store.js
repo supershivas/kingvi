@@ -141,6 +141,19 @@ export function imageToRows(img, name) {
   return { rows, off };
 }
 
+// ── Ce qui vient d'être publié depuis ce navigateur ──
+// Une fois publiée, une retouche n'est plus « à moi » : le navigateur suit le dépôt, pour
+// voir aussi ce que publient les autres appareils. Mais GitHub Pages met un moment à
+// republier : pendant quelques minutes, on garde ce qu'on vient d'envoyer.
+const SENT_KEY = 'kingvi:designs-sent', SENT_TTL = 15 * 60 * 1000;
+function readSent() { try { return JSON.parse(localStorage.getItem(SENT_KEY)) || {}; } catch { return {}; } }
+function writeSent(o) { try { localStorage.setItem(SENT_KEY, JSON.stringify(o)); } catch { /* rien */ } }
+export function markSent(map) {
+  const all = readSent(), at = Date.now();
+  for (const [name, rows] of Object.entries(map)) all[name] = { rows, at };
+  writeSent(all);
+}
+
 // ── Ce qui est retouché ici, dans ce navigateur ──
 export function readLocal() {
   try { return JSON.parse(localStorage.getItem(LOCAL_KEY)) || {}; } catch { return {}; }
@@ -173,6 +186,13 @@ export async function loadDesigns() {
   // Ce qui est retouché ici et que le dépôt publie désormais à l'identique n'a plus
   // besoin d'être gardé ici : ce navigateur suit alors le dépôt, comme les autres
   local.clear();
+  const sent = readSent(), now = Date.now();
+  let sentChanged = false;
+  for (const [name, e] of Object.entries(sent)) {
+    if (now - e.at > SENT_TTL || depot.get(name)?.join('\n') === e.rows.join('\n')) { delete sent[name]; sentChanged = true; continue; }
+    local.set(name, e.rows);          // (publié il y a peu : le site n'a pas forcément fini de se mettre à jour)
+  }
+  if (sentChanged) writeSent(sent);
   const mine = readLocal();
   let dropped = false;
   for (const [name, rows] of Object.entries(mine)) {
@@ -185,9 +205,12 @@ export async function loadDesigns() {
 // Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et
 // dire quels dessins ont changé (le jeu ouvert les redessine aussitôt)
 export function refreshLocal() {
-  const changed = [], now = readLocal();
-  for (const name of new Set([...Object.keys(now), ...local.keys()])) {
-    const rows = now[name], was = local.get(name);
+  // (ce qui vient d'être publié compte comme retouché ici, le temps que le site se mette à jour)
+  const changed = [], now = Date.now(), merged = {};
+  for (const [name, e] of Object.entries(readSent())) if (now - e.at <= SENT_TTL) merged[name] = e.rows;
+  Object.assign(merged, readLocal());
+  for (const name of new Set([...Object.keys(merged), ...local.keys()])) {
+    const rows = merged[name], was = local.get(name);
     if (rows && was?.join('') === rows.join('')) continue;
     if (!rows && !was) continue;
     if (rows) local.set(name, rows); else local.delete(name);

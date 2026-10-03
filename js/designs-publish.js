@@ -7,7 +7,7 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal } from './designs.js?v=1.42.0';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent } from './designs.js?v=1.42.1';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
@@ -83,6 +83,10 @@ export async function publish(progress = () => {}) {
     });
     try {
       await gh(token, `/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: { sha: made.sha } });
+      // Publié : ces dessins ne sont plus « à moi ». Ce navigateur suivra le dépôt (donc ce que
+      // publient les autres appareils), en gardant un moment ce qu'il vient d'envoyer
+      markSent(Object.fromEntries(items.map(i => [i.name, i.rows])));
+      for (const it of items) setLocalDesign(it.name, null);
       return items.length;
     } catch (e) {
       // quelqu'un a poussé entre-temps : on recommence une fois sur la nouvelle pointe

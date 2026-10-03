@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.42.1 — 2026-10-03
+- Dessins publiés : une retouche envoyée est gardée 15 min puis laisse la place à la version du dépôt, pour que l'iPad et le MacBook voient la même chose
+- Labo : l'état des dessins dit combien ne sont pas encore publiés ; case « Publier automatiquement » (désactivée par défaut)
+- Pelure d'oignon plus visible (avant en rouge, après en bleu), avec boutons Pelure d'oignon / Toutes les images / Lecture sous le dessin
+
 ## 1.42.0 — 2026-10-03
 - Éditeur de pixels : une animation (marche, coup, galop, cape…) s'ouvre avec toutes ses images dans une bande, on passe de l'une à l'autre
 - Pelure d'oignon : les images voisines en transparence (avant en rouge, après en bleu)

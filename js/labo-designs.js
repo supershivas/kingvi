@@ -6,9 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.42.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.42.0';
-import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.42.0';
+} from './designs.js?v=1.42.1';
+import { openPixelEditor } from './pixel-editor.js?v=1.42.1';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.42.1';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
@@ -40,6 +40,7 @@ intro.innerHTML = `
   <div class="design-actions">
     <button type="button" class="design-btn primary" data-publish>Publier pour tous</button>
     <button type="button" class="design-btn" data-key>Clé GitHub…</button>
+    <label class="design-auto"><input type="checkbox" data-auto> Publier automatiquement à la fermeture de l'éditeur</label>
     <button type="button" class="design-btn" data-copy title="Pour les envoyer à Claude">Copier mes modifications</button>
     <span class="design-note" role="status"></span>
   </div>
@@ -72,11 +73,25 @@ const syncKey = () => { keyInfo.hidden = !getToken(); status(); };
 // Où en sont les dessins : ce que le dépôt publie (donc tous les appareils), ce qui n'est que ici
 function status() {
   const src = DESIGNS.map(d => designSource(d.name));
-  const pub = src.filter(s => s === 'depot').length, mine = src.filter(s => s === 'local').length;
-  intro.querySelector('.design-status').textContent =
-    `Publiés dans le jeu (visibles partout) : ${pub} · Retouchés ici, pas encore publiés : ${mine} · ` +
-    (getToken() ? 'Clé GitHub enregistrée sur cet appareil (pour publier).' : 'Pas de clé GitHub sur cet appareil (inutile pour voir, nécessaire pour publier).');
+  const unpub = pending().length, pub = src.filter(s => s === 'depot').length + src.filter(s => s === 'local').length - unpub;
+  const el = intro.querySelector('.design-status');
+  el.textContent =
+    `Publiés dans le jeu (visibles partout) : ${pub} · Retouchés ici, PAS ENCORE publiés : ${unpub}${unpub ? ' (invisibles sur les autres appareils : « Publier pour tous »)' : ''} · ` +
+    (getToken() ? 'Clé GitHub enregistrée sur cet appareil.' : 'Pas de clé GitHub sur cet appareil (inutile pour voir, nécessaire pour publier).');
+  el.classList.toggle('warn', unpub > 0);
 }
+// Publier tout seul à la fermeture de l'éditeur (réglage de cet appareil, désactivé par défaut)
+const AUTO_KEY = 'kingvi:autopublish';
+const autoBox = intro.querySelector('[data-auto]');
+try { autoBox.checked = localStorage.getItem(AUTO_KEY) === '1'; } catch { /* rien */ }
+autoBox.addEventListener('change', () => {
+  try { localStorage.setItem(AUTO_KEY, autoBox.checked ? '1' : '0'); } catch { /* rien */ }
+  if (autoBox.checked && !getToken()) showToken();
+});
+const afterEditing = () => {
+  status();
+  if (autoBox.checked && pending().length) { if (getToken()) runPublish(); else showToken(); }
+};
 syncKey();
 async function runPublish() {
   const n = pending().length;
@@ -89,7 +104,7 @@ async function runPublish() {
   } catch (e) {
     note.textContent = e.message;
     if (/jeton|Jeton/.test(e.message)) { setToken(''); syncKey(); tokenBox.hidden = false; }
-  } finally { btn.disabled = false; }
+  } finally { btn.disabled = false; status(); }
 }
 // La clé d'abord (même sans rien à publier : sur un autre appareil, on la colle avant de dessiner)
 const showToken = () => { tokenBox.hidden = false; tokenBox.scrollIntoView({ block: 'nearest' }); tokenBox.querySelector('input').focus(); };
@@ -190,6 +205,7 @@ function cell(d, group) {
       // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
       onSave: (name, rows) => { setLocalDesign(name, rows); applyLocal(name, rows); refresh(name); },
       onReset: async name => { setLocalDesign(name, null); applyLocal(name, null); await loadDesigns(); refresh(name); },
+      onClose: afterEditing,
     });
   });
   el.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(rowsOf(d.name))));

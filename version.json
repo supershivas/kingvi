@@ -1,7 +1,8 @@
 {
-  "version": "1.42.0",
+  "version": "1.42.1",
   "date": "2026-10-03",
   "changes": [
-    "Éditeur de pixels : mode animation avec toutes les images, pelure d'oignon, modification de toutes les images ensemble, décalage et lecture"
+    "Dessins publiés : l'iPad et le MacBook voient les mêmes images (une retouche envoyée ne masque plus la version du dépôt), état « pas encore publiés » dans le labo, publication automatique en option",
+    "Pelure d'oignon bien visible (rouge avant, bleu après) avec boutons sous le dessin"
   ]
 }

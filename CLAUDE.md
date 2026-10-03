@@ -294,7 +294,7 @@ est cachée et ne sort que pendant l'attaque.
   mise à jour de la référence), avec un jeton personnel fin (droit « Contents :
   Read and write » sur ce seul dépôt) collé une fois et gardé dans ce
   navigateur (`kingvi:gh-token`) ; GitHub Pages republie, le jeu lit les images
-  à son lancement. Une retouche locale identique à la publiée est abandonnée
+  à son lancement. Après une publication, les dessins envoyés restent 15 min dans `kingvi:designs-sent` (`markSent`) au lieu de masquer le dépôt ; le labo affiche les dessins pas encore publiés et propose une publication automatique (`kingvi:autopublish`, désactivée par défaut). Pelure d'oignon : voisin rouge/bleu, boutons sous le canevas. Une retouche locale identique à la publiée est abandonnée
   au chargement (`loadDesigns`) : le navigateur suit alors le dépôt. Repli :
   « Copier mes modifications » (`designsToText`) → texte collé à Claude →
   `node scripts/designs-vers-png.mjs texte.txt`. PNG décodé sans canevas

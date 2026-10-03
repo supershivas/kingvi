@@ -174,3 +174,10 @@ html.pxe-open { overflow: hidden; }
 .pxe-nudge { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: .85rem; }
 .pxe-play { display: flex; align-items: center; gap: 6px; }
 .pxe-fps { font: .8rem var(--font-mono); min-width: 4.5em; text-align: center; }
+
+.pxe-strip-tools { margin-left: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; flex: none; }
+.pxe-frames .pxe-strip-tools button { position: static; display: inline-flex; align-items: center; gap: 6px; min-height: 48px; padding: 0 14px; font: inherit; font-size: .85rem; color: #1f2a44; border: 2px solid #b4bfd0; border-radius: 8px; background: #fff; cursor: pointer; }
+.pxe-frames .pxe-strip-tools button.on { background: #1f2a44; color: #fff; border-color: #1f2a44; }
+
+.design-status.warn { color: var(--accent); font-weight: 600; }
+.design-auto { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap); font-size: .85rem; cursor: pointer; }
