@@ -1,8 +1,7 @@
 {
-  "version": "1.41.0",
+  "version": "1.42.0",
   "date": "2026-10-03",
   "changes": [
-    "Éditeur de pixels : plein écran, sans menus de sélection sur iPad, deux doigts pour déplacer la vue",
-    "Taille des outils de 1 à 5 pixels ; nouveaux outils Trame (pinceau tramé) et Dégradé tramé"
+    "Éditeur de pixels : mode animation avec toutes les images, pelure d'oignon, modification de toutes les images ensemble, décalage et lecture"
   ]
 }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.42.0 — 2026-10-03
+- Éditeur de pixels : une animation (marche, coup, galop, cape…) s'ouvre avec toutes ses images dans une bande, on passe de l'une à l'autre
+- Pelure d'oignon : les images voisines en transparence (avant en rouge, après en bleu)
+- « Modifier toutes les images ensemble » : chaque trait, gomme, couleur ou décalage se fait sur toutes les images à la fois
+- Lecture de l'animation avec réglage de la vitesse
+
 ## 1.41.0 — 2026-10-03
 - Éditeur de pixels en plein écran ; sur iPad, plus de menu de sélection ni de loupe quand on dessine, deux doigts déplacent la vue
 - Taille des outils de 1 à 5 pixels ([ et ] au clavier), bouton pour ajuster le zoom à l'écran

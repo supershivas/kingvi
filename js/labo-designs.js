@@ -6,9 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.41.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.41.0';
-import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.41.0';
+} from './designs.js?v=1.42.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.42.0';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.42.0';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
@@ -32,7 +32,7 @@ intro.className = 'demo wide';
 intro.innerHTML = `
   <h3><span class="tag">Mode d'emploi</span><span>Redessiner le jeu</span></h3>
   <ol class="design-steps">
-    <li><b>Dessiner</b> : ouvrez un groupe ci-dessous (décor, ruines et arches, poses du viking, de sa cape, du loup, des cerfs et des biches), puis « Dessiner » sur une image. L'éditeur s'ouvre (crayon, gomme, pot de peinture, formes, symétries, annuler, zoom). Un viking à côté donne l'échelle ; pour une pose, le « fantôme » de l'image d'avant aide à caler le mouvement.</li>
+    <li><b>Dessiner</b> : ouvrez un groupe ci-dessous (décor, ruines et arches, poses du viking, de sa cape, du loup, des cerfs et des biches), puis « Dessiner » sur une image. L'éditeur s'ouvre en plein écran (crayon, gomme, pot de peinture, formes, trame, taille de 1 à 5, symétries, annuler, zoom). Un viking à côté donne l'échelle. Pour une animation (une marche, un galop, un coup), il s'ouvre avec toutes ses images : la pelure d'oignon montre les voisines, « Modifier toutes les images ensemble » fait chaque trait partout à la fois, et la lecture la fait tourner.</li>
     <li><b>Voir</b> : chaque trait est enregistré aussitôt, et les animations de chaque groupe tournent avec vos dessins. Ouvrez le jeu dans un autre onglet <em>du même navigateur</em> : l'élément, le viking, sa cape et le loup se repeignent tout seuls ; le reste (ruines, arches, cerfs) au prochain lancement.</li>
     <li><b>Publier pour tous</b> : le bouton ci-dessous écrit vos dessins dans le dépôt du jeu ; une à dix minutes plus tard, ils sont dans le jeu sur tous les appareils (la première fois, il demande une clé GitHub : le guide s'affiche).</li>
   </ol>
@@ -179,15 +179,17 @@ function cell(d, group) {
   cells.set(d.name, el);
   const say = t => { el.querySelector('.design-note').textContent = t; };
   el.querySelector('[data-draw]').addEventListener('click', () => {
-    // le « fantôme » : l'image d'avant dans l'enchaînement qui la contient
-    const seq = (SEQUENCES[group] || []).find(s => s.names.includes(d.name));
-    const at = seq ? seq.names.indexOf(d.name) : -1;
-    const prev = seq ? seq.names[(at + seq.names.length - 1) % seq.names.length] : null;
+    // Une animation s'ouvre avec toutes ses images : pelure d'oignon, modification d'ensemble, lecture
+    const seq = (SEQUENCES[group] || []).find(sq => sq.names.includes(d.name));
+    const names = seq ? [...new Set(seq.names)] : [d.name];
     openPixelEditor({
-      name: d.name, label: d.label, original: d.rows, rows: rowsOf(d.name), ghost: prev && prev !== d.name ? () => rowsOf(prev) : null,
+      frames: names.map(nm => ({ name: nm, label: DESIGNS.find(x => x.name === nm).label, original: originalRows(nm), rows: rowsOf(nm) })),
+      index: names.indexOf(d.name),
+      order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,
+      fps: seq?.fps || 8,
       // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
-      onSave: rows => { setLocalDesign(d.name, rows); applyLocal(d.name, rows); refresh(d.name); },
-      onReset: async () => { setLocalDesign(d.name, null); applyLocal(d.name, null); await loadDesigns(); refresh(d.name); },
+      onSave: (name, rows) => { setLocalDesign(name, rows); applyLocal(name, rows); refresh(name); },
+      onReset: async name => { setLocalDesign(name, null); applyLocal(name, null); await loadDesigns(); refresh(name); },
     });
   });
   el.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(rowsOf(d.name))));

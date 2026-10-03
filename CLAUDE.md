@@ -259,8 +259,16 @@ est cachée et ne sort que pendant l'attaque.
   rectangle, ellipse, pipette, **trame** (pinceau tramé, trame de Bayer 4 × 4 comme
   le halo et les ombres du jeu, densité 25 / 50 / 75 %, accrochée aux pixels de
   l'image) et **dégradé tramé** (glisser un rectangle), taille des outils de 1 à
-  5 pixels, symétries, annuler, zoom, ajuster, grille, aperçu avec le viking,
-  « fantôme » de l'image précédente d'une animation ; **plein écran** (`100dvh`,
+  5 pixels, symétries, annuler, zoom, ajuster, grille, aperçu avec le viking ;
+  **mode animation** : une animation (un enchaînement de `SEQUENCES`, dédoublonné)
+  s'ouvre avec toutes ses images (`frames`, `order` pour la lecture : le galop
+  répète une pose), une bande de vignettes, **pelure d'oignon** (1 ou 2 images
+  voisines, d'avant en rouge, d'après en bleu), **« Modifier toutes les images
+  ensemble »** (`st.all` : `set()` écrit dans toutes les grilles ; cadre rouge
+  autour de la zone de travail), décalage d'un pixel, lecture avec vitesse ;
+  un dessin seul n'a ni bande ni section Animation ; l'historique garde un
+  instantané de toutes les images, `onSave(nom, rangées)` n'est appelé que pour
+  les images vraiment changées ; **plein écran** (`100dvh`,
   page figée derrière) et **tactile** : un doigt ou l'Apple Pencil dessine,
   deux doigts déplacent la vue (le trait commencé est annulé), ni menu de
   sélection / copier, ni loupe, ni zoom de la page : `contextmenu`,
