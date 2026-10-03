@@ -1,15 +1,15 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.34.0';
-import { createGame } from './game.js?v=1.34.0';
-import { showChapter } from './chapters.js?v=1.34.0';
-import { createTitleSea } from './titlesea.js?v=1.34.0';
-import { audio } from './audio.js?v=1.34.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.34.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.34.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.35.0';
+import { createGame } from './game.js?v=1.35.0';
+import { showChapter } from './chapters.js?v=1.35.0';
+import { createTitleSea } from './titlesea.js?v=1.35.0';
+import { audio } from './audio.js?v=1.35.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.35.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.35.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.34.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.35.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -31,14 +31,19 @@ const palette = {
   k: css.getPropertyValue('--game-black').trim(),   // le noir du dehors, vu de l'intérieur
 };
 
-const prefs = { crt: true, tilt: true, wind: 'cycle', dayOffset: 0, music: true, sfx: true, ...read(PREFS_KEY, {}) };
+// Par défaut : la nuit, toujours, et la tempête
+const prefs = { crt: true, tilt: true, wind: 'tempete', dayOffset: 0, dayNight: true, music: true, sfx: true, ...read(PREFS_KEY, {}) };
 // Ancien réglage (moment figé) : on repart de ce moment-là, et le temps s'écoule
 if (prefs.dayFixed != null) { prefs.dayOffset = prefs.dayFixed - Date.now() / 1000; delete prefs.dayFixed; write(PREFS_KEY, prefs); }
-// L'heure du jeu : l'horloge réelle, décalée si le joueur a choisi un autre moment
-const dayClock = () => Date.now() / 1000 + (prefs.dayOffset || 0);
+// L'heure du jeu : le milieu de la nuit (par défaut), ou l'horloge réelle,
+// décalée si le joueur a choisi un autre moment
+const MIDNIGHT = DAY_LENGTH - DAY_CYCLE.at(-1)[1] / 2;
+const dayClock = () => prefs.dayNight ? MIDNIGHT : Date.now() / 1000 + (prefs.dayOffset || 0);
 // Le vent suit désormais un cycle naturel : on y bascule une fois ceux qui
 // avaient l'ancienne valeur par défaut (une ambiance fixe)
 if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
+// La nuit et la tempête deviennent le temps par défaut : une fois, pour tous
+if (!prefs.nightStorm) { prefs.wind = 'tempete'; prefs.dayNight = true; prefs.nightStorm = true; write(PREFS_KEY, prefs); }
 // La qualité de l'image (1 → 4) remplace les cases CRT et flou : on la
 // déduit des anciennes cases, une fois
 if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt === false ? 1 : prefs.crt === false || prefs.tilt === false ? 2 : 3; write(PREFS_KEY, prefs); }
@@ -311,7 +316,8 @@ title.addEventListener('keydown', e => { if (e.key === 'Escape' && hasSave()) cl
 let startNow = false;
 try { startNow = sessionStorage.getItem('kingvi:start') === '1'; sessionStorage.removeItem('kingvi:start'); } catch { /* rien */ }
 if (startNow) closeTitle(); else openTitle();
-debug?.attachDebug({ game, dayClock, enter: closeTitle });
+// (le harnais qui règle l'heure sort de la nuit perpétuelle)
+debug?.attachDebug({ game, dayClock, enter: closeTitle, freeTime: () => { prefs.dayNight = false; } });
 
 // ── En-tête : le nom ramène à l'écran d'accueil et referme les réglages ──
 $('home').addEventListener('click', e => {
@@ -425,15 +431,18 @@ function clockText(d) {
 }
 function syncDaytime() {
   if (document.activeElement !== daySlider) daySlider.value = String(Math.floor(dayNow()));
-  const real = !prefs.dayOffset;
+  const real = !prefs.dayOffset && !prefs.dayNight;
   $('opt-dayauto').checked = real;
+  $('opt-daynight').checked = !!prefs.dayNight;
   const d = daylightAt(dayNow());
   paintNotches();
-  $('daytime-label').textContent = `${DAY_LABELS[d.phase]}, ${clockText(d)}` +
+  $('daytime-label').textContent = prefs.dayNight ? 'Nuit, toujours'
+    : `${DAY_LABELS[d.phase]}, ${clockText(d)}` +
     (real ? ' — suit l\'heure réelle (un jour dure 20 minutes)' : ' — le temps s\'écoule depuis le moment choisi');
 }
 daySlider.addEventListener('input', () => {
   const now = Date.now() / 1000;
+  prefs.dayNight = false;
   prefs.dayOffset = Number(daySlider.value) - (now % DAY_LENGTH);
   write(PREFS_KEY, prefs);
   syncDaytime();
@@ -441,6 +450,15 @@ daySlider.addEventListener('input', () => {
 });
 $('opt-dayauto').addEventListener('change', e => {
   prefs.dayOffset = e.target.checked ? 0 : prefs.dayOffset || 0.001;
+  prefs.dayNight = false;
+  write(PREFS_KEY, prefs);
+  syncDaytime();
+  game.refreshDaylight();
+});
+$('opt-daynight').addEventListener('change', e => {
+  prefs.dayNight = e.target.checked;
+  // (en la quittant, on reprend la nuit là où elle était, et le temps s'écoule)
+  if (!prefs.dayNight) prefs.dayOffset = MIDNIGHT - (Date.now() / 1000 % DAY_LENGTH);
   write(PREFS_KEY, prefs);
   syncDaytime();
   game.refreshDaylight();

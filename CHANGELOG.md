@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.35.0 — 2026-10-03
+- Par défaut, il fait nuit et la tempête souffle (réglable dans les Réglages : « Toujours la nuit », météo)
+- La caméra se rapproche du viking, le suit de plus près et ne zoome plus (ni molette, ni combat, ni dans les intérieurs)
+- On ne voit qu'à distance de vue du héros : net autour de lui, flou au bord, puis le noir
+
 ## 1.34.0 — 2026-10-03
 - Le jeu se dessine en vraie basse définition : image identique, deux fois plus fluide, lignes cathodiques posées sur les pixels
 - Les combats se jouent pareil sur un ordinateur lent ou rapide ; plus de ralenti, Maj ne bloque plus l'épée à bout de souffle

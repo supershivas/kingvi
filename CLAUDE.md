@@ -10,10 +10,14 @@ couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le sang et les
 repères du labo). **Aucun pixel noir** : ce qui était noir (rochers, coques,
 traits des dessins, fond autour des intérieurs) est en bleu nuit (`--game-black`
 vaut le bleu nuit ; la lettre `k` des dessins existe toujours, même couleur), avec un temps qui change selon un cycle
-naturel, le jour et la nuit, un effet
-d'écran cathodique discret et un flou de maquette (en ellipse autour du
-héros), désactivables.
-Vue de très loin : on doit sentir l'immensité de l'île.
+naturel, le jour et la nuit (par défaut : la nuit, toujours, et la tempête ;
+`prefs.dayNight`, `wind: 'tempete'`), un effet
+d'écran cathodique discret et un flou de maquette, désactivables.
+La vue est rapprochée (écran d'environ 280 pixels du jeu de haut), sans
+aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra serre
+le viking (`FOLLOW`) ; on ne voit qu'à distance de vue du héros : net autour
+de lui, flou vers le bord du cercle de vue, puis le noir, tramé par paliers,
+au bord rongé (`SIGHT`, `drawSight`, canevas `#sight`).
 **Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
 arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 (falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués
@@ -61,7 +65,7 @@ Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
 Au bout des traces, un autre viking attend : il vient au contact et frappe ;
-trois coups de part et d'autre abattent (zoom d'action, sang qui gicle, on
+trois coups de part et d'autre abattent (sang qui gicle, on
 saigne en marchant, les blessures se referment hors du combat). Mort, le
 noir se referme sur le corps (`shutIris`), « Vous êtes mort » s'inscrit, on
 repart de la barque (`onDeath` → `die` dans `main.js`, `respawn`), le noir se
@@ -141,8 +145,7 @@ dans le jeu : boutons `.scrap`, réglages `.modal.stone` avec crans `.notches`).
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
-les diagonales se jouent de profil, lame en travers), molette pour un léger
-zoom (90 à 110 % ; nets seulement à 100 %). Le bouton maintenu
+les diagonales se jouent de profil, lame en travers). Le bouton maintenu
 `WHIRL_HOLD` secondes (2, à régler dans `game.js`) : un remous de neige
 grossit autour des pieds (`updateCharge`), puis le coup tourbillonnant, un
 tour complet lame sortie, qui trace un anneau épais et bosselé (`whirlArc`,
@@ -203,13 +206,12 @@ est cachée et ne sort que pendant l'attaque.
   le temps (`fps.smoothStep: false`) ; la caméra suit à la même allure à toute
   cadence (`FOLLOW`). Les combats se jouent pareil à 7 ou à 60 images/s.
   **Vraie basse définition** : le canevas a un pixel par pixel du jeu
-  (~352 de haut), agrandi sans lissage d'un facteur entier de pixels
-  physiques (`fitScreen` : `factor` ; zoom Phaser `factor/dpr`). Le zoom
-  (`updateZoom`, en pixels physiques par pixel du jeu : base, molette ±,
-  combat, ×2 dedans) : arrivé sur un facteur entier, le canevas prend ce
-  facteur et la caméra revient à 1 (`setFactor`, qui garde le centre de la
-  vue) ; seuls la molette et les glissés passent par la caméra. Le calque de
-  la neige a la taille du canevas. Le CRT (`.crt-layer`) lit `--px` (un
+  (~280 de haut), agrandi sans lissage d'un facteur entier de pixels
+  physiques (`fitScreen` : `factor` ; zoom Phaser `factor/dpr`) ; la caméra
+  reste à 1 ; le facteur ne change qu'avec l'écran (`setFactor`, qui garde
+  le centre de la vue et redessine le cercle de vue). Le calque de la neige
+  et le cercle de vue (`#sight`) ont la taille du canevas ; les masques du
+  flou lisent sa taille (`--sight-rx`, `--sight-ry`). Le CRT (`.crt-layer`) lit `--px` (un
   pixel du canevas) et `--line` (un pixel physique), posés sur `#screen` :
   ses lignes tombent sur les pixels. **Qualité de l'image** (Réglages, 1 → 3,
   `prefs.quality`) : 1 légère (ni CRT ni flou, moitié moins de flocons :
@@ -323,9 +325,11 @@ est cachée et ne sort que pendant l'attaque.
   `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule) ; `torchLight`,
   le halo tramé de la torche (partagé jeu/labo).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
-  Rafales, Tempête, Tourbillons, enchaînées par défaut en un cycle logique
-  (`WEATHER_CYCLE`, ~8 min, fondus de 18 s) calé sur l'horloge réelle ; le
-  joueur peut figer une ambiance dans les Réglages. Le nombre de flocons est
+  Rafales, Tempête, Tourbillons ; par défaut la tempête, figée (les
+  Réglages proposent aussi un cycle logique, `WEATHER_CYCLE`, ~8 min,
+  fondus de 18 s, calé sur l'horloge réelle). Jour et nuit : par défaut,
+  « Toujours la nuit » (`dayNight` : l'heure du jeu reste au milieu de la
+  nuit) ; décochée, l'heure suit le cycle. Migration une fois (`nightStorm`). Le nombre de flocons est
   plafonné quand on dézoome, et la neige s'installe en 2 s au lancement.
 - `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (blocs
   noirs `k`, trapus, taillés en facettes, jamais des pyramides ; pans tournés
@@ -340,7 +344,7 @@ est cachée et ne sort que pendant l'attaque.
   retraite si on fuit ou tombe ; réglages `CROUCH` (1 s de grognement avant
   le bond), `LUNGE_GAP`, `HIT` (marge de la lame), `ROUT` : deux loups tombés,
   les autres fuient pour de bon) ; `pack.engaged` compte comme un combat
-  (musique, zoom, pas de guérison).
+  (musique, pas de guérison).
 - `js/wolf.js` — loups, d'après le dessin fourni (`assets/loups.png` →
   `WOLF_ART` dans `ruins-art.js`) : deux temps de marche, deux de course,
   réduits de moitié pour arriver à la hanche du viking (6 à 7 px ; il en fait
@@ -473,9 +477,11 @@ n'est jamais implémenté automatiquement.
 - Le viking doit peser sur la neige : son ombre est dessinée dans le sprite,
   sur la ligne même des pieds. Une ombre séparée, un pixel plus bas, le
   faisait léviter.
-- Il doit rester petit (environ 9 pixels de haut, écran d'environ 352 pixels
-  de haut : `TARGET_HEIGHT`, 80 % de l'ancien 440, pour la fluidité ; le zoom
-  restant entier, on voit de 67 à 80 % de l'ancienne vue selon l'écran) et se lire comme une masse : pas de visage ni de détail.
+- Il doit rester petit (environ 9 pixels de haut, écran d'environ 280 pixels
+  de haut : `TARGET_HEIGHT`, rapproché de 440 à 352 puis à 280 ; le facteur
+  restant entier, la vue varie un peu selon l'écran) et se lire comme une masse : pas de visage ni de détail.
+- Le debug `setTime` sort de la nuit perpétuelle (`freeTime`) : sinon
+  l'heure forcée du harnais n'aurait aucun effet.
 - Tout se mesure au viking : porte de la maison ≈ sa taille, loup à la
   hauteur de sa hanche (oreilles comprises), statue ≈ dix fois sa taille. Vérifier dans le labo.
 - La cape est courte et discrète : au calme elle se confond avec le dos ; même

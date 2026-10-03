@@ -1,9 +1,8 @@
 {
-  "version": "1.34.0",
+  "version": "1.35.0",
   "date": "2026-10-03",
   "changes": [
-    "Le jeu se dessine en vraie basse définition : image identique, deux fois plus fluide, lignes cathodiques posées sur les pixels",
-    "Les combats se jouent pareil sur un ordinateur lent ou rapide ; plus de ralenti, Maj ne bloque plus l'épée à bout de souffle",
-    "La meute compte trois loups ; le guetteur attend la fin du combat pour s'effacer"
+    "Par défaut, il fait nuit et la tempête souffle (réglable dans les Réglages)",
+    "La caméra se rapproche du viking et ne zoome plus ; on ne voit qu'à distance de vue du héros, flou au bord, puis le noir"
   ]
 }

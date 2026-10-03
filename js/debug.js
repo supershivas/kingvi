@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.34.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.34.0';
-import { chapterById } from './chapters.js?v=1.34.0';
-import { audio } from './audio.js?v=1.34.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.34.0';
-import { CHEST } from './crypt.js?v=1.34.0';
-import { ROOM_ENTRY } from './interior.js?v=1.34.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.35.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.35.0';
+import { chapterById } from './chapters.js?v=1.35.0';
+import { audio } from './audio.js?v=1.35.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.35.0';
+import { CHEST } from './crypt.js?v=1.35.0';
+import { ROOM_ENTRY } from './interior.js?v=1.35.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
   STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER,
-} from './world.js?v=1.34.0';
+} from './world.js?v=1.35.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -56,7 +56,7 @@ const INSIDE_NAMES = { house: 'maison', crypt: 'crypte', cave: 'grotte' };
 const ROOMS = { house: { x: 700, y: 700 }, crypt: { x: 400, y: 400 }, cave: { x: 300, y: 1000 } };
 const t0 = performance.now();
 
-export function attachDebug({ game, dayClock, enter }) {
+export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
   const events = [];
   let gameTime = 0, speed = 1, sc = null;
 
@@ -196,6 +196,7 @@ export function attachDebug({ game, dayClock, enter }) {
 
   // ── Le jour et le vent ──
   function setTime(phase) {
+    freeTime();
     let start = 0;
     for (const [name, d] of DAY_CYCLE) {
       if (name === phase) {

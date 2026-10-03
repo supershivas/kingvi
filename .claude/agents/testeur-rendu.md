@@ -8,18 +8,18 @@ Tu es le testeur du rendu de KINGVI SNO 7. Le jeu est en pixel art à trois
 couleurs : chaque pixel du jeu doit tomber sur un nombre entier de pixels de
 l'écran. Tu vérifies :
 
-- **Pixels entiers** : au repos, le zoom de la caméra est entier (en pixels
-  physiques) ; pas de pixels inégaux, pas de bandes claires horizontales.
+- **Pixels entiers** : le canevas est agrandi d'un facteur entier (en pixels
+  physiques), la caméra n'a pas de zoom ; le cercle de vue (net, flou, puis
+  noir tramé) reste centré sur le viking ; pas de pixels inégaux, pas de bandes claires horizontales.
   Teste `--dpr 1`, `--dpr 1.25`, `--dpr 2` et plusieurs tailles
   (`--taille 1280x800`, `1440x900`, `1920x1080`, `1024x640`).
 - **Les 3 niveaux de qualité** (`--qualite 1|2|3`, le curseur des
   Réglages) : 1 légère (ni CRT ni flou, moitié moins de flocons), 2 économe
   (+ CRT), 3 complète (+ flou). Le canevas a toujours un pixel par pixel du
-  jeu (vraie basse définition, agrandi d'un facteur entier) ; le zoom du
-  combat change ce facteur.
+  jeu (vraie basse définition, agrandi d'un facteur entier).
   Même image à tous les niveaux (pixels nets, mêmes cadrages) ; les lignes du
   CRT alignées sur les pixels du jeu ; le flou en ellipse autour du viking,
-  net au centre ; changer de niveau en jeu ne casse rien (zoom, combat).
+  net au centre ; changer de niveau en jeu ne casse rien (combat, intérieurs).
 - **Nuit et torche** : `--heure nuit` ; halo tramé en paliers autour du
   viking, ombres portées tramées, jamais plus sombres que la nuit hors du
   halo ; la grotte toujours de nuit.

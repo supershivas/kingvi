@@ -15,8 +15,11 @@ seule en ressort, tachée de sang. Au bout, l'autre attend.
 Le jeu est **contemplatif** et sa **lenteur est assumée**. On marche à
 18 pixels par seconde sur une île de 6144 pixels de côté ; les traces, de la
 barque à leur bout, demandent près de six minutes de marche sans s'arrêter.
-La vue est lointaine : le viking fait 9 pixels de haut sur un écran d'environ
-352. On doit sentir l'immensité, le froid, le vent, la solitude. Le récit
+Le viking fait 9 pixels de haut sur un écran d'environ 280 : la vue est
+rapprochée, et on ne voit qu'à distance de vue du héros (net autour de lui,
+flou vers le bord, puis le noir). Par défaut, c'est la nuit, toujours, et la
+tempête. On doit sentir l'immensité qu'on ne voit pas, le froid, le vent, la
+solitude. Le récit
 n'est jamais dit : il est posé dans le paysage (traces, sang, corps, statues,
 pierres levées, offrandes) et le joueur le lit.
 
@@ -24,8 +27,8 @@ pierres levées, offrandes) et le joueur le lit.
 
 1. **Les traces sont le récit.** Suivre, lire, comprendre. Tout ce qui
    compte se voit dans la neige.
-2. **L'immensité.** Vue de très loin, viking minuscule, peu d'éléments,
-   grands vides. Tout se mesure au viking (porte ≈ sa taille, loup à sa
+2. **L'immensité.** Viking minuscule, peu d'éléments, grands vides ; le
+   cercle de vue cerné de noir laisse deviner ce qu'on ne voit pas. Tout se mesure au viking (porte ≈ sa taille, loup à sa
    hanche, statue ≈ dix fois sa taille).
 3. **Rien de géométrique.** Ni droite, ni grille, ni cercle parfaits : tout
    est tordu par le bruit, cassé, effrité, asymétrique. Seuls les objets
@@ -65,14 +68,15 @@ toujours reprendre le fil.
 ## Les systèmes
 
 ### Le vent et la neige
-Un cycle naturel d'environ 8 minutes, calé sur l'horloge réelle (il continue
-d'une session à l'autre) : calme, bise, rafales, tempête, rafales,
-tourbillons, bise ; fondus de 18 s. Le joueur peut figer une ambiance dans
-les Réglages. Les arbres ploient, la cape bat, le son du vent suit (étouffé à
+Par défaut, la tempête. Dans les Réglages, un cycle naturel d'environ
+8 minutes, calé sur l'horloge réelle (il continue d'une session à l'autre) :
+calme, bise, rafales, tempête, rafales, tourbillons, bise ; fondus de 18 s ;
+ou une autre ambiance figée. Les arbres ploient, la cape bat, le son du vent suit (étouffé à
 l'intérieur et dans la forêt noire).
 
 ### Le jour et la nuit
-Un cycle de 20 minutes sur l'horloge réelle : aube (1 min 30), jour (11 min),
+Par défaut, la nuit, toujours (« Toujours la nuit » dans les Réglages).
+Sinon, un cycle de 20 minutes sur l'horloge réelle : aube (1 min 30), jour (11 min),
 crépuscule (1 min 30), nuit (6 min). La nuit, un voile bleu nuit ; le viking
 sort une torche dont le halo s'ouvre en paliers tramés, et arbres et rochers
 portent une ombre opposée. Dans la grotte, il fait toujours nuit.
@@ -89,7 +93,7 @@ portent une ombre opposée. Dans la grotte, il fait toujours nuit.
 - L'endurance (une barre au-dessus du viking) : frapper et courir la vident.
 - Blessé, on saigne en marchant ; hors combat, les blessures se referment.
   À un point de vie, l'écran se teinte de rouge.
-- Zoom d'action pendant le combat, secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
+- Pas de zoom de caméra, secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
   reste.
 - La meute : elle encercle, gronde, bondit l'un après l'autre. Si l'on
   s'enfuit en saignant, elle suit le sang (au retour, elle sort plus tôt et
@@ -119,7 +123,7 @@ quantité de flocons ; l'image, elle, est toujours en vraie basse définition.
 
 ### Commandes
 ZQSD / WASD (touches physiques) ou flèches, Maj pour courir, clic pour
-frapper (maintenu deux secondes : le tourbillon), molette pour un léger zoom (90 à 110 %). Tactile : une croix (au
+frapper (maintenu deux secondes : le tourbillon). Tactile : une croix (au
 bord pour courir), toucher l'écran pour frapper.
 
 ## Palette

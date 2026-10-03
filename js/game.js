@@ -4,28 +4,28 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.34.0';
+} from './viking.js?v=1.35.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.34.0';
-import { createPack } from './pack.js?v=1.34.0';
-import { createGround } from './ground.js?v=1.34.0';
-import { chapterById } from './chapters.js?v=1.34.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.34.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.34.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.34.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.34.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.34.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.34.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.34.0';
-import { createFauna } from './fauna.js?v=1.34.0';
-import { createWeather } from './weather.js?v=1.34.0';
-import { createSea } from './sea.js?v=1.34.0';
-import { audio } from './audio.js?v=1.34.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.34.0';
+} from './world.js?v=1.35.0';
+import { createPack } from './pack.js?v=1.35.0';
+import { createGround } from './ground.js?v=1.35.0';
+import { chapterById } from './chapters.js?v=1.35.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.35.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.0';
+import { createFauna } from './fauna.js?v=1.35.0';
+import { createWeather } from './weather.js?v=1.35.0';
+import { createSea } from './sea.js?v=1.35.0';
+import { audio } from './audio.js?v=1.35.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.0';
 
 const Phaser = window.Phaser;
 
@@ -33,7 +33,7 @@ const SPEED = 18;              // pixels du monde par seconde : on marche lentem
 const RUN = 2.4;               // Maj enfoncée : il court
 const WALK_FPS = 7;
 const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
-const TARGET_HEIGHT = 352;     // hauteur visée de l'écran, en pixels du jeu (80 % de 440 : moins à calculer)
+const TARGET_HEIGHT = 280;     // hauteur visée de l'écran, en pixels du jeu (près du viking)
 
 // Profondeurs : le sol et ce qui y est tracé sont sous tout ; les objets
 // debout (arbres, rochers, maison, viking) sont triés par la ligne de leurs pieds.
@@ -47,21 +47,24 @@ const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5, s
 // La logique avance par pas fixes ; au-delà d'une demi-seconde d'un coup
 // (onglet revenu, gel), le temps est perdu plutôt que rattrapé
 const STEP = 1 / 60, MAX_FRAME = 0.5;
-// La caméra rejoint le viking de 3,5 % de l'écart par soixantième de seconde
-const FOLLOW = 0.035;
+// Le cercle de vue, en hauteurs d'écran : ses rayons, et où le noir commence
+// à monter (fraction du rayon) ; au-delà, tout est noir
+const SIGHT = { rx: 0.56, ry: 0.46, fade: 0.76 };
+// La caméra rejoint le viking de 8 % de l'écart par soixantième de seconde :
+// elle le serre de près (il reste au milieu du cercle de vue)
+const FOLLOW = 0.08;
 // Le coup tourbillonnant : le bouton maintenu tant de secondes
 const WHIRL_HOLD = 2;
 // Le tour : les huit directions, une image de lame chacune (vue, retourné)
 const WHIRL_TURN = [['side', false], ['diagdown', false], ['front', false], ['diagdown', true], ['side', true], ['diagup', true], ['back', false], ['diagup', false]];
 
 // Vraie basse définition : le jeu se dessine dans un canevas d'un pixel par
-// pixel du jeu (environ 352 de haut), que le navigateur agrandit sans lissage
+// pixel du jeu (environ 280 de haut), que le navigateur agrandit sans lissage
 // d'un facteur entier de pixels physiques (densité comprise : 125 %, Retina…).
 // Pixels nets, lignes du CRT posées sur les pixels, et le moins de pixels
-// possible à peindre. Le zoom du combat change ce facteur (le canevas est
-// alors plus petit) ; seuls la molette et les glissés d'un zoom à l'autre
-// passent par la caméra, entre deux facteurs entiers.
-// La qualité (Réglages, 1 → 3) ne choisit plus que les effets : 1 sans CRT
+// possible à peindre. Pas de zoom de caméra, ni en combat ni dedans : le
+// facteur ne change qu'avec la taille de l'écran.
+// La qualité (Réglages, 1 → 3) ne choisit que les effets : 1 sans CRT
 // ni flou, moitié moins de flocons ; 2 le CRT ; 3 le CRT et le flou.
 export const QUALITY = { min: 1, max: 3, initial: 3 };
 export function fitScreen(w, h) {
@@ -241,18 +244,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       cam.setRoundPixels(true);
       cam.startFollow(this.player, true, FOLLOW, FOLLOW);
       cam.centerOn(this.pos.x, this.pos.y);          // pas de long travelling au lancement
-      // Zoom, en pixels physiques par pixel du jeu : base (taille de l'écran),
-      // molette (±), combat, intérieur (×2) ; `canvas` : celui du canevas (la
-      // caméra fait le reste)
-      this.zoom = { base: fit.factor, canvas: fit.factor, wheel: 0, fight: 0, current: fit.factor };
+      // Le facteur d'agrandissement, en pixels physiques par pixel du jeu
+      this.zoom = { canvas: fit.factor };
       cam.setZoom(1);
-      this.input.on('wheel', (p, over, dx, dy) => {
-        if (isPaused()) return;
-        // Un léger zoom : de 90 à 110 %, par crans de 5 % (à 100 %, les pixels
-        // restent nets ; entre deux, ils sont un peu inégaux)
-        const z = this.zoom;
-        z.wheel = Math.max(-2, Math.min(2, z.wheel + (dy > 0 ? -1 : 1)));
-      });
       cam.setBackgroundColor(palette.b);
 
       // La neige qui tombe d'un arbre qu'on frappe ; les étincelles sur la pierre
@@ -395,28 +389,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           if (Math.sin(time / 300 + e.x * 1.3 + e.y * 2.1) > 0.9) this.foam.fillRect(bx + e.x, by + e.y, 1, 1);
         }
       }
-    }
-
-    // Zoom de la caméra : on vise un facteur entier et l'on y glisse. En combat,
-    // la caméra se rapproche (zoom d'action) ; dans la maison, ×2.
-    updateZoom(dt) {
-      const z = this.zoom, cam = this.cameras.main;
-      const f = this.foe;
-      const fighting = !this.inside && !this.dead && ((f.engaged && f.alive &&
-        Math.hypot(f.pos.x - this.pos.x, f.pos.y - this.pos.y) < 70) || this.pack.engaged);
-      z.fight += ((fighting ? 1 : 0) - z.fight) * Math.min(1, dt * (fighting ? 2.5 : 1.2));
-      if (Math.abs(z.fight - (fighting ? 1 : 0)) < 0.005) z.fight = fighting ? 1 : 0;
-      const rest = z.base * (1 + 0.05 * z.wheel);
-      const target = (rest + z.fight * Math.max(1, Math.round(z.base * 0.5))) * (this.inside ? 2 : 1);
-      // En passant la porte (sous le fondu), pas de glissé
-      const k = Math.abs(target - z.current) < 0.01 || z.inside !== this.inside ? 1 : Math.min(1, dt * 6);
-      z.inside = this.inside;
-      z.current = k === 1 ? target : z.current + (target - z.current) * k;
-      // Arrivé sur un facteur entier : le canevas prend ce facteur, la caméra
-      // revient à 1 (pixels nets, lignes du CRT sur les pixels)
-      if (z.current === target && Number.isInteger(target) && target !== z.canvas) setFactor(target);
-      const zoom = z.current / z.canvas;
-      if (cam.zoom !== zoom) { cam.setZoom(zoom); this.cullClock = 0; }
     }
 
     updateWaves(dt, time) {
@@ -1201,7 +1173,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.settle = Math.max(0, (this.settle || 0) - 1);
       this.updateBoat(dt, time);
       this.updateWaves(dt, time);
-      this.updateZoom(dt);
       // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
       this.windSound = (this.windSound || 0) - dt * 1000;
       if (this.windSound <= 0) {
@@ -1955,13 +1926,48 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     sizeSky();
     if (sc?.zoom) {
       sc.zoom.canvas = f;
-      cam.setZoom(sc.zoom.current / f);
       if (mid) cam.centerOn(mid.x, mid.y);
       sc.cullClock = 0;
     }
+    drawSight();
     // Les lignes du CRT : une par pixel du canevas, d'un pixel physique
     screenEl.style.setProperty('--px', `${f / dpr}px`);
     screenEl.style.setProperty('--line', `${1 / dpr}px`);
+  }
+
+  // Le cercle de vue : net autour du viking, flou vers son bord (les masques
+  // des calques flous, style.css, lisent sa taille), puis le noir, tramé par
+  // paliers comme le halo de la torche, au bord rongé (rien de géométrique).
+  // En pixels du canevas : il a la taille et l'agrandissement du jeu.
+  const sightCanvas = screenEl.querySelector('#sight');
+  const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  function drawSight() {
+    if (!sightCanvas) return;
+    const c = game.canvas, W = c.width, H = c.height;
+    sightCanvas.width = W; sightCanvas.height = H;
+    sightCanvas.style.width = c.style.width; sightCanvas.style.height = c.style.height;
+    // (le centre de l'écran, pas celui du canevas qui déborde un peu)
+    const r = parent.getBoundingClientRect(), k = W / (parseFloat(c.style.width) || W);
+    const cx = r.width * k / 2, cy = r.height * k / 2;
+    const ry = SIGHT.ry * cy * 2, rx = SIGHT.rx * cy * 2;
+    const ctx = sightCanvas.getContext('2d');
+    const img = ctx.createImageData(W, H), d = img.data, rgb = RGB.k;
+    // Le bord, d'un angle à l'autre : des bosses irrégulières
+    const edge = a => 1 + 0.05 * Math.sin(a * 3 + 1.3) + 0.035 * Math.sin(a * 7 + 4.1) + 0.02 * Math.sin(a * 13 + 0.7);
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
+        const dist = Math.hypot(dx, dy) / edge(Math.atan2(dy, dx));
+        const t = (dist - SIGHT.fade) / (1 - SIGHT.fade);
+        if (t <= 0 || (t < 1 && t * 16 <= BAYER[(y & 3) * 4 + (x & 3)])) continue;
+        const i = (y * W + x) * 4;
+        d[i] = rgb[0]; d[i + 1] = rgb[1]; d[i + 2] = rgb[2]; d[i + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    // La taille du cercle, en pixels CSS, pour les masques du flou
+    screenEl.style.setProperty('--sight-rx', `${(rx / k).toFixed(1)}px`);
+    screenEl.style.setProperty('--sight-ry', `${(ry / k).toFixed(1)}px`);
   }
 
   // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de base
@@ -1969,12 +1975,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     const r = parent.getBoundingClientRect();
     if (!r.width || !r.height) return;
     const f = fitScreen(r.width, r.height);
-    const sc = game.scene.getScene('island');
-    if (sc?.zoom) {
-      // (le zoom saute d'un coup à sa nouvelle échelle, sans glisser)
-      const k = f.factor / sc.zoom.base;
-      sc.zoom.base = f.factor; sc.zoom.current *= k;
-    }
     setFactor(f.factor);
   }
   game.events.once('ready', () => {
