@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.40.2 — 2026-10-03
+- Onglet Dessins : le champ de la clé GitHub s'ouvre même quand rien n'est retouché (nouvel appareil, comme l'iPad) ; bouton « Clé GitHub… » ajouté
+
 ## 1.40.1 — 2026-10-03
 - Onglet Dessins : une ligne dit combien de dessins sont publiés (visibles partout) et combien ne sont retouchés que sur cet appareil
 

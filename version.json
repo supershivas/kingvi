@@ -1,7 +1,7 @@
 {
-  "version": "1.40.1",
+  "version": "1.40.2",
   "date": "2026-10-03",
   "changes": [
-    "Onglet Dessins : une ligne dit ce qui est publié (visible partout) et ce qui n'est retouché que sur cet appareil"
+    "Onglet Dessins : le champ de la clé GitHub s'ouvre même quand rien n'est encore retouché (cas d'un nouvel appareil), et un bouton « Clé GitHub… » y mène directement"
   ]
 }

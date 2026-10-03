@@ -6,9 +6,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal,
-} from './designs.js?v=1.40.1';
-import { openPixelEditor } from './pixel-editor.js?v=1.40.1';
-import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.40.1';
+} from './designs.js?v=1.40.2';
+import { openPixelEditor } from './pixel-editor.js?v=1.40.2';
+import { publish, pending, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.40.2';
 
 const host = document.querySelector('#dessins .demos');
 const cells = new Map();
@@ -39,6 +39,7 @@ intro.innerHTML = `
   <p>La taille d'une image ne change pas (la porte, les obstacles, les positions et les animations en dépendent). Les arbres, les rochers et les statues restent générés par le code.</p>
   <div class="design-actions">
     <button type="button" class="design-btn primary" data-publish>Publier pour tous</button>
+    <button type="button" class="design-btn" data-key>Clé GitHub…</button>
     <button type="button" class="design-btn" data-copy title="Pour les envoyer à Claude">Copier mes modifications</button>
     <span class="design-note" role="status"></span>
   </div>
@@ -90,15 +91,18 @@ async function runPublish() {
     if (/jeton|Jeton/.test(e.message)) { setToken(''); syncKey(); tokenBox.hidden = false; }
   } finally { btn.disabled = false; }
 }
+// La clé d'abord (même sans rien à publier : sur un autre appareil, on la colle avant de dessiner)
+const showToken = () => { tokenBox.hidden = false; tokenBox.scrollIntoView({ block: 'nearest' }); tokenBox.querySelector('input').focus(); };
 intro.querySelector('[data-publish]').addEventListener('click', () => {
-  if (!pending().length) { note.textContent = 'Rien à publier : aucun dessin retouché dans ce navigateur.'; return; }
-  if (!getToken()) { tokenBox.hidden = false; tokenBox.scrollIntoView({ block: 'nearest' }); return; }
+  if (!getToken()) { showToken(); return; }
   runPublish();
 });
+intro.querySelector('[data-key]').addEventListener('click', showToken);
 intro.querySelector('[data-save-token]').addEventListener('click', () => {
   const input = tokenBox.querySelector('input');
   if (!/^(github_pat_|ghp_)/.test(input.value.trim())) { note.textContent = 'Cette clé ne ressemble pas à un jeton GitHub (elle commence par github_pat_).'; return; }
-  setToken(input.value); input.value = ''; tokenBox.hidden = true; syncKey(); runPublish();
+  setToken(input.value); input.value = ''; tokenBox.hidden = true; syncKey();
+  if (pending().length) runPublish(); else note.textContent = 'Clé enregistrée sur cet appareil. Dessinez, puis « Publier pour tous ».';
 });
 intro.querySelector('[data-forget]').addEventListener('click', () => { setToken(''); syncKey(); note.textContent = 'Clé oubliée.'; });
 intro.querySelector('[data-copy]').addEventListener('click', async () => {

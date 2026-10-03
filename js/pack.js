@@ -4,8 +4,8 @@
    s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.40.1';
-import { paintFrames } from './viking.js?v=1.40.1';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.40.2';
+import { paintFrames } from './viking.js?v=1.40.2';
 
 export const WOLF_HP = 2;
 const COUNT = 3;
