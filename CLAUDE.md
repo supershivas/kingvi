@@ -256,8 +256,17 @@ est cachée et ne sort que pendant l'attaque.
   cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
   rochers et statues restent générés**). Un **éditeur de pixels intégré**
   (`openPixelEditor`, inspiré de pixel-studio : crayon, gomme, pot, ligne,
-  rectangle, ellipse, pipette, symétries, annuler, zoom, grille, aperçu avec le
-  viking, « fantôme » de l'image précédente d'une animation) ; chaque trait est
+  rectangle, ellipse, pipette, **trame** (pinceau tramé, trame de Bayer 4 × 4 comme
+  le halo et les ombres du jeu, densité 25 / 50 / 75 %, accrochée aux pixels de
+  l'image) et **dégradé tramé** (glisser un rectangle), taille des outils de 1 à
+  5 pixels, symétries, annuler, zoom, ajuster, grille, aperçu avec le viking,
+  « fantôme » de l'image précédente d'une animation ; **plein écran** (`100dvh`,
+  page figée derrière) et **tactile** : un doigt ou l'Apple Pencil dessine,
+  deux doigts déplacent la vue (le trait commencé est annulé), ni menu de
+  sélection / copier, ni loupe, ni zoom de la page : `contextmenu`,
+  `selectstart`, `gesturestart` annulés, `user-select` et `-webkit-touch-callout`
+  coupés, `touch-action: none` ; les événements du pointeur sont sur la zone de
+  travail, le canevas n'en reçoit pas) ; chaque trait est
   enregistré, et les animations de chaque groupe tournent avec les dessins du
   moment. **`design-store.js` n'importe rien** et se charge avant tout : `main.js`
   fait `await loadDesigns()` puis `import('./game.js')` (le monde, la meute, le

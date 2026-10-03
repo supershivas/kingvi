@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.41.0 — 2026-10-03
+- Éditeur de pixels en plein écran ; sur iPad, plus de menu de sélection ni de loupe quand on dessine, deux doigts déplacent la vue
+- Taille des outils de 1 à 5 pixels ([ et ] au clavier), bouton pour ajuster le zoom à l'écran
+- Nouveaux outils : Trame (pinceau tramé à 25, 50 ou 75 %, comme les ombres et la torche du jeu) et Dégradé tramé
+
 ## 1.40.2 — 2026-10-03
 - Onglet Dessins : le champ de la clé GitHub s'ouvre même quand rien n'est retouché (nouvel appareil, comme l'iPad) ; bouton « Clé GitHub… » ajouté
 

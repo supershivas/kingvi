@@ -1,7 +1,8 @@
 {
-  "version": "1.40.2",
+  "version": "1.41.0",
   "date": "2026-10-03",
   "changes": [
-    "Onglet Dessins : le champ de la clé GitHub s'ouvre même quand rien n'est encore retouché (cas d'un nouvel appareil), et un bouton « Clé GitHub… » y mène directement"
+    "Éditeur de pixels : plein écran, sans menus de sélection sur iPad, deux doigts pour déplacer la vue",
+    "Taille des outils de 1 à 5 pixels ; nouveaux outils Trame (pinceau tramé) et Dégradé tramé"
   ]
 }

@@ -1,22 +1,29 @@
 /* Un petit éditeur de pixels, dans le labo, pour redessiner un élément du décor
    (voir designs.js), inspiré de Pixel Studio : crayon, gomme, pot de peinture,
-   ligne, rectangle, ellipse, pipette, symétries, annuler / rétablir, zoom,
-   grille. Trois couleurs (neige, bleu nuit, rouge) et le vide. Chaque trait est
+   ligne, rectangle, ellipse, pipette, trame et dégradé tramé, taille des outils
+   (1 à 5 pixels), symétries, annuler / rétablir, zoom, grille, plein écran,
+   adapté au doigt et à l'Apple Pencil (pas de menu de sélection, deux doigts
+   pour déplacer la vue). Trois couleurs (neige, bleu nuit, rouge) et le vide. Chaque trait est
    enregistré aussitôt : le jeu, s'il est ouvert dans un autre onglet, se
    redessine tout seul.
 
    `openPixelEditor({ name, label, original, rows, onSave, onReset })` ouvre
    l'éditeur ; `onSave(rows)` est appelé après chaque trait. */
-import { gamePalette } from './design-store.js?v=1.40.2';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.40.2';
+import { gamePalette } from './design-store.js?v=1.41.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.41.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
 const TOOLS = [
   ['pencil', 'Crayon', 'b', 'pencil'], ['eraser', 'Gomme', 'e', 'eraser'], ['bucket', 'Pot de peinture', 'g', 'bucket'],
   ['line', 'Ligne', 'l', 'line'], ['rect', 'Rectangle', 'r', 'square'], ['ellipse', 'Ellipse', 'o', 'circle'],
+  ['dither', 'Trame : pinceau tramé', 't', 'texture'], ['gradient', 'Dégradé tramé : glisser un rectangle', 'd', 'gradienter'],
   ['picker', 'Pipette', 'i', 'color-picker'],
 ];
+// La trame du jeu (le halo de la torche, les ombres) : une trame ordonnée de Bayer 4 × 4,
+// accrochée aux pixels de l'image ; une case est peinte si sa valeur est sous la densité
+const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+const DENSITIES = [['25 %', 4], ['50 %', 8], ['75 %', 12]];
 const HIST_MAX = 80;
 
 let dlg = null, vikingCanvas = null;
@@ -46,6 +53,7 @@ function build() {
       <button type="button" data-act="zoomout" title="Zoom arrière (−)"><i class="ti ti-zoom-out"></i></button>
       <span class="pxe-zoom"></span>
       <button type="button" data-act="zoomin" title="Zoom avant (+)"><i class="ti ti-zoom-in"></i></button>
+      <button type="button" data-act="fit" title="Ajuster à l'écran (0)"><i class="ti ti-arrows-maximize"></i></button>
       <button type="button" data-act="close" class="pxe-close">Fermer</button>
     </div>
     <div class="pxe-body">
@@ -54,6 +62,19 @@ function build() {
       <aside class="pxe-side">
         <h4>Couleur</h4>
         <div class="pxe-colors"></div>
+        <h4>Taille de l'outil</h4>
+        <div class="pxe-size">
+          <button type="button" data-act="smaller" title="Plus petit ( [ )">−</button>
+          <span class="pxe-size-n"></span>
+          <button type="button" data-act="bigger" title="Plus grand ( ] )">+</button>
+        </div>
+        <div class="pxe-dens" hidden>
+          <div class="pxe-dens-set">
+            <h4>Densité de la trame</h4>
+            <div class="pxe-dens-btns">${DENSITIES.map(([t], i) => `<button type="button" data-dens="${i}">${t}</button>`).join('')}</div>
+          </div>
+          <p class="pxe-hint">La trame du jeu : des points régulièrement espacés, jamais deux traits côte à côte à la même densité. « Dégradé tramé » : glissez un rectangle, la trame s'éclaircit du début vers la fin du geste.</p>
+        </div>
         <h4>Options</h4>
         <label><input type="checkbox" data-opt="fill"> Formes pleines</label>
         <label><input type="checkbox" data-opt="mirrorH"> Symétrie gauche / droite</label>
@@ -96,7 +117,7 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
     const toGrid = rs => Uint8Array.from(rs.join('').split('').map(c => CODE[c] ?? EMPTY));
     const toRows = g => Array.from({ length: h }, (_, y) => Array.from(g.subarray(y * w, y * w + w), c => letter[c]).join(''));
     let grid = toGrid(rows), hist = [], hp = -1;
-    const st = { tool: 'pencil', color: SNOW, fill: false, mirrorH: false, mirrorV: false, grid: true, ghost: false, bg: 'mid', z: Math.max(2, Math.min(32, Math.floor(Math.min(760 / w, 560 / h)))) };
+    const st = { tool: 'pencil', color: SNOW, size: 1, dens: 1, fill: false, mirrorH: false, mirrorV: false, grid: true, ghost: false, bg: 'mid', z: 4 };
     const ghostRows = typeof ghost === 'function' ? ghost() : ghost;
     let drag = null, saveTimer = 0, changed = false;
 
@@ -113,6 +134,11 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
       for (const b of dlg.querySelectorAll('[data-tool]')) b.classList.toggle('on', b.dataset.tool === st.tool);
       for (const b of dlg.querySelectorAll('[data-color]')) b.classList.toggle('on', +b.dataset.color === st.color);
       for (const b of dlg.querySelectorAll('[data-bg]')) b.classList.toggle('on', b.dataset.bg === st.bg);
+      for (const b of dlg.querySelectorAll('[data-dens]')) b.classList.toggle('on', +b.dataset.dens === st.dens);
+      $('.pxe-dens').hidden = st.tool !== 'dither' && st.tool !== 'gradient';
+      $('.pxe-dens-set').hidden = st.tool !== 'dither';
+      $('.pxe-size-n').textContent = `${st.size} px`;
+      $('[data-act="smaller"]').disabled = st.size <= 1; $('[data-act="bigger"]').disabled = st.size >= 5;
       $('[data-act="undo"]').disabled = hp <= 0; $('[data-act="redo"]').disabled = hp >= hist.length - 1;
       $('.pxe-zoom').textContent = `${st.z}×`;
     };
@@ -178,6 +204,15 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
         if (e2 <= dx) { err += dx; y0 += sy; }
       }
     }
+    // Une touche du pinceau : un carré de `size` pixels de côté, centré sur la case
+    // (avec la trame : seules les cases de la trame sont peintes)
+    function stamp(x, y, c, dither = false) {
+      const lo = -Math.floor((st.size - 1) / 2), hi = Math.floor(st.size / 2), level = DENSITIES[st.dens][1];
+      for (let dy = lo; dy <= hi; dy++) for (let dx = lo; dx <= hi; dx++) {
+        const px = x + dx, py = y + dy;
+        if (!dither || BAYER[(py & 3) * 4 + (px & 3)] < level) set(px, py, c);
+      }
+    }
     function flood(x, y, c) {
       const from = grid[y * w + x];
       if (from === c) return;
@@ -190,16 +225,25 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
       }
     }
     function shape(kind, a, b, c) {
-      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x), y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y);
-      if (kind === 'line') { line(a.x, a.y, b.x, b.y, (x, y) => set(x, y, c)); return; }
+      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x), y0 = Math.min(a.y, b.y), y1 = Math.max(a.y, b.y), n = st.size;
+      if (kind === 'line') { line(a.x, a.y, b.x, b.y, (x, y) => stamp(x, y, c)); return; }
       if (kind === 'rect') {
-        for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (st.fill || x === x0 || x === x1 || y === y0 || y === y1) set(x, y, c);
+        for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (st.fill || x - x0 < n || x1 - x < n || y - y0 < n || y1 - y < n) set(x, y, c);
+        return;
+      }
+      if (kind === 'gradient') {
+        // La trame se dégrade le long du côté le plus long du rectangle : pleine au début du geste, vide à la fin
+        const horizontal = x1 - x0 >= y1 - y0, span = Math.max(1, (horizontal ? x1 - x0 : y1 - y0));
+        for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+          const t = horizontal ? (b.x >= a.x ? x - x0 : x1 - x) / span : (b.y >= a.y ? y - y0 : y1 - y) / span;
+          if (BAYER[(y & 3) * 4 + (x & 3)] < (1 - t) * 16) set(x, y, c);
+        }
         return;
       }
       const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2 + 0.5, ry = (y1 - y0) / 2 + 0.5;
       const inside = (x, y, ax, ay) => ax > 0 && ay > 0 && ((x - cx) / ax) ** 2 + ((y - cy) / ay) ** 2 <= 1;
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-        if (inside(x, y, rx, ry) && (st.fill || !inside(x, y, rx - 1, ry - 1))) set(x, y, c);
+        if (inside(x, y, rx, ry) && (st.fill || !inside(x, y, rx - n, ry - n))) set(x, y, c);
       }
     }
 
@@ -218,45 +262,83 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
     }
     snap();
 
-    // ── Pointeur ──
+    // ── Pointeur : souris, doigt, Apple Pencil ──
+    // Un doigt dessine ; deux doigts déplacent la vue (le trait commencé est annulé).
+    // Aucun menu de sélection ni loupe : on les coupe à la source.
     const cell = e => {
       const r = view.getBoundingClientRect();
       return { x: Math.floor((e.clientX - r.left) / st.z), y: Math.floor((e.clientY - r.top) / st.z) };
     };
-    view.addEventListener('contextmenu', e => e.preventDefault());
-    view.addEventListener('pointerdown', e => {
-      if (e.button === 1 || spaceDown) { drag = { pan: true, x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop }; view.setPointerCapture(e.pointerId); return; }
+    const touches = new Map();
+    let panning = null;
+    const centroid = () => {
+      const t = [...touches.values()];
+      return { x: t.reduce((a, p) => a + p.x, 0) / t.length, y: t.reduce((a, p) => a + p.y, 0) / t.length };
+    };
+    const paintAt = (e, p) => {
+      if (st.tool === 'pencil' || st.tool === 'eraser' || st.tool === 'dither') {
+        line(drag.last.x, drag.last.y, p.x, p.y, (x, y) => stamp(x, y, drag.c, st.tool === 'dither'));
+        drag.last = p;
+      } else { grid = drag.base.slice(); shape(st.tool, drag.start, p, drag.c); }
+    };
+    stage.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      if (e.pointerType === 'touch') {
+        touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (touches.size >= 2) {
+          // le deuxième doigt : le trait du premier est annulé, on déplace la vue
+          if (drag && !drag.pan) { grid = drag.base.slice(); drag = null; render(); }
+          const c = centroid();
+          panning = { x: c.x, y: c.y, sl: stage.scrollLeft, st: stage.scrollTop };
+          return;
+        }
+      }
+      if (e.button === 1 || spaceDown) { drag = { pan: true, x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop }; stage.setPointerCapture(e.pointerId); return; }
       if (e.button > 2) return;
       const p = cell(e);
       const erase = e.button === 2 || st.tool === 'eraser';
       const c = erase ? EMPTY : st.color;
-      if (st.tool === 'picker') { if (p.x >= 0 && p.y >= 0 && p.x < w && p.y < h) { st.color = grid[p.y * w + p.x]; if (st.tool === 'picker') st.tool = 'pencil'; render(); } return; }
-      view.setPointerCapture(e.pointerId);
+      if (st.tool === 'picker') { if (p.x >= 0 && p.y >= 0 && p.x < w && p.y < h) { st.color = grid[p.y * w + p.x]; st.tool = 'pencil'; render(); } return; }
+      stage.setPointerCapture(e.pointerId);
       if (st.tool === 'bucket') { if (p.x >= 0 && p.y >= 0 && p.x < w && p.y < h) { flood(p.x, p.y, c); snap(); render(); save(); } return; }
       drag = { start: p, last: p, base: grid.slice(), c };
-      if (st.tool === 'pencil' || st.tool === 'eraser') { set(p.x, p.y, c); render(); }
+      if (st.tool === 'pencil' || st.tool === 'eraser' || st.tool === 'dither') { stamp(p.x, p.y, c, st.tool === 'dither'); render(); }
     });
-    view.addEventListener('pointermove', e => {
+    stage.addEventListener('pointermove', e => {
+      if (e.pointerType === 'touch' && touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (panning) {
+        const c = centroid();
+        stage.scrollLeft = panning.sl - (c.x - panning.x); stage.scrollTop = panning.st - (c.y - panning.y);
+        return;
+      }
       if (!drag) return;
       if (drag.pan) { stage.scrollLeft = drag.sl - (e.clientX - drag.x); stage.scrollTop = drag.st - (e.clientY - drag.y); return; }
-      const p = cell(e);
-      if (st.tool === 'pencil' || st.tool === 'eraser') { line(drag.last.x, drag.last.y, p.x, p.y, (x, y) => set(x, y, drag.c)); drag.last = p; }
-      else { grid = drag.base.slice(); shape(st.tool, drag.start, p, drag.c); }
+      paintAt(e, cell(e));
       render();
     });
     const end = e => {
+      if (e.pointerType === 'touch') { touches.delete(e.pointerId); if (touches.size < 2) panning = null; }
       if (!drag) return;
       const was = drag; drag = null;
       if (was.pan) return;
       snap(); render(); save();
     };
-    view.addEventListener('pointerup', end);
-    view.addEventListener('pointercancel', end);
+    stage.addEventListener('pointerup', end);
+    stage.addEventListener('pointercancel', end);
+    // Pas de menu contextuel, de loupe ni de sélection de texte, nulle part dans l'éditeur
+    for (const type of ['contextmenu', 'selectstart', 'dragstart', 'gesturestart', 'gesturechange']) dlg.addEventListener(type, e => e.preventDefault());
+    stage.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+    stage.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
     stage.addEventListener('wheel', e => {
       if (!e.ctrlKey) return;
       e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1);
     }, { passive: false });
     const zoom = d => { st.z = Math.max(1, Math.min(32, st.z + d)); render(); };
+    // Le plus grand zoom entier qui montre tout le dessin dans la zone de travail
+    const fit = () => {
+      st.z = Math.max(1, Math.min(32, Math.floor(Math.min((stage.clientWidth - 32) / w, (stage.clientHeight - 32) / h))));
+      render();
+    };
 
     // ── Boutons et clavier ──
     let spaceDown = false;
@@ -269,6 +351,10 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
       else if (b.dataset.act === 'redo') return undo(1);
       else if (b.dataset.act === 'zoomin') return zoom(1);
       else if (b.dataset.act === 'zoomout') return zoom(-1);
+      else if (b.dataset.act === 'fit') return fit();
+      else if (b.dataset.act === 'smaller') st.size = Math.max(1, st.size - 1);
+      else if (b.dataset.act === 'bigger') st.size = Math.min(5, st.size + 1);
+      else if (b.dataset.dens) st.dens = +b.dataset.dens;
       else if (b.dataset.act === 'close') return dlg.close();
       else if (b.dataset.act === 'original') {
         if (!b.classList.toggle('confirm')) {
@@ -299,6 +385,9 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
       const t = TOOLS.find(x => x[2] === k);
       if (t) st.tool = t[0];
       else if (k >= '1' && k <= '5') st.color = [SNOW, NIGHT, RED, EMPTY, SHADE][+k - 1];
+      else if (k === '[') st.size = Math.max(1, st.size - 1);
+      else if (k === ']') st.size = Math.min(5, st.size + 1);
+      else if (k === '0') return fit();
       else if (k === '+' || k === '=') return zoom(1);
       else if (k === '-') return zoom(-1);
       else if (k === 'x') { st.grid = !st.grid; dlg.querySelector('[data-opt="grid"]').checked = st.grid; }
@@ -309,11 +398,14 @@ export function openPixelEditor({ name, label, original, rows, ghost = null, onS
     document.addEventListener('keyup', onKey);
     dlg.addEventListener('close', () => {
       document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
+      document.documentElement.classList.remove('pxe-open');
       clearTimeout(saveTimer);
       if (changed) onSave(toRows(grid), true);
     }, { once: true });
 
+    document.documentElement.classList.add('pxe-open');      // (la page derrière ne défile plus)
     render();
     dlg.showModal();
+    fit();                                                    // (la zone de travail n'a sa taille qu'une fois ouverte)
   }
 }
