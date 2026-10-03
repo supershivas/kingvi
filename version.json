@@ -1,8 +1,8 @@
 {
-  "version": "1.43.0",
+  "version": "1.44.0",
   "date": "2026-10-03",
   "changes": [
-    "Chaque nouvelle partie a sa propre île : piste, forêt, arbres et rochers changent, les lieux restent dans le même ordre",
-    "Dans la grotte, la vue monte devant le trône : le roi se voit en entier"
+    "Inventaire (touche I) et trois reliques : la poupée de l'arbre sacré, le rubis du roi, le médaillon de la maison (dessins provisoires à refaire dans l'atelier)",
+    "Atelier de dessin réorganisé : l'asset à gauche, les dossiers à droite, l'explication dans l'aide ; création d'assets (décor, animation, relique, autre) de la taille voulue"
   ]
 }

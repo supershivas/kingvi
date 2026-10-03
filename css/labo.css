@@ -181,3 +181,56 @@ html.pxe-open { overflow: hidden; }
 
 .design-status.warn { color: var(--accent); font-weight: 600; }
 .design-auto { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap); font-size: .85rem; cursor: pointer; }
+
+/* ── L'atelier de dessin : l'asset à gauche, les dossiers à droite ── */
+#dessins .demos { display: block; }
+.dz { display: flex; flex-direction: column; gap: 10px; }
+.dz-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dz-spacer { flex: 1; }
+.dz-chip { font: .75rem var(--font-mono); color: var(--text-muted); padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; }
+.dz-chip.warn { color: var(--accent); border-color: var(--accent); font-weight: 600; }
+.dz-menu { position: relative; }
+.dz-menu summary { list-style: none; padding: 0 12px; }
+.dz-menu summary::-webkit-details-marker { display: none; }
+.dz-menu-list { position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 250px; display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.dz-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+.dz-main { display: flex; flex-direction: column; gap: 12px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-md); min-height: 320px; }
+.dz-head { display: flex; flex-direction: column; gap: 2px; }
+.dz-head h3 { margin: 0; font-size: 1.05rem; }
+.dz-meta { font: .72rem var(--font-mono); color: var(--text-muted); }
+.dz-stage { background: #7f8aa3; padding: 14px; border-radius: var(--radius-md); align-self: flex-start; max-width: 100%; overflow: auto; }
+.dz-stage canvas, .dz-anim canvas, .dz-thumb canvas { display: block; image-rendering: pixelated; }
+.dz-anim { display: flex; align-items: flex-end; gap: 10px; }
+.dz-anim canvas { background: #7f8aa3; padding: 6px; border-radius: var(--radius-md); }
+.dz-tree { display: flex; flex-direction: column; gap: 8px; position: sticky; top: 156px; max-height: calc(100vh - 176px); }
+.dz-search { min-width: 0; width: 100%; }
+.dz-folders { overflow: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px; }
+.dz-folder { border: 1px solid var(--border); border-radius: var(--radius-md); }
+.dz-folder summary { cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: var(--tap); padding: 0 10px; font-size: .9rem; }
+.dz-folder summary i { color: var(--accent); }
+.dz-folder summary b { flex: 1; font-weight: 600; }
+.dz-count { font: .7rem var(--font-mono); color: var(--text-muted); }
+.dz-items { display: flex; flex-direction: column; padding: 0 6px 6px; }
+.dz-item { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 8px; border: 0; border-radius: var(--radius-md); background: none; color: var(--text-primary); font: inherit; font-size: .82rem; text-align: left; cursor: pointer; }
+.dz-item:hover { background: rgba(127,138,163,.15); }
+.dz-item.on { background: rgba(192,57,43,.12); outline: 1px solid var(--accent); }
+.dz-thumb { width: 36px; height: 36px; flex: none; display: flex; align-items: center; justify-content: center; background: #7f8aa3; border-radius: 4px; }
+.dz-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dz-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.dz-item.mine .dz-dot { background: var(--accent); }
+.dz-dialog { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0; max-width: min(560px, 94vw); max-height: 88vh; background: var(--card-bg); color: var(--text-primary); }
+.dz-dialog::backdrop { background: rgba(10,14,28,.55); }
+.dz-dialog-box { display: flex; flex-direction: column; gap: 10px; padding: 16px; font-size: .88rem; }
+.dz-dialog-head { display: flex; align-items: center; justify-content: space-between; }
+.dz-dialog-head h3 { margin: 0; }
+.dz-dialog h4 { margin: 6px 0 0; }
+.dz-form label { display: flex; flex-direction: column; gap: 4px; font-size: .8rem; color: var(--text-muted); }
+.dz-form .design-input { min-width: 0; color: var(--text-primary); }
+.dz-row { display: flex; gap: 10px; }
+.dz-row label { flex: 1; }
+.design-btn.confirm { border-color: var(--accent); color: var(--accent); }
+@media (max-width: 900px) {
+  .dz-body { grid-template-columns: 1fr; }
+  .dz-tree { position: static; max-height: none; }
+  .dz-folders { max-height: 50vh; }
+}

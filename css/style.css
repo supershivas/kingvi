@@ -422,3 +422,12 @@ body {
   position: absolute; left: 0; top: calc(50% - var(--tap) / 2); width: 100%; height: var(--tap); min-height: 0; margin: 0; opacity: 0; cursor: pointer;
 }
 .notches:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ── Inventaire : les reliques en cases, les manquantes en creux ── */
+.inv-slots { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 10px; }
+.inv-slot { width: 76px; height: 76px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--game-night); background: rgba(31,42,68,.12); cursor: pointer; padding: 0; }
+.inv-slot:hover, .inv-slot:focus-visible { background: rgba(31,42,68,.22); outline: 2px solid var(--accent); }
+.inv-slot canvas { image-rendering: pixelated; display: block; }
+.inv-slot.empty canvas { filter: brightness(0); opacity: .2; }
+.inv-name { font-weight: 600; margin: 0; min-height: 1.4em; }
+#open-inventory.new { color: var(--accent); }

@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.43.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.43.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.44.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.44.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -24,6 +24,9 @@
     <span class="brand-name">KINGVI SNO 7</span>
   </a>
   <div class="topbar-actions">
+    <button id="open-inventory" class="icon-btn icon-only" type="button" title="Inventaire (I)" aria-label="Inventaire">
+      <i class="ti ti-backpack" aria-hidden="true"></i>
+    </button>
     <button id="open-settings" class="icon-btn icon-only" type="button" title="Réglages" aria-label="Réglages">
       <i class="ti ti-settings" aria-hidden="true"></i>
     </button>
@@ -68,6 +71,20 @@
   <div id="iris" class="iris" hidden aria-hidden="true"></div>
   <p id="hint" class="hint gone">ZQSD pour marcher · Maj pour courir · clic pour frapper</p>
 </main>
+
+<dialog id="inventory" class="modal stone" aria-labelledby="inventory-title">
+  <div class="slab"><div class="modal-box">
+    <div class="modal-head">
+      <h2 id="inventory-title">Inventaire</h2>
+      <button id="close-inventory" class="icon-btn icon-only on-light stone-close" type="button" aria-label="Fermer">
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div id="inv-slots" class="inv-slots"></div>
+    <p id="inv-name" class="inv-name"></p>
+    <p id="inv-about" class="hint-text"></p>
+  </div></div>
+</dialog>
 
 <dialog id="settings" class="modal stone" aria-labelledby="settings-title">
   <!-- Une dalle aux bords cassés dans un cadre tramé (proposition E du labo) -->
@@ -149,6 +166,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.43.0"></script>
+<script type="module" src="js/main.js?v=1.44.0"></script>
 </body>
 </html>

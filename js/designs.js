@@ -9,28 +9,36 @@
    positions, les portes, les obstacles en dépendent). Les couleurs sont
    ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
    viking (bleu nuit translucide) est permise pour ses poses. */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.43.0';
-import { HOUSE_ART } from './world.js?v=1.43.0';
-import { ROOM, CORPSE } from './interior.js?v=1.43.0';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.43.0';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.43.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.43.0';
-import { RUIN_ART } from './ruins-art.js?v=1.43.0';
-import { vikingFrames, capeFrames } from './viking.js?v=1.43.0';
-import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.43.0';
-import { STAG_RAW, DOE_RAW } from './deer.js?v=1.43.0';
-import { gridToRows, decodePng, imageToRows, gamePalette } from './design-store.js?v=1.43.0';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.44.0';
+import { HOUSE_ART } from './world.js?v=1.44.0';
+import { ROOM, CORPSE } from './interior.js?v=1.44.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.44.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.44.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.44.0';
+import { RUIN_ART } from './ruins-art.js?v=1.44.0';
+import { vikingFrames, capeFrames } from './viking.js?v=1.44.0';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.44.0';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.44.0';
+import { RELICS } from './relics.js?v=1.44.0';
+import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.44.0';
 
-export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette } from './design-store.js?v=1.43.0';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot } from './design-store.js?v=1.44.0';
 
 export const GROUPS = [
   { id: 'decor', title: 'Éléments du décor', about: 'La maison, la pièce, les barques, le coffre, la crypte, la grotte, le roi sur son trône, le guetteur…' },
+  { id: 'reliques', title: 'Reliques', about: 'Ce qu\'on ramasse en chemin et qui va dans l\'inventaire (touche I). Placeholders à redessiner : 10 × 10 pixels.' },
   { id: 'ruines', title: 'Ruines et arches', about: 'L\'arche, la colonne couchée, le socle, l\'arche en ruine et le ponton du lac. Le dessin donne aussi la zone bloquée ; l\'endroit où l\'on monte (socle, ponton) reste celui d\'origine.' },
   { id: 'viking', title: 'Le viking : poses', about: 'Chaque image de la marche et des coups, de profil, de face, de dos et en diagonale. Une ombre au sol est possible (4e couleur).' },
   { id: 'cape', title: 'La cape du viking', about: 'Trois forces de vent, six temps chacune. Le coin d\'en haut à gauche est l\'épaule.' },
   { id: 'loup', title: 'Le loup : poses', about: 'Les neuf poses d\'où se montent la marche, le trot, le galop, le bond et le loup à terre.' },
   { id: 'cerfs', title: 'Cerfs et biches : poses', about: 'Codés, mais retirés du jeu pour le moment : on peut les redessiner d\'avance.' },
+  // Les assets créés dans l'atelier, rangés par type
+  { id: 'mes-decors', title: 'Mes décors', custom: 'decor', about: 'Des éléments de décor de la taille qu\'on veut.' },
+  { id: 'mes-animations', title: 'Mes animations', custom: 'animation', about: 'Des animations de plusieurs images.' },
+  { id: 'mes-reliques', title: 'Mes reliques', custom: 'relique', about: 'De nouvelles reliques.' },
+  { id: 'mes-autres', title: 'Mes autres assets', custom: 'autre', about: 'Tout le reste.' },
 ];
+export const CUSTOM_KINDS = { decor: 'mes-decors', animation: 'mes-animations', relique: 'mes-reliques', autre: 'mes-autres' };
 
 const entry = (name, label, rows, group) => ({ name, label, rows, w: rows[0].length, h: rows.length, group });
 const frameEntries = (prefix, frames, label, group) => frames.map(f => entry(`${prefix}${f.name}`, label(f.name), gridToRows(f.grid), group));
@@ -63,6 +71,7 @@ export const DESIGNS = [
     ['bundle', 'Une offrande pendue', BUNDLE],
     ['watcher', 'Le guetteur', WATCHER],
   ].map(([n, l, r]) => entry(n, l, r, 'decor')),
+  ...RELICS.map(r => entry(`relique-${r.id}`, r.name, r.rows, 'reliques')),
   ...[
     ['decor-pont', 'Le ponton du lac', RUIN_ART.pont],
     ['decor-arche', 'L\'arche', RUIN_ART.arche],
@@ -77,6 +86,7 @@ export const DESIGNS = [
     Object.entries(anims).flatMap(([key, anim]) => anim.frames.map((g, i) => entry(`${who}-${key}-${i}`, `${name} : ${anim.label.toLowerCase()} ${i + 1}`, gridToRows(g), 'cerfs')))),
 ];
 
+const BUILTIN = DESIGNS.length;
 const BY_NAME = new Map(DESIGNS.map(d => [d.name, d]));
 export const originalRows = name => BY_NAME.get(name)?.rows;
 
@@ -95,6 +105,42 @@ export const SEQUENCES = {
   cerfs: [['cerf', STAG_RAW], ['biche', DOE_RAW]].flatMap(([who, anims]) =>
     Object.entries(anims).map(([key, a]) => ({ label: `${who === 'cerf' ? 'Cerf' : 'Biche'} : ${a.label.toLowerCase()}`, names: a.frames.map((_, i) => `${who}-${key}-${i}`), fps: a.fps }))),
 };
+
+// ── Les assets créés dans l'atelier : ajoutés au catalogue (même tableaux, mis à jour sur place) ──
+const blank = (w, h) => Array.from({ length: h }, () => '.'.repeat(w));
+export function syncCustom() {
+  DESIGNS.length = BUILTIN;
+  for (const g of Object.values(CUSTOM_KINDS)) delete SEQUENCES[g];
+  for (const def of customDefs()) {
+    const group = CUSTOM_KINDS[def.kind] || 'mes-autres', names = customNames(def);
+    names.forEach((n, i) => DESIGNS.push(entry(n, def.frames > 1 ? `${def.label} ${i + 1}` : def.label, blank(def.w, def.h), group)));
+    if (def.frames > 1) (SEQUENCES[group] = SEQUENCES[group] || []).push({ label: def.label, names, fps: def.fps || 6 });
+  }
+  BY_NAME.clear();
+  for (const d of DESIGNS) BY_NAME.set(d.name, d);
+}
+export const customOf = name => customDefs().find(d => customNames(d).includes(name));
+const slug = t => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30) || 'asset';
+// Un nouvel asset ; rend sa définition (ou { error })
+export function addCustom({ label, kind, w, h, frames = 1, fps = 6 }) {
+  w = Math.round(w); h = Math.round(h); frames = Math.max(1, Math.min(24, Math.round(frames) || 1));
+  if (!(w >= 4 && w <= 160 && h >= 4 && h <= 160)) return { error: 'La taille doit être entre 4 et 160 pixels.' };
+  const taken = new Set([...customDefs().map(d => d.id), ...DESIGNS.map(d => d.name)]);
+  let id = slug(label), n = 2;
+  while (taken.has(id) || taken.has(`custom-${id}`)) id = `${slug(label)}-${n++}`;
+  const def = { id, label: label.trim() || id, kind, w, h, frames: kind === 'animation' ? Math.max(2, frames) : 1, fps };
+  const cu = readCustom();
+  writeCustom({ defs: [...cu.defs.filter(d => d.id !== id), def], deleted: cu.deleted.filter(x => x !== id) });
+  syncCustom();
+  return def;
+}
+// Retire un asset créé ici (et ses retouches ; le dépôt l'oubliera à la prochaine publication)
+export function removeCustom(id) {
+  const cu = readCustom(), inDepot = customDepotDefs().some(d => d.id === id);
+  writeCustom({ defs: cu.defs.filter(d => d.id !== id), deleted: inDepot ? [...new Set([...cu.deleted, id])] : cu.deleted });
+  syncCustom();
+}
+syncCustom();
 
 // Un fichier PNG → rangées, vérifiées contre l'original ; { rows, off } ou { error }
 export async function importDesign(name, buffer) {

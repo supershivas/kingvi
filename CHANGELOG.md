@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.44.0 — 2026-10-03
+- Inventaire (touche I, ou le sac en haut) : les reliques trouvées s'y rangent, les autres sont en creux
+- Trois reliques : la poupée (on frappe l'arbre sacré, elle tombe), le rubis (on frappe le roi mort dans la grotte), le médaillon (sur la table de la maison) ; leurs dessins sont provisoires, à refaire dans l'atelier (dossier « Reliques », 10 × 10)
+- Atelier de dessin : l'asset choisi à gauche, tous les assets en dossiers à droite (avec recherche), le texte d'explication dans l'aide (« ? »)
+- Nouvel asset : décor, animation (plusieurs images), relique ou autre, de la taille voulue ; il est publié avec le reste
+
 ## 1.43.0 — 2026-10-03
 - Nouveau jeu : une île tirée au sort (la piste, la forêt noire, les arbres et les rochers changent ; les lieux et leur ordre restent). La partie en cours garde son île
 - Grotte : près du trône, la vue monte et le roi se voit en entier

@@ -7,7 +7,7 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent } from './designs.js?v=1.43.0';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.44.0';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
@@ -44,13 +44,17 @@ export function pending() {
   return DESIGNS.filter(d => local[d.name]?.length === d.h).map(d => ({ name: d.name, rows: local[d.name] }));
 }
 
+// Le catalogue des assets créés dans l'atelier a-t-il changé depuis le dépôt ?
+const sameDefs = (a, b) => JSON.stringify([...a].sort((x, y) => x.id.localeCompare(y.id))) === JSON.stringify([...b].sort((x, y) => x.id.localeCompare(y.id)));
+export const customChanged = () => !sameDefs(customDefs(), customDepotDefs());
+
 // Écrit tout d'un coup : les blobs, un arbre, un commit, puis avance `main`.
 // `progress(texte)` : où l'on en est. Rend le nombre d'images publiées.
 export async function publish(progress = () => {}) {
   const token = getToken();
   if (!token) throw new Error('Pas de jeton GitHub.');
   const items = pending();
-  if (!items.length) throw new Error('Rien à publier : aucun dessin retouché.');
+  if (!items.length && !customChanged()) throw new Error('Rien à publier : aucun dessin retouché.');
 
   for (let attempt = 0; ; attempt++) {
     progress('Lecture du dépôt…');
@@ -66,6 +70,19 @@ export async function publish(progress = () => {}) {
     const all = [...new Set([...names, ...items.map(i => i.name)])].sort();
 
     const tree = [];
+    // Le catalogue des assets créés : ce que le dépôt a déjà, plus ce qui est créé ici, moins ce qui est supprimé ici
+    const cu = await gh(token, `/contents/assets/design/custom.json?ref=${BRANCH}`);
+    let remote = [];
+    try { remote = cu ? JSON.parse(decodeURIComponent(escape(atob(cu.content.replace(/\n/g, ''))))) : []; } catch { remote = []; }
+    const local = readCustom(), byId = new Map(remote.map(d => [d.id, d]));
+    for (const d of local.defs) byId.set(d.id, d);
+    for (const id of local.deleted) byId.delete(id);
+    const defs = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+    const defsChanged = !sameDefs(defs, remote);
+    if (defsChanged) {
+      const blobC = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(defs, null, 2) + '\n', encoding: 'utf-8' } });
+      tree.push({ path: 'assets/design/custom.json', mode: '100644', type: 'blob', sha: blobC.sha });
+    }
     let n = 0;
     for (const it of items) {
       progress(`Envoi des images (${++n}/${items.length})…`);
@@ -79,12 +96,13 @@ export async function publish(progress = () => {}) {
     const newTree = await gh(token, '/git/trees', { method: 'POST', body: { base_tree: commit.tree.sha, tree } });
     const made = await gh(token, '/git/commits', {
       method: 'POST',
-      body: { message: `Publie ${items.length} dessin${items.length > 1 ? 's' : ''} redessiné${items.length > 1 ? 's' : ''} depuis le labo`, tree: newTree.sha, parents: [head] },
+      body: { message: `Publie ${items.length} dessin${items.length > 1 ? 's' : ''} depuis le labo`, tree: newTree.sha, parents: [head] },
     });
     try {
       await gh(token, `/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: { sha: made.sha } });
       // Publié : ces dessins ne sont plus « à moi ». Ce navigateur suivra le dépôt (donc ce que
       // publient les autres appareils), en gardant un moment ce qu'il vient d'envoyer
+      if (defsChanged) setCustomDepot(defs);
       markSent(Object.fromEntries(items.map(i => [i.name, i.rows])));
       for (const it of items) setLocalDesign(it.name, null);
       return items.length;

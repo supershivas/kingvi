@@ -150,9 +150,12 @@ signalées, pas tranchées.
   seule. Pas de bulle, pas de « appuyez sur… » contextuel. `[À VALIDER]`
 - **Pas de dialogue ni de texte narratif.** Personne ne parle ; les seuls mots
   sont les noms des chapitres. `[À VALIDER]`
-- **Pas de loot ni d'inventaire.** Rien à ramasser, rien à équiper, pas
-  d'expérience ni de niveaux. *Tension :* le coffre de la crypte s'ouvre ;
-  il ne donne rien (à garder ainsi ?). `[À VALIDER]`
+- **Pas de loot, pas d'équipement, ni d'expérience ni de niveaux.** Décision
+  de Jérôme (v1.44.0) : un inventaire (touche I) ne garde que les reliques,
+  trois à ce jour (la poupée de l'arbre sacré, le rubis du roi mort, le
+  médaillon de la maison). Elles ne donnent rien : on les trouve. *Tension :*
+  l'inventaire montre un nom et une phrase par relique, seul texte du jeu avec
+  les chapitres. `[À VALIDER]`
 - **Pas de score ni de récompense chiffrée.** *Tension :* le compteur
   d'arbres et de rochers est un score discret. `[À VALIDER]`
 - **Pas de musique d'action plaquée.** La musique monte au combat mais reste

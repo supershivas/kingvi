@@ -251,7 +251,7 @@ est cachée et ne sort que pendant l'attaque.
   pied, pas la hauteur de l'objet.
 - `js/design-store.js`, `js/designs.js`, `js/labo-designs.js`,
   `js/pixel-editor.js`, `assets/design/` — **les dessins redessinables à la
-  main**, dans l'onglet Dessins du labo (6 groupes, 129 images : éléments du
+  main** (atelier : l'asset choisi à gauche, les dossiers à droite avec recherche, aide dans une boîte « ? » ; **assets créés** : `addCustom`, nom `custom-<id>` ou `custom-<id>-<n>`, type décor / animation / relique / autre, taille 4 → 160, catalogue dans `kingvi:custom` et `assets/design/custom.json`, publiés avec le reste ; dossiers « Mes … »), dans l'onglet Dessins du labo (6 groupes, 129 images : éléments du
   décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
   cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
   rochers et statues restent générés**). Un **éditeur de pixels intégré**
@@ -368,6 +368,16 @@ est cachée et ne sort que pendant l'attaque.
   et la tête tombée : la couronne `CROWN` roule au pied, le crâne `SKULL`
   s'affaisse ; l'estrade bloque) ; `caveWalkable`, `atCaveDoor`,
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
+- `js/relics.js` — les reliques (`RELICS` : id, nom, texte, dessin placeholder
+  10 × 10 `relique-<id>`, à redessiner dans l'atelier, dossier « Reliques »).
+  Dans le jeu (`game.js`) : `dropRelic` (elle tombe en rebondissant et reste au
+  sol jusqu'à ce qu'on marche dessus : `updateRelics`, `collectRelic`), la
+  poupée quand on frappe l'arbre sacré (`knockGrove`), le rubis quand on frappe
+  le roi (`knockKing`, dans la grotte), le médaillon posé sur la table de la
+  maison (visible seulement dedans). Sauvegarde : `relics`, `relicDrops`
+  (tombées, pas ramassées). Inventaire : touche I ou le sac de l'en-tête
+  (`#inventory`, `renderInventory` dans `main.js`, `game.relics()` ; pause
+  pendant qu'il est ouvert), `onRelic` → un toast.
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
   Le fond derrière le titre : `CHAPTER_STYLE` (G, sobre : pas de fond, dans

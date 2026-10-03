@@ -4,29 +4,30 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.43.0';
+} from './viking.js?v=1.44.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.43.0';
-import { createPack } from './pack.js?v=1.43.0';
-import { createGround } from './ground.js?v=1.43.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.43.0';
-import { chapterById } from './chapters.js?v=1.43.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.43.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.43.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.43.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.43.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.43.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.43.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.43.0';
-import { createFauna } from './fauna.js?v=1.43.0';
-import { createWeather } from './weather.js?v=1.43.0';
-import { createSea } from './sea.js?v=1.43.0';
-import { audio } from './audio.js?v=1.43.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.43.0';
+} from './world.js?v=1.44.0';
+import { createPack } from './pack.js?v=1.44.0';
+import { createGround } from './ground.js?v=1.44.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.0';
+import { chapterById } from './chapters.js?v=1.44.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.44.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.0';
+import { RELICS, relicDesign, relicById } from './relics.js?v=1.44.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.0';
+import { createFauna } from './fauna.js?v=1.44.0';
+import { createWeather } from './weather.js?v=1.44.0';
+import { createSea } from './sea.js?v=1.44.0';
+import { audio } from './audio.js?v=1.44.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.0';
 
 const Phaser = window.Phaser;
 
@@ -125,7 +126,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {} }) {
+export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -278,12 +279,27 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         gravityY: 60, alpha: { start: 0.9, end: 0 }, emitting: false,
       }).setDepth(DEPTH_SKY - 1);
 
+      // ── Les reliques : trouvées (inventaire) ou tombées et pas encore ramassées ──
+      this.relics = new Set(save.relics || []);
+      this.relicDrops = { ...(save.relicDrops || {}) };
+      this.drops = [];
+
       // ── Le bosquet sacré : les offrandes pendues, le guetteur ──
       this.ropes = this.add.graphics().setDepth(GROVE_TREE.y + 0.4);
       this.bundles = GROVE_HOOKS.map((h, i) => ({
         h, len: 3 + (i * 7) % 5, phase: i * 1.7,
         img: this.add.image(h.x, h.y, 'bundle').setOrigin(0.5, 0).setDepth(GROVE_TREE.y + 0.5),
       }));
+      // (la poupée est tombée : plus rien à sa place)
+      this.poupeeBundle = this.bundles[Math.min(2, this.bundles.length - 1)];
+      if (this.relics.has('poupee') || this.relicDrops.poupee) { this.poupeeBundle.gone = true; this.poupeeBundle.img.setVisible(false); }
+      // Les reliques posées : celles qui sont tombées plus tôt, et le médaillon sur la table
+      for (const [id, at] of Object.entries(this.relicDrops)) if (relicById(id)) this.spawnDrop(id, at.x, at.y, at.where);
+      if (!this.relics.has('medaillon')) {
+        const [fx, fy] = floorPoint(0.36, 0.7), H = INTERIORS.house.at;
+        this.spawnDrop('medaillon', H.x + fx, H.y + fy - 2, 'house');
+      }
+
       // Ses pas : trois empreintes qui arrivent jusqu'à lui, et plus rien
       for (let k = 1; k <= 4; k++) ground.decal(WATCHER_AT.x - 1 + (k % 2) * 2, WATCHER_AT.y - k * 6 + 2, 1, 2, 'b', 0.8);
       this.watcherGone = !!save.watcherGone;
@@ -469,6 +485,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
       art('blood', ['r']);
+      for (const r of RELICS) art(relicDesign(r.id), r.rows);
       art('bundle', BUNDLE);
       art('watcher', WATCHER);
       // Halo de la torche : une tache ronde, pleine au centre, qui s'efface
@@ -954,6 +971,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const dir = this.flip ? -1 : 1;
       const view = this.swingView, off = IMPACT[view];
       const x = Math.round(this.pos.x) + off.x * dir, y = Math.round(this.pos.y - (this.lift || 0)) + off.y;
+      // Le roi mort, dans la grotte : sa poitrine rend le rubis
+      if (this.inside === 'cave' && this.knockKing(x, y, dir, view)) return;
       // L'autre viking d'abord ; sinon, un arbre ou une pierre sous la lame ?
       if (!this.foe.hitAt(x, y, dir || 1, true) && !this.pack.hitAt(x, y, dir || 1, true) && !this.inside) {
         const struck = this.struckObject(x, y);
@@ -981,6 +1000,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
             this.chips.set(k, n);
             this.persist();
           }
+          if (o.type === 'grove') this.knockGrove();
           audio.play('wood');
           this.jolt(0.0015);
           this.shakeTree(struck.o, dir);
@@ -1242,6 +1262,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.swayClock = (this.swayClock || 0) - dt * 1000;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
+      this.updateRelics();
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
       if (this.chapterClock <= 0) { this.chapterClock = 400; this.checkChapters(); }
       this.updateNight(dt, time);
@@ -1394,6 +1415,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const g = this.ropes;
       g.clear(); g.fillStyle(hex(palette.b), 1);
       for (const b of this.bundles) {
+        if (b.gone) continue;
         const sway = Math.round(Math.sin(t * (1.1 + force) + b.phase) * (0.4 + 1.3 * force) + force);
         for (let k = 0; k < b.len; k++) g.fillRect(b.h.x + Math.round(sway * k / b.len), b.h.y + k, 1, 1);
         b.img.setPosition(b.h.x + sway + 0.5, b.h.y + b.len);
@@ -1589,6 +1611,74 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         this.throne.setVisible(false);
         this.facing = 'front'; this.flip = false;
       });
+    }
+
+    // ── Les reliques ──
+    spawnDrop(id, x, y, where) {
+      const img = this.add.image(Math.round(x) + 0.5, Math.round(y), relicDesign(id)).setOrigin(0.5, 1).setVisible(false);
+      const d = { id, x, y, where, img, ready: true };
+      img.setDepth(where ? DEPTH_ROOM + y : y + 1);
+      this.drops.push(d);
+      return d;
+    }
+
+    // Une relique tombe de `from` jusqu'à `to` (elle y reste jusqu'à ce qu'on la ramasse)
+    dropRelic(id, from, to, where, sound) {
+      if (this.relics.has(id) || this.relicDrops[id]) return;
+      this.relicDrops[id] = { x: Math.round(to.x), y: Math.round(to.y), where };
+      const d = this.spawnDrop(id, from.x, from.y, where);
+      d.ready = false;
+      d.img.setDepth(where ? DEPTH_ROOM + to.y + 1 : to.y + 1);
+      audio.play(sound);
+      this.tweens.add({ targets: d.img, x: Math.round(to.x) + 0.5, duration: 480, ease: 'Quad.easeOut' });
+      this.tweens.add({ targets: d.img, y: Math.round(to.y), duration: 480, ease: 'Bounce.easeOut', onComplete: () => { d.ready = true; } });
+      this.persist();
+    }
+
+    // La poupée pendue à l'arbre sacré tombe quand on le frappe
+    knockGrove() {
+      const b = this.poupeeBundle;
+      if (!b || b.gone || this.relics.has('poupee') || this.relicDrops.poupee) return;
+      b.gone = true; b.img.setVisible(false);
+      const at = nearestWalkable(GROVE_TREE.x + 9, GROVE_TREE.y + 7) || { x: GROVE_TREE.x + 9, y: GROVE_TREE.y + 7 };
+      this.dropRelic('poupee', { x: b.img.x, y: b.img.y + 8 }, at, null, 'wood');
+    }
+
+    // Le roi mort, frappé sur son trône : étincelles, la lame rebondit, et son rubis roule à terre
+    knockKing(x, y, dir, view) {
+      const V = INTERIORS.cave.at, lx = x - V.x, ly = y - V.y;
+      if (Math.abs(lx - THRONE.x) > 30 || ly > THRONE.y + 4 || ly < THRONE.y - 40) return false;
+      this.strikeRock(x, y, dir, view);
+      if (!this.relics.has('rubis') && !this.relicDrops.rubis) {
+        let spot = { x: THRONE.x + 6, y: THRONE.y + 8 };
+        search: for (let r = 0; r < 18; r++) for (const [dx, dy] of [[9, 6], [-9, 6], [0, 9]]) {
+          const px = THRONE.x + dx + Math.sign(dx || 1) * r * 0.4, py = THRONE.y + dy + r * 0.5;
+          if (caveWalkable(px, py)) { spot = { x: Math.round(px), y: Math.round(py) }; break search; }
+        }
+        this.dropRelic('rubis', { x: V.x + THRONE.x + 2, y: V.y + THRONE.y - 24 }, { x: V.x + spot.x, y: V.y + spot.y }, 'cave', 'clang');
+      }
+      return true;
+    }
+
+    // Les reliques à terre se montrent là où l'on est ; on les ramasse en marchant dessus
+    updateRelics() {
+      const here = this.inside || null;
+      for (const d of this.drops) {
+        if (d.taken) continue;
+        d.img.setVisible(d.where === here);
+        if (!d.ready || d.where !== here || this.dead || this.rowing) continue;
+        if (Math.hypot(this.pos.x - d.x, this.pos.y - d.y) < 10) this.collectRelic(d);
+      }
+    }
+
+    collectRelic(d) {
+      d.taken = true; d.ready = false;
+      this.relics.add(d.id);
+      delete this.relicDrops[d.id];
+      audio.play('clang');
+      this.tweens.add({ targets: d.img, y: d.img.y - 10, alpha: 0, duration: 520, ease: 'Quad.easeOut', onComplete: () => d.img.destroy() });
+      this.persist();
+      onRelic(d.id, [...this.relics]);
     }
 
     // ── La grotte : le roi mort ──
@@ -1955,6 +2045,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         watcherGone: this.watcherGone,
         chapters: [...this.chapters],
         kingBowed: this.kingBowed,
+        relics: [...this.relics], relicDrops: this.relicDrops,
         wrecked: Object.fromEntries(this.wrecked),
         chips: Object.fromEntries(this.chips),
         tally: this.tally,
@@ -2188,6 +2279,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       return !sc.jobs?.size && sc.settle <= 0;
     },
     save: () => game.scene.getScene('island')?.persist(),
+    // L'inventaire : les reliques et celles déjà trouvées
+    relics: () => RELICS.map(r => ({ id: r.id, name: r.name, about: r.about, rows: designRows(relicDesign(r.id), r.rows), found: !!game.scene.getScene('island')?.relics?.has(r.id) })),
     setWind: name => weather.setPreset(name),
     // La qualité de l'image (Réglages) : les flocons (CRT et flou : main.js)
     setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; },

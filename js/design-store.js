@@ -111,6 +111,27 @@ export function gamePalette() {
   return { s: read('--game-snow'), b: read('--game-night'), r: read('--accent') };
 }
 
+// ── Les assets créés dans l'atelier (une taille et des images au choix) ──
+// { id, label, kind: 'decor' | 'animation' | 'relique' | 'autre', w, h, frames, fps } ;
+// leurs images s'appellent `custom-<id>` (ou `custom-<id>-0`, `-1`… pour une animation).
+// Le catalogue vit dans ce navigateur (`kingvi:custom`) et dans le dépôt (`assets/design/custom.json`).
+export const CUSTOM_KEY = 'kingvi:custom';
+let customDepot = [];
+export function readCustom() {
+  try { const o = JSON.parse(localStorage.getItem(CUSTOM_KEY)) || {}; return { defs: o.defs || [], deleted: o.deleted || [] }; } catch { return { defs: [], deleted: [] }; }
+}
+export function writeCustom(o) { try { localStorage.setItem(CUSTOM_KEY, JSON.stringify(o)); } catch { /* rien */ } }
+export const customDepotDefs = () => customDepot;
+export const setCustomDepot = defs => { customDepot = defs; };
+// Le catalogue : le dépôt, plus ce qui est créé ici, moins ce qui est supprimé ici
+export function customDefs() {
+  const { defs, deleted } = readCustom(), by = new Map();
+  for (const d of customDepot) by.set(d.id, d);
+  for (const d of defs) by.set(d.id, d);
+  return [...by.values()].filter(d => !deleted.includes(d.id));
+}
+export const customNames = d => (d.frames > 1 ? Array.from({ length: d.frames }, (_, i) => `custom-${d.id}-${i}`) : [`custom-${d.id}`]);
+
 // Un nom de dessin : quelle lettre pour le bleu nuit, et l'ombre portée est-elle permise
 const nightLetter = name => (name.startsWith('decor-') ? 'k' : 'b');
 const allowsShade = name => name.startsWith('viking-');
@@ -183,6 +204,14 @@ export async function loadDesigns() {
       } catch { /* un fichier illisible : le dessin d'origine */ }
     }));
   } catch { /* hors ligne : les dessins d'origine */ }
+  try {
+    const res = await fetch('assets/design/custom.json', { cache: 'no-cache' });
+    const list = res.ok ? await res.json() : [];
+    customDepot = Array.isArray(list) ? list.filter(d => d && /^[a-z0-9-]+$/.test(d.id) && d.w > 0 && d.h > 0) : [];
+  } catch { /* hors ligne */ }
+  // (les suppressions que le dépôt a prises en compte n'ont plus à être retenues)
+  const cu = readCustom();
+  if (cu.deleted.some(id => !customDepot.some(d => d.id === id))) writeCustom({ ...cu, deleted: cu.deleted.filter(id => customDepot.some(d => d.id === id)) });
   // Ce qui est retouché ici et que le dépôt publie désormais à l'identique n'a plus
   // besoin d'être gardé ici : ce navigateur suit alors le dépôt, comme les autres
   local.clear();

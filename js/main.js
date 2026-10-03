@@ -1,10 +1,10 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.43.0';
-import { loadDesigns } from './design-store.js?v=1.43.0';
-import { showChapter } from './chapters.js?v=1.43.0';
-import { createTitleSea } from './titlesea.js?v=1.43.0';
-import { audio } from './audio.js?v=1.43.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.43.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.43.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.44.0';
+import { loadDesigns } from './design-store.js?v=1.44.0';
+import { showChapter } from './chapters.js?v=1.44.0';
+import { createTitleSea } from './titlesea.js?v=1.44.0';
+import { audio } from './audio.js?v=1.44.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.44.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.44.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -12,8 +12,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.43.0');
-const debug = DEBUG ? await import('./debug.js?v=1.43.0') : null;
+const { createGame } = await import('./game.js?v=1.44.0');
+const debug = DEBUG ? await import('./debug.js?v=1.44.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -68,14 +68,14 @@ function toast(text) {
 
 // ── Jeu ──
 let irisBusy = false, irisRun = 0;     // (l'iris, plus bas)
-const settings = $('settings');
+const settings = $('settings'), inventory = $('inventory');
 const game = createGame({
   parent: $('stage'),
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   // (et tant que le noir de l'iris n'est pas ouvert : rien ne se passe dans le noir)
-  isPaused: () => settings.open || !$('title').hidden || irisBusy,
+  isPaused: () => settings.open || inventory.open || !$('title').hidden || irisBusy,
   quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
@@ -90,6 +90,12 @@ const game = createGame({
   // près de la barque ; le noir ne se rouvre qu'une fois l'île prête autour
   onDeath: respawn => die(respawn),
   // Le compteur d'arbres abattus et de rochers brisés (dès le premier)
+  // Une relique ramassée : un mot discret, et elle entre dans l'inventaire
+  onRelic: id => {
+    const r = game.relics().find(x => x.id === id);
+    if (r) toast(`Relique trouvée : ${r.name}`);
+    $('open-inventory').classList.add('new');
+  },
   onTally: (t, what) => {
     $('tally-trees').textContent = t.trees;
     $('tally-rocks').textContent = t.rocks;
@@ -99,6 +105,45 @@ const game = createGame({
   },
 });
 let resetting = false;
+
+// ── L'inventaire (touche I) : les reliques trouvées, les autres en creux ──
+function renderInventory() {
+  const slots = $('inv-slots'), list = game.relics();
+  slots.replaceChildren();
+  const show = r => {
+    $('inv-name').textContent = r.found ? r.name : '???';
+    $('inv-about').textContent = r.found ? r.about : 'Pas encore trouvée.';
+  };
+  for (const r of list) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = `inv-slot${r.found ? '' : ' empty'}`;
+    b.setAttribute('aria-label', r.found ? r.name : 'Relique pas encore trouvée');
+    const cv = document.createElement('canvas');
+    const h = r.rows.length, w = r.rows[0].length;
+    cv.width = w; cv.height = h;
+    const ctx = cv.getContext('2d');
+    r.rows.forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.' && palette[ch]) { ctx.fillStyle = palette[ch]; ctx.fillRect(x, y, 1, 1); } }));
+    cv.style.width = `${w * 5}px`; cv.style.height = `${h * 5}px`;
+    b.append(cv);
+    b.addEventListener('click', () => show(r)); b.addEventListener('focus', () => show(r)); b.addEventListener('mouseenter', () => show(r));
+    slots.append(b);
+  }
+  const first = list.find(r => r.found) || list[0];
+  if (first) show(first);
+}
+function toggleInventory(force) {
+  const open = force ?? !inventory.open;
+  if (open === inventory.open) return;
+  if (!open) { inventory.close(); return; }
+  if (!$('title').hidden || irisBusy || settings.open) return;
+  renderInventory();
+  $('open-inventory').classList.remove('new');
+  inventory.showModal();
+}
+$('open-inventory').addEventListener('click', () => toggleInventory());
+$('close-inventory').addEventListener('click', () => inventory.close());
+inventory.addEventListener('click', e => { if (e.target === inventory) inventory.close(); });
+window.addEventListener('keydown', e => { if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleInventory(); } });
 
 // ── Croix directionnelle, sur écran tactile ──
 // Huit directions selon l'angle du pouce ; tout au bord de la croix, on court
