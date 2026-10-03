@@ -152,8 +152,9 @@ signalées, pas tranchées.
   sont les noms des chapitres. `[À VALIDER]`
 - **Pas de loot, pas d'équipement, ni d'expérience ni de niveaux.** Décision
   de Jérôme (v1.44.0) : un inventaire (touche I) ne garde que les reliques,
-  trois à ce jour (la poupée de l'arbre sacré, le rubis du roi mort, le
-  médaillon de la maison). Elles ne donnent rien : on les trouve. *Tension :*
+  six à ce jour (la poupée de l'arbre sacré, le rubis du roi mort, le
+  médaillon de la maison, le sceau du coffre, l'anneau de l'autre viking, la
+  dent du loup). Elles ne donnent rien : on les trouve. *Tension :*
   l'inventaire montre un nom et une phrase par relique, seul texte du jeu avec
   les chapitres. `[À VALIDER]`
 - **Pas de score ni de récompense chiffrée.** *Tension :* le compteur

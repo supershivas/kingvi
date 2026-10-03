@@ -374,7 +374,9 @@ est cachée et ne sort que pendant l'attaque.
   sol jusqu'à ce qu'on marche dessus : `updateRelics`, `collectRelic`), la
   poupée quand on frappe l'arbre sacré (`knockGrove`), le rubis quand on frappe
   le roi (`knockKing`, dans la grotte), le médaillon posé sur la table de la
-  maison (visible seulement dedans). Sauvegarde : `relics`, `relicDrops`
+  maison (visible seulement dedans), le sceau qui jaillit du coffre de la crypte,
+  l'anneau de l'autre viking et la dent du premier loup abattu (`checkBodyRelics` :
+  aussi pour ce qui était déjà fait avant le chargement, sans chute). Sauvegarde : `relics`, `relicDrops`
   (tombées, pas ramassées). Inventaire : touche I ou le sac de l'en-tête
   (`#inventory`, `renderInventory` dans `main.js`, `game.relics()` ; pause
   pendant qu'il est ouvert), `onRelic` → un toast.

@@ -1,8 +1,7 @@
 {
-  "version": "1.44.0",
+  "version": "1.44.1",
   "date": "2026-10-03",
   "changes": [
-    "Inventaire (touche I) et trois reliques : la poupée de l'arbre sacré, le rubis du roi, le médaillon de la maison (dessins provisoires à refaire dans l'atelier)",
-    "Atelier de dessin réorganisé : l'asset à gauche, les dossiers à droite, l'explication dans l'aide ; création d'assets (décor, animation, relique, autre) de la taille voulue"
+    "Trois reliques de plus : le sceau (dans le coffre de la crypte), l'anneau (l'autre viking) et la dent (le premier loup abattu)"
   ]
 }

@@ -6,7 +6,10 @@
    Où on les trouve (game.js : `dropRelic`, `updateRelics`) :
    - la poupée : on frappe l'arbre sacré, une offrande tombe ;
    - le rubis : on frappe le roi mort, dans la grotte, il tombe de sa poitrine ;
-   - le médaillon : oublié sur la table de la maison. */
+   - le médaillon : oublié sur la table de la maison ;
+   - le sceau : dans le coffre de la crypte ;
+   - l'anneau : il tombe de la main de l'autre viking quand il meurt ;
+   - la dent : elle tombe du premier loup abattu. */
 
 export const RELIC_SIZE = { w: 10, h: 10 };
 
@@ -54,6 +57,51 @@ export const RELICS = [
       '.bssbbssb.',
       '..bsssbb..',
       '...bbbb...',
+    ],
+  },
+  {
+    id: 'sceau', name: 'Le sceau de la crypte', about: 'Dans le coffre de la crypte, sous la statue de l\'îlot.',
+    rows: [
+      '..........',
+      '..bbbbbb..',
+      '.bsssssbb.',
+      '.bsbssbsb.',
+      '.bssbbssb.',
+      '.bssbbssb.',
+      '.bsbssbsb.',
+      '.bsssssbb.',
+      '..bbbbbb..',
+      '..........',
+    ],
+  },
+  {
+    id: 'viking', name: 'L\'anneau de l\'autre', about: 'Tombé de la main de l\'autre viking, au bout des traces.',
+    rows: [
+      '..........',
+      '...bbbb...',
+      '..bsssb...',
+      '.bs..rsb..',
+      '.bs...sb..',
+      '.bs...sb..',
+      '.bss.ssb..',
+      '..bsssb...',
+      '...bbb....',
+      '..........',
+    ],
+  },
+  {
+    id: 'loup', name: 'La dent du loup', about: 'Arrachée à l\'un des loups de la forêt noire.',
+    rows: [
+      '..........',
+      '..bbbbb...',
+      '..bsssb...',
+      '..bsssb...',
+      '...bssb...',
+      '...bssb...',
+      '....bsb...',
+      '....bsb...',
+      '.....bb...',
+      '..........',
     ],
   },
 ];

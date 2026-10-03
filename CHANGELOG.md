@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.44.1 — 2026-10-03
+- Le coffre de la crypte rend un sceau, l'autre viking laisse tomber un anneau, le premier loup abattu une dent (dessins provisoires, dossier « Reliques » de l'atelier)
+
 ## 1.44.0 — 2026-10-03
 - Inventaire (touche I, ou le sac en haut) : les reliques trouvées s'y rangent, les autres sont en creux
 - Trois reliques : la poupée (on frappe l'arbre sacré, elle tombe), le rubis (on frappe le roi mort dans la grotte), le médaillon (sur la table de la maison) ; leurs dessins sont provisoires, à refaire dans l'atelier (dossier « Reliques », 10 × 10)

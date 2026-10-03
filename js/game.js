@@ -4,30 +4,30 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.44.0';
+} from './viking.js?v=1.44.1';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.44.0';
-import { createPack } from './pack.js?v=1.44.0';
-import { createGround } from './ground.js?v=1.44.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.0';
-import { chapterById } from './chapters.js?v=1.44.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.44.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.0';
-import { RELICS, relicDesign, relicById } from './relics.js?v=1.44.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.0';
-import { createFauna } from './fauna.js?v=1.44.0';
-import { createWeather } from './weather.js?v=1.44.0';
-import { createSea } from './sea.js?v=1.44.0';
-import { audio } from './audio.js?v=1.44.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.0';
+} from './world.js?v=1.44.1';
+import { createPack } from './pack.js?v=1.44.1';
+import { createGround } from './ground.js?v=1.44.1';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.44.1';
+import { chapterById } from './chapters.js?v=1.44.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.44.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.44.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.44.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.44.1';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.44.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.44.1';
+import { RELICS, relicDesign, relicById } from './relics.js?v=1.44.1';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.44.1';
+import { createFauna } from './fauna.js?v=1.44.1';
+import { createWeather } from './weather.js?v=1.44.1';
+import { createSea } from './sea.js?v=1.44.1';
+import { audio } from './audio.js?v=1.44.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.44.1';
 
 const Phaser = window.Phaser;
 
@@ -1626,6 +1626,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     dropRelic(id, from, to, where, sound) {
       if (this.relics.has(id) || this.relicDrops[id]) return;
       this.relicDrops[id] = { x: Math.round(to.x), y: Math.round(to.y), where };
+      // (pas de chute si elle était déjà tombée avant le chargement : elle est simplement là)
+      if (!from) { this.spawnDrop(id, to.x, to.y, where); this.persist(); return; }
       const d = this.spawnDrop(id, from.x, from.y, where);
       d.ready = false;
       d.img.setDepth(where ? DEPTH_ROOM + to.y + 1 : to.y + 1);
@@ -1660,8 +1662,36 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       return true;
     }
 
+    // Le point praticable le plus proche d'un corps, pour y poser ce qui en tombe
+    bodySpot(x, y) {
+      const spot = nearestWalkable(Math.round(x + 5), Math.round(y + 3));
+      return spot || { x: Math.round(x), y: Math.round(y) };
+    }
+
+    // Les reliques qui tombent d'un corps (l'autre viking, le premier loup), y compris
+    // quand c'était déjà fait avant le chargement de la partie
+    checkBodyRelics() {
+      const was = this.bodiesAtLoad || (this.bodiesAtLoad = { foe: !this.foe.alive, wolf: this.pack.deadList.length > 0, chest: this.chestOpen });
+      if (!this.foe.alive && !this.relics.has('viking') && !this.relicDrops.viking && !this.dead) {
+        const p = this.foe.pos;
+        this.dropRelic('viking', was.foe ? null : { x: p.x, y: p.y - 5 }, this.bodySpot(p.x, p.y), null, 'clang');
+      }
+      const w = this.pack.deadList[0];
+      if (w && !this.relics.has('loup') && !this.relicDrops.loup) {
+        this.dropRelic('loup', was.wolf ? null : { x: w.x, y: w.y - 3 }, this.bodySpot(w.x, w.y), null, 'clang');
+      }
+      // Le coffre de la crypte, ouvert (et son sceau pas encore pris)
+      if (this.chestOpen && !this.chestBusy && !this.relics.has('sceau') && !this.relicDrops.sceau) {
+        const C = INTERIORS.crypt.at;
+        let spot = { x: CHEST.x, y: CHEST.y + 9 };
+        search: for (let r = 7; r < 20; r++) for (const dx of [0, -8, 8]) if (cryptWalkable(CHEST.x + dx, CHEST.y + r)) { spot = { x: CHEST.x + dx, y: CHEST.y + r }; break search; }
+        this.dropRelic('sceau', was.chest ? null : { x: this.chest.x, y: this.chest.y - 6 }, { x: C.x + spot.x, y: C.y + spot.y }, 'crypt', 'clang');
+      }
+    }
+
     // Les reliques à terre se montrent là où l'on est ; on les ramasse en marchant dessus
     updateRelics() {
+      this.checkBodyRelics();
       const here = this.inside || null;
       for (const d of this.drops) {
         if (d.taken) continue;
@@ -1722,11 +1752,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     openChest() {
       if (this.chestOpen) return;
       audio.play('creak');
-      this.chestOpen = true;
+      this.chestOpen = true; this.chestBusy = true;
       this.facing = 'back'; this.player.setFrame('back-idle');
       this.chest.setTexture('chest-ajar');
       this.time.delayedCall(380, () => {
         this.chest.setTexture('chest-open');
+        this.chestBusy = false;                      // (le sceau en jaillit : checkBodyRelics)
         this.jolt(0.002);
         // Des éclats montent du coffre
         const x = this.chest.x, y = this.chest.y - 4;
