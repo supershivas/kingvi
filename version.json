@@ -1,8 +1,8 @@
 {
-  "version": "1.35.2",
+  "version": "1.36.0",
   "date": "2026-10-03",
   "changes": [
-    "Le halo de vision est une ellipse régulière, plus une forme au hasard",
-    "Dans les Réglages, les curseurs se rapprochent de leur titre"
+    "Le halo de vision n'a plus de forme définie : il épouse le décor (troncs, rochers, statues) et respire lentement ; le noir autour est le bleu nuit exact",
+    "Les décors bloquent seulement là où ils sont pleins : on passe sous les branches du bosquet sacré et autour de ses racines"
   ]
 }

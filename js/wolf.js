@@ -7,7 +7,7 @@
    Petit : un loup arrive à la hanche d'un homme (6 à 7 pixels, le viking en
    fait 9).
    Chaque image fait WOLF_W × WOLF_H ; les pattes touchent la ligne WOLF_GROUND. */
-import { WOLF_ART } from './ruins-art.js?v=1.35.2';
+import { WOLF_ART } from './ruins-art.js?v=1.36.0';
 
 export const WOLF_W = 16;
 export const WOLF_H = 8;

@@ -16,8 +16,12 @@ d'écran cathodique discret et un flou de maquette, désactivables.
 La vue est rapprochée (écran d'environ 280 pixels du jeu de haut), sans
 aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra est
 fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
-de lui, flou vers le bord du cercle de vue, puis le noir, tramé par paliers,
-en ellipse régulière (`SIGHT`, `drawSight`, canevas `#sight`).
+de lui, flou vers le bord du cercle de vue, puis le noir (le bleu nuit exact,
+par-dessus le CRT et la vignette), tramé par paliers. Sa forme n'est pas
+définie : la portée de la vue, dans 72 directions, dépend du décor (troncs,
+rochers, pierres, statues la bouchent plus ou moins ; elle glisse en suivant
+le décor, lissée d'un angle à l'autre, avec une lente dérive : `updateSight`,
+`castSight`, `sightShape`, `paintSight`, canevas `#sight`).
 **Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
 arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 (falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués
@@ -239,6 +243,12 @@ est cachée et ne sort que pendant l'attaque.
   maison, la crypte, la grotte — `dark` : toujours nuit) sont des pièces posées loin en mer, fond noir, profondeur
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
+- **Hitbox des décors** (`blocked` dans `world.js`) : un arbre bloque son tronc
+  (3 × 2 px) ; tout autre objet bloque exactement là où son dessin est plein,
+  sur ses `foot` rangées du bas (`solidAt`), pas sur un rectangle de la largeur
+  de son dessin : on passe sous les branches du grand arbre mort du bosquet,
+  entre les racines, autour d'une statue. `foot` doit rester la profondeur du
+  pied, pas la hauteur de l'objet.
 - `js/ground.js` — les tuiles du sol (`createGround`) : peinture d'origine
   (`pristine`) et toile affichée, réserve des tuiles hors de vue (48 Mo, les
   moins récemment vues partent), marques qui pâlissent par paliers (la tuile

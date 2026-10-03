@@ -17,7 +17,7 @@ Le jeu est **contemplatif** et sa **lenteur est assumée**. On marche à
 barque à leur bout, demandent près de six minutes de marche sans s'arrêter.
 Le viking fait 9 pixels de haut sur un écran d'environ 280 : la vue est
 rapprochée, et on ne voit qu'à distance de vue du héros (net autour de lui,
-flou vers le bord, puis le noir). Par défaut, c'est la nuit, toujours, et la
+flou vers le bord, puis le noir, dont la forme vit avec le décor). Par défaut, c'est la nuit, toujours, et la
 tempête. On doit sentir l'immensité qu'on ne voit pas, le froid, le vent, la
 solitude. Le récit
 n'est jamais dit : il est posé dans le paysage (traces, sang, corps, statues,

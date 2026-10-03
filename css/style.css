@@ -292,8 +292,8 @@ body {
   -webkit-mask-image: radial-gradient(var(--sight-rx, 60%) var(--sight-ry, 58%) at 50% 50%, transparent 58%, #000 80%);
   mask-image: radial-gradient(var(--sight-rx, 60%) var(--sight-ry, 58%) at 50% 50%, transparent 58%, #000 80%);
 }
-/* Le cercle de vue : au-delà du flou, le noir (game.js, `drawSight`) */
-.sight { position: absolute; top: 0; left: 0; pointer-events: none; image-rendering: pixelated; }
+/* Le cercle de vue : au-delà du flou, le noir (game.js, `drawSight`), par-dessus le CRT et la vignette : le bleu nuit exact, sans voile */
+.sight { position: absolute; top: 0; left: 0; z-index: 3; pointer-events: none; image-rendering: pixelated; }
 
 /* Écran cathodique, discret : lignes de balayage posées sur les pixels du jeu,
    et vignettage. --px : la taille d'un pixel du canevas basse définition,

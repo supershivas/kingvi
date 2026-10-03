@@ -4,28 +4,28 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.35.2';
+} from './viking.js?v=1.36.0';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.35.2';
-import { createPack } from './pack.js?v=1.35.2';
-import { createGround } from './ground.js?v=1.35.2';
-import { chapterById } from './chapters.js?v=1.35.2';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.2';
-import { BUNDLE, WATCHER } from './grove.js?v=1.35.2';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.2';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.2';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.2';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.2';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.2';
-import { createFauna } from './fauna.js?v=1.35.2';
-import { createWeather } from './weather.js?v=1.35.2';
-import { createSea } from './sea.js?v=1.35.2';
-import { audio } from './audio.js?v=1.35.2';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.2';
+} from './world.js?v=1.36.0';
+import { createPack } from './pack.js?v=1.36.0';
+import { createGround } from './ground.js?v=1.36.0';
+import { chapterById } from './chapters.js?v=1.36.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.36.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.36.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.36.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.36.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.36.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.36.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.36.0';
+import { createFauna } from './fauna.js?v=1.36.0';
+import { createWeather } from './weather.js?v=1.36.0';
+import { createSea } from './sea.js?v=1.36.0';
+import { audio } from './audio.js?v=1.36.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.36.0';
 
 const Phaser = window.Phaser;
 
@@ -130,6 +130,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
   const weather = createWeather(wind);
   // Le sol en tuiles peintes une fois ; les pas et le sang s'y écrivent
   const ground = createGround(palette);
+  // La forme du cercle de vue : sa portée dans chaque direction, de 0,4 à 1
+  // fois l'ellipse de base (la scène la calcule, `updateSight` ; le calque
+  // `#sight` la dessine, `paintSight`). `rx`, `ry` : l'ellipse de base, en
+  // pixels du jeu (posés au dessin).
+  const SIGHT_N = 72;
+  const sightShape = { f: new Float32Array(SIGHT_N).fill(1), drawn: new Float32Array(SIGHT_N).fill(-1), rx: 0, ry: 0, clock: 0 };
   // En qualité légère, moitié moins de flocons
   weather.density = quality <= 1 ? 0.5 : 1;
   // La palette en octets, pour écrire les pixels d'un bloc
@@ -1210,8 +1216,86 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
       if (this.chapterClock <= 0) { this.chapterClock = 400; this.checkChapters(); }
       this.updateNight(dt, time);
+      this.updateSight(dt);
       this.drawSky(dt);
       this.updateGround(dt);
+    }
+
+    // ── Le cercle de vue : sa forme n'est pas définie, elle vit avec le décor ──
+    // Dans chaque direction, la vue file jusqu'à ce que les arbres, les
+    // rochers, les pierres, les statues la bouchent (chacun laisse passer un
+    // peu de vue, les troncs bien plus que la pierre) ; la forme est lissée
+    // d'un angle à l'autre, suit le décor en glissant, et une lente dérive la
+    // fait respirer (la même au même endroit : elle ne tire pas au sort).
+    updateSight(dt) {
+      const S = sightShape, f = S.f, N = SIGHT_N;
+      if (!S.rx) return;
+      S.clock += dt;
+      const ease = Math.min(1, dt * 2.2);
+      // Les cibles, recalculées dix fois par seconde (le décor change peu)
+      this.sightClock = (this.sightClock || 0) - dt;
+      if (this.sightClock <= 0 || !this.sightTarget) {
+        this.sightClock = 0.1;
+        this.sightTarget = this.sightTarget || new Float32Array(N).fill(1);
+        this.castSight(this.sightTarget);
+      }
+      const t = S.clock;
+      for (let i = 0; i < N; i++) {
+        const a = i / N * Math.PI * 2;
+        // La dérive : trois ondes lentes qui ne se répètent pas
+        const drift = 1 + 0.05 * Math.sin(a * 2 + t * 0.21 + 1.3) + 0.04 * Math.sin(a * 3 - t * 0.17 + 4.1) + 0.03 * Math.sin(a * 5 + t * 0.33 + 0.7);
+        const want = Math.max(0.4, Math.min(1, this.sightTarget[i] * drift));
+        f[i] += (want - f[i]) * ease;
+      }
+    }
+
+    // La portée de la vue dans chaque direction (0,4 → 1 de l'ellipse de base)
+    castSight(out) {
+      const S = sightShape, N = SIGHT_N, { rx, ry } = S;
+      if (this.inside || this.dead) { out.fill(1); return; }
+      const px = this.pos.x, py = this.pos.y - 3, CELL = 3;
+      const reach = Math.max(rx, ry) + 8, gx0 = Math.floor(px - reach), gy0 = Math.floor(py - reach);
+      const gw = Math.ceil(reach * 2 / CELL) + 1, grid = this.sightGrid && this.sightGrid.length === gw * gw ? this.sightGrid : (this.sightGrid = new Float32Array(gw * gw));
+      grid.fill(0);
+      const cx0 = Math.floor(px / CHUNK), cy0 = Math.floor(py / CHUNK);
+      for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+        for (const o of objectsInChunk(cx0 + i, cy0 + j)) {
+          if (o.fallen || o.broken || o.type === 'iceberg' || o.type === 'rubble' || o.type === 'arch-vault') continue;
+          let x0, x1, up, c;
+          if (o.type === 'tree') { x0 = o.x - 3; x1 = o.x + 3; up = 6; c = 0.35; }
+          else {
+            const left = o.x - o.art.ax;
+            x0 = left; x1 = left + o.w; up = Math.min(o.h * 0.6, o.type === 'cliff' ? 12 : 18); c = o.type === 'cliff' ? 0.9 : 0.8;
+            if (o.type === 'grove') { x0 = o.x - 5; x1 = o.x + 5; c = 0.5; }
+          }
+          const y0 = o.y - up, y1 = o.y + 1;
+          if (x1 < gx0 || x0 > gx0 + gw * CELL || y1 < gy0 || y0 > gy0 + gw * CELL) continue;
+          for (let gy = Math.max(0, Math.floor((y0 - gy0) / CELL)); gy <= Math.min(gw - 1, Math.floor((y1 - gy0) / CELL)); gy++) {
+            for (let gx = Math.max(0, Math.floor((x0 - gx0) / CELL)); gx <= Math.min(gw - 1, Math.floor((x1 - gx0) / CELL)); gx++) {
+              if (grid[gy * gw + gx] < c) grid[gy * gw + gx] = c;
+            }
+          }
+        }
+      }
+      // Les rayons : la vue file tant qu'il en reste assez
+      for (let n = 0; n < N; n++) {
+        const a = n / N * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+        const R = 1 / Math.hypot(ca / rx, sa / ry);
+        let T = 1, d = 8;
+        for (; d < R; d += CELL) {
+          const gx = Math.floor((px + ca * d - gx0) / CELL), gy = Math.floor((py + sa * d - gy0) / CELL);
+          if (gx < 0 || gy < 0 || gx >= gw || gy >= gw) break;
+          const c = grid[gy * gw + gx];
+          if (c) { T *= 1 - c * 0.5; if (T < 0.25) break; }
+        }
+        out[n] = Math.max(0.4, Math.min(1, d / R));
+      }
+      // Lissée d'un angle à l'autre (deux passes) : un tronc fait une échancrure, pas une dent
+      const tmp = this.sightTmp || (this.sightTmp = new Float32Array(N));
+      for (let pass = 0; pass < 2; pass++) {
+        for (let i = 0; i < N; i++) tmp[i] = (out[(i + N - 2) % N] + 2 * out[(i + N - 1) % N] + 3 * out[i] + 2 * out[(i + 1) % N] + out[(i + 2) % N]) / 9;
+        out.set(tmp);
+      }
     }
 
     // Les marques du sol pâlissent ; les tuiles retouchées repartent à la
@@ -1943,15 +2027,17 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
   }
 
   // Le cercle de vue : net autour du viking, flou vers son bord (les masques
-  // des calques flous, style.css, lisent sa taille), puis le noir, tramé par
-  // paliers comme le halo de la torche, au bord rongé (rien de géométrique).
-  // En pixels du canevas : il a la taille et l'agrandissement du jeu. Sa
-  // forme reste au milieu de l'écran, mais sa trame est accrochée au monde
-  // (comme celle de la torche) : elle ne fait pas grille fixe devant le
-  // paysage qui défile (`placeSight`, à chaque pixel de défilement).
+  // des calques flous, style.css, lisent sa taille), puis le noir, le plus
+  // sombre du jeu (le bleu nuit), tramé par paliers comme le halo de la torche.
+  // Sa forme est celle de `sightShape` (elle vit avec le décor). En pixels du
+  // canevas : il a la taille et l'agrandissement du jeu. Sa trame est accrochée
+  // au monde (comme celle de la torche) : elle ne fait pas grille fixe devant
+  // le paysage qui défile (`placeSight`, à chaque pixel de défilement).
   const sightCanvas = screenEl.querySelector('#sight');
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
-  const sight = { band: null, img: null, ctx: null, ox: -1, oy: -1 };
+  const sight = { img: null, ctx: null, W: 0, H: 0, norm: null, ang: null, band: null, n: 0, ox: -1, oy: -1, at: 0 };
+  // La géométrie : à chaque pixel, sa distance à l'ellipse de base (1 = le
+  // bord) et son angle ; refaite quand la taille du canevas change
   function drawSight() {
     if (!sightCanvas) return;
     const c = game.canvas, W = c.width, H = c.height;
@@ -1961,29 +2047,43 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     const r = parent.getBoundingClientRect(), k = W / (parseFloat(c.style.width) || W);
     const cx = r.width * k / 2, cy = r.height * k / 2;
     const ry = SIGHT.ry * cy * 2, rx = SIGHT.rx * cy * 2;
-    const ctx = sightCanvas.getContext('2d');
-    const img = ctx.createImageData(W, H), d = img.data, rgb = RGB.k;
-    // Le bord : une ellipse régulière (des bosses faisaient une forme au hasard)
-    const edge = () => 1;
-    // Le noir plein est posé une fois ; la bande tramée (pixel, niveau ×16)
-    // se redessine quand la trame se décale
-    const band = [];
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const dx = (x + 0.5 - cx) / rx, dy = (y + 0.5 - cy) / ry;
-        const dist = Math.hypot(dx, dy) / edge(Math.atan2(dy, dx));
-        const t = (dist - SIGHT.fade) / (1 - SIGHT.fade);
-        if (t <= 0) continue;
-        const i = (y * W + x) * 4;
-        d[i] = rgb[0]; d[i + 1] = rgb[1]; d[i + 2] = rgb[2]; d[i + 3] = 255;
-        if (t < 1) band.push(x, y, t * 16);
-      }
+    sightShape.rx = rx; sightShape.ry = ry; sightShape.drawn.fill(-1);
+    const norm = new Float32Array(W * H), ang = new Float32Array(W * H);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const dx = x + 0.5 - cx, dy = y + 0.5 - cy, i = y * W + x;
+      norm[i] = Math.hypot(dx / rx, dy / ry);
+      // (l'angle ne sert que dans la zone où le bord peut passer)
+      ang[i] = norm[i] > 0.3 && norm[i] < 1.6 ? (Math.atan2(dy, dx) / (Math.PI * 2) + 1) % 1 * SIGHT_N : 0;
     }
-    Object.assign(sight, { band, img, ctx, W, ox: -1, oy: -1 });
-    placeSight();
+    Object.assign(sight, {
+      ctx: sightCanvas.getContext('2d'), W, H, norm, ang, ox: -1, oy: -1,
+      img: sightCanvas.getContext('2d').createImageData(W, H), band: new Int32Array(W * H * 3), n: 0,
+    });
+    paintSight();
     // La taille du cercle, en pixels CSS, pour les masques du flou
     screenEl.style.setProperty('--sight-rx', `${(rx / k).toFixed(1)}px`);
     screenEl.style.setProperty('--sight-ry', `${(ry / k).toFixed(1)}px`);
+  }
+  // La forme : le noir plein, et la bande tramée autour (pixel, niveau × 16)
+  function paintSight() {
+    if (!sight.img) return;
+    const { img, W, H, norm, ang, band } = sight, d = img.data, f = sightShape.f, N = SIGHT_N, rgb = RGB.k;
+    d.fill(0);
+    let n = 0;
+    for (let i = 0; i < W * H; i++) {
+      const nd = norm[i];
+      if (nd < 0.3) continue;                                  // bien dedans : transparent
+      // La portée dans cette direction (interpolée entre deux rayons)
+      const a = ang[i], i0 = a | 0, k = a - i0, fa = f[i0 % N] * (1 - k) + f[(i0 + 1) % N] * k;
+      const t = (nd / fa - SIGHT.fade) / (1 - SIGHT.fade);
+      if (t <= 0) continue;
+      const j = i * 4;
+      d[j] = rgb[0]; d[j + 1] = rgb[1]; d[j + 2] = rgb[2]; d[j + 3] = 255;
+      if (t < 1) { band[n++] = i; band[n++] = Math.round(t * 16); n++; }
+    }
+    sight.n = n; sight.ox = -1;
+    sightShape.drawn.set(f);
+    placeSight();
   }
   // La trame du bord suit le défilement de la vue (modulo 4)
   function placeSight() {
@@ -1992,14 +2092,24 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     const ox = v ? ((Math.floor(v.x) % 4) + 4) % 4 : 0, oy = v ? ((Math.floor(v.y) % 4) + 4) % 4 : 0;
     if (ox === sight.ox && oy === sight.oy) return;
     sight.ox = ox; sight.oy = oy;
-    const { band, img, W } = sight, d = img.data;
-    for (let n = 0; n < band.length; n += 3) {
-      const x = band[n], y = band[n + 1];
-      d[(y * W + x) * 4 + 3] = band[n + 2] > BAYER[((y + oy) & 3) * 4 + ((x + ox) & 3)] ? 255 : 0;
+    const { band, img, W, n } = sight, d = img.data;
+    for (let m = 0; m < n; m += 3) {
+      const i = band[m], x = i % W, y = (i / W) | 0;
+      d[i * 4 + 3] = band[m + 1] > BAYER[((y + oy) & 3) * 4 + ((x + ox) & 3)] ? 255 : 0;
     }
     sight.ctx.putImageData(img, 0, 0);
   }
-  game.events.on('postrender', placeSight);
+  // Après chaque image : la forme a changé ? (dix fois par seconde au plus) ;
+  // sinon, la trame suit le défilement
+  game.events.on('postrender', () => {
+    const f = sightShape.f, dr = sightShape.drawn;
+    if (sight.img && performance.now() - sight.at > 90) {
+      let moved = 0;
+      for (let i = 0; i < SIGHT_N; i++) moved = Math.max(moved, Math.abs(f[i] - dr[i]));
+      if (moved > 0.008) { sight.at = performance.now(); paintSight(); return; }
+    }
+    placeSight();
+  });
 
   // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de base
   function resize() {

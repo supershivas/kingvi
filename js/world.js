@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.35.2';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.35.2';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.35.2';
-import { makeGroveTree } from './grove.js?v=1.35.2';
-import { monumentParts, monumentSize } from './ruins.js?v=1.35.2';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.36.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.36.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.36.0';
+import { makeGroveTree } from './grove.js?v=1.36.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.36.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -778,8 +778,12 @@ export function objectsInChunk(cx, cy) {
   return list;
 }
 
-// Un objet bloque-t-il le passage en (x, y) ? Arbres : le tronc.
-// Rochers et cairns : la moitié basse de leur silhouette.
+// Un objet bloque-t-il le passage en (x, y) ? Arbres : le tronc. Tout le reste
+// bloque exactement là où son dessin est plein, sur ses `foot` rangées du bas
+// (`foot` : la profondeur au sol ; sans lui, un peu plus de la moitié de la
+// hauteur ; 0 : on passe dessus). Un grand arbre mort, une statue, une arche
+// ne bloquent donc que leur pied, pas leur envergure : on passe dessous, entre
+// les branches, et autour des racines.
 export function blocked(x, y) {
   const cx = Math.floor(x / CHUNK), cy = Math.floor(y / CHUNK);
   for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
@@ -787,11 +791,20 @@ export function blocked(x, y) {
       if (o.fallen || o.broken) continue;                // abattu, brisé : on passe
       const dx = x - o.x, dy = y - o.y;
       if (o.type === 'tree') { if (Math.abs(dx) <= 1.5 && dy <= 0.5 && dy >= -1.5) return true; continue; }
-      const foot = o.foot ?? o.h * 0.55;               // profondeur au sol ; 0 : on passe dessus
+      const foot = o.foot ?? o.h * 0.55;
       if (!foot) continue;
       const left = -o.art.ax, right = o.w - o.art.ax;
-      if (dx > left + 0.5 && dx < right - 0.5 && dy <= 0.5 && dy >= -foot) return true;
+      if (dx < left || dx >= right || dy > 1 || dy < -foot - 1) continue;
+      if (solidAt(o, Math.floor(x - (o.x - o.art.ax)), o.h - 1 - (o.y - Math.floor(y)), foot)) return true;
     }
   }
   return false;
+}
+
+// Le pixel (col, row) du dessin d'un objet est-il plein, et dans ses `foot`
+// rangées du bas ? (la rangée du bas : h − 1)
+function solidAt(o, col, row, foot) {
+  if (row < o.h - 1 - Math.ceil(foot) || row > o.h - 1 || col < 0 || col >= o.w) return false;
+  const c = o.art.rows[row]?.[col];
+  return !!c && c !== '.';
 }

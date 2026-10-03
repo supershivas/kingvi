@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.36.0 — 2026-10-03
+- Le halo de vision n'a plus de forme définie : il épouse le décor (troncs, rochers, statues se mettent en travers) et respire lentement
+- Le noir autour du halo est le bleu nuit exact, sans voile ni lignes cathodiques
+- Les hitbox des décors suivent leur dessin : on passe sous les branches du bosquet sacré, entre les racines, autour des statues
+
 ## 1.35.2 — 2026-10-03
 - Le halo de vision est une ellipse régulière, plus une forme au hasard
 - Dans les Réglages, les curseurs se rapprochent de leur titre (la zone tactile reste de 44 px)
