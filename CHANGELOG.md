@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.35.2 — 2026-10-03
+- Le halo de vision est une ellipse régulière, plus une forme au hasard
+- Dans les Réglages, les curseurs se rapprochent de leur titre (la zone tactile reste de 44 px)
+
 ## 1.35.1 — 2026-10-03
 - Moins de scintillement en marchant : la trame de la lumière de la torche et celle du bord du cercle de vue restent accrochées au sol
 - La torche vacille en intensité, plus en taille ; la caméra suit le viking pixel pour pixel

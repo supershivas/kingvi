@@ -17,7 +17,7 @@ La vue est rapprochée (écran d'environ 280 pixels du jeu de haut), sans
 aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra est
 fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
 de lui, flou vers le bord du cercle de vue, puis le noir, tramé par paliers,
-au bord rongé (`SIGHT`, `drawSight`, canevas `#sight`).
+en ellipse régulière (`SIGHT`, `drawSight`, canevas `#sight`).
 **Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
 arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 (falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués

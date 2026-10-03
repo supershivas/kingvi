@@ -411,13 +411,14 @@ body {
 
 /* Les crans : des pierres de hauteurs inégales ; le curseur (invisible) est
    posé dessus et reste le vrai contrôle, à la souris comme au clavier */
-.notches { position: relative; display: flex; align-items: flex-end; gap: var(--p, 3px); min-height: var(--tap); }
+.notches { position: relative; display: flex; align-items: flex-end; gap: var(--p, 3px); min-height: calc(var(--p, 3px) * 4); }
 .notches span { flex: 1; height: calc(var(--p, 3px) * 3); background: rgba(31,42,68,.2); pointer-events: none; }
 .notches span:nth-child(3n+1) { height: calc(var(--p, 3px) * 4); }
 .notches span:nth-child(4n+2) { height: calc(var(--p, 3px) * 2.5); }
 .notches span.on { background: var(--game-night); }
 .notches span.tip { background: var(--accent); }
 .field-select .notches input[type="range"] {
-  position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; opacity: 0; cursor: pointer;
+  /* (la zone tactile déborde au-dessus et au-dessous : 44 px) */
+  position: absolute; left: 0; top: calc(50% - var(--tap) / 2); width: 100%; height: var(--tap); min-height: 0; margin: 0; opacity: 0; cursor: pointer;
 }
 .notches:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }

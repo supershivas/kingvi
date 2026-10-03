@@ -4,28 +4,28 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.35.1';
+} from './viking.js?v=1.35.2';
 import {
   WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.35.1';
-import { createPack } from './pack.js?v=1.35.1';
-import { createGround } from './ground.js?v=1.35.1';
-import { chapterById } from './chapters.js?v=1.35.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.35.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.1';
-import { createFauna } from './fauna.js?v=1.35.1';
-import { createWeather } from './weather.js?v=1.35.1';
-import { createSea } from './sea.js?v=1.35.1';
-import { audio } from './audio.js?v=1.35.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.1';
+} from './world.js?v=1.35.2';
+import { createPack } from './pack.js?v=1.35.2';
+import { createGround } from './ground.js?v=1.35.2';
+import { chapterById } from './chapters.js?v=1.35.2';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.35.2';
+import { BUNDLE, WATCHER } from './grove.js?v=1.35.2';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.35.2';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.35.2';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.35.2';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.35.2';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.35.2';
+import { createFauna } from './fauna.js?v=1.35.2';
+import { createWeather } from './weather.js?v=1.35.2';
+import { createSea } from './sea.js?v=1.35.2';
+import { audio } from './audio.js?v=1.35.2';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.35.2';
 
 const Phaser = window.Phaser;
 
@@ -1963,8 +1963,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     const ry = SIGHT.ry * cy * 2, rx = SIGHT.rx * cy * 2;
     const ctx = sightCanvas.getContext('2d');
     const img = ctx.createImageData(W, H), d = img.data, rgb = RGB.k;
-    // Le bord, d'un angle à l'autre : des bosses irrégulières
-    const edge = a => 1 + 0.05 * Math.sin(a * 3 + 1.3) + 0.035 * Math.sin(a * 7 + 4.1) + 0.02 * Math.sin(a * 13 + 0.7);
+    // Le bord : une ellipse régulière (des bosses faisaient une forme au hasard)
+    const edge = () => 1;
     // Le noir plein est posé une fois ; la bande tramée (pixel, niveau ×16)
     // se redessine quand la trame se décale
     const band = [];

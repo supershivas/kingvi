@@ -1,7 +1,8 @@
 {
-  "version": "1.35.1",
+  "version": "1.35.2",
   "date": "2026-10-03",
   "changes": [
-    "Moins de scintillement en marchant : la lumière de la torche et le bord du cercle de vue ne glissent plus sur la neige, la caméra suit le viking pixel pour pixel"
+    "Le halo de vision est une ellipse régulière, plus une forme au hasard",
+    "Dans les Réglages, les curseurs se rapprochent de leur titre"
   ]
 }
