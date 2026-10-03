@@ -47,7 +47,7 @@ seulement : une vide au premier quart ; au milieu, le bosquet sacré, un grand
 arbre mort (~7 fois le viking) chargé d'offrandes qui tournent au vent, et
 juste après lui le guetteur ; à la sortie du noir, la grande clairière des
 loups, ouverte vers la plaine (`DEN_OPEN` : les repaires sont du côté de la
-forêt) : une meute de quatre loups qui sort de la forêt
+forêt) : une meute de trois loups qui sort de la forêt
 quand on y entre (galop en quatre temps, avec un temps pattes rassemblées ;
 des pas d'un pixel, pâles, dans la neige : `wolfPrint` ; hurlement au loin avant ; ils encerclent, grondent, bondissent
 l'un après l'autre pour mordre ; deux coups en abattent un ; quand deux sont
@@ -55,7 +55,7 @@ tombés, les autres s'enfuient et ne reviennent plus ; leurs pistes errent
 autour de la clairière ; si l'on s'enfuit en saignant, ils suivent le sang :
 au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent` ; le
 guetteur : grande silhouette
-encapuchonnée qui s'efface quand on approche, ses pas s'arrêtant net), une grande
+encapuchonnée qui s'efface quand on approche, jamais pendant un combat, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
@@ -172,7 +172,7 @@ est cachée et ne sort que pendant l'attaque.
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `chips` (coups déjà portés
-  aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 4), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
+  aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure). Récupérables via l'export JSON.
   Pas de Supabase.
 
@@ -194,34 +194,55 @@ est cachée et ne sort que pendant l'attaque.
   entrer directement), réglages, export, sauvegarde, mise à jour auto.
 - `js/game.js` — scène Phaser : sol par morceaux, objets debout triés en
   profondeur par la ligne de leurs pieds (un atlas par morceau), viking et
-  cape (calque à part), attaque (traînée, impact), maison. Le canevas a la
-  taille de l'écran en pixels physiques (`devicePixelRatio`, zoom Phaser
-  1/dpr) ; la caméra agrandit d'un facteur entier de pixels physiques au repos
-  (`updateZoom` : base selon la hauteur d'écran, molette ±, combat, ×2 dedans).
-  Sur écran dense (Retina), si ce facteur est pair, le canevas est rendu à
-  demi-résolution et agrandi sans lissage (`fitScreen` : `render`, et `dpr`
-  devient la densité du canevas) : même image, quatre fois moins de pixels.
-  **Qualité de l'image** (Réglages, un curseur 1 → 4, `prefs.quality`, plus
-  de cases CRT et flou) : 1 légère (canevas d'un pixel par pixel du jeu, ni
-  CRT ni flou, moitié moins de flocons : `weather.density`), 2 économe
-  (+ CRT), 3 équilibrée (+ flou, demi-résolution sur Retina ; par défaut),
-  4 haute (tous les pixels de l'écran) ; `game.setQuality(q)`.
+  cape (calque à part), attaque (traînée, impact), maison.
+  **Pas de temps fixe** : la logique (`tick`, marche, endurance, l'autre
+  viking, la meute, la barque) avance par pas de 1/60 s (`STEP`) ; chaque
+  image (`frame`) dessine l'état interpolé entre les deux derniers pas
+  (`placePlayer(alpha)`, `foe.render`, `pack.render`, `placeRowboat`) ; au-delà
+  de `MAX_FRAME` (0,5 s) d'un coup, le temps est perdu. Phaser ne lisse plus
+  le temps (`fps.smoothStep: false`) ; la caméra suit à la même allure à toute
+  cadence (`FOLLOW`). Les combats se jouent pareil à 7 ou à 60 images/s.
+  **Vraie basse définition** : le canevas a un pixel par pixel du jeu
+  (~352 de haut), agrandi sans lissage d'un facteur entier de pixels
+  physiques (`fitScreen` : `factor` ; zoom Phaser `factor/dpr`). Le zoom
+  (`updateZoom`, en pixels physiques par pixel du jeu : base, molette ±,
+  combat, ×2 dedans) : arrivé sur un facteur entier, le canevas prend ce
+  facteur et la caméra revient à 1 (`setFactor`, qui garde le centre de la
+  vue) ; seuls la molette et les glissés passent par la caméra. Le calque de
+  la neige a la taille du canevas. Le CRT (`.crt-layer`) lit `--px` (un
+  pixel du canevas) et `--line` (un pixel physique), posés sur `#screen` :
+  ses lignes tombent sur les pixels. **Qualité de l'image** (Réglages, 1 → 3,
+  `prefs.quality`) : 1 légère (ni CRT ni flou, moitié moins de flocons :
+  `weather.density`), 2 économe (+ CRT), 3 complète (+ flou ; par défaut) ;
+  l'ancien niveau 4 est ramené à 3 ; `game.setQuality(q)`.
   Le flou de maquette : une copie réduite de chaque image (`blurCopy`, après
   le rendu), agrandie en douceur sous un masque radial ; jamais de
   `backdrop-filter` plein écran (trop cher sur un Mac Intel).
-  Les morceaux se préparent en plusieurs temps (`*loadChunk`, générateur ;
-  `paintChunkSteps`), avec un budget de 5 ms par image, en avance sur la vue ;
+  Les morceaux (tuiles de 256 px, `ground.js`) se préparent en plusieurs
+  temps (`*loadChunk`, générateur), avec un budget de 5 ms par image, en
+  avance sur la vue ; peints une fois (sol et planche des objets,
+  `paintAtlas`), ils sont gardés en réserve quand ils sortent de la vue ;
   `cull` cache ce qui sort de l'écran (des milliers d'arbres dans la forêt
   noire) ; les planches d'objets s'écrivent en ImageData, pas pixel par pixel. Le vent est dessiné sur un canvas 2D posé sur le jeu.
   `WORLD_VERSION` (dans `world.js`, partagé avec la carte du labo) : à
   incrémenter quand l'île change, les anciennes positions sauvegardées
-  repartent alors de la barque. Voile de nuit : une RenderTexture
+  repartent alors de la barque. Les pas, le sang, les entailles (`mark`,
+  `wolfPrint`) et les traces permanentes (sillon de la barque, pistes de
+  loups, pas du guetteur : `ground.decal`) s'écrivent dans la toile de la
+  tuile, pas en objets ; `updateGround` les fait pâlir et renvoie les tuiles
+  retouchées à la carte graphique. Voile de nuit : une RenderTexture
   multipliée au-dessus de tout, masquée en plein jour, où la torche efface son
   halo ; les ombres portées (pixels tramés) y sont redessinées : elles ne sont
   jamais plus sombres que la nuit hors du halo (`updateNight`). Les intérieurs (`INTERIORS` : la
   maison, la crypte, la grotte — `dark` : toujours nuit) sont des pièces posées loin en mer, fond noir, profondeur
   `DEPTH_ROOM` au-dessus du dehors ; on y passe par un fondu
   (`goInside(key)` / `goOutside`). Barque du lac : `checkBoat`, `row`, `landAt`.
+- `js/ground.js` — les tuiles du sol (`createGround`) : peinture d'origine
+  (`pristine`) et toile affichée, réserve des tuiles hors de vue (48 Mo, les
+  moins récemment vues partent), marques qui pâlissent par paliers (la tuile
+  est recomposée : peinture d'origine, puis les marques encore là), marques
+  permanentes peintes dans la peinture d'origine. L'horloge des marques est
+  celle du jeu (`scene.clock`, accélérée par le debug).
 - `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
   de 16 mesures (`arrangement`, qui dépend de l'énergie entendue), grosse caisse, charleston, basse, accords dub
   (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
@@ -410,7 +431,7 @@ n'est jamais implémenté automatiquement.
   ```
 - GitHub Pages sert tout le dépôt : `tools/` et `playtests/` y sont
   accessibles par URL, sans lien (accepté).
-- Le conteneur n'a pas de carte graphique : le jeu y tourne vers 8 images/s.
+- Le conteneur n'a pas de carte graphique : le jeu y tourne vers 25 images/s (8 avant la basse définition, v1.34.0).
   Les durées sont en temps de jeu ; les FPS se comparent d'un run à l'autre.
 
 ## Exceptions aux conventions
@@ -433,6 +454,12 @@ n'est jamais implémenté automatiquement.
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
   portent la version (`?v=1.28.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
+- Redimensionner le canevas (Phaser 3.90, `Scale.NONE`) : `game.scale.resize`
+  d'abord, puis `setZoom` (c'est lui qui pose la taille affichée ; dans
+  l'autre ordre, le canevas gardait l'ancienne taille affichée : le jeu
+  tombait dans un quart de l'écran quand on changeait la qualité).
+- `scene.time.now` n'est pas accéléré par `timeScale` du debug : pour un
+  temps de jeu, lire `scene.clock` (la somme des pas).
 - `RenderTexture.resize` (Phaser 3.90) ne redimensionne pas la surface de
   dessin : le voile de nuit est recréé à la bonne taille (`makeShade`), en
   filtrage au plus proche (sinon le halo et les ombres tramés se fondent).

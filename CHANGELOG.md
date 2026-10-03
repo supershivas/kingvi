@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.34.0 — 2026-10-03
+- Le jeu se dessine en vraie basse définition : image identique, deux fois plus fluide, lignes cathodiques posées sur les pixels
+- Les combats se jouent pareil sur un ordinateur lent ou rapide ; plus de ralenti, Maj ne bloque plus l'épée à bout de souffle
+- La meute compte trois loups ; le guetteur attend la fin du combat pour s'effacer
+- La qualité de l'image a trois niveaux ; la changer en cours de partie ne déforme plus l'image
+
 ## 1.33.0 — 2026-10-02
 - Les boutons de l'accueil deviennent des lambeaux de neige déchirés, en gothique
 - Le menu Réglages devient une dalle de pierre aux bords cassés ; les niveaux se règlent par crans

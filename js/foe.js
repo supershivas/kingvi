@@ -5,7 +5,7 @@
 
    Le module ne connaît la scène que par ce qu'on lui passe : le sprite
    partagé du viking (animations globales), et quelques fonctions. */
-import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.33.0';
+import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.34.0';
 
 export const FOE_HP = 3;
 const SIGHT = 110;          // il nous voit venir de là
@@ -35,8 +35,11 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
     }
   });
 
-  function place() {
-    const px = Math.round(foe.pos.x), py = Math.round(foe.pos.y);
+  // `alpha` : entre les deux derniers pas de logique (le rendu interpole)
+  function place(alpha = 1) {
+    const p = foe.prev && Math.hypot(foe.prev.x - foe.pos.x, foe.prev.y - foe.pos.y) < 12 ? foe.prev : foe.pos;
+    const x = p.x + (foe.pos.x - p.x) * alpha, y = p.y + (foe.pos.y - p.y) * alpha;
+    const px = Math.round(x), py = Math.round(y);
     sprite.setPosition(px + 0.5, py).setDepth(foe.pos.y).setFlipX(foe.flip);
     const a = capeAnchor[sprite.frame.name];
     if (a && foe.state !== 'dead') {
@@ -93,7 +96,8 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
     },
 
     update(dt, player, capeFrame) {
-      if (foe.state === 'dead') { sprite.setDepth(foe.pos.y - 1); return; }
+      foe.prev = { x: foe.pos.x, y: foe.pos.y };
+      if (foe.state === 'dead') return;
       cape.setFrame(capeFrame);
       const dx = player.pos.x - foe.pos.x, dy = player.pos.y - foe.pos.y, d = Math.hypot(dx, dy);
       foe.cool -= dt;
@@ -130,8 +134,13 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
           }
         }
       }
-      place();
-      drawPips(pips, foe.pos.x, foe.pos.y, foe.hp, foe.engaged);
+    },
+
+    // Une image : là où il est, entre les deux derniers pas
+    render(alpha) {
+      if (foe.state === 'dead') { sprite.setDepth(foe.pos.y - 1); return; }
+      place(alpha);
+      drawPips(pips, sprite.x - 0.5, foe.pos.y, foe.hp, foe.engaged);
     },
   });
 }

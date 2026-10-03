@@ -1,34 +1,34 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.33.0';
+import { startUpdateCheck } from '../app-update.js?v=1.34.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.33.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.33.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.33.0';
+} from './viking.js?v=1.34.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.34.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.34.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.33.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.33.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.33.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.33.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.33.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.33.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.33.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.33.0';
-import { createSea } from './sea.js?v=1.33.0';
-import { buildStatueDoor } from './statue.js?v=1.33.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.33.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.33.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.33.0';
-import * as PROPS from './props.js?v=1.33.0';
-import { audio } from './audio.js?v=1.33.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.33.0';
-import { RUIN_ART } from './ruins-art.js?v=1.33.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.33.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.33.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.33.0';
+} from './world.js?v=1.34.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.34.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.34.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.34.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.34.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.34.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.34.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.34.0';
+import { createSea } from './sea.js?v=1.34.0';
+import { buildStatueDoor } from './statue.js?v=1.34.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.34.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.34.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS } from './world.js?v=1.34.0';
+import * as PROPS from './props.js?v=1.34.0';
+import { audio } from './audio.js?v=1.34.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.34.0';
+import { RUIN_ART } from './ruins-art.js?v=1.34.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.34.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.34.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.34.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -664,7 +664,7 @@ card('loups', {
 // La meute attaque : elle tourne autour du viking ; l'un gronde, bondit,
 // file au-delà et reprend sa place. Des pistes de loups sur la neige.
 card('loups', {
-  title: 'La meute attaque', about: 'Dans la grande clairière du bosquet : quatre loups sortent de la forêt noire, encerclent le viking, grondent et bondissent l\'un après l\'autre pour mordre. Deux coups en abattent un. Autour, leurs pistes dans la neige.', wide: true, w: 160, h: 80,
+  title: 'La meute attaque', about: 'Dans la grande clairière du bosquet : trois loups sortent de la forêt noire, encerclent le viking, grondent et bondissent l\'un après l\'autre pour mordre. Deux coups en abattent un. Autour, leurs pistes dans la neige.', wide: true, w: 160, h: 80,
   setup(s) {
     const r = rng(8);
     s.prints = [];
@@ -672,7 +672,7 @@ card('loups', {
       const a0 = r() * 6.28, x0 = 80 + Math.cos(a0) * 90, y0 = 44 + Math.sin(a0) * 50;
       for (let i = 0; i < 30; i++) { const f = i / 30, w = Math.sin(f * 7 + k) * 5; s.prints.push([Math.round(x0 + (80 - x0) * f + w + (i % 2)), Math.round(y0 + (44 - y0) * f + (i % 2))]); }
     }
-    s.wolves = [0, 1, 2, 3].map(i => ({ a: i * Math.PI / 2 + 0.4, x: 0, y: 0, state: 'circle', timer: 0, vx: 0, vy: 0, flip: false }));
+    s.wolves = [0, 1, 2].map(i => ({ a: i * Math.PI * 2 / 3 + 0.4, x: 0, y: 0, state: 'circle', timer: 0, vx: 0, vy: 0, flip: false }));
     s.clock = 1.5; s.next = 0;
   },
   draw(ctx, pal, t, dt, s) {
@@ -681,7 +681,7 @@ card('loups', {
     ctx.globalAlpha = 1;
     const hx = 80, hy = 46;
     s.clock -= dt;
-    if (s.clock <= 0) { const w = s.wolves[s.next++ % 4]; w.state = 'crouch'; w.timer = 0.6; s.clock = 2.4; }
+    if (s.clock <= 0) { const w = s.wolves[s.next++ % s.wolves.length]; w.state = 'crouch'; w.timer = 0.6; s.clock = 2.4; }
     let heroFrame = 'side-idle', heroFlip = false;
     for (const w of s.wolves) {
       w.timer -= dt;

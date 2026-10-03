@@ -4,34 +4,34 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.33.0';
+} from './viking.js?v=1.34.0';
 import {
-  WORLD, WORLD_VERSION, CHUNK, isLand, landing, paintChunkSteps, objectsInChunk, blocked,
+  WORLD, WORLD_VERSION, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR,
-} from './world.js?v=1.33.0';
-import { createPack } from './pack.js?v=1.33.0';
-import { chapterById } from './chapters.js?v=1.33.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.33.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.33.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.33.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.33.0';
-import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.33.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.33.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.33.0';
-import { createFauna } from './fauna.js?v=1.33.0';
-import { createWeather } from './weather.js?v=1.33.0';
-import { createSea } from './sea.js?v=1.33.0';
-import { audio } from './audio.js?v=1.33.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.33.0';
+} from './world.js?v=1.34.0';
+import { createPack } from './pack.js?v=1.34.0';
+import { createGround } from './ground.js?v=1.34.0';
+import { chapterById } from './chapters.js?v=1.34.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.34.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.34.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.34.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.34.0';
+import { daylightAt, torchLight, TORCH_SIZES, castShadow, castShadowBase, artBase } from './daylight.js?v=1.34.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE } from './interior.js?v=1.34.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.34.0';
+import { createFauna } from './fauna.js?v=1.34.0';
+import { createWeather } from './weather.js?v=1.34.0';
+import { createSea } from './sea.js?v=1.34.0';
+import { audio } from './audio.js?v=1.34.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.34.0';
 
 const Phaser = window.Phaser;
 
 const SPEED = 18;              // pixels du monde par seconde : on marche lentement
 const RUN = 2.4;               // Maj enfoncée : il court
 const WALK_FPS = 7;
-const OWN_PRINTS_MAX = 500;
 const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
 const TARGET_HEIGHT = 352;     // hauteur visée de l'écran, en pixels du jeu (80 % de 440 : moins à calculer)
 
@@ -41,38 +41,36 @@ const DEPTH_GROUND = -1000, DEPTH_WAVES = -600, DEPTH_MARKS = -500, DEPTH_BOAT =
 // La pièce (et le viking qui y entre) passe au-dessus de tout le dehors
 const DEPTH_ROOM = 5e5;
 // L'endurance (0 → 1) : ce que coûtent un coup, une seconde de course ; ce
-// que rend une seconde de repos ; le temps avant qu'elle revienne
-const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5 };
+// que rend une seconde de repos ; le temps avant qu'elle revienne ; à bout
+// de souffle, ce qu'il faut retrouver avant de pouvoir courir de nouveau
+const STAMINA = { attack: 0.12, whirl: 0.3, run: 0.09, regen: 0.45, rest: 0.5, second: 0.35 };
+// La logique avance par pas fixes ; au-delà d'une demi-seconde d'un coup
+// (onglet revenu, gel), le temps est perdu plutôt que rattrapé
+const STEP = 1 / 60, MAX_FRAME = 0.5;
+// La caméra rejoint le viking de 3,5 % de l'écart par soixantième de seconde
+const FOLLOW = 0.035;
 // Le coup tourbillonnant : le bouton maintenu tant de secondes
 const WHIRL_HOLD = 2;
 // Le tour : les huit directions, une image de lame chacune (vue, retourné)
 const WHIRL_TURN = [['side', false], ['diagdown', false], ['front', false], ['diagdown', true], ['side', true], ['diagup', true], ['back', false], ['diagup', false]];
 
-// Taille interne et facteur d'agrandissement entier, pour des pixels nets.
-// Le canevas a la taille de l'écran en pixels physiques (densité comprise :
-// 125 %, Retina…) ; c'est la caméra qui agrandit, d'un facteur entier de
-// pixels physiques au repos : pixels nets, lignes du CRT alignées, pas de
-// moiré. La molette et le combat changent ce facteur, en douceur.
-// Sur un écran dense (Retina), si le facteur s'y prête, le canevas est rendu
-// en moins de pixels (2 × 2 pixels physiques par pixel du canevas, agrandi
-// sans lissage) : l'image est la même, et la carte graphique a quatre fois
-// moins à peindre. `dpr` est alors la densité du canevas, pas celle de l'écran.
-// La qualité (Réglages, 1 → 4) choisit ce rapport : 1 et 2, un pixel du
-// canevas par pixel du jeu (le moins de pixels possible : le plus fluide) ;
-// 3, demi-résolution sur écran dense ; 4, tous les pixels de l'écran.
-export const QUALITY = { min: 1, max: 4, initial: 3 };
-export function fitScreen(w, h, quality = QUALITY.initial) {
-  const screenDpr = window.devicePixelRatio || 1;
-  const physical = Math.max(1, Math.round(h * screenDpr / TARGET_HEIGHT));
-  let r = 1;
-  if (quality <= 2) r = physical;
-  else if (quality === 3) {
-    r = Math.max(1, Math.floor(screenDpr));
-    while (r > 1 && physical % r) r--;
-  }
-  const dpr = screenDpr / r;
-  return { zoom: physical / r, dpr, render: r, width: Math.ceil(w * dpr), height: Math.ceil(h * dpr) };
+// Vraie basse définition : le jeu se dessine dans un canevas d'un pixel par
+// pixel du jeu (environ 352 de haut), que le navigateur agrandit sans lissage
+// d'un facteur entier de pixels physiques (densité comprise : 125 %, Retina…).
+// Pixels nets, lignes du CRT posées sur les pixels, et le moins de pixels
+// possible à peindre. Le zoom du combat change ce facteur (le canevas est
+// alors plus petit) ; seuls la molette et les glissés d'un zoom à l'autre
+// passent par la caméra, entre deux facteurs entiers.
+// La qualité (Réglages, 1 → 3) ne choisit plus que les effets : 1 sans CRT
+// ni flou, moitié moins de flocons ; 2 le CRT ; 3 le CRT et le flou.
+export const QUALITY = { min: 1, max: 3, initial: 3 };
+export function fitScreen(w, h) {
+  const dpr = window.devicePixelRatio || 1;
+  const factor = Math.max(1, Math.round(h * dpr / TARGET_HEIGHT));
+  return { factor, dpr, ...canvasSize(w, h, factor, dpr) };
 }
+// La taille du canevas pour couvrir l'écran à ce facteur
+const canvasSize = (w, h, factor, dpr) => ({ width: Math.max(1, Math.ceil(w * dpr / factor)), height: Math.max(1, Math.ceil(h * dpr / factor)) });
 
 // Emprise de la maison (on ne la traverse pas)
 // (vue de trois quarts : le toit représente la profondeur de la maison)
@@ -122,10 +120,12 @@ function nearestWalkable(x, y) {
 export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
-  const fit = fitScreen(rect.width, rect.height, quality);
+  const fit = fitScreen(rect.width, rect.height);
   if (save.world !== WORLD_VERSION) save = { steps: save.steps };
 
   const weather = createWeather(wind);
+  // Le sol en tuiles peintes une fois ; les pas et le sang s'y écrivent
+  const ground = createGround(palette);
   // En qualité légère, moitié moins de flocons
   weather.density = quality <= 1 ? 0.5 : 1;
   // La palette en octets, pour écrire les pixels d'un bloc
@@ -145,7 +145,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.chunks = new Map();
       this.keys = new Set();
       this.pad = { x: 0, y: 0, run: false };   // la croix, sur écran tactile
-      this.ownPrints = [];
       this.stepCount = save.steps || 0;
       this.distance = save.distance || 0;
       this.attacking = false;
@@ -174,15 +173,15 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const b2 = { x: sx + 16, y: sy - BOAT2.length + 4 };
       this.add.image(b2.x, b2.y, 'boat2').setOrigin(0, 0).setDepth(b2.y + BOAT2.length - 2);
       boatRects.push({ x0: b2.x + 4, x1: b2.x + BOAT2[0].length - 6, y0: b2.y + BOAT2.length - 12, y1: b2.y + BOAT2.length - 2 });
-      const keel = this.add.graphics().setDepth(DEPTH_MARKS);
+      // (peint dans la neige des tuiles, comme les pas)
       const kx = b2.x + BOAT2_KEEL.x + 2, ky = b2.y + BOAT2_KEEL.y;
       for (let x = sx - 4; x < kx; x++) {
         const y = Math.round(ky + (x - kx) * 0.12);
         // Deux lèvres de neige repoussée, le creux entre elles
-        keel.fillStyle(hex(palette.b), 0.55); keel.fillRect(x, y - 1, 1, 1);
-        keel.fillStyle(hex(palette.b), 0.35); if ((x * 7) % 5) keel.fillRect(x, y + 1, 1, 1);
+        ground.decal(x, y - 1, 1, 1, 'b', 0.55);
+        if ((x * 7) % 5) ground.decal(x, y + 1, 1, 1, 'b', 0.35);
         // Les pas de ceux qui la halaient, de part et d'autre
-        if (x % 5 === 0) { keel.fillStyle(hex(palette.b), 0.7); keel.fillRect(x, y + (x % 10 ? 4 : -4), 1, 1); }
+        if (x % 5 === 0) ground.decal(x, y + (x % 10 ? 4 : -4), 1, 1, 'b', 0.7);
       }
       this.boat = this.add.image(this.boatRest.x, this.boatRest.y, 'boat-still').setOrigin(0, 0).setDepth(this.boatRest.y + BOAT_H);
       this.foam = this.add.graphics().setDepth(this.boatRest.y + BOAT_H + 0.1);
@@ -240,11 +239,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const cam = this.cameras.main;
       cam.setBounds(0, 0, WORLD, WORLD);
       cam.setRoundPixels(true);
-      cam.startFollow(this.player, true, 0.035, 0.035);
+      cam.startFollow(this.player, true, FOLLOW, FOLLOW);
       cam.centerOn(this.pos.x, this.pos.y);          // pas de long travelling au lancement
-      // Zoom : base (taille de l'écran), molette (±), combat, intérieur (×2)
-      this.zoom = { base: fit.zoom, dpr: fit.dpr, wheel: 0, fight: 0, current: fit.zoom };
-      cam.setZoom(fit.zoom);
+      // Zoom, en pixels physiques par pixel du jeu : base (taille de l'écran),
+      // molette (±), combat, intérieur (×2) ; `canvas` : celui du canevas (la
+      // caméra fait le reste)
+      this.zoom = { base: fit.factor, canvas: fit.factor, wheel: 0, fight: 0, current: fit.factor };
+      cam.setZoom(1);
       this.input.on('wheel', (p, over, dx, dy) => {
         if (isPaused()) return;
         // Un léger zoom : de 90 à 110 %, par crans de 5 % (à 100 %, les pixels
@@ -279,8 +280,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         img: this.add.image(h.x, h.y, 'bundle').setOrigin(0.5, 0).setDepth(GROVE_TREE.y + 0.5),
       }));
       // Ses pas : trois empreintes qui arrivent jusqu'à lui, et plus rien
-      const prints = this.add.graphics().setDepth(DEPTH_MARKS).fillStyle(hex(palette.b), 0.8);
-      for (let k = 1; k <= 4; k++) prints.fillRect(WATCHER_AT.x - 1 + (k % 2) * 2, WATCHER_AT.y - k * 6 + 2, 1, 2);
+      for (let k = 1; k <= 4; k++) ground.decal(WATCHER_AT.x - 1 + (k % 2) * 2, WATCHER_AT.y - k * 6 + 2, 1, 2, 'b', 0.8);
       this.watcherGone = !!save.watcherGone;
       this.chapters = new Set(save.chapters || []);
       this.watcher = this.watcherGone ? null
@@ -411,11 +411,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       // En passant la porte (sous le fondu), pas de glissé
       const k = Math.abs(target - z.current) < 0.01 || z.inside !== this.inside ? 1 : Math.min(1, dt * 6);
       z.inside = this.inside;
-      z.current += (target - z.current) * k;
-      if (cam.zoom !== z.current) { cam.setZoom(z.current); this.cullClock = 0; }
-      // Les lignes du CRT : une par pixel du jeu, en pixels physiques
-      const px = `${Math.max(1, Math.round(z.current)) / z.dpr}px`;
-      if (px !== this.lastPx) { this.lastPx = px; parent.style.setProperty('--px', px); }
+      z.current = k === 1 ? target : z.current + (target - z.current) * k;
+      // Arrivé sur un facteur entier : le canevas prend ce facteur, la caméra
+      // revient à 1 (pixels nets, lignes du CRT sur les pixels)
+      if (z.current === target && Number.isInteger(target) && target !== z.canvas) setFactor(target);
+      const zoom = z.current / z.canvas;
+      if (cam.zoom !== zoom) { cam.setZoom(zoom); this.cullClock = 0; }
     }
 
     updateWaves(dt, time) {
@@ -509,8 +510,15 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // colonne, ses bords tombent ainsi sur des pixels entiers.
     // Sur le socle ou le ponton, on est dessiné plus haut (`lift`, qui suit
     // la hauteur du dessus en un instant : on y monte, on en descend)
-    placePlayer() {
-      const px = Math.round(this.pos.x), py = Math.round(this.pos.y) - Math.round(this.lift || 0);
+    // `alpha` (0 → 1) : où l'on en est entre les deux derniers pas de logique ;
+    // sans lui (téléportation, tour sur soi), on se pose là où l'on est
+    placePlayer(alpha) {
+      let { x, y } = this.pos;
+      const p = this.prevPos;
+      if (alpha == null || !p || Math.abs(p.x - x) > 12 || Math.abs(p.y - y) > 12) this.prevPos = { x, y };
+      else { x = p.x + (x - p.x) * alpha; y = p.y + (y - p.y) * alpha; }
+      this.drawPos = { x, y };
+      const px = Math.round(x), py = Math.round(y) - Math.round(this.lift || 0);
       const depth = this.pos.y + (this.inside ? DEPTH_ROOM : 0);
       this.player.setPosition(px + 0.5, py).setDepth(depth);
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
@@ -553,18 +561,13 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
     // Les pas des loups : un pixel, plus pâle que les nôtres
     wolfPrint(x, y) {
-      const m = this.add.rectangle(Math.round(x), Math.round(y), 1, 1, hex(palette.b), 0.45).setOrigin(0, 0).setDepth(DEPTH_MARKS);
-      this.tweens.add({ targets: m, alpha: 0, duration: OWN_PRINT_LIFE, ease: 'Quad.easeIn', onComplete: () => m.destroy() });
-      this.wolfPrints = this.wolfPrints || [];
-      this.wolfPrints.push(m);
-      if (this.wolfPrints.length > 400) this.wolfPrints.shift().destroy();
+      ground.mark(Math.round(x), Math.round(y), 1, 1, OWN_PRINT_LIFE, 'b', 0.45, this.clock || 0);
     }
 
+    // Une marque dans la neige (pas, entaille, sang) : écrite dans la tuile du
+    // sol, elle pâlit et disparaît en `life` ms
     mark(x, y, w, h, life, color = palette.b) {
-      const m = this.add.rectangle(x, y, w, h, hex(color), 0.9).setOrigin(0, 0).setDepth(DEPTH_MARKS);
-      this.tweens.add({ targets: m, alpha: 0, duration: life, ease: 'Quad.easeIn', onComplete: () => m.destroy() });
-      this.ownPrints.push(m);
-      if (this.ownPrints.length > OWN_PRINTS_MAX) this.ownPrints.shift().destroy();
+      ground.mark(x, y, w, h, life, color, 0.9, this.clock || 0);
     }
 
     // ── L'endurance : courir et frapper la vident ; elle revient au pas ──
@@ -574,11 +577,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.staminaRest = Math.max(0, (this.staminaRest || 0) - dt);
       if (!this.staminaRest) this.stamina = Math.min(1, this.stamina + STAMINA.regen * dt);
       this.staminaFlash = Math.max(0, (this.staminaFlash || 0) - dt);
-      // La barre : sous les marques de vie, seulement quand elle n'est pas pleine
+    }
+    // La barre : sous les marques de vie, seulement quand elle n'est pas pleine
+    drawStamina() {
       const g = this.staminaBar, show = (this.stamina < 0.999 || this.staminaFlash) && !this.dead && !this.rowing;
       g.clear();
       if (!show) return;
-      const x = Math.round(this.pos.x) - 4, y = Math.round(this.pos.y - (this.lift || 0)) - 12;
+      const at = this.drawPos || this.pos;
+      const x = Math.round(at.x) - 4, y = Math.round(at.y - (this.lift || 0)) - 12;
       g.setDepth(this.pos.y + 0.03 + (this.inside ? DEPTH_ROOM : 0));
       g.fillStyle(hex(palette.b), 0.22); g.fillRect(x, y, 9, 1);
       g.fillStyle(hex(this.staminaFlash > 0 && Math.floor(this.staminaFlash * 8) % 2 ? palette.r : palette.b), 0.9);
@@ -618,15 +624,20 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // ── Le coup tourbillonnant : bouton maintenu WHIRL_HOLD secondes ──
     // En attendant, la neige se met à tourner autour des pieds, de plus en plus
     updateCharge(dt) {
-      const g = this.chargeG || (this.chargeG = this.add.graphics());
-      g.clear();
       const c = this.charge;
       if (!c || isPaused() || this.dead || this.rowing || this.inside === 'crypt' && this.nearChest()) { if (c && (this.dead || this.rowing)) this.charge = null; return; }
       c.t += dt;
-      if (c.t >= WHIRL_HOLD && !this.whirling) { this.charge = null; this.whirl(); return; }
+      if (c.t >= WHIRL_HOLD && !this.whirling) { this.charge = null; this.whirl(); }
+    }
+    drawCharge() {
+      const g = this.chargeG || (this.chargeG = this.add.graphics());
+      g.clear();
+      const c = this.charge;
+      if (!c || isPaused() || this.dead || this.rowing || this.inside === 'crypt' && this.nearChest()) return;
       const k = Math.max(0, (c.t - 0.35) / (WHIRL_HOLD - 0.35));
       if (!k) return;
-      const x = this.pos.x, y = this.pos.y - (this.lift || 0);
+      const at = this.drawPos || this.pos;
+      const x = at.x, y = at.y - (this.lift || 0);
       const n = Math.round(3 + k * 14), spin = c.t * (3 + k * 9);
       g.setDepth(this.pos.y + 0.6);
       for (let i = 0; i < n; i++) {
@@ -882,7 +893,6 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     wolfTracks() {
       let a = 4242;
       const r = () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; };
-      const g = this.add.graphics().setDepth(DEPTH_MARKS).fillStyle(hex(palette.b), 0.7);
       const D = WOLF_DEN;
       for (let k = 0; k < 6; k++) {
         const a0 = r() * Math.PI * 2, a1 = a0 + (r() - 0.5) * 2.2;
@@ -896,7 +906,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           const x = Math.round(p0.x + (p1.x - p0.x) * t + nx * (w + side * 0.8));
           const y = Math.round(p0.y + (p1.y - p0.y) * t + ny * (w + side * 0.8));
           if (r() < 0.12 || !isLand(x, y)) continue;         // effacée par le vent
-          g.fillRect(x, y, 1, 1);
+          ground.decal(x, y, 1, 1, 'b', 0.7);
         }
       }
     }
@@ -1105,46 +1115,52 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.persist();
     }
 
+    // La boucle : la logique avance par pas fixes de 1/60 s (les loups, les
+    // coups, la marche se jouent pareil à 8 ou à 144 images par seconde), et
+    // chaque image dessine l'état interpolé entre les deux derniers pas
     update(time, delta) {
+      const dt = Math.min(MAX_FRAME, delta / 1000);
+      // (l'horloge du jeu, en ms : celle des marques dans la neige)
+      this.clock = (this.clock || 0) + dt * 1000;
+      this.acc = (this.acc || 0) + dt;
+      while (this.acc >= STEP) { this.acc -= STEP; this.tick(STEP); }
+      this.frame(time, dt, this.acc / STEP);
+    }
+
+    // ── Un pas de logique ──
+    tick(dt) {
+      // (là où l'on était au pas précédent : le rendu interpole depuis là)
+      this.prevPos = { x: this.pos.x, y: this.pos.y };
+      if (this.rowing) this.rowboat.prev = { x: this.rowboat.x, y: this.rowboat.y };
       if (isPaused() || this.dead) { this.keys.clear(); this.pad = { x: 0, y: 0, run: false }; }
       // (le temps passé à jouer depuis l'arrivée ; quelques images pour poser la scène)
-      else this.calm = (this.calm || 0) + delta / 1000;
-      this.settle = Math.max(0, (this.settle || 0) - 1);
+      else this.calm = (this.calm || 0) + dt;
       const lift = this.inside || this.rowing ? 0 : deckLift(this.pos.x, this.pos.y);
       this.lift = this.lift == null || Math.abs(lift - this.lift) > 30 ? lift
-        : this.lift + Math.max(-1, Math.min(1, lift - this.lift)) * Math.min(Math.abs(lift - this.lift), 90 * delta / 1000);
-      this.invuln = Math.max(0, this.invuln - delta / 1000);
+        : this.lift + Math.max(-1, Math.min(1, lift - this.lift)) * Math.min(Math.abs(lift - this.lift), 90 * dt);
+      this.invuln = Math.max(0, this.invuln - dt);
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
-        this.healClock = (this.healClock || 0) + delta / 1000;
+        this.healClock = (this.healClock || 0) + dt;
         if (this.healClock > 25) { this.healClock = 0; this.hp++; }
       } else this.healClock = 0;
-      this.updateBoat(delta / 1000, time);
-      this.updateWaves(delta / 1000, time);
-      this.updateZoom(delta / 1000);
-      // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
-      this.windSound = (this.windSound || 0) - delta;
-      if (this.windSound <= 0) {
-        this.windSound = 200;
-        audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7);
-        audio.setMood(this.musicMood());
-      }
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       mx += this.pad.x; my += this.pad.y;
-      this.running = (this.keys.has('ShiftLeft') || this.keys.has('ShiftRight') || this.pad.run) && this.stamina > 0.02;
+      // À bout de souffle, on ne court plus, même Maj tenue, tant que
+      // l'endurance n'est pas un peu revenue (elle revient au pas)
+      if (this.stamina <= 0.02 && !this.winded) { this.winded = true; this.staminaFlash = 0.6; }
+      else if (this.stamina >= STAMINA.second) this.winded = false;
+      this.running = (this.keys.has('ShiftLeft') || this.keys.has('ShiftRight') || this.pad.run) && !this.winded;
       this.moved = !!(mx || my) && !this.attacking && !this.dead;
-      // La vie, pour l'interface (à un point, l'écran rougit)
-      const life = this.dead ? 0 : this.hp;
-      if (life !== this.lastLife) { this.lastLife = life; onHealth(life); }
-      this.updateStamina(delta / 1000);
-      this.updateCharge(delta / 1000);
+      this.updateStamina(dt);
+      this.updateCharge(dt);
 
-      if (this.rowing) this.row(mx, my, delta / 1000);
+      if (this.rowing) this.row(mx, my, dt);
       else if (!this.attacking && !this.dead) {
         if (mx || my) {
           const len = Math.hypot(mx, my);
-          const step = SPEED * (this.running ? RUN : 1) * delta / 1000;
+          const step = SPEED * (this.running ? RUN : 1) * dt;
           const { x, y } = this.pos;
           const nx = x + mx / len * step, ny = y + my / len * step;
           // Ni la mer, ni la maison, ni les troncs : on glisse le long de l'obstacle
@@ -1157,8 +1173,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           this.checkBoat(mx, my);
           if (this.inside === 'crypt' && my < 0 && !this.chestOpen && this.nearChest()) this.openChest();
           if (this.inside === 'cave' && !this.kingBowed && this.nearKing()) this.bowKing();
-          this.drip(this.pos.x, this.pos.y, delta / 1000, this.hp);
-          this.distance += step;
+          this.drip(this.pos.x, this.pos.y, dt, this.hp);
+          // (la distance marchée, pas le temps passé à pousser contre un tronc)
+          this.distance += Math.hypot(this.pos.x - x, this.pos.y - y);
 
           if (mx) { this.facing = 'side'; this.flip = mx < 0; }
           else this.facing = my < 0 ? 'back' : 'front';
@@ -1171,32 +1188,71 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           this.player.setFrame(`${this.facing}-idle`);
         }
       }
-      if (!this.dead) this.placePlayer();
-      this.updateCape(delta);
-      this.foe.update(delta / 1000, this, this.cape.frame.name);
-      if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, delta / 1000, this.foe.hp);
-      if (!this.inside) this.pack.update(delta / 1000, this);
-      drawPips(this.playerPips, this.pos.x, this.pos.y - (this.lift || 0), this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
+      this.foe.update(dt, this, this.cape.frame.name);
+      if (this.foe.alive && this.foe.state === 'engage') this.drip(this.foe.pos.x, this.foe.pos.y, dt, this.foe.hp);
+      if (!this.inside) this.pack.update(dt, this);
+    }
+
+    // ── Une image : ce qu'on voit, à l'instant `alpha` entre deux pas ──
+    frame(time, dt, alpha) {
+      // La vie, pour l'interface (à un point, l'écran rougit)
+      const life = this.dead ? 0 : this.hp;
+      if (life !== this.lastLife) { this.lastLife = life; onHealth(life); }
+      this.settle = Math.max(0, (this.settle || 0) - 1);
+      this.updateBoat(dt, time);
+      this.updateWaves(dt, time);
+      this.updateZoom(dt);
+      // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
+      this.windSound = (this.windSound || 0) - dt * 1000;
+      if (this.windSound <= 0) {
+        this.windSound = 200;
+        audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7);
+        audio.setMood(this.musicMood());
+      }
+      if (!this.dead) this.placePlayer(alpha);
+      if (this.rowing) this.placeRowboat(alpha);
+      this.updateCape(dt * 1000);
+      this.drawStamina();
+      this.drawCharge();
+      this.foe.render(alpha);
+      if (!this.inside) this.pack.render(alpha);
+      const at = this.drawPos || this.pos;
+      drawPips(this.playerPips, at.x, at.y - (this.lift || 0), this.hp, ((this.foe.engaged && this.foe.alive) || this.pack.engaged) && !this.dead);
       if (!this.inside) {
         const corpses = this.pack.deadList.map(w => ({ x: w.x, y: w.y, small: true }));
         if (!this.foe.alive) corpses.push(this.foe.pos);
-        this.fauna.update(delta / 1000, this.pos, this.running, weather.wind, corpses);
+        this.fauna.update(dt, this.pos, this.running, weather.wind, corpses);
       }
       // Devant ou derrière la maison, selon le pied de ses murs
       const front = houseFrontY(this.pos.x);
       this.house.setDepth(front == null ? HOUSE.y : this.pos.y > front ? this.pos.y - 0.5 : this.pos.y + 0.5);
+      // La caméra rejoint le viking à la même allure quelle que soit la cadence
+      const lerp = 1 - Math.pow(1 - FOLLOW, dt * 60);
+      this.cameras.main.setLerp(lerp, lerp);
       this.updateChunks();
       // Ne dessiner que ce qui est à l'écran : dans la forêt noire, des milliers
       // d'arbres sont chargés autour de la vue
-      this.cullClock = (this.cullClock || 0) - delta;
+      this.cullClock = (this.cullClock || 0) - dt * 1000;
       if (this.cullClock <= 0) { this.cullClock = 120; this.cull(); }
-      this.swayClock = (this.swayClock || 0) - delta;
+      this.swayClock = (this.swayClock || 0) - dt * 1000;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
-      this.chapterClock = (this.chapterClock || 0) - delta;
+      this.chapterClock = (this.chapterClock || 0) - dt * 1000;
       if (this.chapterClock <= 0) { this.chapterClock = 400; this.checkChapters(); }
-      this.updateNight(delta / 1000, time);
-      this.drawSky(delta / 1000);
+      this.updateNight(dt, time);
+      this.drawSky(dt);
+      this.updateGround(dt);
+    }
+
+    // Les marques du sol pâlissent ; les tuiles retouchées repartent à la
+    // carte graphique
+    updateGround(dt) {
+      this.fadeClock = (this.fadeClock || 0) - dt;
+      if (this.fadeClock <= 0) { this.fadeClock = 0.25; ground.fade(this.clock); }
+      for (const key of ground.takeDirty()) {
+        const k = `chunk-${key}`;
+        if (this.textures.exists(k)) this.textures.get(k).refresh();
+      }
     }
 
     // La musique suit le moment : le lieu, la nuit, le danger
@@ -1261,6 +1317,9 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       }
       const w = this.watcher;
       if (!w || w.fading) return;
+      // Pas pendant un combat : il attend que les loups soient partis, et
+      // son silence ne tombe pas au milieu de la musique de combat
+      if (this.pack.engaged || (this.foe.engaged && this.foe.alive)) return;
       if (Math.hypot(this.pos.x - WATCHER_AT.x, this.pos.y - WATCHER_AT.y) < 64 && !this.inside) {
         w.fading = true;
         audio.play('presence');
@@ -1501,6 +1560,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.player.stop();
       this.player.setVisible(false); this.cape.setVisible(false);
       this.pos = { x: b.x, y: b.y };
+      b.prev = { x: b.x, y: b.y };
       this.rowboatSprite.setTexture('rowboat-row1');
     }
 
@@ -1524,8 +1584,14 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         this.distance += step;
       }
       const t = [0, 1, 2, 1][Math.floor(b.clock) % 4];
-      this.rowboatSprite.setTexture(`rowboat-row${t}`).setFlipX(b.flip).setPosition(Math.round(b.x) + 0.5, Math.round(b.y)).setDepth(b.y);
+      this.rowboatSprite.setTexture(`rowboat-row${t}`).setFlipX(b.flip);
       this.pos = { x: b.x, y: b.y };
+    }
+
+    placeRowboat(alpha) {
+      const b = this.rowboat, p = b.prev || b;
+      const x = p.x + (b.x - p.x) * alpha, y = p.y + (b.y - p.y) * alpha;
+      this.rowboatSprite.setPosition(Math.round(x) + 0.5, Math.round(y)).setDepth(b.y);
     }
 
     landAt(x, y, mx, my) {
@@ -1604,6 +1670,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           if (cx >= k0 && cx <= k1 && cy >= q0 && cy <= q1) continue;
           chunk.images.forEach(i => i.destroy());
           chunk.textures.forEach(t => this.dropTexture(t));
+          ground.setLive(cx, cy, false);
           this.chunks.delete(key);
         }
       }
@@ -1636,6 +1703,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         if (!done) {
           made.images.forEach(i => i.destroy());
           made.textures.forEach(t => this.dropTexture(t));
+          if (made.live) ground.setLive(cx, cy, false);
         }
       }
     }
@@ -1648,60 +1716,34 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     }
 
     *buildChunk(cx, cy, key, made) {
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = CHUNK;
-      yield* paintChunkSteps(canvas.getContext('2d'), cx, cy, palette);
+      // La tuile du sol : peinte une fois, puis gardée en réserve
+      const tile = yield* ground.tile(cx, cy);
+      ground.setLive(cx, cy, true);
+      made.live = true;
       const groundKey = `chunk-${key}`;
       // (une préparation abandonnée a pu laisser ses textures)
       for (const k of [groundKey, `objects-${key}`]) this.dropTexture(k);
-      this.textures.addCanvas(groundKey, canvas);
+      this.textures.addCanvas(groundKey, tile.canvas);
       const images = made.images, textures = made.textures;
       textures.push(groundKey);
       images.push(this.add.image(cx * CHUNK, cy * CHUNK, groundKey).setOrigin(0, 0).setDepth(DEPTH_GROUND));
 
       // Tous les objets du morceau dans une seule planche : un seul envoi à la
       // carte graphique. Les arbres y ont quatre images (penchés de −1 à +2
-      // pixels à la cime) : le vent les fait passer de l'une à l'autre.
+      // pixels à la cime) : le vent les fait passer de l'une à l'autre. La
+      // planche est gardée avec la tuile : elle n'est faite qu'une fois.
       const objs = objectsInChunk(cx, cy);
       yield;
       const swayers = [];
       if (objs.length) {
-        const ATLAS_W = 1024;
-        const pieces = [];
-        for (let i = 0; i < objs.length; i++) {
-          const o = objs[i];
-          const variants = o.type === 'tree' ? LEANS.map(l => leanRows(o.art.rows, l)) : [o.art.rows];
-          variants.forEach((rows, v) => pieces.push({ i, v, rows, w: rows[0].length, h: rows.length }));
-          if (i % 60 === 59) yield;
+        let atlas = tile.atlas;
+        if (!atlas) {
+          atlas = yield* this.paintAtlas(objs);
+          ground.keepAtlas(cx, cy, atlas);
         }
-        let x = 0, y = 0, rowH = 0;
-        for (const p of pieces) {
-          if (x + p.w > ATLAS_W) { x = 0; y += rowH + 1; rowH = 0; }
-          p.x = x; p.y = y;
-          x += p.w + 1; rowH = Math.max(rowH, p.h);
-        }
-        // Les pixels écrits d'un bloc (un appel de dessin par pixel coûtait cher)
-        const atlas = document.createElement('canvas');
-        atlas.width = ATLAS_W; atlas.height = y + rowH + 1;
-        const ctx = atlas.getContext('2d');
-        const img = ctx.createImageData(atlas.width, atlas.height), d = img.data;
-        for (let n = 0; n < pieces.length; n++) {
-          const p = pieces[n];
-          for (let ry = 0; ry < p.h; ry++) {
-            const row = p.rows[ry];
-            for (let rx = 0; rx < p.w; rx++) {
-              const c = RGB[row[rx]];
-              if (!c) continue;
-              const k = ((p.y + ry) * ATLAS_W + p.x + rx) * 4;
-              d[k] = c[0]; d[k + 1] = c[1]; d[k + 2] = c[2]; d[k + 3] = 255;
-            }
-          }
-          if (n % 400 === 399) yield;
-        }
-        ctx.putImageData(img, 0, 0);
-        yield;
+        const pieces = atlas.pieces;
         const objKey = `objects-${key}`;
-        const tex = this.textures.addCanvas(objKey, atlas);
+        const tex = this.textures.addCanvas(objKey, atlas.canvas);
         textures.push(objKey);
         for (const p of pieces) tex.add(`${p.i}-${p.v}`, 0, p.x, p.y, p.w, p.h);
         for (let i = 0; i < objs.length; i++) {
@@ -1736,6 +1778,46 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       }
       this.cullClock = 0;
       return { images, textures, swayers };
+    }
+
+    // La planche des objets d'un morceau (générateur)
+    *paintAtlas(objs) {
+      const ATLAS_W = 1024;
+      const pieces = [];
+      for (let i = 0; i < objs.length; i++) {
+        const o = objs[i];
+        const variants = o.type === 'tree' ? LEANS.map(l => leanRows(o.art.rows, l)) : [o.art.rows];
+        variants.forEach((rows, v) => pieces.push({ i, v, rows, w: rows[0].length, h: rows.length }));
+        if (i % 60 === 59) yield;
+      }
+      let x = 0, y = 0, rowH = 0;
+      for (const p of pieces) {
+        if (x + p.w > ATLAS_W) { x = 0; y += rowH + 1; rowH = 0; }
+        p.x = x; p.y = y;
+        x += p.w + 1; rowH = Math.max(rowH, p.h);
+      }
+      // Les pixels écrits d'un bloc (un appel de dessin par pixel coûtait cher)
+      const canvas = document.createElement('canvas');
+      canvas.width = ATLAS_W; canvas.height = y + rowH + 1;
+      const ctx = canvas.getContext('2d');
+      const img = ctx.createImageData(canvas.width, canvas.height), d = img.data;
+      for (let n = 0; n < pieces.length; n++) {
+        const p = pieces[n];
+        for (let ry = 0; ry < p.h; ry++) {
+          const row = p.rows[ry];
+          for (let rx = 0; rx < p.w; rx++) {
+            const c = RGB[row[rx]];
+            if (!c) continue;
+            const k = ((p.y + ry) * ATLAS_W + p.x + rx) * 4;
+            d[k] = c[0]; d[k + 1] = c[1]; d[k + 2] = c[2]; d[k + 3] = 255;
+          }
+        }
+        if (n % 400 === 399) yield;
+      }
+      ctx.putImageData(img, 0, 0);
+      yield;
+      // (les lignes de pixels ne servent plus : on ne garde que leur place)
+      return { canvas, pieces: pieces.map(({ i, v, x, y, w, h }) => ({ i, v, x, y, w, h })) };
     }
 
     // Les arbres ploient sous le vent : penchés vers l'est d'autant plus qu'il
@@ -1807,7 +1889,10 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     pixelArt: true,
     roundPixels: true,
     backgroundColor: palette.b,
-    scale: { mode: Phaser.Scale.NONE, zoom: 1 / fit.dpr },
+    scale: { mode: Phaser.Scale.NONE, zoom: fit.factor / fit.dpr },
+    // (le pas fixe de la scène fait foi : pas de lissage du temps par Phaser,
+    // qui ralentissait tout aux faibles cadences)
+    fps: { smoothStep: false },
     scene: Island,
     banner: false,
     input: { mouse: { preventDefaultWheel: false } },
@@ -1848,27 +1933,55 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
   }
   game.events.on('postrender', blurCopy);
 
-  function sizeSky(f) {
-    sky.width = f.width; sky.height = f.height;
-    sky.style.width = `${f.width / f.dpr}px`;
-    sky.style.height = `${f.height / f.dpr}px`;
+  // Le calque de la neige a la taille du canevas, agrandi de même
+  function sizeSky() {
+    const c = game.canvas;
+    sky.width = c.width; sky.height = c.height;
+    sky.style.width = c.style.width;
+    sky.style.height = c.style.height;
   }
-  sizeSky(fit);
-  parent.append(sky);
 
+  // Le canevas à un facteur d'agrandissement (pixels physiques par pixel du
+  // canevas) : sa taille couvre l'écran, la vue garde son centre
+  function setFactor(f) {
+    const r = parent.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    const { width, height } = canvasSize(r.width, r.height, f, dpr);
+    const sc = game.scene.getScene('island'), cam = sc?.cameras?.main;
+    const mid = cam && { x: cam.midPoint.x, y: cam.midPoint.y };
+    if (game.scale.width !== width || game.scale.height !== height) game.scale.resize(width, height);
+    // (après resize : setZoom pose la taille affichée ; dans l'autre ordre, le
+    // canevas gardait l'ancienne taille affichée)
+    game.scale.setZoom(f / dpr);
+    sizeSky();
+    if (sc?.zoom) {
+      sc.zoom.canvas = f;
+      cam.setZoom(sc.zoom.current / f);
+      if (mid) cam.centerOn(mid.x, mid.y);
+      sc.cullClock = 0;
+    }
+    // Les lignes du CRT : une par pixel du canevas, d'un pixel physique
+    screenEl.style.setProperty('--px', `${f / dpr}px`);
+    screenEl.style.setProperty('--line', `${1 / dpr}px`);
+  }
+
+  // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de base
   function resize() {
     const r = parent.getBoundingClientRect();
-    const f = fitScreen(r.width, r.height, quality);
-    game.scale.setZoom(1 / f.dpr);
-    game.scale.resize(f.width, f.height);
-    sizeSky(f);
-    const scene = game.scene.getScene('island');
-    if (scene?.zoom) {
+    if (!r.width || !r.height) return;
+    const f = fitScreen(r.width, r.height);
+    const sc = game.scene.getScene('island');
+    if (sc?.zoom) {
       // (le zoom saute d'un coup à sa nouvelle échelle, sans glisser)
-      const k = f.zoom / scene.zoom.base;
-      scene.zoom.base = f.zoom; scene.zoom.dpr = f.dpr; scene.zoom.current *= k;
+      const k = f.factor / sc.zoom.base;
+      sc.zoom.base = f.factor; sc.zoom.current *= k;
     }
+    setFactor(f.factor);
   }
+  game.events.once('ready', () => {
+    setFactor(fit.factor);
+    parent.append(sky);
+    new ResizeObserver(() => resize()).observe(parent);
+  });
   window.addEventListener('resize', resize);
 
   return {
@@ -1894,8 +2007,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     },
     save: () => game.scene.getScene('island')?.persist(),
     setWind: name => weather.setPreset(name),
-    // La qualité de l'image (Réglages) : la taille du canevas, les flocons
-    setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; resize(); },
+    // La qualité de l'image (Réglages) : les flocons (CRT et flou : main.js)
+    setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; },
     windPhase: () => weather.phase,
     dayPhase: () => daylightAt(dayClock()).phase,
     refreshDaylight: () => game.scene.getScene('island')?.applyDaylight(),

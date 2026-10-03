@@ -293,8 +293,9 @@ body {
   mask-image: radial-gradient(ellipse 60% 58% at 50% 50%, transparent 50%, #000 100%);
 }
 
-/* Écran cathodique, discret : lignes de balayage alignées sur les pixels du jeu,
-   et vignettage. --px est le facteur d'agrandissement (posé par le jeu). */
+/* Écran cathodique, discret : lignes de balayage posées sur les pixels du jeu,
+   et vignettage. --px : la taille d'un pixel du canevas basse définition,
+   --line : un pixel physique (posés sur #screen par le jeu). */
 .crt-layer { position: absolute; inset: 0; pointer-events: none; display: none; }
 .crt .crt-layer {
   display: block;
@@ -303,8 +304,8 @@ body {
     radial-gradient(ellipse 120% 120% at center,
       transparent 20%, rgba(10,14,26,.06) 45%, rgba(10,14,26,.16) 70%, rgba(10,14,26,.32) 100%),
     repeating-linear-gradient(to bottom,
-      transparent 0, transparent calc(var(--px, 3px) - 1px),
-      rgba(10,14,26,.16) calc(var(--px, 3px) - 1px), rgba(10,14,26,.16) var(--px, 3px));
+      transparent 0, transparent calc(var(--px, 3px) - var(--line, 1px)),
+      rgba(10,14,26,.16) calc(var(--px, 3px) - var(--line, 1px)), rgba(10,14,26,.16) var(--px, 3px));
   animation: crt-flicker 6s infinite steps(1);
 }
 .crt .stage canvas { filter: contrast(1.06) brightness(1.03); }

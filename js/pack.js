@@ -4,11 +4,11 @@
    s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.33.0';
-import { paintFrames } from './viking.js?v=1.33.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.34.0';
+import { paintFrames } from './viking.js?v=1.34.0';
 
 export const WOLF_HP = 2;
-const COUNT = 4;
+const COUNT = 3;
 const RING = { rx: 30, ry: 17 };      // ils tournent autour de lui, à distance
 const TROT = 30, GALLOP = 58, LUNGE = 125;
 // Le combat, réglé pour être lisible et gagnable : le grognement avant le
@@ -137,6 +137,16 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
 
     reset() { if (pack.state === 'hunt') scatter(); },
 
+    // Une image : chacun là où il est, entre les deux derniers pas
+    render(alpha) {
+      for (const w of wolves) {
+        if (w.state === 'dead' || w.state === 'hidden') continue;
+        const p = w.prev && Math.hypot(w.prev.x - w.pos.x, w.prev.y - w.pos.y) < 12 ? w.prev : w.pos;
+        const x = p.x + (w.pos.x - p.x) * alpha, y = p.y + (w.pos.y - p.y) * alpha;
+        w.sprite.setPosition(Math.round(x) + 0.5, Math.round(y) + 1).setDepth(w.pos.y);
+      }
+    },
+
     update(dt, player) {
       const p = player.pos;
       const dDen = Math.hypot(p.x - den.x, (p.y - den.y) * 1.3);
@@ -186,6 +196,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
       }
 
       for (const w of wolves) {
+        w.prev = { x: w.pos.x, y: w.pos.y };
         if (w.state === 'dead' || w.state === 'hidden') continue;
         w.timer -= dt;
         switch (w.state) {
@@ -250,7 +261,6 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
             break;
           }
         }
-        w.sprite.setPosition(Math.round(w.pos.x) + 0.5, Math.round(w.pos.y) + 1).setDepth(w.pos.y);
       }
       if (pack.state === 'leaving' && alive().every(w => w.state === 'hidden')) pack.state = 'idle';
       if (pack.state === 'hunt' && !alive().length) pack.state = 'done';

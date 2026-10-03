@@ -1,15 +1,15 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.33.0';
-import { createGame } from './game.js?v=1.33.0';
-import { showChapter } from './chapters.js?v=1.33.0';
-import { createTitleSea } from './titlesea.js?v=1.33.0';
-import { audio } from './audio.js?v=1.33.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.33.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.33.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.34.0';
+import { createGame } from './game.js?v=1.34.0';
+import { showChapter } from './chapters.js?v=1.34.0';
+import { createTitleSea } from './titlesea.js?v=1.34.0';
+import { audio } from './audio.js?v=1.34.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.34.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.34.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
-const debug = DEBUG ? await import('./debug.js?v=1.33.0') : null;
+const debug = DEBUG ? await import('./debug.js?v=1.34.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -42,6 +42,9 @@ if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREF
 // La qualité de l'image (1 → 4) remplace les cases CRT et flou : on la
 // déduit des anciennes cases, une fois
 if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt === false ? 1 : prefs.crt === false || prefs.tilt === false ? 2 : 3; write(PREFS_KEY, prefs); }
+// (l'ancien niveau 4, « tous les pixels de l'écran », n'existe plus : le jeu se
+// dessine toujours en basse définition)
+if (prefs.quality > 3) { prefs.quality = 3; write(PREFS_KEY, prefs); }
 let save = read(SAVE_KEY, {});
 
 // ── Toast ──
@@ -345,7 +348,7 @@ for (const [id, key, kind] of LEVELS) {
 const notched = [];
 for (const input of settings.querySelectorAll('input[type="range"]')) {
   const steps = input.id === 'opt-quality';
-  const count = steps ? 4 : input.id === 'opt-daytime' ? 12 : 10;
+  const count = steps ? Number(input.max) - Number(input.min) + 1 : input.id === 'opt-daytime' ? 12 : 10;
   const box = document.createElement('div');
   box.className = 'notches';
   input.replaceWith(box);
@@ -362,10 +365,9 @@ for (const input of settings.querySelectorAll('input[type="range"]')) {
 const paintNotches = () => notched.forEach(paint => paint());
 // La qualité de l'image : un seul curseur, du plus fluide au plus fin
 const QUALITIES = {
-  1: ['Légère', 'Pour les ordinateurs anciens : l\'image en gros pixels, sans effet cathodique ni flou, moitié moins de flocons. Le plus fluide.'],
-  2: ['Économe', 'L\'image en gros pixels, l\'effet cathodique, sans le flou de maquette.'],
-  3: ['Équilibrée', 'L\'effet cathodique et le flou de maquette ; sur un écran Retina, l\'image est peinte en demi-résolution (elle n\'y perd rien).'],
-  4: ['Haute', 'Pour les ordinateurs récents : tous les pixels de l\'écran, l\'effet cathodique et le flou de maquette.'],
+  1: ['Légère', 'Pour les ordinateurs anciens : sans effet cathodique ni flou, moitié moins de flocons. Le plus fluide.'],
+  2: ['Économe', 'L\'effet cathodique, sans le flou de maquette.'],
+  3: ['Complète', 'L\'effet cathodique et le flou de maquette.'],
 };
 function applyQuality() {
   const q = prefs.quality;

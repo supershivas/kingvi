@@ -41,7 +41,7 @@ const HELP = `Harnais de playtest — node run.js [options]
   --vitesse <n>                 accélère le jeu (1 par défaut ; 2 à 4 pour aller vite)
   --heure <aube|jour|crepuscule|nuit>   --meteo <cycle|calme|bise|rafales|tempete|tourbillons>
   --clavier <azerty|qwerty|fleches>     (azerty par défaut)
-  --qualite <1|2|3|4>           qualité de l'image (Réglages) : 1 légère, 2 économe, 3 équilibrée (défaut), 4 haute
+  --qualite <1|2|3>             qualité de l'image (Réglages) : 1 légère, 2 économe, 3 complète (défaut)
   --navigateur <chromium|firefox|webkit> --taille 1280x800 --dpr 1
   --graine <n>                  graine du hasard du combat (7 par défaut)
   --capture <s>                 secondes entre deux captures (6 par défaut)
@@ -60,7 +60,7 @@ function parseArgs(argv) {
     else if (a.startsWith('--')) o[a.slice(2)] = argv[++i];
     else throw new Error(`Option inconnue : ${a}`);
   }
-  o.qualite = Math.min(4, Math.max(1, Number(o.qualite) || 3)); o.vitesse = Number(o.vitesse) || 1; o.capture = Number(o.capture) || 6; o.graine = Number(o.graine); o.dpr = Number(o.dpr) || 1;
+  o.qualite = Math.min(3, Math.max(1, Number(o.qualite) || 3)); o.vitesse = Number(o.vitesse) || 1; o.capture = Number(o.capture) || 6; o.graine = Number(o.graine); o.dpr = Number(o.dpr) || 1;
   const ids = STEPS.map(s => s[0]);
   for (const k of ['from', 'to']) if (o[k] && !ids.includes(o[k])) throw new Error(`Étape inconnue : ${o[k]} (${ids.join(', ')})`);
   if (!['azerty', 'qwerty', 'fleches'].includes(o.clavier)) throw new Error('--clavier : azerty, qwerty ou fleches');
