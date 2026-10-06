@@ -40,6 +40,15 @@ pierres levées, offrandes) et le joueur le lit.
 6. **La violence est rare, brève et lourde.** Trois coups abattent ; le
    sang reste ; les corbeaux viennent aux cadavres.
 
+## La saga
+
+Le récit complet (qui sont Kári, Eyvind, Thorgrim, le roi, le guetteur ; le
+clou de Nortia et la nuit qui dure depuis dix-neuf hivers ; l'Archipel des
+Neuf ; la magie ; les mythes nordiques, étrusques et de Gilgamesh), les
+arbres généalogiques, les lieux à venir et les scénarios avec leurs lignes de
+dialogue sont dans `js/saga.js`, lisibles dans l'onglet « La saga » du labo.
+Ce n'est pas encore dans le jeu : chaque scénario est une proposition.
+
 ## Le voyage, chapitre par chapitre
 
 Chaque chapitre s'inscrit une fois par vie, en haut de l'écran
@@ -150,8 +159,11 @@ signalées, pas tranchées.
 - **Pas de carte en jeu.** La carte n'existe que dans le labo. `[À VALIDER]`
 - **Pas de tutoriel bavard.** Une seule consigne de commandes, qui s'efface
   seule. Pas de bulle, pas de « appuyez sur… » contextuel. `[À VALIDER]`
-- **Pas de dialogue ni de texte narratif.** Personne ne parle ; les seuls mots
-  sont les noms des chapitres. `[À VALIDER]`
+- **Pas de bavardage.** Décision de Jérôme (v1.46.0) : les personnages
+  parlent, mais peu (trois à huit lignes par rencontre, douze mots par ligne
+  au plus), sans jamais raconter l'histoire à la place du paysage ; pas de
+  choix de réplique, on répond par des gestes. Règle complète, personnages et
+  dialogues : la saga (`js/saga.js`, onglet « La saga » du labo).
 - **Pas de loot, pas d'équipement, ni d'expérience ni de niveaux.** Décision
   de Jérôme (v1.44.0) : un inventaire (touche I) ne garde que les reliques,
   six à ce jour (la poupée de l'arbre sacré, le rubis du roi mort, le

@@ -1,0 +1,105 @@
+/* Labo, onglet « La saga » (labo-saga.js) : bible, arbres, personnages,
+   scénarios, phylactères. Les couleurs du jeu pour ce qui est du jeu ; les
+   tokens pour le reste. */
+
+.saga-sprite { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.saga-text { font-size: .92rem !important; color: var(--text-secondary) !important; line-height: 1.55; max-width: 72ch; }
+.saga-meta { font-size: .78rem !important; color: var(--text-muted); }
+.saga-page h3 { font-family: var(--font-game-title); font-size: 1.5rem; font-weight: 500; }
+.saga-chrono { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: .88rem; margin: 0; }
+.saga-chrono dt { font-family: var(--font-mono); font-size: .78rem; color: var(--accent); white-space: nowrap; }
+.saga-chrono dd { margin: 0; color: var(--text-secondary); }
+
+/* ── Arbres ── */
+.saga-family h3 .tag { font-family: var(--font-body); font-style: italic; color: var(--text-muted); font-size: .8rem; }
+.saga-tree { overflow-x: auto; background: var(--game-snow); border-radius: var(--radius-md); padding: 8px 0; }
+.saga-tree-inner { position: relative; margin: 0 auto; }
+.saga-lines { position: absolute; inset: 0; pointer-events: none; }
+.saga-lines path { fill: none; stroke: var(--game-night); stroke-width: 1.5; }
+.saga-lines .couple { stroke-width: 3; }
+.saga-lines .lait { stroke-dasharray: 3 4; opacity: .7; }
+.saga-node {
+  position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 2px;
+  padding: 6px 4px; border: 1.5px solid var(--game-night); border-radius: var(--radius-md); background: var(--game-snow);
+  color: var(--game-night); font: inherit; cursor: pointer; text-align: center;
+}
+.saga-node:hover { background: #fff; }
+.saga-node:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.saga-node.guest { opacity: .62; border-style: dashed; }
+.saga-node.st-mort { border-color: var(--accent); }
+.saga-node.st-mort-vivant { border-style: double; border-width: 4px; }
+.saga-node.st-immortel, .saga-node.st-a-naitre { border-style: dotted; }
+.saga-node-pic { flex: 1; display: flex; align-items: flex-end; justify-content: center; min-height: 0; overflow: hidden; }
+.saga-node-name { font-weight: 600; font-size: .82rem; line-height: 1.1; }
+.saga-node-sub { font-size: .66rem; line-height: 1.15; color: var(--text-muted); max-height: 2.3em; overflow: hidden; }
+
+/* ── Fiche ── */
+.saga-fiche { position: fixed; inset: 0; margin: auto; height: fit-content; border: 0; border-radius: var(--radius-lg); padding: 0; width: min(640px, 94vw); max-height: 90vh; background: var(--card-bg); color: var(--text-primary); }
+.saga-fiche::backdrop { background: rgba(10,14,28,.6); }
+.saga-fiche-box { display: flex; flex-direction: column; gap: 12px; padding: 18px; max-height: 90vh; overflow: auto; }
+.saga-fiche-head { display: flex; gap: 14px; align-items: flex-start; }
+.saga-portrait { background: var(--game-snow); border-radius: var(--radius-md); padding: 8px; flex: none; display: flex; align-items: flex-end; min-height: 96px; }
+.saga-fiche-title { flex: 1; min-width: 0; }
+.saga-fiche-title h3 { font-family: var(--font-game-title); font-size: 2rem; font-weight: 500; line-height: 1; margin: 0; }
+.saga-surnom { color: var(--text-secondary); font-style: italic; margin: 4px 0; }
+.saga-close { color: var(--text-muted); background: none; border: 0; min-width: 44px; min-height: 44px; cursor: pointer; font-size: 1.2rem; }
+.saga-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; font-size: .85rem; margin: 0; }
+.saga-facts dt { font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); padding-top: 2px; }
+.saga-facts dd { margin: 0; }
+.saga-bio p { font-size: .92rem; line-height: 1.6; margin: 0 0 10px; }
+.saga-fiche h4 { font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); margin: 4px 0 0; }
+.saga-quotes blockquote { margin: 0 0 6px; padding-left: 10px; border-left: 2px solid var(--accent); font-size: .9rem; }
+.saga-kin { display: flex; flex-direction: column; gap: 8px; }
+.saga-kin-row { display: flex; flex-direction: column; gap: 4px; }
+.saga-kin-label { font-family: var(--font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.saga-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.saga-chip { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 2px 10px 2px 4px; border: 1px solid var(--border); border-radius: 999px; background: var(--card-bg); font: inherit; font-size: .82rem; color: var(--text-primary); cursor: pointer; }
+.saga-chip canvas { background: var(--game-snow); border-radius: 50%; max-height: 36px; width: auto !important; }
+.saga-chip:disabled { cursor: default; opacity: .75; }
+@media (hover: hover) { .saga-chip:not(:disabled):hover { border-color: var(--accent); } }
+
+/* ── Personnages ── */
+.saga-cast { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.saga-cast-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--game-snow); color: var(--game-night); font: inherit; cursor: pointer; text-align: center; }
+@media (hover: hover) { .saga-cast-item:hover { border-color: var(--accent); } }
+.saga-cast-pics { display: flex; align-items: flex-end; gap: 6px; min-height: 60px; }
+
+/* ── Lieux ── */
+.saga-places { margin: 0; padding-left: 1.1em; display: flex; flex-direction: column; gap: 6px; font-size: .88rem; }
+.saga-new { font-family: var(--font-mono); font-size: .66rem; text-transform: uppercase; letter-spacing: .06em; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; margin-left: 6px; }
+
+/* ── Scénarios ── */
+.saga-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.saga-filters .on { border-color: var(--accent); color: var(--accent); }
+.saga-scenes { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.saga-scene h3 .tag { text-transform: uppercase; }
+.saga-script { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; font-size: .86rem; }
+.saga-script b { font-weight: 600; margin-right: 6px; }
+.saga-script b::after { content: ' —'; font-weight: 400; color: var(--text-muted); }
+
+/* ── Phylactères : la scène aux pixels du jeu, le texte en HTML par-dessus ── */
+.saga-select { max-width: 360px; }
+.ph-scroll { overflow-x: auto; }
+.ph-stage { position: relative; overflow: hidden; border-radius: var(--radius-sm); margin: 0 auto; background: var(--game-snow); }
+.ph-canvas, .ph-fx { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+.ph-text {
+  position: absolute; left: 0; top: 0; width: max-content; pointer-events: none;
+  font-family: var(--font-body); font-size: max(12px, calc(var(--k) * 4.2)); line-height: 1.25; color: var(--game-night);
+  transition: opacity .2s linear;
+}
+.ph-rest { visibility: hidden; }
+.ph-name { display: block; font-family: var(--font-game-title); font-size: 1.05em; line-height: 1; margin-bottom: calc(var(--k) * .6); opacity: .85; }
+
+.ph-sobre { color: var(--game-snow); text-align: center; font-weight: 500;
+  text-shadow: 1px 0 0 var(--game-night), -1px 0 0 var(--game-night), 0 1px 0 var(--game-night), 0 -1px 0 var(--game-night), 0 0 6px rgba(31,42,68,.85); }
+.ph-bulle { color: var(--game-night); }
+.ph-pierre { color: var(--game-snow); text-align: center; letter-spacing: .02em; }
+.ph-souffle { color: var(--game-night); font-style: italic; text-align: left;
+  text-shadow: 1px 0 0 var(--game-snow), -1px 0 0 var(--game-snow), 0 1px 0 var(--game-snow), 0 -1px 0 var(--game-snow), 0 0 5px var(--game-snow); }
+.ph-bandeau { color: var(--game-snow); }
+.ph-bandeau .ph-name { color: var(--game-snow); }
+.ph-runes { color: var(--game-snow); text-align: center; font-weight: 500;
+  text-shadow: 1px 0 0 var(--game-night), -1px 0 0 var(--game-night), 0 1px 0 var(--game-night), 0 -1px 0 var(--game-night), 0 0 6px rgba(31,42,68,.85); }
+.ph-rune { font-family: 'Noto Sans Runic', var(--font-body); opacity: .8; }
+.ph-hors { color: var(--game-snow); font-style: italic; text-align: right; }
+.ph-hors .ph-name { font-style: normal; }

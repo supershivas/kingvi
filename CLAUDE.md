@@ -153,7 +153,7 @@ comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
 secondes quand le guetteur s'efface (`audio.hush`).
 
 La page `labo.html` regroupe toutes les animations, rangées par thèmes en
-onglets (L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son, Interface ; un
+onglets (La saga, L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son, Interface ; un
 seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
 thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
 carte de l'île (un clic y téléporte le viking), chapitres, barque, jour et nuit, viking,
@@ -215,6 +215,19 @@ est cachée et ne sort que pendant l'attaque.
   mêmes modules que le jeu). Chaque section porte son thème
   (`data-theme`) ; toute nouvelle section en a un. Toute nouvelle animation y a sa carte ; une
   section Son fait entendre la musique et chaque bruitage.
+- `js/saga.js`, `js/people.js`, `js/labo-saga.js`, `css/labo-saga.css` — **la
+  saga** (onglet « La saga » du labo, le premier) : la bible du récit
+  (`BIBLE`), familles et personnages sur quatre générations et plus
+  (`FAMILIES`, `PEOPLE` : parents, conjoints, frères de lait, biographie,
+  voix, répliques), lieux (`PLACES`, dont ceux qui agrandissent le monde),
+  scénarios avec leurs dialogues (`SCENARIOS` : trame, souvent, rare, fin ;
+  `lignes` = [qui, texte]). Les personnages parlent (Jérôme, v1.46.0) : règle de
+  la parole dans `BIBLE`. Arbres dessinés en HTML + SVG (clic → fiche dans un
+  `<dialog>`). `people.js` construit chaque personnage d'après le gabarit du
+  héros (tête, corps, objet, taille ; `personSprite(spec)` → face et 4 temps de
+  marche ; placeholders). Phylactères : propositions A à G sur une scène de
+  192 × 84 pixels du jeu, texte en HTML posé au pixel près (`placeText`),
+  bulles en pixels (`brokenBox`) ; aucune n'est encore retenue ni dans le jeu.
 - `js/debug.js` — le mode debug du playtest, chargé seulement avec
   `?debug=1` (voir « Playtest et agents »). Il regarde le jeu sans le changer.
 - `js/main.js` — interface : écran d'accueil, nouveau jeu (efface

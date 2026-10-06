@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.46.0 — 2026-10-06
+- Labo, nouvel onglet « La saga » : la bible du récit (l'Archipel des Neuf, le clou de Nortia, la nuit qui dure depuis dix-neuf hivers, la magie, les mythes nordiques, étrusques et de Gilgamesh)
+- Six arbres généalogiques sur quatre générations et plus : la maison de Kingvi, les Rasna, les Gunnar, le Survivant, les jötnar, les puissances. Un clic sur un personnage ouvre son histoire
+- Une cinquantaine de personnages dessinés d'après le héros (version féminine, enfants, vieillards, géants), à redessiner
+- Nouveaux lieux (le hameau, le temple des clous, le géant endormi, SNO 3, SNO 8, SNO 9…) et 39 scénarios avec leurs dialogues : les personnages parlent
+- Sept propositions de phylactères (sobre, lambeau de neige, pierre levée, souffle, bandeau, runes, hors champ), à choisir
+
 ## 1.45.0 — 2026-10-03
 - Chapitre VIII, L'incendie : l'autre mort, on revient à la maison et on met le feu au corps du compagnon (clic près de lui). La fumée chasse de la pièce, le toit brûle et s'effondre ; dans les cendres, une nouvelle relique
 - Chapitre IX, La falaise : une sente en lacets dans la face, qu'on gravit sous les chutes de pierres (un filet de neige les annonce) ; en haut, un plateau

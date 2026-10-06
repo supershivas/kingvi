@@ -1,9 +1,9 @@
 {
-  "version": "1.45.0",
-  "date": "2026-10-03",
+  "version": "1.46.0",
+  "date": "2026-10-06",
   "changes": [
-    "Trois chapitres : L'incendie (mettre le feu au bûcher du compagnon), La falaise (gravir la sente sous les chutes de pierres), Le megamoth (un papillon de nuit géant qui souffle la torche)",
-    "Les reliques pendent à la ceinture du viking : dans l'inventaire, on les déplace d'un crochet à l'autre",
-    "L'endurance est retirée pour le moment ; placeholders à redessiner dans l'atelier (incendie, megamoth, ceinture, nouvelles reliques)"
+    "Labo, nouvel onglet « La saga » : la bible du récit, six arbres généalogiques (un clic sur un personnage ouvre son histoire), une cinquantaine de personnages dessinés d'après le héros",
+    "39 scénarios avec leurs dialogues : les personnages parlent désormais",
+    "Sept propositions de phylactères à choisir, jouées sur une scène aux pixels du jeu"
   ]
 }

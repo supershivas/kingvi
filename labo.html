@@ -10,12 +10,13 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&family=Noto+Sans+Runic&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.45.0"/>
-<link rel="stylesheet" href="css/labo.css?v=1.45.0"/>
-<link rel="stylesheet" href="css/labo-ui.css?v=1.45.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.45.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.46.0"/>
+<link rel="stylesheet" href="css/labo.css?v=1.46.0"/>
+<link rel="stylesheet" href="css/labo-ui.css?v=1.46.0"/>
+<link rel="stylesheet" href="css/labo-saga.css?v=1.46.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.46.0"/>
 </head>
 <body class="labo-page">
 
@@ -36,6 +37,7 @@
 
 <!-- Les thèmes (onglets), puis les sections du thème ouvert -->
 <nav class="labo-tabs" aria-label="Thèmes du labo">
+  <a href="#saga" data-theme="saga"><i class="ti ti-book-2" aria-hidden="true"></i> La saga</a>
   <a href="#ile" data-theme="ile"><i class="ti ti-map-2" aria-hidden="true"></i> L'île</a>
   <a href="#rivage" data-theme="rivage"><i class="ti ti-sailboat" aria-hidden="true"></i> Le rivage</a>
   <a href="#heros" data-theme="heros"><i class="ti ti-sword" aria-hidden="true"></i> Le viking</a>
@@ -52,6 +54,12 @@
   <p class="labo-intro">Toutes les animations du jeu, rangées par thème (onglets en haut),
     sur la neige, aux couleurs du jeu. Les propositions marquées d'une lettre sont à choisir.</p>
 
+  <section id="saga-bible" class="labo-section" data-theme="saga"><h2>La bible</h2><div class="demos"></div></section>
+  <section id="saga-arbres" class="labo-section" data-theme="saga"><h2>Arbres généalogiques</h2><div class="demos"></div></section>
+  <section id="saga-personnages" class="labo-section" data-theme="saga"><h2>Personnages</h2><div class="demos"></div></section>
+  <section id="saga-lieux" class="labo-section" data-theme="saga"><h2>Lieux</h2><div class="demos"></div></section>
+  <section id="saga-scenarios" class="labo-section" data-theme="saga"><h2>Scénarios et dialogues</h2><div class="demos"></div></section>
+  <section id="saga-phylacteres" class="labo-section" data-theme="saga"><h2>Phylactères (à choisir)</h2><div class="demos"></div></section>
   <section id="carte" class="labo-section" data-theme="ile"><h2>Carte</h2><div class="demos"></div></section>
   <section id="chapitres" class="labo-section" data-theme="ile"><h2>Chapitres</h2><div class="demos"></div></section>
   <section id="son" class="labo-section" data-theme="ecoute"><h2>Son</h2><div class="demos"></div></section>
@@ -86,8 +94,9 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/labo.js?v=1.45.0"></script>
-<script type="module" src="js/labo-ui.js?v=1.45.0"></script>
-<script type="module" src="js/labo-designs.js?v=1.45.0"></script>
+<script type="module" src="js/labo.js?v=1.46.0"></script>
+<script type="module" src="js/labo-ui.js?v=1.46.0"></script>
+<script type="module" src="js/labo-designs.js?v=1.46.0"></script>
+<script type="module" src="js/labo-saga.js?v=1.46.0"></script>
 </body>
 </html>

@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.45.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.45.0';
+import { gamePalette } from './design-store.js?v=1.46.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.46.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
