@@ -7,17 +7,19 @@
    module dit quoi : les durées, les dessins (placeholders à redessiner dans
    l'atelier (atelier.html) : `feu-0` → `feu-3`, `house-burning`, `house-ruin`) et où
    poser les flammes. */
-import { HOUSE_ART } from './world.js?v=1.62.0';
-import { designRows } from './design-store.js?v=1.62.0';
-import { floorPoint } from './interior.js?v=1.62.0';
+import { HOUSE_ART } from './world.js?v=1.63.0';
+import { T } from './tuning.js?v=1.63.0';
+import { designRows } from './design-store.js?v=1.63.0';
+import { floorPoint } from './interior.js?v=1.63.0';
 
-// Les temps du feu, en secondes de jeu depuis qu'il a pris
+// Les temps du feu, en secondes de jeu depuis qu'il a pris (réglables dans
+// l'atelier : tuning.js)
 export const FIRE = {
-  roof: 8,          // les flammes sortent du toit
-  spread: 30,       // le toit est tout en feu (la maison se troue)
-  collapse: 70,     // le toit s'effondre : la ruine
-  out: 190,         // plus de flammes, des braises seulement
-  smoke: 14,        // dans la pièce, la fumée : au-delà, elle blesse (toutes les 3 s)
+  get roof() { return T.feuToit; },              // les flammes sortent du toit
+  get spread() { return T.feuToutEnFeu; },       // le toit est tout en feu (la maison se troue)
+  get collapse() { return T.feuEffondrement; },  // le toit s'effondre : la ruine
+  get out() { return T.feuBraises; },            // plus de flammes, des braises seulement
+  get smoke() { return T.feuFumee; },            // dans la pièce, la fumée : au-delà, elle blesse
 };
 
 // Une flamme : 7 × 10, quatre temps (r rouge, s cœur clair, b bois qui brûle)

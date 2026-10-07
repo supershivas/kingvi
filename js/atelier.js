@@ -12,12 +12,13 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.62.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.62.0';
-import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.62.0';
-import { mountMap } from './atelier-map.js?v=1.62.0';
-import { mountTexts } from './atelier-texts.js?v=1.62.0';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.62.0';
+} from './designs.js?v=1.63.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.63.0';
+import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.63.0';
+import { mountMap } from './atelier-map.js?v=1.63.0';
+import { mountTuning } from './atelier-tuning.js?v=1.63.0';
+import { mountTexts } from './atelier-texts.js?v=1.63.0';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.63.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -154,7 +155,7 @@ $('[data-key-help]').addEventListener('click', () => { keyDialog.close(); helpDi
 
 const syncKey = () => { $('[data-forget]').hidden = !getToken(); status(); };
 function status() {
-  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0) + (extrasChanged() ? 1 : 0);
+  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0) + (extrasChanged() ? 1 : 0) + (tuningChanged() ? 1 : 0);
   chip.textContent = unpub ? `${unpub} à publier` : 'Tout est publié';
   chip.classList.toggle('warn', unpub > 0);
   chip.title = unpub ? 'Invisible sur les autres appareils tant que vous n\'avez pas publié.' : '';
@@ -573,11 +574,15 @@ loadDesigns().then(() => {
 });
 
 // ── Les onglets de l'atelier : les dessins, la carte (placer les lieux) ──
-let mapMounted = false, textsMounted = false;
+let mapMounted = false, textsMounted = false, tuningMounted = false;
 function showTool() {
-  const tool = location.hash === '#carte' ? 'carte' : location.hash === '#textes' ? 'textes' : 'dessins';
+  const tool = location.hash === '#carte' ? 'carte' : location.hash === '#textes' ? 'textes' : location.hash === '#nombres' ? 'nombres' : 'dessins';
   for (const a of document.querySelectorAll('.atelier-tabs a')) a.classList.toggle('on', a.dataset.tool === tool);
   for (const p of document.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tool;
+  if (tool === 'nombres' && !tuningMounted) {
+    tuningMounted = true;
+    mountTuning(document.getElementById('atelier-tuning'), { onChange: status, onPublish: () => $('[data-publish]').click() });
+  }
   if (tool === 'textes' && !textsMounted) {
     textsMounted = true;
     mountTexts(document.getElementById('atelier-texts'), { onChange: status, onPublish: () => $('[data-publish]').click() });

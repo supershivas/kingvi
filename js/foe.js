@@ -5,12 +5,11 @@
 
    Le module ne connaît la scène que par ce qu'on lui passe : le sprite
    partagé du viking (animations globales), et quelques fonctions. */
-import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.62.0';
+import { T } from './tuning.js?v=1.63.0';
+import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.63.0';
 
-export const FOE_HP = 3;
-const SIGHT = 110;          // il nous voit venir de là
+// (ses points de vie : T.autrePv, tuning.js)
 const REACH = { min: 7, max: 14, dy: 4 };
-const SPEED = 15;
 
 export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, dead = false }) {
   const sprite = scene.add.sprite(post.x + 0.5, post.y, 'viking', 'side-idle')
@@ -20,7 +19,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
 
   const foe = {
     pos: { x: post.x, y: post.y },
-    hp: FOE_HP, state: 'wait', flip: true, cool: 0, stun: 0, vx: 0,
+    hp: T.autrePv, state: 'wait', flip: true, cool: 0, stun: 0, vx: 0,
     sprite, cape, pips, engaged: false,
   };
 
@@ -91,7 +90,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
     // Revient à son poste, requinqué (quand le héros est tombé)
     reset() {
       if (foe.state === 'dead') return;
-      foe.hp = FOE_HP; foe.state = 'wait'; foe.pos = { ...post }; foe.flip = true; foe.engaged = false;
+      foe.hp = T.autrePv; foe.state = 'wait'; foe.pos = { ...post }; foe.flip = true; foe.engaged = false;
       sprite.stop(); sprite.setFrame('side-idle').setAlpha(1);
     },
 
@@ -103,7 +102,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
       foe.cool -= dt;
 
       if (foe.state === 'wait') {
-        if (!player.dead && !player.inside && d < SIGHT) { foe.state = 'engage'; foe.engaged = true; }
+        if (!player.dead && !player.inside && d < T.autreVue) { foe.state = 'engage'; foe.engaged = true; }
       } else if (foe.state === 'hurt') {
         foe.stun -= dt;
         const nx = foe.pos.x + foe.vx * dt;
@@ -112,7 +111,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
         if (foe.stun <= 0) foe.state = 'engage';
       } else if (foe.state === 'engage') {
         // On s'est enfui (ou on est mort) : il retourne à son poste
-        if (player.dead || player.inside || player.rowing || d > SIGHT * 2.2) { foe.reset(); }
+        if (player.dead || player.inside || player.rowing || d > T.autreVue * 2.2) { foe.reset(); }
         else {
           foe.flip = dx < 0;
           // Il se place à portée d'épée, à côté de nous, à la même hauteur
@@ -123,7 +122,7 @@ export function createFoe(scene, { post, walkable, capeAnchor, onStrike, bleed, 
             foe.state = 'attack';
             sprite.play('side-attack');
           } else if (e > 1.5) {
-            const step = SPEED * dt;
+            const step = T.autreVitesse * dt;
             const nx = foe.pos.x + ex / e * step, ny = foe.pos.y + ey / e * step;
             if (walkable(nx, ny)) { foe.pos.x = nx; foe.pos.y = ny; }
             else if (walkable(nx, foe.pos.y)) foe.pos.x = nx;
@@ -151,7 +150,7 @@ export function drawPips(g, x, y, hp, show, color = 0x1f2a44) {
   if (!show) return;
   g.setDepth(y + 0.02);
   const x0 = Math.round(x) - 4, y0 = Math.round(y) - 14;
-  for (let i = 0; i < FOE_HP; i++) {
+  for (let i = 0; i < T.autrePv; i++) {
     g.fillStyle(color, i < hp ? 0.95 : 0.2);
     g.fillRect(x0 + i * 3, y0, 2, 1);
   }

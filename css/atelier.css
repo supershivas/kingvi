@@ -71,3 +71,14 @@
 .dz-block { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; }
 .dz-play [hidden] { display: none; }
 .dz-stage canvas { cursor: crosshair; }
+
+/* Les nombres du jeu */
+.tu-groups { display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.tu-group { padding: 4px 14px 10px; }
+.tu-group h3 { margin: 10px 0 4px; font-size: 1rem; }
+.tu-row { padding: 8px 0; border-top: 1px solid var(--border); }
+.tu-head { display: flex; align-items: center; gap: 10px; font-size: .9rem; }
+.tu-val { font-family: var(--font-mono); font-size: .85rem; }
+.tu-row.changed .tu-val { color: var(--accent); font-weight: 600; }
+.tu-head [data-reset] { margin-left: auto; }
+.tu-row input[type=range] { width: 100%; min-height: 32px; accent-color: var(--accent); }

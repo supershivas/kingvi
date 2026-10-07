@@ -1,10 +1,11 @@
 /* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
+import { T as TUNE } from './tuning.js?v=1.63.0';
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.62.0';
+} from './viking.js?v=1.63.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
@@ -12,13 +13,13 @@ import {
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT, monsBlocked,
   PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER,
-} from './world.js?v=1.62.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.62.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.62.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.62.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.62.0';
-import { createGround } from './ground.js?v=1.62.0';
-import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.62.0';
+} from './world.js?v=1.63.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.63.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.63.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.63.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.63.0';
+import { createGround } from './ground.js?v=1.63.0';
+import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.63.0';
 
 // Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
 // (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
@@ -41,35 +42,34 @@ const GROWN = new Map();
     return base.call(this, x, y);
   };
 }
-import { chapterById } from './chapters.js?v=1.62.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.62.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.62.0';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.62.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.62.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.62.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.62.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.62.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.62.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.62.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.62.0';
-import { createFauna } from './fauna.js?v=1.62.0';
-import { createWeather } from './weather.js?v=1.62.0';
-import { createTalk } from './dialogue.js?v=1.62.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.62.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.62.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.62.0';
-import { describe } from './describe.js?v=1.62.0';
-import { personSprite } from './people.js?v=1.62.0';
-import { createSea } from './sea.js?v=1.62.0';
-import { audio } from './audio.js?v=1.62.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.62.0';
+import { chapterById } from './chapters.js?v=1.63.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.63.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.63.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.63.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.63.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.63.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.63.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.63.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.63.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.63.0';
+import { createFoe, drawPips } from './foe.js?v=1.63.0';
+import { createFauna } from './fauna.js?v=1.63.0';
+import { createWeather } from './weather.js?v=1.63.0';
+import { createTalk } from './dialogue.js?v=1.63.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.63.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.63.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.63.0';
+import { describe } from './describe.js?v=1.63.0';
+import { personSprite } from './people.js?v=1.63.0';
+import { createSea } from './sea.js?v=1.63.0';
+import { audio } from './audio.js?v=1.63.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.63.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
 const DITHER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
 
-const SPEED = 18;              // pixels du monde par seconde : on marche lentement
-const RUN = 2.4;               // Maj enfoncée : il court
+// (la vitesse de marche, la course : TUNE.kariVitesse, TUNE.kariCourse, tuning.js)
 const WALK_FPS = 7;
 const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
 // La neige profonde (snowDepth : 0 tassée, 1 aux mollets, 2 jusqu'à la taille) :
@@ -146,7 +146,7 @@ const BLUR_SCALE = { rx: 0.56, ry: 0.46 };
 // viking et toutes les trames du monde tremblaient d'un pixel à l'écran
 const FOLLOW = 1;
 // Le coup tourbillonnant : le bouton maintenu tant de secondes
-const WHIRL_HOLD = 2;
+// (le temps de tenir le bouton : TUNE.tourbillon, tuning.js)
 // Le tour : les huit directions, une image de lame chacune (vue, retourné)
 const WHIRL_TURN = [['side', false], ['diagdown', false], ['front', false], ['diagdown', true], ['side', true], ['diagup', true], ['back', false], ['diagup', false]];
 
@@ -494,7 +494,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const end = trail.at(-1);
       const post = nearestWalkable(Math.round(end.x + Math.cos(end.heading) * 18), Math.round(end.y + Math.sin(end.heading) * 18)) || { x: end.x, y: end.y };
       // (Véla garde celui qui lui a rendu la poupée : un coup de plus)
-      this.maxHp = FOE_HP + (this.given?.has('freya') ? 1 : 0);
+      this.maxHp = TUNE.kariPv + (this.given?.has('freya') ? 1 : 0);
       this.hp = this.maxHp;
       this.invuln = 0;
       this.stamina = 1;
@@ -1061,20 +1061,20 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       cam.shake(k >= 0.004 ? 60 : 40, { x: 0.9 / cam.width, y: 0.45 / cam.height });
     }
 
-    // ── Le coup tourbillonnant : bouton maintenu WHIRL_HOLD secondes ──
+    // ── Le coup tourbillonnant : bouton maintenu TUNE.tourbillon secondes ──
     // En attendant, la neige se met à tourner autour des pieds, de plus en plus
     updateCharge(dt) {
       const c = this.charge;
       if (!c || isPaused() || this.dead || this.rowing || this.inside === 'crypt' && this.nearChest()) { if (c && (this.dead || this.rowing)) this.charge = null; return; }
       c.t += dt;
-      if (c.t >= WHIRL_HOLD && !this.whirling) { this.charge = null; this.whirl(); }
+      if (c.t >= TUNE.tourbillon && !this.whirling) { this.charge = null; this.whirl(); }
     }
     drawCharge() {
       const g = this.chargeG || (this.chargeG = this.add.graphics());
       g.clear();
       const c = this.charge;
       if (!c || isPaused() || this.dead || this.rowing || this.inside === 'crypt' && this.nearChest()) return;
-      const k = Math.max(0, (c.t - 0.35) / (WHIRL_HOLD - 0.35));
+      const k = Math.max(0, (c.t - 0.35) / (TUNE.tourbillon - 0.35));
       if (!k) return;
       const at = this.drawPos || this.pos;
       const x = at.x, y = at.y - (this.lift || 0);
@@ -1612,7 +1612,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // Hors du combat, les blessures se referment peu à peu
       if (this.hp < this.maxHp && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
         this.healClock = (this.healClock || 0) + dt;
-        if (this.healClock > 25) { this.healClock = 0; this.hp++; }
+        if (this.healClock > TUNE.guerison) { this.healClock = 0; this.hp++; }
       } else this.healClock = 0;
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
@@ -1642,7 +1642,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       else if (!this.attacking && !this.dead) {
         if (mx || my) {
           const len = Math.hypot(mx, my);
-          const step = SPEED * (this.running ? RUN : 1) * SNOW_SPEED[this.snowLevel || 0] * dt;
+          const step = TUNE.kariVitesse * (this.running ? TUNE.kariCourse : 1) * SNOW_SPEED[this.snowLevel || 0] * dt;
           const { x, y } = this.pos;
           const nx = x + mx / len * step, ny = y + my / len * step;
           // Ni la mer, ni la maison, ni les troncs : on glisse le long de l'obstacle
@@ -2392,7 +2392,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       audio.play('presence');
       if (don.effet === 'garde') {
         // Véla : un point de vie de plus, pour toujours, et les blessures refermées
-        this.maxHp = FOE_HP + 1; this.hp = this.maxHp;
+        this.maxHp = TUNE.kariPv + 1; this.hp = this.maxHp;
       } else if (don.effet === 'temple') {
         // Tavé : la dalle glisse, les marches descendent dans le noir
         this.time.delayedCall(2400, () => {
@@ -3220,7 +3220,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         if (this.player.anims.isPlaying) { this.player.stop(); this.player.setFrame(`${this.facing}-idle`); }
         return;
       }
-      const step = SPEED * CLIMB.speed * dt;
+      const step = TUNE.kariVitesse * CLIMB.speed * dt;
       c.t += dir * step; c.dir = dir;
       this.distance += step;
       if (c.t < 0) { this.leaveLedge(LEDGE.bottom, 'front'); return; }
@@ -3250,7 +3250,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (c && !this.dead && !isPaused()) {
         c.rock -= dt;
         if (c.rock <= 0) {
-          c.rock = CLIMB.every[0] + Math.random() * (CLIMB.every[1] - CLIMB.every[0]);
+          c.rock = TUNE.chutePierres * (0.7 + Math.random() * 0.7);
           const p = ledgeAt(c.t + (Math.random() * 24 - 6) * c.dir);
           const x = Math.round(p.x), top = cliffFoot(x) - cliffHeight(x) + 2;
           this.rocks.push({ x, y: top, ledge: Math.round(p.y), foot: cliffFoot(x) + 3, warn: CLIMB.warn, vy: 0 });

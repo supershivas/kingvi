@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.63.0 — 2026-10-07
+- Atelier, nouvel onglet Nombres : 23 réglages en curseurs, rangés par Kári (vitesse, course, points de vie, guérison, coup tourbillonnant), l'autre viking, les loups (nombre, points de vie, grognement avant le bond, temps entre deux bonds, vitesse), l'incendie (les temps du feu, la fumée) et le monde (éclairs, pierres qui tombent sur la sente)
+- Chaque réglage montre sa valeur par défaut et y revient d'un clic ; le jeu ouvert dans un autre onglet le prend aussitôt ; « Publier pour tous » l'envoie à tout le monde
+
 ## 1.62.0 — 2026-10-07
 - Éditeur de l'atelier : un « + » sur chaque bord agrandit le canevas d'un pixel (Maj : de huit), pour toutes les images du dessin à la fois ; dans le jeu, l'élément reste ancré au même endroit
 - Un dessin seul (la maison, une barque, un cube, le coffre, le clou…) peut recevoir des images : il s'anime alors dans le jeu

@@ -293,6 +293,21 @@ export const textOverrides = () => {
   return all;
 };
 
+// ── Les nombres du jeu (v1.63.0) : réglés dans l'atelier (tuning.js).
+// `assets/design/tuning.json` (publié) puis ce navigateur (`kingvi:tuning` ;
+// null : revenir au défaut) ──
+export const TUNING_KEY = 'kingvi:tuning';
+let tuningDepot = {};
+export function readTuning() { try { return JSON.parse(localStorage.getItem(TUNING_KEY)) || {}; } catch { return {}; } }
+export function writeTuning(o) { try { Object.keys(o).length ? localStorage.setItem(TUNING_KEY, JSON.stringify(o)) : localStorage.removeItem(TUNING_KEY); } catch { /* rien */ } }
+export const tuningDepotGet = () => tuningDepot;
+export const setTuningDepot = o => { tuningDepot = o || {}; };
+export const tuningOverrides = () => {
+  const all = { ...tuningDepot, ...readTuning() };
+  for (const k of Object.keys(all)) if (typeof all[k] !== 'number') delete all[k];
+  return all;
+};
+
 // (résolue au premier chargement des dessins : le labo peut attendre la maison publiée)
 let readyResolve;
 export const designsReady = new Promise(r => { readyResolve = r; });
@@ -321,6 +336,10 @@ export async function loadDesigns() {
     const res = await fetch('assets/design/extras.json', { cache: 'no-cache' });
     setExtrasDepot(res.ok ? await res.json() : {});
   } catch { setExtrasDepot({}); }
+  try {
+    const res = await fetch('assets/design/tuning.json', { cache: 'no-cache' });
+    tuningDepot = res.ok ? await res.json() : {};
+  } catch { tuningDepot = {}; }
   try {
     const res = await fetch('assets/design/texts.json', { cache: 'no-cache' });
     textDepot = res.ok ? await res.json() : {};

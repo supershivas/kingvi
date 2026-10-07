@@ -487,7 +487,14 @@ est cachée et ne sort que pendant l'attaque.
   liens depuis les Réglages du jeu et l'en-tête du labo ; le labo montre et
   compare, l'atelier modifie ; ses boîtes de dialogue vont au `body` : rangées
   dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page ;
-  trois onglets : **Textes** (v1.61.0, `js/atelier-texts.js`, `js/texts.js` :
+  quatre onglets : **Nombres** (v1.63.0, `js/atelier-tuning.js`, `js/tuning.js` :
+  `TUNING_DEFS` (clé, groupe, libellé, défaut, bornes, pas, unité), `T` que les
+  modules lisent au moment de s'en servir — vitesse de Kári, course, points de
+  vie, guérison, tourbillon ; l'autre viking ; les loups (nombre, points de vie,
+  grognement, écart entre deux bonds, galop, bond, épargne) ; l'incendie
+  (`FIRE` en accesseurs) ; les éclairs (accesseurs des ambiances) ; les
+  pierres de la sente ; `kingvi:tuning` puis `assets/design/tuning.json`,
+  `applyTuning` dans `main.js`, en direct comme les textes), **Textes** (v1.61.0, `js/atelier-texts.js`, `js/texts.js` :
   `textEntries` recense chaque texte dans ses données — prologue et fins
   (`js/story.js`), chapitres, ce que disent les gens (rôle, vœu, répliques,
   dons, après), scènes de la saga, descriptions, reliques — sous une clé
@@ -806,6 +813,10 @@ n'est jamais implémenté automatiquement.
   secondaire).
 
 ## Pièges connus
+
+- `game.js` lit les réglages sous le nom `TUNE` (`import { T as TUNE }`) : des
+  variables locales `T` (le temple…) masquaient l'import, et `create()` tombait
+  (« Cannot access 'T' before initialization »). Les autres modules lisent `T`.
 
 - Une retouche locale passe devant le dépôt : publiée ailleurs (autre appareil,
   ou avant la dernière retouche), elle cachait la version publiée (« j'ai

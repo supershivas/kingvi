@@ -1,9 +1,8 @@
 {
-  "version": "1.62.0",
+  "version": "1.63.0",
   "date": "2026-10-07",
   "changes": [
-    "Atelier : agrandir le canevas d'un dessin (+ sur les 4 bords), ajouter des images à un dessin pour l'animer dans le jeu",
-    "Les objets créés dans l'atelier se posent sur l'île, avec une lumière, une zone qui bloque, une ombre ; la lanterne éclaire près des traces",
-    "La barque échouée n'a plus qu'un dessin : le roulis s'en tire"
+    "Atelier, onglet Nombres : régler la vitesse de Kári, les points de vie, les loups, l'autre viking, l'incendie, les éclairs…",
+    "Le jeu ouvert prend le nouveau réglage aussitôt ; « Publier pour tous » l'envoie à tout le monde"
   ]
 }

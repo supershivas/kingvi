@@ -8,13 +8,13 @@
    sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.62.0';
-import { paintFrames } from './viking.js?v=1.62.0';
+import { T } from './tuning.js?v=1.63.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.63.0';
+import { paintFrames } from './viking.js?v=1.63.0';
 
-export const WOLF_HP = 2;
-const COUNT = 3;
+// (leurs points de vie, leur nombre : T.loupPv, T.loups, tuning.js)
 const RING = { rx: 30, ry: 17 };      // ils tournent autour de lui, à distance
-const TROT = 30, GALLOP = 58, LUNGE = 125;
+const TROT = 30;                // (le galop et l'élan du bond : T.loupGalop, T.loupBond, tuning.js)
 // Le combat, réglé pour être lisible et gagnable : le grognement avant le
 // bond (on le voit venir), le temps entre deux attaques, la marge autour d'un
 // loup où la lame porte (il est petit), et combien d'entre eux doivent tomber
@@ -40,15 +40,15 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
 
   // Chacun a son repaire, à la lisière, d'où il sort et où il retourne (pas
   // du côté où la clairière s'ouvre sur la plaine : ils sortent de la forêt)
-  const wolves = Array.from({ length: COUNT }, (_, i) => {
+  const wolves = Array.from({ length: T.loups }, (_, i) => {
     const a = open == null
-      ? (i / COUNT) * Math.PI * 2 + 0.6 + Math.sin(i * 7.3) * 0.4
-      : open + 1.1 + ((i + 0.5) / COUNT) * (Math.PI * 2 - 2.2) + Math.sin(i * 7.3) * 0.15;
+      ? (i / T.loups) * Math.PI * 2 + 0.6 + Math.sin(i * 7.3) * 0.4
+      : open + 1.1 + ((i + 0.5) / T.loups) * (Math.PI * 2 - 2.2) + Math.sin(i * 7.3) * 0.15;
     const lair = { x: den.x + Math.cos(a) * (radius + 26), y: den.y + Math.sin(a) * (radius + 26) * 0.75 };
     const sprite = scene.add.sprite(lair.x, lair.y, 'wolf', 'arret-0')
       .setOrigin(0.5, (WOLF_GROUND + 1) / WOLF_H).setVisible(false);
     return {
-      i, lair, sprite, pos: { ...lair }, hp: WOLF_HP, state: 'hidden', timer: 0,
+      i, lair, sprite, pos: { ...lair }, hp: T.loupPv, state: 'hidden', timer: 0,
       angle: a, spin: i % 2 ? 1 : -1, vx: 0, vy: 0, bitten: false,
     };
   });
@@ -99,7 +99,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
   // Tous retournent sous les arbres (on s'est enfui, ou on est tombé)
   function scatter() {
     pack.state = 'leaving';
-    for (const w of alive()) { w.state = 'leave'; w.timer = 0; w.hp = WOLF_HP; w.sprite.setAlpha(1); }
+    for (const w of alive()) { w.state = 'leave'; w.timer = 0; w.hp = T.loupPv; w.sprite.setAlpha(1); }
   }
 
   Object.defineProperty(pack, 'engaged', { get: () => pack.state === 'hunt' && alive().length > 0 && !(tame() && !pack.provoked) });
@@ -197,7 +197,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
       // Épargné : ils tournent, flairent, puis s'en vont pour de bon
       if (pack.state === 'hunt' && tame() && !pack.provoked) {
         pack.huntT += dt;
-        if (pack.huntT > SPARE) {
+        if (pack.huntT > T.loupEpargne) {
           scatter();
           pack.state = 'sparing';
           scene.onPackSound('howl', { n: 1 });
@@ -214,13 +214,13 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
             // Celui qui est le plus près
             ready.sort((a, b) => Math.hypot(a.pos.x - p.x, a.pos.y - p.y) - Math.hypot(b.pos.x - p.x, b.pos.y - p.y));
             const w = ready[0];
-            w.state = 'crouch'; w.timer = CROUCH;
+            w.state = 'crouch'; w.timer = T.loupGrogne;
             w.sprite.setFlipX(p.x < w.pos.x);
             play(w, 'grogne');
             scene.onPackSound('growl');
           }
           const n = alive().length;
-          pack.lungeClock = (n > 2 ? LUNGE_GAP.many : LUNGE_GAP.few) + Math.random() * LUNGE_GAP.spread;
+          pack.lungeClock = (n > 2 ? T.loupEcart : T.loupEcart + 0.6) + Math.random() * LUNGE_GAP.spread;
         }
       }
 
@@ -233,7 +233,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
             if (w.timer > 0) break;
             const tx = p.x + Math.cos(w.angle) * RING.rx, ty = p.y + Math.sin(w.angle) * RING.ry;
             play(w, 'galop');
-            if (moveToward(w, tx, ty, GALLOP, dt) < 4) w.state = 'circle';
+            if (moveToward(w, tx, ty, T.loupGalop, dt) < 4) w.state = 'circle';
             break;
           }
           case 'circle': {
@@ -241,7 +241,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
             w.angle += w.spin * dt * 0.55;
             const tx = p.x + Math.cos(w.angle) * RING.rx, ty = p.y + Math.sin(w.angle) * RING.ry;
             const far = Math.hypot(tx - w.pos.x, ty - w.pos.y);
-            moveToward(w, tx, ty, far > 10 ? GALLOP : TROT, dt);
+            moveToward(w, tx, ty, far > 10 ? T.loupGalop : TROT, dt);
             play(w, far > 10 ? 'galop' : 'trot');
             // Il garde l'œil sur le viking
             if (far < 6) w.sprite.setFlipX(p.x < w.pos.x);
@@ -251,8 +251,8 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
             if (w.timer <= 0) {
               // Il bondit là où était le viking, un peu au-delà
               const dx = p.x - w.pos.x, dy = p.y - w.pos.y, d = Math.hypot(dx, dy) || 1;
-              w.vx = dx / d * LUNGE; w.vy = dy / d * LUNGE;
-              w.timer = Math.min(0.5, (d + 8) / LUNGE);
+              w.vx = dx / d * T.loupBond; w.vy = dy / d * T.loupBond;
+              w.timer = Math.min(0.5, (d + 8) / T.loupBond);
               w.state = 'lunge'; w.bitten = false;
               w.sprite.setFlipX(dx < 0);
               play(w, 'bond');
@@ -285,7 +285,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
           case 'leave': {
             play(w, 'galop');
             // (coincé contre un rocher : au bout de six secondes, il n'est plus là)
-            if (moveToward(w, w.lair.x, w.lair.y, GALLOP, dt) < 3 || w.timer < -6) {
+            if (moveToward(w, w.lair.x, w.lair.y, T.loupGalop, dt) < 3 || w.timer < -6) {
               w.state = 'hidden'; w.sprite.setVisible(false).stop();
             }
             break;

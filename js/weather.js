@@ -1,3 +1,4 @@
+import { T } from './tuning.js?v=1.63.0';
 /* Vent et neige, partagés entre le jeu et le labo.
    La simulation ne dessine rien elle-même : `draw(rect)` appelle
    rect(x, y, w, h, couleur, opacité) pour chaque pixel ou trait, couleur
@@ -44,6 +45,9 @@ export const WEATHER_PRESETS = {
     base: 28, max: 75, sharp: 2, flakes: 1600, turb: 7, fall: 8, vortexRate: 0.8, drifts: 50,
   },
 };
+// (la fréquence des éclairs se règle dans l'atelier : tuning.js)
+Object.defineProperty(WEATHER_PRESETS.tempete, 'lightning', { get: () => 1 / T.eclairTempete, enumerable: true });
+Object.defineProperty(WEATHER_PRESETS.orage, 'lightning', { get: () => 1 / T.eclairOrage, enumerable: true });
 
 const REF_AREA = 800 * 440;  // surface de référence pour le nombre de flocons
 
