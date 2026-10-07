@@ -1,7 +1,7 @@
 {
-  "version": "1.53.4",
+  "version": "1.54.0",
   "date": "2026-10-07",
   "changes": [
-    "Le son du vent est plus léger et vivant : il enfle, retombe, passe d'une oreille à l'autre, et siffle de temps en temps"
+    "La molette zoome : par défaut le plan le plus large, et jusqu'à deux fois plus près"
   ]
 }

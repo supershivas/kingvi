@@ -8,8 +8,8 @@
    sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.53.4';
-import { paintFrames } from './viking.js?v=1.53.4';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.54.0';
+import { paintFrames } from './viking.js?v=1.54.0';
 
 export const WOLF_HP = 2;
 const COUNT = 3;

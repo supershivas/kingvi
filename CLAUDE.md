@@ -13,8 +13,12 @@ vaut le bleu nuit ; la lettre `k` des dessins existe toujours, même couleur), a
 naturel, le jour et la nuit (par défaut : la nuit, toujours, et la tempête ;
 `prefs.dayNight`, `wind: 'tempete'`), un effet
 d'écran cathodique discret et un flou de maquette, désactivables.
-La vue est rapprochée (écran d'environ 280 pixels du jeu de haut), sans
-aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra est
+La vue est rapprochée (écran d'environ 280 pixels du jeu de haut) ; **zoom à
+la molette** (v1.54.0) : par défaut le plan le plus large, on rapproche d'un
+cran entier à la fois jusqu'au double (la moitié de la largeur vue) ; c'est
+le facteur entier d'agrandissement qui change (`zoomSteps`, `zoomedFactor`,
+`setFactor`), jamais la caméra, et l'interface garde la taille du plan large
+(`--ui-px`) ; aucun zoom automatique (ni combat, ni intérieurs) ; la caméra est
 fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
 de lui, flou vers le bord du cercle de vue (`BLUR_SCALE`, fixe), puis le noir, plus loin (`SIGHT`) (le bleu nuit exact,
 par-dessus le CRT et la vignette), tramé par paliers. Sa forme n'est pas

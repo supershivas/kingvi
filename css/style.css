@@ -108,10 +108,10 @@ body {
 
 .hint {
   position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%);
-  font-family: var(--font-body); font-size: max(14px, calc(var(--px, 3px) * 4.6)); line-height: 1.25;
+  font-family: var(--font-body); font-size: max(14px, calc(var(--ui-px, 3px) * 4.6)); line-height: 1.25;
   /* Dans la bulle de neige des phylactères (`snowBox`, main.js) */
   color: var(--game-night); isolation: isolate; margin: 0;
-  padding: calc(var(--px, 3px) * 3) calc(var(--px, 3px) * 4);
+  padding: calc(var(--ui-px, 3px) * 3) calc(var(--ui-px, 3px) * 4);
   pointer-events: none; white-space: nowrap;
   transition: opacity 1.2s ease;
 }
@@ -476,10 +476,10 @@ body {
 .act {
   position: absolute; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 4;
   display: inline-flex; align-items: center; gap: 10px; min-height: var(--tap);
-  padding: calc(var(--px, 3px) * 3) calc(var(--px, 3px) * 4);
+  padding: calc(var(--ui-px, 3px) * 3) calc(var(--ui-px, 3px) * 4);
   /* Dans la bulle de neige des phylactères (`snowBox`, main.js) */
   border: 0; background: none; isolation: isolate; color: var(--game-night);
-  font-family: var(--font-body); font-size: max(14px, calc(var(--px, 3px) * 4.6)); line-height: 1.25; cursor: pointer;
+  font-family: var(--font-body); font-size: max(14px, calc(var(--ui-px, 3px) * 4.6)); line-height: 1.25; cursor: pointer;
 }
 .act[hidden] { display: none; }
 .act b { font-family: var(--font-mono); font-weight: 400; border: 1px solid var(--game-night); padding: 0 6px; line-height: 1.5; }
@@ -513,5 +513,5 @@ body {
 .note { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 6; pointer-events: none; transition: opacity .35s ease; }
 .note[hidden] { display: block; opacity: 0; visibility: hidden; }
 .note-bubble { position: absolute; left: 0; top: 0; image-rendering: pixelated; image-rendering: crisp-edges; }
-.note-text { position: relative; width: max-content; max-width: min(70vw, calc(var(--px, 3px) * 120)); font-family: var(--font-body); font-size: max(14px, calc(var(--px, 3px) * 4.6)); line-height: 1.25; color: var(--game-night); }
+.note-text { position: relative; width: max-content; max-width: min(70vw, calc(var(--ui-px, 3px) * 120)); font-family: var(--font-body); font-size: max(14px, calc(var(--ui-px, 3px) * 4.6)); line-height: 1.25; color: var(--game-night); }
 .note-text b { display: block; font-family: var(--font-game-title); font-weight: 500; font-size: 1.05em; line-height: 1; margin-bottom: 2px; opacity: .85; }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.54.0 — 2026-10-07
+- La molette de la souris zoome de nouveau : la vue part du plan le plus large et se rapproche cran par cran, jusqu'à deux fois plus près ; les pixels restent nets
+- Le cadre de la touche E, les consignes et les messages gardent leur taille quand on zoome
+
 ## 1.53.4 — 2026-10-07
 - Le son du vent est plus léger, et il évolue tout seul, même quand la météo ne change pas : un souffle grave qui enfle et retombe et passe d'une oreille à l'autre, un air aigu à peine audible, et des sifflements qui naissent, glissent et s'éteignent, plus souvent quand ça souffle fort
 

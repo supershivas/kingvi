@@ -121,7 +121,7 @@ portent une ombre opposée. Dans la grotte, il fait toujours nuit.
 - L'endurance est retirée pour le moment : frapper et courir ne coûtent rien.
 - Blessé, on saigne en marchant ; hors combat, les blessures se referment.
   À un point de vie, l'écran se teinte de rouge.
-- Pas de zoom de caméra, secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
+- Pas de zoom automatique (le joueur zoome à la molette, du plan large au double), secousses minimes (un pixel, un instant, seulement pour un vrai coup), sang qui gicle et
   reste.
 - La meute : elle encercle, gronde, bondit l'un après l'autre. Si l'on
   s'enfuit en saignant, elle suit le sang (au retour, elle sort plus tôt et

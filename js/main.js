@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.53.4';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.53.4';
-import { TITLE_ART } from './title-art.js?v=1.53.4';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.53.4';
-import { showChapter } from './chapters.js?v=1.53.4';
-import { createTitleSea } from './titlesea.js?v=1.53.4';
-import { audio, TRACKS } from './audio.js?v=1.53.4';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.53.4';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.4';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.54.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.54.0';
+import { TITLE_ART } from './title-art.js?v=1.54.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.54.0';
+import { showChapter } from './chapters.js?v=1.54.0';
+import { createTitleSea } from './titlesea.js?v=1.54.0';
+import { audio, TRACKS } from './audio.js?v=1.54.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.54.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.54.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.53.4');
-const debug = DEBUG ? await import('./debug.js?v=1.53.4') : null;
+const { createGame } = await import('./game.js?v=1.54.0');
+const debug = DEBUG ? await import('./debug.js?v=1.54.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -61,10 +61,10 @@ let save = read(SAVE_KEY, {});
 // ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
 // de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
 async function snowBox(el, seed) {
-  const { brokenBox } = await import('./dialogue.js?v=1.53.4');
+  const { brokenBox } = await import('./dialogue.js?v=1.54.0');
   const canvas = el.querySelector('.snow-bg');
   if (!canvas || el.hidden) return;
-  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--px')) || 3;
+  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3;
   const bw = Math.ceil(el.offsetWidth / unit), bh = Math.ceil(el.offsetHeight / unit);
   if (!bw || !bh) return;
   canvas.width = bw; canvas.height = bh;
@@ -83,7 +83,7 @@ window.addEventListener('resize', () => setTimeout(() => {
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.53.4');
+  const { brokenBox } = await import('./dialogue.js?v=1.54.0');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -91,7 +91,7 @@ async function note(title, text) {
   box.append(b, t);
   el.hidden = false;
   // (la bulle en pixels du jeu, autour du texte, avec une marge de 3 pixels)
-  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--px')) || 3, PAD = 3;
+  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3, PAD = 3;
   const bw = Math.ceil(box.offsetWidth / unit) + PAD * 2, bh = Math.ceil(box.offsetHeight / unit) + PAD * 2;
   canvas.width = bw; canvas.height = bh;
   canvas.style.width = `${bw * unit}px`; canvas.style.height = `${bh * unit}px`;
@@ -305,7 +305,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.53.4');
+  mapModule = mapModule || await import('./map.js?v=1.54.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();

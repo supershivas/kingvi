@@ -4,41 +4,41 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.53.4';
+} from './viking.js?v=1.54.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
-} from './world.js?v=1.53.4';
-import { ICE_FRAMES } from './sigrun.js?v=1.53.4';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.4';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.53.4';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.53.4';
-import { createGround } from './ground.js?v=1.53.4';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.53.4';
-import { chapterById } from './chapters.js?v=1.53.4';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.53.4';
-import { BUNDLE, WATCHER } from './grove.js?v=1.53.4';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.53.4';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.53.4';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.4';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.53.4';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.53.4';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.53.4';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.53.4';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.53.4';
-import { createFauna } from './fauna.js?v=1.53.4';
-import { createWeather } from './weather.js?v=1.53.4';
-import { createTalk } from './dialogue.js?v=1.53.4';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.53.4';
-import { NECRO_W, NECRO_H } from './props.js?v=1.53.4';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.53.4';
-import { personSprite } from './people.js?v=1.53.4';
-import { createSea } from './sea.js?v=1.53.4';
-import { audio } from './audio.js?v=1.53.4';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.53.4';
+} from './world.js?v=1.54.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.54.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.54.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.54.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.54.0';
+import { createGround } from './ground.js?v=1.54.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.54.0';
+import { chapterById } from './chapters.js?v=1.54.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.54.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.54.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.54.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.54.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.54.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.54.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.54.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.54.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.54.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.54.0';
+import { createFauna } from './fauna.js?v=1.54.0';
+import { createWeather } from './weather.js?v=1.54.0';
+import { createTalk } from './dialogue.js?v=1.54.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.54.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.54.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.54.0';
+import { personSprite } from './people.js?v=1.54.0';
+import { createSea } from './sea.js?v=1.54.0';
+import { audio } from './audio.js?v=1.54.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.54.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -3499,6 +3499,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     // Les lignes du CRT : une par pixel du canevas, d'un pixel physique
     screenEl.style.setProperty('--px', `${f / dpr}px`);
     screenEl.style.setProperty('--line', `${1 / dpr}px`);
+    // (l'interface — cadre de la touche E, consignes, messages — garde la
+    // taille du plan large : elle ne suit pas le zoom)
+    screenEl.style.setProperty('--ui-px', `${baseFactor() / dpr}px`);
   }
 
   // Le cercle de vue : net autour du viking, flou vers son bord (les masques
@@ -3586,12 +3589,32 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     placeSight();
   });
 
-  // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de base
+  // Le zoom à la molette (v1.53.5) : par défaut le plan le plus large (le
+  // facteur de base) ; on rapproche d'un cran entier à la fois, jusqu'au
+  // double (on ne voit plus que la moitié de la largeur). Toujours des pixels
+  // entiers : c'est le facteur qui change, la caméra reste à 1.
+  let zoomSteps = 0, wheelAcc = 0;
+  const baseFactor = () => { const r = parent.getBoundingClientRect(); return r.width && r.height ? fitScreen(r.width, r.height).factor : 1; };
+  const zoomedFactor = () => { const b = baseFactor(); zoomSteps = Math.max(0, Math.min(b, zoomSteps)); return b + zoomSteps; };
+  screenEl.addEventListener('wheel', e => {
+    if (isTitle()) return;
+    e.preventDefault();                                    // (ni défilement ni zoom de la page)
+    wheelAcc += e.deltaY * (e.deltaMode === 1 ? 33 : 1);
+    if (Math.abs(wheelAcc) < 60) return;
+    const step = wheelAcc < 0 ? 1 : -1;                    // vers le haut : on rapproche
+    wheelAcc = 0;
+    const before = zoomSteps;
+    zoomSteps += step;
+    const f = zoomedFactor();
+    if (zoomSteps !== before) setFactor(f);
+  }, { passive: false });
+
+  // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de
+  // base, et le zoom choisi par-dessus
   function resize() {
     const r = parent.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    const f = fitScreen(r.width, r.height);
-    setFactor(f.factor);
+    setFactor(zoomedFactor());
   }
   game.events.once('ready', () => {
     setFactor(fit.factor);
