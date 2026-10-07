@@ -7,5 +7,14 @@
     "h": 32,
     "frames": 3,
     "fps": 6
+  },
+  {
+    "id": "une-lanterne",
+    "label": "Une lanterne",
+    "kind": "decor",
+    "w": 48,
+    "h": 48,
+    "frames": 1,
+    "fps": 6
   }
 ]
