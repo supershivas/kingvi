@@ -1,8 +1,7 @@
 {
-  "version": "1.53.2",
+  "version": "1.53.3",
   "date": "2026-10-07",
   "changes": [
-    "Les cubes sont quatre fois plus grands : on les voit de loin",
-    "Le cadre de la touche E et les consignes s'affichent dans la bulle de neige des phylactères"
+    "L'écran d'accueil et les traversées sont tirés au sort à chaque fois : icebergs, houle, barque, vent et neige, et le temps change pendant qu'on regarde"
   ]
 }

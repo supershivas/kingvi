@@ -36,7 +36,11 @@ titre » ; `drawTitle` dans `main.js` le peint depuis `designRows`, agrandi
 d'un facteur entier, repeint si on le retouche dans un autre onglet), sur la mer de nuit où vogue la barque, le viking debout
 dedans (houle qui roule vers nous en crêtes tramées, roulis, sillage, moutons,
 icebergs au loin, neige, bords vignettés : `js/titlesea.js`, arrêté quand
-l'accueil est caché), avec sa propre musique
+l'accueil est caché ; **tirée au sort à chaque ouverture** (v1.53.3, `reroll`,
+paramètres `P` : nombre d'icebergs, leur profondeur et vitesse, houle,
+barque, roulis, moutons, ambiance `MOODS` qui change d'elle-même toutes les
+40 à 100 s), comme la mer des traversées (`#voyage`) ; carte du labo
+« La mer de nuit, tirée au sort »), avec sa propre musique
 (sourde, sombre : `isTitle` → `musicMood`), et Reprendre, Nouveau jeu (un second clic confirme l'effacement de
 la partie), Réglages. Le nom dans l'en-tête y ramène. En entrant dans le
 jeu, la musique de l'accueil se tait, l'écran reste noir le temps de placer

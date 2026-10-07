@@ -1,41 +1,42 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.53.2';
+import { startUpdateCheck } from '../app-update.js?v=1.53.3';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.53.2';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.2';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.2';
+} from './viking.js?v=1.53.3';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.3';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.3';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.53.2';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.2';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.2';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.2';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.2';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.2';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.2';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.2';
-import { createSea } from './sea.js?v=1.53.2';
-import { buildStatueDoor } from './statue.js?v=1.53.2';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.2';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.2';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.2';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.2';
-import * as PROPS from './props.js?v=1.53.2';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.2';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.2';
-import { audio, TRACKS } from './audio.js?v=1.53.2';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.2';
-import { RUIN_ART } from './ruins-art.js?v=1.53.2';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.2';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.2';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.2';
-import { ICE_FRAMES } from './sigrun.js?v=1.53.2';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.2';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.2';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.2';
+} from './world.js?v=1.53.3';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.3';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.3';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.3';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.3';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.3';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.3';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.3';
+import { createSea } from './sea.js?v=1.53.3';
+import { createTitleSea } from './titlesea.js?v=1.53.3';
+import { buildStatueDoor } from './statue.js?v=1.53.3';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.3';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.3';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.3';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.3';
+import * as PROPS from './props.js?v=1.53.3';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.3';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.3';
+import { audio, TRACKS } from './audio.js?v=1.53.3';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.3';
+import { RUIN_ART } from './ruins-art.js?v=1.53.3';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.3';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.3';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.3';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.3';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.3';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.3';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.3';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1658,6 +1659,28 @@ card('cubes', {
     if (k > 3 && k < 4.2) { ctx.globalAlpha = 0.5; ctx.fillStyle = pal.b; for (let y = 0; y < 72; y++) for (let x = (y % 2); x < 160; x += 2) ctx.fillRect(x, y, 1, 1); ctx.globalAlpha = 1; }
   },
 });
+
+// ══ La mer de l'accueil et des traversées (titlesea.js) : générée ══
+(function titleSeaCard() {
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span class="tag">accueil, interludes</span><span>La mer de nuit, tirée au sort</span></h3><p>Derrière le titre et pendant les traversées : à chaque ouverture, un nouveau tirage. Le nombre d\'icebergs (deux à sept), leurs formes, leur éloignement et leur vitesse (les plus loin, plus hauts et plus lents ; parfois un tout près ; chacun change de forme en repassant), la houle (nombre de crêtes, vitesse, ampleur), l\'allure de la barque, son roulis, les moutons, le vent et la neige (calme, bise, rafales, tempête avec ses éclairs, tourbillons). Et pendant qu\'on regarde, le temps tourne tout seul, toutes les quarante secondes à deux minutes.</p>';
+  const box = document.createElement('div');
+  box.style.cssText = 'position:relative;width:100%;height:320px;overflow:hidden;background:#1f2a44';
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'display:block;image-rendering:pixelated';
+  box.append(canvas);
+  const b = document.createElement('button');
+  b.className = 'btn-ghost'; b.type = 'button';
+  b.innerHTML = '<i class="ti ti-refresh" aria-hidden="true"></i> Un autre tirage';
+  el.append(box, b);
+  document.querySelector('#mer .demos').append(el);
+  const css = getComputedStyle(document.documentElement);
+  const sea = createTitleSea(canvas, { s: css.getPropertyValue('--game-snow').trim() || SNOW, b: css.getPropertyValue('--game-night').trim() || NIGHT, r: RED, k: NIGHT });
+  // (elle ne tourne que quand on la regarde)
+  new IntersectionObserver(([e]) => e.isIntersecting && !el.classList.contains('lab-off') ? sea.start() : sea.stop()).observe(el);
+  b.addEventListener('click', () => sea.reroll());
+})();
 
 // ══ Vagues ══
 card('mer', {

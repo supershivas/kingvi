@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.53.3 — 2026-10-07
+- La mer de l'écran d'accueil et des traversées est tirée au sort à chaque ouverture : de deux à sept icebergs, de formes, d'éloignements et de vitesses différents (ils changent de forme en repassant), une houle plus ou moins ample et rapide, une barque plus ou moins vive, plus ou moins de moutons, et un autre vent : calme, bise, rafales, tempête (avec ses éclairs) ou tourbillons
+- Pendant qu'on la regarde, le temps tourne tout seul, d'une ambiance à l'autre
+- Labo (Le rivage, Vagues) : la mer de l'accueil, avec un bouton pour un autre tirage
+
 ## 1.53.2 — 2026-10-07
 - Le cube blanc et le cube noir sont quatre fois plus grands (sept fois le viking) : on les voit de loin, et on en fait le tour
 - Le cadre de la touche E (« E · Parler à… ») et les consignes du début s'affichent dans la bulle de neige des phylactères, comme les paroles et les messages du jeu
