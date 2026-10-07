@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.55.0 — 2026-10-07
+- Le pas des morts : au creux du grand navire de pierres de la plaine des morts, poser la main sur l'étrave (touche E) ; ensuite, sur la carte (M), un clic sur un lieu déjà vu et l'on y est (pas pendant un combat)
+- La carte prend presque tout l'écran
+- Le zoom choisi à la molette est gardé quand on recharge la page
+- L'incendie part de la maison telle qu'elle est dessinée dans l'atelier (le toit en feu et la ruine suivent ses formes)
+- Dans la grotte, on peut passer à gauche du roi, et son rubis se ramasse enfin là où il tombe
+- Les loups partis pour de bon (épargnés ou mis en fuite) ne hurlent plus quand on revient vers leur tanière
+
 ## 1.54.0 — 2026-10-07
 - La molette de la souris zoome de nouveau : la vue part du plan le plus large et se rapproche cran par cran, jusqu'à deux fois plus près ; les pixels restent nets
 - Le cadre de la touche E, les consignes et les messages gardent leur taille quand on zoome

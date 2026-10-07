@@ -60,7 +60,7 @@ souffle (sauf aux combats).
 | # | Chapitre | Ce qu'on y trouve | Ce qu'on y lit |
 |---|---|---|---|
 | I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues | Ils étaient deux |
-| II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après un champ de pierres levées du Nord), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
+| II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après un champ de pierres levées du Nord), quelques arbres, une volée de corbeaux qui s'envole ; au creux du grand navire, la main sur l'étrave : le pas des morts (on va d'un lieu vu à l'autre par la carte) | Un lieu de sépulture ancien ; les morts prêtent leur pas |
 | — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire (on monte dessus, les piliers bloquent) ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
 | III | La forêt | La forêt s'épaissit ; une statue géante de Véla ensevelie, penchée, brisée | Des dieux tombés |
 | IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, la grande clairière). Longue à traverser. À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes | L'oppression, la perte de repères |

@@ -8,7 +8,7 @@
 
 import {
   WORLD, coast, deepForest, forestDensity, trail, landing, HOUSE, STATUE_BASE, STATUE2_BASE, ARCH, CLIFF, CAVE, LAKE, NECRO, WOLF_DEN, GROVE_TREE, HVIT_AT,
-} from './world.js?v=1.54.0';
+} from './world.js?v=1.55.0';
 
 const S = 12;                   // pixels du monde par pixel de carte
 const N = Math.ceil(WORLD / S);
@@ -86,11 +86,17 @@ export function drawMap(canvas, { seen, cell, n, pos }, palette, t = 0) {
 // pour tenir dans maxW × maxH pixels CSS ; les noms et la croix par-dessus,
 // à la taille de l'écran
 const off = typeof document !== 'undefined' ? document.createElement('canvas') : null;
+// L'agrandissement : entier quand il remplit presque la place (des pixels
+// nets), sinon tout ce qu'elle permet (la carte ne reste pas minuscule)
+function mapScale(kx, ky) {
+  const fit = Math.min(kx, ky), whole = Math.floor(fit);
+  return whole >= 1 && whole >= fit * 0.85 ? whole : Math.max(0.5, fit);
+}
 export function renderMap(view, data, palette, { maxW, maxH, t = 0, fresh = false }) {
   if (fresh || !off.dataset.drawn) { drawMap(off, data, palette); off.dataset.drawn = '1'; }
   const b = seenBounds(data) || { x0: 0, y0: 0, x1: N, y1: N };
   const w = b.x1 - b.x0, h = b.y1 - b.y0;
-  const k = Math.max(1, Math.floor(Math.min(maxW / w, maxH / h)));
+  const k = mapScale(maxW / w, maxH / h);
   const dpr = window.devicePixelRatio || 1;
   view.width = Math.round(w * k * dpr); view.height = Math.round(h * k * dpr);
   view.style.width = `${w * k}px`; view.style.height = `${h * k}px`;
@@ -104,9 +110,11 @@ export function renderMap(view, data, palette, { maxW, maxH, t = 0, fresh = fals
   ctx.font = `500 ${Math.round(15 * dpr)}px "Grenze Gotisch", serif`;
   ctx.textBaseline = 'middle';
   const u = Math.max(2, Math.round(z));
+  const shown = [];                      // (pour le pas des morts : où cliquer, en pixels CSS)
   for (const [name, x, y] of MAP_PLACES) {
     if (!seenAt(x, y)) continue;
     const mx = Math.round(X(x)), my = Math.round(Y(y));
+    shown.push({ name, x, y, cx: mx / dpr, cy: my / dpr });
     ctx.fillStyle = palette.b; ctx.fillRect(mx - u * 1.5, my - u * 1.5, u * 3, u * 3);
     ctx.fillStyle = palette.s; ctx.fillRect(mx - u / 2, my - u / 2, u, u);
     const tw = ctx.measureText(name).width, lx = Math.max(2, Math.min(view.width - tw - 4, mx + u * 2.5));
@@ -121,6 +129,7 @@ export function renderMap(view, data, palette, { maxW, maxH, t = 0, fresh = fals
     ctx.fillStyle = palette.r;
     ctx.fillRect(mx - a, my - u / 2, 2 * a, u); ctx.fillRect(mx - u / 2, my - a, u, 2 * a);
   }
+  return { places: shown };
 }
 
 // Le cadrage : la partie vue de l'île (avec une marge), pour l'agrandir
@@ -141,7 +150,7 @@ const S4 = 4;
 let sno4Base = null;
 async function sno4Terrain(palette) {
   if (sno4Base) return sno4Base;
-  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.54.0');
+  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.55.0');
   const full = document.createElement('canvas');
   full.width = SNO4_W; full.height = SNO4_H;
   const g = full.getContext('2d');
@@ -162,8 +171,8 @@ async function sno4Terrain(palette) {
 
 export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) {
   const base = await sno4Terrain(palette);
-  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.54.0');
-  const { VEVE } = await import('./sno4.js?v=1.54.0');
+  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.55.0');
+  const { VEVE } = await import('./sno4.js?v=1.55.0');
   const { seen, cell, cols, rows, pos } = data;
   const W = base.width, H = base.height;
   const seenAt = (lx, ly) => { const c = Math.floor(lx / cell), r = Math.floor(ly / cell); return c >= 0 && r >= 0 && c < cols && r < rows && seen[r * cols + c]; };
@@ -175,7 +184,7 @@ export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) 
   const bx0 = Math.max(0, (c0 - m) * cell / S4), by0 = Math.max(0, (r0 - m) * cell / S4);
   const bx1 = Math.min(W, (c1 + 1 + m) * cell / S4), by1 = Math.min(H, (r1 + 1 + m) * cell / S4);
   const w = bx1 - bx0, h = by1 - by0;
-  const k = Math.max(1, Math.floor(Math.min(maxW / w, maxH / h)));
+  const k = mapScale(maxW / w, maxH / h);
   const dpr = window.devicePixelRatio || 1;
   view.width = Math.round(w * k * dpr); view.height = Math.round(h * k * dpr);
   view.style.width = `${w * k}px`; view.style.height = `${h * k}px`;

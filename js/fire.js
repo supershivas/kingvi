@@ -7,8 +7,9 @@
    module dit quoi : les durées, les dessins (placeholders à redessiner dans
    l'atelier du labo : `feu-0` → `feu-3`, `house-burning`, `house-ruin`) et où
    poser les flammes. */
-import { HOUSE_ART } from './world.js?v=1.54.0';
-import { floorPoint } from './interior.js?v=1.54.0';
+import { HOUSE_ART } from './world.js?v=1.55.0';
+import { designRows } from './design-store.js?v=1.55.0';
+import { floorPoint } from './interior.js?v=1.55.0';
 
 // Les temps du feu, en secondes de jeu depuis qu'il a pris
 export const FIRE = {
@@ -85,62 +86,70 @@ function noise(x, y, s) {
   return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
 }
 
-const H = HOUSE_ART.length, W = HOUSE_ART[0].length;
-// Le haut de chaque colonne du dessin (le faîte, ou rien)
-const topOf = x => { for (let y = 0; y < H; y++) if (HOUSE_ART[y][x] !== '.') return y; return H; };
-const bottomOf = x => { for (let y = H - 1; y >= 0; y--) if (HOUSE_ART[y][x] !== '.') return y; return -1; };
+// Tout se tire de la maison telle qu'on la voit : celle de l'atelier
+// (`designRows('house')` : retouchée, ou publiée dans `assets/design/`),
+// sinon celle du code. Le jeu charge les dessins avant d'importer ce module.
+export function burnHouse(HOUSE) {
+  const H = HOUSE.length, W = HOUSE[0].length;
+  // Le haut de chaque colonne du dessin (le faîte, ou rien)
+  const topOf = x => { for (let y = 0; y < H; y++) if (HOUSE[y][x] !== '.') return y; return H; };
+  const bottomOf = x => { for (let y = H - 1; y >= 0; y--) if (HOUSE[y][x] !== '.') return y; return -1; };
 
-// La maison en feu : le toit troué, le feu qu'on voit par les trous
-export const HOUSE_BURNING = HOUSE_ART.map((row, y) => [...row].map((c, x) => {
-  if (c === '.') return c;
-  const depth = (y - topOf(x)) / Math.max(1, bottomOf(x) - topOf(x));
-  if (depth > 0.62) return c;                                     // les murs tiennent encore
-  const n = noise(x / 7, y / 5, 31) + 0.25 * noise(x / 2, y / 2, 33);
-  if (n > 0.86) return 'r';
-  if (n > 0.8) return 'k';
-  if (n > 0.74 && (x + y) % 2) return 'k';
-  return c;
-}).join(''));
+  // La maison en feu : le toit troué, le feu qu'on voit par les trous
+  const burning = HOUSE.map((row, y) => [...row].map((c, x) => {
+    if (c === '.') return c;
+    const depth = (y - topOf(x)) / Math.max(1, bottomOf(x) - topOf(x));
+    if (depth > 0.62) return c;                                     // les murs tiennent encore
+    const n = noise(x / 7, y / 5, 31) + 0.25 * noise(x / 2, y / 2, 33);
+    if (n > 0.86) return 'r';
+    if (n > 0.8) return 'k';
+    if (n > 0.74 && (x + y) % 2) return 'k';
+    return c;
+  }).join(''));
 
-// La ruine : des pans de mur bas, rongés, noircis, deux poutres qui pendent,
-// des braises ; la même emprise que la maison
-export const HOUSE_RUIN = (() => {
-  const g = HOUSE_ART.map(r => [...r].map(() => '.'));
-  for (let x = 0; x < W; x++) {
-    const b = bottomOf(x), t = topOf(x);
-    if (b < 0) continue;
-    const keep = Math.round(3 + 9 * noise(x / 9, 0, 41) + 3 * noise(x / 2.5, 0, 43));
-    for (let y = Math.max(t, b - keep); y <= b; y++) {
-      const c = HOUSE_ART[y][x];
-      if (c === '.') continue;
-      const ash = hash(x, y, 45);
-      g[y][x] = ash < 0.04 ? 'r' : ash < 0.3 && y < b ? 's' : 'b';
+  // La ruine : des pans de mur bas, rongés, noircis, deux poutres qui pendent,
+  // des braises ; la même emprise que la maison
+  const ruin = (() => {
+    const g = HOUSE.map(r => [...r].map(() => '.'));
+    for (let x = 0; x < W; x++) {
+      const b = bottomOf(x), t = topOf(x);
+      if (b < 0) continue;
+      const keep = Math.round(3 + 9 * noise(x / 9, 0, 41) + 3 * noise(x / 2.5, 0, 43));
+      for (let y = Math.max(t, b - keep); y <= b; y++) {
+        const c = HOUSE[y][x];
+        if (c === '.') continue;
+        const ash = hash(x, y, 45);
+        g[y][x] = ash < 0.04 ? 'r' : ash < 0.3 && y < b ? 's' : 'b';
+      }
     }
-  }
-  // Deux poutres tombées en travers, de biais (pas droites : elles ont ployé)
-  for (const [x0, x1, y0, y1] of [[18, 52, H - 12, H - 22], [60, 84, H - 18, H - 10]]) {
-    for (let x = x0; x <= x1; x++) {
-      const k = (x - x0) / (x1 - x0), y = Math.round(y0 + (y1 - y0) * k + Math.sin(k * 3.1) * 1.5);
-      if (y >= 0 && y < H && x < W) { g[y][x] = 'b'; if (hash(x, y, 47) < 0.2 && y + 1 < H) g[y + 1][x] = 'b'; }
+    // Deux poutres tombées en travers, de biais (pas droites : elles ont ployé)
+    for (const [x0, x1, y0, y1] of [[0.18, 0.52, H - 12, H - 22], [0.6, 0.84, H - 18, H - 10]].map(([a, b, c, d]) => [Math.round(a * W), Math.round(b * W), c, d])) {
+      for (let x = x0; x <= x1; x++) {
+        const k = (x - x0) / (x1 - x0), y = Math.round(y0 + (y1 - y0) * k + Math.sin(k * 3.1) * 1.5);
+        if (y >= 0 && y < H && x < W) { g[y][x] = 'b'; if (hash(x, y, 47) < 0.2 && y + 1 < H) g[y + 1][x] = 'b'; }
+      }
     }
-  }
-  return g.map(r => r.join(''));
-})();
+    return g.map(r => r.join(''));
+  })();
 
-// Où poser les flammes sur le toit (coordonnées du dessin, pied de la flamme),
-// dans l'ordre où le feu gagne : de la porte (à gauche) vers le fond
-export const ROOF_FLAMES = (() => {
-  const out = [];
-  for (let x = 6; x < W - 6; x += 5) {
-    const t = topOf(x), b = bottomOf(x);
-    if (b < 0 || b - t < 8) continue;
-    const y = Math.round(t + 2 + (b - t) * 0.35 * noise(x / 4, 1, 51));
-    out.push({ x: x + Math.round((noise(x, 2, 53) - 0.5) * 3), y, order: x + 30 * noise(x / 10, 3, 55) });
-  }
-  return out.sort((a, b) => a.order - b.order);
-})();
-// Les flammes qui restent dans la ruine (moins nombreuses, plus basses)
-export const RUIN_FLAMES = ROOF_FLAMES.filter((_, i) => i % 3 === 1).map(f => ({ x: f.x, y: Math.min(H - 2, bottomOf(f.x) - 2) }));
+  // Où poser les flammes sur le toit (coordonnées du dessin, pied de la flamme),
+  // dans l'ordre où le feu gagne : de la porte (à gauche) vers le fond
+  const roofFlames = (() => {
+    const out = [];
+    for (let x = 6; x < W - 6; x += 5) {
+      const t = topOf(x), b = bottomOf(x);
+      if (b < 0 || b - t < 8) continue;
+      const y = Math.round(t + 2 + (b - t) * 0.35 * noise(x / 4, 1, 51));
+      out.push({ x: x + Math.round((noise(x, 2, 53) - 0.5) * 3), y, order: x + 30 * noise(x / 10, 3, 55) });
+    }
+    return out.sort((a, b) => a.order - b.order);
+  })();
+  // Les flammes qui restent dans la ruine (moins nombreuses, plus basses)
+  const ruinFlames = roofFlames.filter((_, i) => i % 3 === 1).map(f => ({ x: f.x, y: Math.min(H - 2, bottomOf(f.x) - 2) }));
+  return { burning, ruin, roofFlames, ruinFlames };
+}
+const BURN = burnHouse(designRows('house', HOUSE_ART));
+export const HOUSE_BURNING = BURN.burning, HOUSE_RUIN = BURN.ruin, ROOF_FLAMES = BURN.roofFlames, RUIN_FLAMES = BURN.ruinFlames;
 
 // Dans la pièce : le bûcher autour du corps, puis le plancher (u, v du sol)
 export const ROOM_FLAMES = [[0.5, 0.36], [0.44, 0.3], [0.56, 0.42], [0.62, 0.3], [0.38, 0.44], [0.7, 0.5], [0.3, 0.26], [0.55, 0.62], [0.82, 0.36], [0.2, 0.5]]

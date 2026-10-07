@@ -453,9 +453,10 @@ body {
 .talk-rest { visibility: hidden; }
 
 /* ── La carte qui se construit (map.js) ── */
-#map.modal.stone { max-width: 680px; }
+#map.modal.stone { width: min(96vw, 1500px); max-width: min(96vw, 1500px); max-height: 96dvh; }
 .map-view { display: flex; justify-content: center; align-items: center; min-height: 200px; margin-top: 8px; background: var(--game-night); border-radius: var(--radius-sm); overflow: hidden; }
 .map-view canvas { display: block; image-rendering: pixelated; }
+.map-view canvas.travel { cursor: pointer; }
 
 /* ── Le prologue : l'état du monde, ligne après ligne, sur le noir ── */
 .prologue {

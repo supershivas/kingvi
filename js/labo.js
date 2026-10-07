@@ -1,42 +1,43 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.54.0';
+import { startUpdateCheck } from '../app-update.js?v=1.55.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.54.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.54.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.54.0';
+} from './viking.js?v=1.55.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.55.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.55.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.54.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.54.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.54.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.54.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.54.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.54.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.54.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.54.0';
-import { createSea } from './sea.js?v=1.54.0';
-import { createTitleSea } from './titlesea.js?v=1.54.0';
-import { buildStatueDoor } from './statue.js?v=1.54.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.54.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.54.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.54.0';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.54.0';
-import * as PROPS from './props.js?v=1.54.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.54.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.54.0';
-import { audio, TRACKS } from './audio.js?v=1.54.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.54.0';
-import { RUIN_ART } from './ruins-art.js?v=1.54.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.54.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.54.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.54.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.54.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.54.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.54.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.54.0';
+} from './world.js?v=1.55.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.55.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.55.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.55.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.55.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.55.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.55.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.55.0';
+import { createSea } from './sea.js?v=1.55.0';
+import { createTitleSea } from './titlesea.js?v=1.55.0';
+import { buildStatueDoor } from './statue.js?v=1.55.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.55.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.55.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.55.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.55.0';
+import { designRows, designsReady } from './design-store.js?v=1.55.0';
+import * as PROPS from './props.js?v=1.55.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.55.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.55.0';
+import { audio, TRACKS } from './audio.js?v=1.55.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.55.0';
+import { RUIN_ART } from './ruins-art.js?v=1.55.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.55.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.55.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.55.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.55.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.55.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.55.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.55.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1001,6 +1002,32 @@ for (const [tag, title, about, make] of NECRO) {
   });
 }
 
+// ══ Le pas des morts ══
+card('pas-des-morts', {
+  title: 'La main sur l\'étrave', tag: 'touche E, puis la carte',
+  about: 'Dans la plaine des morts, au creux du grand navire de pierres (`PASSAGE_AT`), le viking pose la main sur l\'étrave (touche E) : « La pierre est tiède. Ceux de ce navire marchent encore. » Les morts lui prêtent leur pas. Désormais, la carte (M) dit « touche un lieu nommé pour t\'y rendre » : un clic sur un lieu déjà vu, la carte se ferme, l\'écran fond au bleu nuit et l\'on est là-bas (au point praticable le plus proche). Pas pendant un combat, ni dedans, ni en barque, ni sur la sente. Gardé dans la sauvegarde (`passage`).',
+  wide: true, w: 200, h: 60,
+  setup(s, v) { s.img = prerender(PROPS.shipSetting(1, 64, 16), v.pal); s.weather = createWeather('bise'); },
+  draw(ctx, pal, t, dt, s, v) {
+    const x0 = 24, y0 = v.h - s.img.height - 8;
+    ctx.drawImage(s.img, x0, y0);
+    // Il entre dans le navire, pose la main, s'efface, et reparaît plus loin
+    const k = t % 9, inX = x0 + 50, outX = 170;
+    let x = inX, a = 1, frame = 'side-idle';
+    if (k < 3) { x = Math.round(4 + (inX - 4) * k / 3); frame = walkFrame('side', t); }
+    else if (k < 5) a = 1;
+    else if (k < 6) a = 1 - (k - 5);
+    else if (k < 7) { x = outX; a = k - 6; }
+    else x = outX;
+    ctx.globalAlpha = Math.max(0, Math.min(1, a));
+    drawViking(ctx, pal, frame, x, v.h - 10, { clock: t, wind: 0.3 });
+    ctx.globalAlpha = 1;
+    s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+    s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+    ctx.globalAlpha = 1;
+  },
+});
+
 // ══ Le bosquet sacré ══
 card('bosquet', {
   title: 'L\'arbre aux offrandes et le guetteur', about: 'Au milieu de la forêt noire, dans une trouée : un arbre mort immense, chargé d\'offrandes qui tournent au vent. De l\'autre côté, une silhouette plus grande que le viking le regarde venir ; quand il approche, elle vacille et s\'efface, un souffle grave dans l\'air. Ses pas s\'arrêtent net.',
@@ -1118,7 +1145,13 @@ card('incendie', {
   wide: true, w: 240, h: 110, button: 'Rallumer',
   setup(s, v) {
     s.t0 = null;
-    s.img = { house: prerender(HOUSE_ART, v.pal), burning: prerender(HOUSE_BURNING, v.pal), ruin: prerender(HOUSE_RUIN, v.pal) };
+    // (la maison de l'atelier, et ce que le feu en fait, comme dans le jeu)
+    const build = () => {
+      const house = designRows('house', HOUSE_ART), b = burnHouse(house);
+      s.house = house; s.roof = b.roofFlames; s.ruinFl = b.ruinFlames;
+      s.img = { house: prerender(house, v.pal), burning: prerender(designRows('house-burning', b.burning), v.pal), ruin: prerender(designRows('house-ruin', b.ruin), v.pal) };
+    };
+    build(); designsReady.then(build);
     s.flames = FIRE_FRAMES.map(r => prerender(r, v.pal));
     s.weather = createWeather('bise');
     s.smoke = [];
@@ -1126,12 +1159,12 @@ card('incendie', {
   draw(ctx, pal, t, dt, s, v) {
     if (s.t0 == null) s.t0 = t;
     // (le feu du labo va trois fois plus vite que celui du jeu)
-    const f = ((t - s.t0) * 3) % (FIRE.out + 30), hx = 120 - HOUSE_ART[0].length / 2, hy = v.h - 8 - HOUSE_ART.length;
+    const f = ((t - s.t0) * 3) % (FIRE.out + 30), hx = 120 - s.house[0].length / 2, hy = v.h - 8 - s.house.length;
     const key = f >= FIRE.collapse ? 'ruin' : f >= FIRE.spread * 0.6 ? 'burning' : 'house';
     ctx.drawImage(s.img[key], hx, hy);
     const k = Math.floor(t * 9);
     const ruinK = f < FIRE.collapse ? 0 : Math.max(0, 1 - (f - FIRE.collapse) / (FIRE.out - FIRE.collapse));
-    const spots = f < FIRE.collapse ? ROOF_FLAMES.slice(0, f < FIRE.roof ? 0 : Math.ceil(ROOF_FLAMES.length * Math.min(1, (f - FIRE.roof + 1) / (FIRE.spread - FIRE.roof)))) : RUIN_FLAMES.slice(0, Math.ceil(RUIN_FLAMES.length * ruinK));
+    const spots = f < FIRE.collapse ? s.roof.slice(0, f < FIRE.roof ? 0 : Math.ceil(s.roof.length * Math.min(1, (f - FIRE.roof + 1) / (FIRE.spread - FIRE.roof)))) : s.ruinFl.slice(0, Math.ceil(s.ruinFl.length * ruinK));
     spots.forEach((p, i) => { const im = s.flames[(k + i * 3) % 4]; ctx.drawImage(im, hx + p.x - 3, hy + p.y - im.height + 1); });
     // La fumée, tramée, que le vent emporte
     const level = f < FIRE.roof ? 0.4 : f < FIRE.collapse ? 1 : 0.2 + 0.8 * ruinK;
@@ -1777,7 +1810,7 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
     'saga-bible': 'book', 'saga-arbres': 'hierarchy-2', 'saga-personnages': 'users', 'saga-lieux': 'map-pin', 'saga-scenarios': 'messages',
     'saga-phylacteres': 'message-circle', carte: 'map', chapitres: 'bookmark', son: 'volume', barque: 'sailboat', accostage: 'anchor',
     nuit: 'moon', viking: 'walk', cape: 'wind', attaques: 'sword', vent: 'snowflake', arbres: 'tree', rochers: 'mountain', maison: 'home',
-    interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave',
+    interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave', 'pas-des-morts': 'route',
     bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', cerfs: 'deer', dessins: 'brush',
     'ui-boutons': 'click', 'ui-reglages': 'adjustments', cubes: 'cube',
   };

@@ -6,8 +6,8 @@
    s'approche, sa tête tombe et la couronne roule à ses pieds.
    Couleurs : b pierre sombre, s pierre éclairée, glace, os ; k noir. */
 
-import { RUIN_ART } from './ruins-art.js?v=1.54.0';
-import { designRows } from './design-store.js?v=1.54.0';
+import { RUIN_ART } from './ruins-art.js?v=1.55.0';
+import { designRows } from './design-store.js?v=1.55.0';
 
 export const CAVE_W = 200;
 export const CAVE_H = 190;
@@ -148,13 +148,23 @@ function bowedKing() {
 export const THRONE_FRAMES = { seated: ROI, bowed: bowedKing() };
 export const THRONE_FOOT = ROI.length - 1;               // la ligne du bas de l'estrade
 
+const KING_X0 = THRONE.x - Math.floor(ROI[0].length / 2), KING_FOOT = 10;
+function kingBlocks(x, y) {
+  const ix = Math.round(x) - KING_X0, iy = Math.round(y) - (THRONE.y - THRONE_FOOT);
+  if (y > THRONE.y + 0.5 || ix < -1 || ix > ROI[0].length) return false;
+  if (iy < ROI.length - KING_FOOT) return true;
+  for (let d = -1; d <= 1; d++) if ((ROI[iy]?.[ix + d] ?? '.') !== '.') return true;
+  return false;
+}
 export function caveWalkable(x, y) {
   // Le couloir de l'entrée, jusqu'au seuil
   if (y > 172 && y < 190 && Math.abs(x - 100 + Math.max(0, y - 176) * 0.2) < 4) return true;
   if (y > 182) return false;
   if (caveD(x, y) > 0.78 || inPool(x, y)) return false;
-  // L'estrade et le trône : on n'y monte pas
-  if (Math.abs(x - THRONE.x) < ROI[0].length / 2 - 4 && y < THRONE.y + 1) return false;
+  // L'estrade et le trône : on n'y monte pas. Seul le pied du dessin bloque
+  // (là où il est plein, sur ses KING_FOOT rangées du bas) : on passe à gauche
+  // et à droite du roi ; plus haut, c'est le trône et le mur du fond
+  if (kingBlocks(x, y)) return false;
   return !SPIKES.some(([sx, sy]) => Math.abs(x - sx - 0.5) < 2 && Math.abs(y - sy) < 2);
 }
 export const atCaveDoor = (x, y) => y > 184;

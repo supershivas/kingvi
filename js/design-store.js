@@ -192,6 +192,9 @@ export function applyLocal(name, rows) {
 // Au lancement : les fichiers du dépôt (ceux de `assets/design/index.json`),
 // puis ce qui est retouché ici par-dessus. Rien n'est demandé au réseau pour
 // les dessins qui n'existent pas.
+// (résolue au premier chargement des dessins : le labo peut attendre la maison publiée)
+let readyResolve;
+export const designsReady = new Promise(r => { readyResolve = r; });
 export async function loadDesigns() {
   try {
     const res = await fetch('assets/design/index.json', { cache: 'no-cache' });
@@ -229,6 +232,7 @@ export async function loadDesigns() {
     local.set(name, rows);
   }
   if (dropped) try { localStorage.setItem(LOCAL_KEY, JSON.stringify(mine)); } catch { /* rien */ }
+  readyResolve();
 }
 
 // Un autre onglet (l'éditeur du labo) a changé ce qui est gardé ici : relire, et

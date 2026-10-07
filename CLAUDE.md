@@ -18,7 +18,8 @@ la molette** (v1.54.0) : par défaut le plan le plus large, on rapproche d'un
 cran entier à la fois jusqu'au double (la moitié de la largeur vue) ; c'est
 le facteur entier d'agrandissement qui change (`zoomSteps`, `zoomedFactor`,
 `setFactor`), jamais la caméra, et l'interface garde la taille du plan large
-(`--ui-px`) ; aucun zoom automatique (ni combat, ni intérieurs) ; la caméra est
+(`--ui-px`) ; le cran choisi est gardé (`prefs.zoom`, options `zoom` / `onZoom`
+de `createGame`) et rendu au rechargement ; aucun zoom automatique (ni combat, ni intérieurs) ; la caméra est
 fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
 de lui, flou vers le bord du cercle de vue (`BLUR_SCALE`, fixe), puis le noir, plus loin (`SIGHT`) (le bleu nuit exact,
 par-dessus le CRT et la vignette), tramé par paliers. Sa forme n'est pas
@@ -171,8 +172,16 @@ le jeu note les cases de 48 px vues autour du viking (`markSeen`, `seen` en
 bits base64 dans la sauvegarde, `game.mapData()`) ; `js/map.js` dessine l'île
 vue, le reste dans le noir, bord tramé, les lieux vus nommés, une croix
 rouge là où l'on est (terrain calculé une fois, `drawMap` ; `renderMap` :
-cadré sur ce qui est vu, agrandi d'un facteur entier). Pause pendant qu'elle
-est ouverte.
+cadré sur ce qui est vu, presque tout l'écran (`#map` jusqu'à 96vw), agrandi
+d'un facteur entier s'il remplit au moins 85 % de la place, sinon au plus
+grand : `mapScale`). Pause pendant qu'elle est ouverte.
+**Le pas des morts** (v1.55.0, la téléportation) : au creux du grand navire de
+pierres de la plaine des morts (`PASSAGE_AT` dans `world.js`), E « Poser la
+main sur l'étrave » (`takePassage`, `passage` dans la sauvegarde) ; ensuite,
+sur la carte, un clic sur un lieu vu (ou son nom) y mène (`renderMap` rend
+`places`, `game.canTravel()`, `game.travel(x, y)` : point praticable le plus
+proche, fondu de `teleport`) ; ni en combat, ni dedans, ni en barque, ni sur
+la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ».
 L'endurance est retirée pour le moment (`STAMINA_ON = false` dans `game.js` :
 courir et frapper ne coûtent rien, pas de barre ; le code reste) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
 `.hurt`). Les secousses d'écran sont minimes (`jolt` : rien pour la neige, le bois ou la pierre ; un pixel du jeu tout au plus, un instant, pour un vrai coup). À l'intérieur, la cape
@@ -316,11 +325,11 @@ est cachée et ne sort que pendant l'attaque.
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés ; ceux d'avant v1.52.0, dans la forêt, sont oubliés), `fire` (l'incendie),
-  `hvitFree`, `wolvesSpared`, `templeOpen`, `aube`, `given` (personne → relique donnée),
+  `hvitFree`, `wolvesSpared`, `passage` (le pas des morts), `templeOpen`, `aube`, `given` (personne → relique donnée),
   `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
   `deaths` (morts, pour Vaïne), `seen` (la carte : cases vues), `salt`, `clotildeFree`, `seen4`, `veve` (SNO 4), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
-  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
+  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `zoom` : crans de zoom à la molette, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
 
 ## Structure
@@ -554,7 +563,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   coffre (`CHEST_FRAMES` : fermé, entrouvert, ouvert).
 - `js/cave.js` — la grotte : poches de galerie (`POCKETS`) au bord rongé de
   bruit, paroi, glaçons, mare gelée, stalagmites, ossements ; le roi
-  squelette (`RUIN_ART.roi`, ~11 fois le viking ; `THRONE_FRAMES` : assis,
+  squelette (`RUIN_ART.roi`, ~11 fois le viking ; seul son pied bloque, `kingBlocks` ; `THRONE_FRAMES` : assis,
   et la tête tombée : la couronne `CROWN` roule au pied, le crâne `SKULL`
   s'affaisse ; l'estrade bloque) ; `caveWalkable`, `atCaveDoor`,
   `nearThrone`. Le seuil dehors : `CAVE_DOOR_OUT` (`world.js`).
@@ -582,8 +591,12 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `TEMPLE_SLAB`, `TEMPLE_STAIRS`, `templeWalkable`, `atTempleDoor`,
   `nearNail`) ; posé à `{ x: 150, y: 150 }` en mer.
 - `js/fire.js` — l'incendie : `FIRE` (les temps), flammes `FIRE_FRAMES`,
-  `HOUSE_BURNING`, `HOUSE_RUIN` (générés d'après la maison), où poser les
-  flammes (`ROOF_FLAMES`, `RUIN_FLAMES`, `ROOM_FLAMES`), le bûcher (`PYRE`,
+  `HOUSE_BURNING`, `HOUSE_RUIN`, où poser les flammes (`ROOF_FLAMES`,
+  `RUIN_FLAMES`) : tous tirés par `burnHouse` de **la maison de l'atelier**
+  (`designRows('house')` : retouchée ou publiée dans `assets/design/house.png`),
+  pas du `HOUSE_ART` du code (retouchée dans un autre onglet : la maison en
+  feu et la ruine sont refaites aussitôt ; le labo attend `designsReady`) ;
+  `ROOM_FLAMES`, le bûcher (`PYRE`,
   `nearPyre`). Placeholders à redessiner (dossier « L'incendie »).
 - `js/moth.js` — le megamoth : dessins placeholders (`MOTH_FRAMES` : posé,
   quatre temps de vol, à terre ; dossier « Le megamoth »), `createMoth`
@@ -739,6 +752,14 @@ n'est jamais implémenté automatiquement.
 
 ## Pièges connus
 
+- Une relique qui tombe (`dropRelic`) se ramasse là où elle atterrit : `d.x`,
+  `d.y` sont posés sur `to`, pas sur `from` (le rubis partait de la poitrine du
+  roi, hors d'atteinte : on ne pouvait pas le prendre).
+- Dans la grotte, seul le pied du roi bloque (`kingBlocks` : ses 10 rangées du
+  bas, là où le dessin est plein, plus le trône et le mur derrière) : on passe
+  à sa gauche. Un rectangle de la largeur du dessin fermait tout le côté.
+- La meute partie pour de bon (`gone`, `sparing`) ne hurle plus quand on
+  revient près de la tanière.
 - Dans la grotte, la caméra monte près du trône (`updateLook`, `LOOK_UP`, `setFollowOffset`) : le roi fait ~100 px, plus que la moitié de l'écran.
 
 - **Vérifier la syntaxe d'un module** : `node --check js/x.js` ne dit rien

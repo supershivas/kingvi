@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.54.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.54.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.54.0';
-import { makeGroveTree } from './grove.js?v=1.54.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.54.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.55.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.55.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.55.0';
+import { makeGroveTree } from './grove.js?v=1.55.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.55.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -412,6 +412,10 @@ export const CAVE_DOOR_OUT = (() => {
 // barque. Chaque pierre est un objet (triée, elle cache ou non le viking).
 const NECRO_AT = trail.find(p => p.x > LANDING.shore + 560) || trail[50];
 export const NECRO = { x: Math.round(NECRO_AT.x - NECRO_W / 2), y: Math.round(NECRO_AT.y - 38 - NECRO_H) };
+// Le pas des morts (v1.54.1) : au creux du grand navire de pierres, la main
+// posée sur l'étrave, on reçoit le pouvoir d'aller d'un lieu vu à l'autre
+// (la carte, M). Rien d'aléatoire ici : l'île ne bouge pas.
+export const PASSAGE_AT = { x: NECRO.x + 145, y: NECRO.y + 43 };
 const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
   type: 'stone', x: NECRO.x + x, y: NECRO.y + y, art: stoneArt(h, SEED * 31 + i), foot: 1,
 }));

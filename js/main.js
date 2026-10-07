@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.54.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.54.0';
-import { TITLE_ART } from './title-art.js?v=1.54.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.54.0';
-import { showChapter } from './chapters.js?v=1.54.0';
-import { createTitleSea } from './titlesea.js?v=1.54.0';
-import { audio, TRACKS } from './audio.js?v=1.54.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.54.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.54.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.55.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.55.0';
+import { TITLE_ART } from './title-art.js?v=1.55.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.55.0';
+import { showChapter } from './chapters.js?v=1.55.0';
+import { createTitleSea } from './titlesea.js?v=1.55.0';
+import { audio, TRACKS } from './audio.js?v=1.55.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.55.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.55.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.54.0');
-const debug = DEBUG ? await import('./debug.js?v=1.54.0') : null;
+const { createGame } = await import('./game.js?v=1.55.0');
+const debug = DEBUG ? await import('./debug.js?v=1.55.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -61,7 +61,7 @@ let save = read(SAVE_KEY, {});
 // ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
 // de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
 async function snowBox(el, seed) {
-  const { brokenBox } = await import('./dialogue.js?v=1.54.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.55.0');
   const canvas = el.querySelector('.snow-bg');
   if (!canvas || el.hidden) return;
   const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3;
@@ -83,7 +83,7 @@ window.addEventListener('resize', () => setTimeout(() => {
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.54.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.55.0');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -118,6 +118,9 @@ let irisBusy = false, irisRun = 0, ending = false;     // (l'iris, plus bas)
 const settings = $('settings'), inventory = $('inventory'), mapDialog = $('map'), wishes = $('wishes');
 const game = createGame({
   parent: $('stage'),
+  // (le zoom à la molette, gardé d'une visite à l'autre)
+  zoom: prefs.zoom || 0,
+  onZoom: z => { prefs.zoom = z; write(PREFS_KEY, prefs); },
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
@@ -298,14 +301,14 @@ wishes.addEventListener('click', e => { if (e.target === wishes) wishes.close();
 window.addEventListener('keydown', e => { if (e.code === 'KeyJ' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleWishes(); } });
 
 // ── La carte qui se construit (touche M) : ce qu'on a vu de l'île ──
-let mapModule = null, mapTimer = 0;
+let mapModule = null, mapTimer = 0, mapPlaces = [];
 async function toggleMap(force) {
   const open = force ?? !mapDialog.open;
   if (open === mapDialog.open) return;
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.54.0');
+  mapModule = mapModule || await import('./map.js?v=1.55.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -313,18 +316,33 @@ async function toggleMap(force) {
   const sno4 = data.world === 'sno4';
   $('map-title').textContent = sno4 ? 'Carte de SNO 4' : 'Carte';
   const paint = (fresh = false) => {
-    const d = game.mapData(), opts = { maxW: Math.min(620, view.clientWidth || 560), maxH: Math.min(window.innerHeight * 0.62, 620), t: (performance.now() - t0) / 1000, fresh };
+    const d = game.mapData(), opts = { maxW: (view.clientWidth || 560) - 8, maxH: window.innerHeight * 0.78, t: (performance.now() - t0) / 1000, fresh };
     return d?.world === 'sno4' ? mapModule.renderSno4Map($('map-canvas'), d, palette, opts) : mapModule.renderMap($('map-canvas'), d, palette, opts);
   };
-  paint(true);
+  const travel = !sno4 && game.canTravel();
+  $('map-hint').textContent = travel ? 'Les morts te prêtent leur pas : touche un lieu nommé pour t\'y rendre.' : 'Ce que tu as vu de l\'île. Le reste est dans le noir.';
+  $('map-canvas').classList.toggle('travel', travel);
+  mapPlaces = travel ? paint(true)?.places || [] : (paint(true), []);
   // (la croix bat : on repeint deux fois par seconde)
   clearInterval(mapTimer);
-  mapTimer = setInterval(() => mapDialog.open ? paint() : clearInterval(mapTimer), 500);
+  mapTimer = setInterval(() => { if (!mapDialog.open) return clearInterval(mapTimer); const r = paint(); if (mapPlaces.length) mapPlaces = r?.places || mapPlaces; }, 500);
 }
 $('open-map').addEventListener('click', () => toggleMap());
 // (au doigt : toucher la consigne d'action fait comme la touche E)
 $('act').addEventListener('click', () => game.act());
 $('close-map').addEventListener('click', () => mapDialog.close());
+// Le pas des morts (pris dans la plaine des morts) : un clic sur un lieu vu, et l'on y est
+$('map-canvas').addEventListener('click', e => {
+  if (!mapPlaces.length) return;
+  const r = e.currentTarget.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  let best = null, bd = 30;
+  for (const p of mapPlaces) { const d = Math.hypot(p.cx - x, p.cy - y); if (d < bd) { bd = d; best = p; } }
+  // (le nom est écrit à droite du repère : un clic sur le nom compte aussi)
+  if (!best) best = mapPlaces.find(p => x > p.cx && x < p.cx + 170 && Math.abs(y - p.cy) < 12) || null;
+  if (!best) return;
+  mapDialog.close();
+  game.travel(best.x, best.y + 12);
+});
 mapDialog.addEventListener('click', e => { if (e.target === mapDialog) mapDialog.close(); });
 window.addEventListener('keydown', e => { if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleMap(); } });
 

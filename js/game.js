@@ -4,41 +4,42 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.54.0';
+} from './viking.js?v=1.55.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
-} from './world.js?v=1.54.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.54.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.54.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.54.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.54.0';
-import { createGround } from './ground.js?v=1.54.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.54.0';
-import { chapterById } from './chapters.js?v=1.54.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.54.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.54.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.54.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.54.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.54.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.54.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.54.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.54.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.54.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.54.0';
-import { createFauna } from './fauna.js?v=1.54.0';
-import { createWeather } from './weather.js?v=1.54.0';
-import { createTalk } from './dialogue.js?v=1.54.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.54.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.54.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.54.0';
-import { personSprite } from './people.js?v=1.54.0';
-import { createSea } from './sea.js?v=1.54.0';
-import { audio } from './audio.js?v=1.54.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.54.0';
+  PASSAGE_AT,
+} from './world.js?v=1.55.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.55.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.55.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.55.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.55.0';
+import { createGround } from './ground.js?v=1.55.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.55.0';
+import { chapterById } from './chapters.js?v=1.55.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.55.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.55.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.55.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.55.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.55.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.55.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.55.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.55.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.55.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.55.0';
+import { createFauna } from './fauna.js?v=1.55.0';
+import { createWeather } from './weather.js?v=1.55.0';
+import { createTalk } from './dialogue.js?v=1.55.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.55.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.55.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.55.0';
+import { personSprite } from './people.js?v=1.55.0';
+import { createSea } from './sea.js?v=1.55.0';
+import { audio } from './audio.js?v=1.55.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.55.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -204,7 +205,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
+export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {}, zoom = 0, onZoom = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -550,6 +551,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // ── Le cube blanc et le cube noir ──
       this.cubes = SNO7_CUBES.map(c => ({ ...c, img: this.add.image(c.x + 0.5, c.y + 2, `cube-${c.kind}`).setOrigin(0.5, 1).setDepth(c.y) }));
       this.cubesTouched = new Set(save.cubes || []);
+      // Le pas des morts : aller d'un lieu vu à l'autre par la carte (`travel`)
+      this.passage = !!save.passage;
 
       // ── Sigrún, debout dans la glace sur le plateau ──
       const sg = nearestWalkable(SIGRUN_AT.x, SIGRUN_AT.y) || SIGRUN_AT;
@@ -675,6 +678,12 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       window.addEventListener('storage', e => {
         if (e.key !== DESIGNS_STORAGE_KEY && e.key !== null) return;
         const names = refreshLocal();
+        // (la maison retouchée : la maison en feu et la ruine s'en tirent de nouveau)
+        if (names.includes('house')) {
+          const b = burnHouse(designRows('house', HOUSE_ART));
+          originals.set('house-burning', b.burning); originals.set('house-ruin', b.ruin);
+          names.push('house-burning', 'house-ruin');
+        }
         for (const name of names) this.redrawArt(name);
         // Les poses du viking, de sa cape, du loup : les planches sont repeintes sur place
         if (names.some(n => n.startsWith('viking-'))) { paintSheet(sheet, palette); tex.refresh(); }
@@ -2031,6 +2040,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // (pas de chute si elle était déjà tombée avant le chargement : elle est simplement là)
       if (!from) { this.spawnDrop(id, to.x, to.y, where); this.persist(); return; }
       const d = this.spawnDrop(id, from.x, from.y, where);
+      // (on la ramasse là où elle tombe, pas là d'où elle part : le rubis partait
+      // de la poitrine du roi, hors d'atteinte)
+      d.x = Math.round(to.x); d.y = Math.round(to.y);
       d.ready = false;
       d.img.setDepth(where ? DEPTH_ROOM + to.y + 1 : to.y + 1);
       audio.play(sound);
@@ -2178,6 +2190,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         const T = INTERIORS.temple.at;
         if (nearNail(P.x - T.x, P.y - T.y)) return { label: 'Arracher le clou', run: () => this.pullNail() };
       }
+      // Le grand navire de pierres de la plaine des morts : le pas des morts
+      if (!this.inside && !this.passage && d(PASSAGE_AT) < 18) return { label: 'Poser la main sur l\'étrave', run: () => this.takePassage() };
       // Les cubes (sur SNO 7, et ceux de SNO 4 dans sa scène)
       {
         const A = this.inside === 'sno4' ? INTERIORS.sno4.at : null;
@@ -2280,6 +2294,32 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
 
     // ── Les cubes : le blanc est tiède et referme les blessures ; le noir ne
     // renvoie aucun reflet, et qui le touche voit l'île d'en haut ──
+    // La plaine des morts prête son pas : désormais, la carte (M) mène d'un
+    // lieu vu à l'autre (main.js : un clic sur un nom)
+    takePassage() {
+      const hero = () => this.heroHead();
+      this.passage = true;
+      audio.play('presence');
+      this.talk.say([
+        { who: 'kari', name: speakerName('kari'), text: 'La pierre est tiède. Ceux de ce navire marchent encore.', at: hero },
+        { who: 'kari', name: speakerName('kari'), text: 'Ils me prêtent leur pas : d\'un lieu que j\'ai vu à l\'autre. (M : la carte, puis un lieu)', at: hero },
+      ], { interrupt: true });
+      this.persist();
+    }
+    canTravel() {
+      return !!this.passage && !this.inside && !this.dead && !this.moving && !this.voyaging && !this.rowing && !this.climb
+        && !this.pack.engaged && !(this.foe.alive && this.foe.engaged);
+    }
+    travel(x, y) {
+      if (!this.canTravel()) return false;
+      const to = nearestWalkable(Math.round(x), Math.round(y));
+      if (!to) return false;
+      this.talk.clear();
+      audio.play('presence');
+      this.teleport(to.x, to.y, () => {});
+      return true;
+    }
+
     touchCube(c) {
       const hero = () => this.heroHead(), first = !this.cubesTouched.has(`${this.inside === 'sno4' ? 'sno4' : 'sno7'}-${c.kind}`);
       this.cubesTouched.add(`${this.inside === 'sno4' ? 'sno4' : 'sno7'}-${c.kind}`);
@@ -3391,7 +3431,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,
         wolvesDead: this.pack ? this.pack.deadList : [],
-        sigrunFree: this.sigrunFree, met: [...this.met], cubes: [...(this.cubesTouched || [])],
+        sigrunFree: this.sigrunFree, met: [...this.met], cubes: [...(this.cubesTouched || [])], passage: !!this.passage,
         hvitFree: this.hvitFree, wolvesSpared: this.wolvesSpared, templeOpen: this.templeOpen, aube: this.aube,
         given: Object.fromEntries(this.given),
       });
@@ -3593,9 +3633,11 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
   // facteur de base) ; on rapproche d'un cran entier à la fois, jusqu'au
   // double (on ne voit plus que la moitié de la largeur). Toujours des pixels
   // entiers : c'est le facteur qui change, la caméra reste à 1.
-  let zoomSteps = 0, wheelAcc = 0;
+  // Le cran choisi est gardé (`prefs.zoom`, `onZoom`) et rendu au rechargement ;
+  // borné à l'écran du moment sans être oublié (un écran plus petit le réduit)
+  let zoomSteps = Math.max(0, Math.round(+zoom) || 0), wheelAcc = 0;
   const baseFactor = () => { const r = parent.getBoundingClientRect(); return r.width && r.height ? fitScreen(r.width, r.height).factor : 1; };
-  const zoomedFactor = () => { const b = baseFactor(); zoomSteps = Math.max(0, Math.min(b, zoomSteps)); return b + zoomSteps; };
+  const zoomedFactor = () => { const b = baseFactor(); return b + Math.min(b, zoomSteps); };
   screenEl.addEventListener('wheel', e => {
     if (isTitle()) return;
     e.preventDefault();                                    // (ni défilement ni zoom de la page)
@@ -3604,9 +3646,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     const step = wheelAcc < 0 ? 1 : -1;                    // vers le haut : on rapproche
     wheelAcc = 0;
     const before = zoomSteps;
-    zoomSteps += step;
-    const f = zoomedFactor();
-    if (zoomSteps !== before) setFactor(f);
+    const b = baseFactor();
+    zoomSteps = Math.max(0, Math.min(b, Math.min(b, zoomSteps) + step));
+    if (zoomSteps !== before) { setFactor(zoomedFactor()); onZoom(zoomSteps); }
   }, { passive: false });
 
   // L'écran change de taille (fenêtre, bandeau, densité) : nouveau facteur de
@@ -3661,6 +3703,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     wishes: () => game.scene.getScene('island')?.wishes() || [],
     // Un éclair, tout de suite (debug, harnais)
     strike: (near = 1) => weather.strike(near),
+    // Le pas des morts : un lieu vu de la carte, et l'on y est
+    canTravel: () => !!game.scene.getScene('island')?.canTravel(),
+    travel: (x, y) => !!game.scene.getScene('island')?.travel(x, y),
     // La carte : les cases vues, et où l'on est
     mapData() {
       const sc = game.scene.getScene('island');

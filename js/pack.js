@@ -8,8 +8,8 @@
    sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.54.0';
-import { paintFrames } from './viking.js?v=1.54.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.55.0';
+import { paintFrames } from './viking.js?v=1.55.0';
 
 export const WOLF_HP = 2;
 const COUNT = 3;
@@ -169,8 +169,9 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
       const dDen = Math.hypot(p.x - den.x, (p.y - den.y) * 1.3);
       const away = player.dead || player.inside || player.rowing;
 
-      // On approche : un hurlement, au loin, avant de les voir
-      if (!pack.heard && !away && dDen < radius + 150 && alive().length && !routed()) { pack.heard = true; scene.onPackSound('howl', { n: 3 }); }
+      // On approche : un hurlement, au loin, avant de les voir (plus rien
+      // quand ils sont partis pour de bon : épargné, ou mis en fuite)
+      if (!pack.heard && !away && pack.state !== 'gone' && pack.state !== 'sparing' && dDen < radius + 150 && alive().length && !routed()) { pack.heard = true; scene.onPackSound('howl', { n: 3 }); }
       if (dDen > radius + 400) pack.heard = false;
 
       const reach = pack.scent ? radius + 140 : radius * 0.8;
