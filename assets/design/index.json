@@ -1,10 +1,21 @@
 [
+  "boat-still",
+  "ceinture",
+  "cube-blanc",
+  "cube-noir",
   "decor-arche",
   "decor-colonne",
   "decor-ruine",
   "decor-socle",
   "fallen",
   "house",
+  "loup-course-1",
+  "loup-course-rassemble",
   "loup-marche-0",
-  "room"
+  "relique-loup",
+  "relique-medaillon",
+  "relique-poupee",
+  "relique-viking",
+  "room",
+  "temple"
 ]
