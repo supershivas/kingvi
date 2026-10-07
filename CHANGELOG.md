@@ -1,10 +1,21 @@
 # Changelog
 
+## 1.53.0 — 2026-10-07
+- Le cube blanc et le cube noir : sur chaque île, loin l'un de l'autre, les deux seules choses parfaitement droites du monde. Toucher le blanc (E) referme les blessures ; toucher le noir montre l'île d'en haut (la carte se découvre)
+- Sigrún, la sœur de Kári, est debout dans la glace sur le plateau. Approcher la torche la fait parler ; allumer sa torche à la sienne (E) fait fondre la glace
+- Un carnet des vœux (touche J, ou le carnet de l'en-tête) : ce que Kári pense devoir faire, puis ce que veulent ceux qu'on a croisés, rayé quand c'est fait. Et Kári dit à voix haute ce qu'il doit faire ensuite (après l'autre viking : revenir brûler Eyvind, puis la falaise, le roi, le sceau…)
+- Le cercle de vue est plus grand, presque une ellipse, toujours un peu organique
+- Neige profonde : le viking ne s'enfonce plus que de quelques pixels, entouré d'une collerette de neige bosselée, et son sillon est irrégulier
+- La musique devient une playlist : la nuit, la glace, l'aurore, la forge (les trois dernières plus mélodiques, toujours changeantes). Au choix dans les Réglages, ou l'une après l'autre
+- Plus aucun nom réel de dieu, d'esprit, de religion ou de pays : tout est inventé, seulement inspiré (Véla, Sorne, Vaïne, Tavé, les Orsènes ; Papa Clède, Baron Cendre, Mèt Croisée, Lazul, Morne-Aurore…)
+- Un écran de chargement tant que le titre et la mer ne sont pas prêts ; les messages du jeu (relique trouvée…) s'affichent dans la bulle de neige des phylactères
+- La louve blanche ne grogne plus en boucle à pleine force : plus doucement, de près, et rarement
+- Labo : les cartes des neuf îles (SNO 1 à SNO 9, et l'archipel entier), les cubes, Sigrún, la louve blanche, le temple, la marche dans la neige profonde, et chaque morceau à écouter
 ## 1.52.0 — 2026-10-07
 - Les loups ne sont plus le premier combat : ils attendent sur le plateau, en haut de la sente de la falaise. Ils grondent plus longtemps avant de bondir, attaquent moins souvent, et le premier abattu fait fuir les autres
 - Dans la forêt noire, à la sortie du noir, une louve blanche est prise dans un collet (chapitre V). La délier (E) change la suite : là-haut, ses petits tournent autour de Kári et s'en vont sans mordre, à moins qu'il ne lève la lame sur eux
-- Une première fin, l'Aube : Tages, sous l'arche, attend le sceau de la crypte. Donné, une dalle glisse, des marches descendent au temple de Nortia, au mur des clous. Arracher le dernier clou, planté à l'envers, rend le jour à l'île, pour toujours
-- Donner (E) : une relique qui pend à la ceinture peut aller à qui l'attend. Freya garde Kári (un coup de plus) contre la poupée de sa mère, Kalfou fait passer l'âme d'Eyvind contre l'anneau de l'autre, Maman Brigitte enterre la boucle du compagnon
+- Une première fin, l'Aube : Tavé, sous l'arche, attend le sceau de la crypte. Donné, une dalle glisse, des marches descendent au temple de Sorne, au mur des clous. Arracher le dernier clou, planté à l'envers, rend le jour à l'île, pour toujours
+- Donner (E) : une relique qui pend à la ceinture peut aller à qui l'attend. Véla garde Kári (un coup de plus) contre la poupée de sa mère, Croisée fait passer l'âme d'Eyvind contre l'anneau de l'autre, Maman Rosine enterre la boucle du compagnon
 - Les personnages disent autre chose après l'Aube, ou une fois qu'on leur a donné ce qu'ils voulaient
 ## 1.51.0 — 2026-10-07
 - L'éclair est blanc
@@ -13,18 +24,18 @@
 - Labo : rangé comme le veut le design system (une variante à la fois, sujets dans la marge, lettres A, B, C…, en-tête rouge « LABO ») ; les phylactères passent dans Interface ; la carte de l'île montre les nouveaux lieux et la neige profonde, et SNO 4 a sa carte (un clic y emmène Kári)
 - Atelier : la ceinture est rangée avec le titre ; le champ de recherche n'est plus rempli par le navigateur
 ## 1.50.0 — 2026-10-07
-- SNO 4 : trois vèvè de cendre attendent dans la neige, près de la Barrière, sous le mapou et au sud du cimetière. Marcher sur chacun de leurs points, sans traîner, referme le dessin et appelle le lwa : Legba ouvre les chemins de l'île, Damballah fait tomber le vent une minute, et le Baron monte Kári un moment
-- SNO 4 a sa propre carte (touche M) : l'île vue d'en haut, qui se découvre à mesure qu'on avance, les lieux vus nommés et les vèvè marchés
+- SNO 4 : trois tracés de cendre attendent dans la neige, près de la Barrière, sous le fromager et au sud du cimetière. Marcher sur chacun de leurs points, sans traîner, referme le dessin et appelle le esprit : Clède ouvre les chemins de l'île, Lazul fait tomber le vent une minute, et le Baron monte Kári un moment
+- SNO 4 a sa propre carte (touche M) : l'île vue d'en haut, qui se découvre à mesure qu'on avance, les lieux vus nommés et les tracés marchés
 
 ## 1.49.0 — 2026-10-07
 - SNO 4, l'île Carrefour, devient jouable : on y part en barque depuis la grève de SNO 7 (s'éloigner de la barque, revenir, et pousser vers elle un instant). La traversée se fait sur la mer de nuit, et le retour de même
-- Sur l'île, la nuit, la neige et le vent : Papa Legba à la Barrière, le lakou Jean-Louis (Anaïse, Ti-Jo et son sel), le grand carrefour où attendent les âmes (on y retrouve quelqu'un), Mèt Kalfou, le cimetière de Baron Samedi et de Maman Brigitte, la maison aux bouteilles du bokor, le mapou et son serpent blanc, la forge d'Ogou qui éclaire la nuit ; une femme zonbi marche sur la banquise
+- Sur l'île, la nuit, la neige et le vent : Papa Clède à la Barrière, la cour Jean-Louis (Anaïse, Ti-Jo et son sel), le grand carrefour où attendent les âmes (on y retrouve quelqu'un), Mèt Croisée, le cimetière de Baron Cendre et de Maman Rosine, la maison aux bouteilles du sorcier, le fromager et son serpent blanc, la forge de Ferraud qui éclaire la nuit ; une femme dormeuse marche sur la banquise
 - Le titre de l'écran d'accueil est maintenant un dessin de l'atelier (groupe « Le titre ») : on peut le redessiner ; il ne dépend plus de la police du navigateur
 
 ## 1.48.0 — 2026-10-07
-- Labo, La saga : un second monde, SNO 4, l'île Carrefour. Un trois-mâts venu d'Haïti s'y est pris dans la glace il y a cent dix hivers, avec ses lwa ; les morts de l'archipel s'y entassent au grand carrefour depuis que le temps s'est arrêté sur SNO 7
-- Trois nouvelles familles, avec leurs arbres et leurs histoires : les Gede (Baron Samedi, Maman Brigitte, les Barons La Croix et Cimetière, Gede Nibo, Masaka, Zaranyen, et Gede Frèt, né sur l'île), les lwa du péristyle (Papa Legba, Mèt Kalfou, Damballah, Ayida Wedo, Erzulie Freda et Dantor, Agwe, La Sirène, Ogou, Simbi, Loko, Ayizan, Gran Bwa, les Marasa), et le lakou Jean-Louis, quatre générations, avec Anaïse, l'héroïne, et Lucien Deux-Mains, le bokor
-- Le vodou dans le jeu, en propositions : vèvè tracés en marchant dans la neige, possession par les lwa, offrandes, sel qui réveille les zonbi, tambours ; et ce que ce monde refuse (pas de poupées à épingles, pas de hordes de zombies)
+- Labo, La saga : un second monde, SNO 4, l'île Carrefour. Un trois-mâts venu de Morne-Aurore s'y est pris dans la glace il y a cent dix hivers, avec ses esprits ; les morts de l'archipel s'y entassent au grand carrefour depuis que le temps s'est arrêté sur SNO 7
+- Trois nouvelles familles, avec leurs arbres et leurs histoires : les Gisants (Baron Cendre, Maman Rosine, les Barons Ricane et Veille, Gisant Premier, Pelle, Fil, et Gisant Frèt, né sur l'île), les esprits de la tonnelle (Papa Clède, Mèt Croisée, Lazul, Arcéline, Mirelle la Douce et la Rouge, Houle, La Dame-Écaille, Ferraud, Sibelle, Ramure, Palme, Gran Fèy, les Bessons), et la cour Jean-Louis, quatre générations, avec Anaïse, l'héroïne, et Lucien Deux-Mains, le sorcier
+- Le culte des esprits dans le jeu, en propositions : tracé tracés en marchant dans la neige, possession par les esprits, offrandes, sel qui réveille les dormeurs, tambours ; et ce que ce monde refuse (pas de poupées à épingles, pas de hordes de zombies)
 - Douze lieux (avec une carte de l'île), dix-neuf scénarios et leurs dialogues, dont la rencontre de Kári et d'Anaïse au carrefour ; nouvelles silhouettes (haut-de-forme, chapeau de paille, foulard, sirène, serpent blanc)
 
 ## 1.47.0 — 2026-10-07
@@ -35,8 +46,8 @@
 - Le megamoth est retiré (et son chapitre, et son écaille)
 
 ## 1.46.0 — 2026-10-06
-- Labo, nouvel onglet « La saga » : la bible du récit (l'Archipel des Neuf, le clou de Nortia, la nuit qui dure depuis dix-neuf hivers, la magie, les mythes nordiques, étrusques et de Gilgamesh)
-- Six arbres généalogiques sur quatre générations et plus : la maison de Kingvi, les Rasna, les Gunnar, le Survivant, les jötnar, les puissances. Un clic sur un personnage ouvre son histoire
+- Labo, nouvel onglet « La saga » : la bible du récit (l'Archipel des Neuf, le clou de Sorne, la nuit qui dure depuis dix-neuf hivers, la magie, le Nord, les Orsènes et le roi qui ne voulait pas mourir)
+- Six arbres généalogiques sur quatre générations et plus : la maison de Kingvi, les Orsènes, les Gunnar, le Survivant, les géants du froid, les puissances. Un clic sur un personnage ouvre son histoire
 - Une cinquantaine de personnages dessinés d'après le héros (version féminine, enfants, vieillards, géants), à redessiner
 - Nouveaux lieux (le hameau, le temple des clous, le géant endormi, SNO 3, SNO 8, SNO 9…) et 39 scénarios avec leurs dialogues : les personnages parlent
 - Sept propositions de phylactères (sobre, lambeau de neige, pierre levée, souffle, bandeau, runes, hors champ), à choisir
@@ -261,7 +272,7 @@
 
 ## 1.11.0 — 2026-09-30
 - Ils étaient deux : deux pistes jusqu'à la maison, une seule en ressort, et deux barques à l'arrivée
-- Labo : propositions de pontons, de seconde barque et d'une nécropole d'après Lindholm Høje
+- Labo : propositions de pontons, de seconde barque et d'une nécropole d'après un champ de pierres levées du Nord
 
 ## 1.10.0 — 2026-09-30
 - La nuit, le viking sort une torche : halo de lumière et ombres portées
@@ -299,7 +310,7 @@
 - Maison redessinée vue de biais, sans fumée, les traces continuent ; carte de l'île dans le labo pour s'y téléporter
 
 ## 1.3.0 — 2026-09-30
-- À mi-chemin, une statue géante de Freya, ensevelie, penchée et brisée
+- À mi-chemin, une statue géante de Véla, ensevelie, penchée et brisée
 - Cape plus courte et discrète ; cairns d'un seul tenant, tous de guingois
 - Labo : nouveaux loups, cerfs et biches, statue ; le menu reste en haut
 

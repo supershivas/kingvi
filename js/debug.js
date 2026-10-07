@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), eclair(près), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.52.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.52.0';
-import { chapterById } from './chapters.js?v=1.52.0';
-import { audio } from './audio.js?v=1.52.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.52.0';
-import { CHEST } from './crypt.js?v=1.52.0';
-import { ROOM_ENTRY } from './interior.js?v=1.52.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.53.0';
+import { chapterById } from './chapters.js?v=1.53.0';
+import { audio } from './audio.js?v=1.53.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.53.0';
+import { CHEST } from './crypt.js?v=1.53.0';
+import { ROOM_ENTRY } from './interior.js?v=1.53.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
-  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GLADE, HVIT_AT, TEMPLE_DOOR_OUT, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
-} from './world.js?v=1.52.0';
+  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
+} from './world.js?v=1.53.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -141,6 +141,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
     bosquet: () => before(GLADE, GLADE.r + 170),
     louve: () => nearFree({ x: HVIT_AT.x + 12, y: HVIT_AT.y + 4 }),
     loups: () => nearFree({ x: LEDGE.top.x, y: LEDGE.top.y - 6 }),
+    sigrun: () => nearFree({ x: SIGRUN_AT.x - 10, y: SIGRUN_AT.y + 6 }),
     temple: () => nearFree({ x: TEMPLE_DOOR_OUT.x, y: TEMPLE_DOOR_OUT.y + 14 }),
     guetteur: () => before(WATCHER_AT, 110),
     'freya-debout': () => before(STATUE2_BASE, 70),

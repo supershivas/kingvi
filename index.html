@@ -12,11 +12,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.52.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.52.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.53.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.53.0"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
+<!-- Le chargement : la nuit et trois flocons, tant que le titre et la mer ne sont pas prêts (main.js : `hideLoader`) -->
+<div id="loader" class="loader" role="status" aria-label="Chargement">
+  <div class="loader-flakes" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="loader-text">Chargement</p>
+</div>
 
 <header class="topbar safe-top">
   <a id="home" class="brand" href="./" title="Revenir au jeu">
@@ -26,6 +31,9 @@
   <div class="topbar-actions">
     <button id="open-map" class="icon-btn icon-only" type="button" title="Carte (M)" aria-label="Carte">
       <i class="ti ti-map" aria-hidden="true"></i>
+    </button>
+    <button id="open-wishes" class="icon-btn icon-only" type="button" title="Carnet des vœux (J)" aria-label="Carnet des vœux">
+      <i class="ti ti-notebook" aria-hidden="true"></i>
     </button>
     <button id="open-inventory" class="icon-btn icon-only" type="button" title="Inventaire (I)" aria-label="Inventaire">
       <i class="ti ti-backpack" aria-hidden="true"></i>
@@ -79,6 +87,8 @@
     <p></p><p></p><p></p>
     <span class="prologue-skip">clic ou touche pour passer</span>
   </div>
+  <!-- Les messages du jeu (une relique trouvée…) : la bulle de neige des phylactères -->
+  <div id="note" class="note" role="status" hidden><canvas class="note-bubble"></canvas><div class="note-text"></div></div>
   <button id="act" class="act" type="button" hidden><b>E</b><span></span></button>
   <p id="hint" class="hint gone">ZQSD pour marcher · Maj pour courir · clic pour frapper</p>
 </main>
@@ -93,6 +103,19 @@
     </div>
     <p class="hint-text">Ce que tu as vu de l'île. Le reste est dans le noir.</p>
     <div id="map-view" class="map-view"><canvas id="map-canvas"></canvas></div>
+  </div></div>
+</dialog>
+
+<dialog id="wishes" class="modal stone" aria-labelledby="wishes-title">
+  <div class="slab"><div class="modal-box">
+    <div class="modal-head">
+      <h2 id="wishes-title">Carnet des vœux</h2>
+      <button id="close-wishes" class="icon-btn icon-only on-light stone-close" type="button" aria-label="Fermer">
+        <i class="ti ti-x" aria-hidden="true"></i>
+      </button>
+    </div>
+    <p class="hint-text">Ce que veulent ceux qu'on a croisés. Rayé quand c'est fait.</p>
+    <ul id="wishes-list" class="wishes"></ul>
   </div></div>
 </dialog>
 
@@ -130,6 +153,12 @@
       <label for="opt-music">Musique</label>
       <input id="opt-music" type="range" min="0" max="100" step="5"/>
     </div>
+
+    <label class="field-select">
+      <span>Morceau</span>
+      <select id="opt-track"></select>
+      <span class="hint-text" id="track-about"></span>
+    </label>
 
     <div class="field-select">
       <label for="opt-sfx">Bruitages (corbeaux, épée…)</label>
@@ -192,6 +221,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.52.0"></script>
+<script type="module" src="js/main.js?v=1.53.0"></script>
 </body>
 </html>

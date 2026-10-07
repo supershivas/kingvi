@@ -1,4 +1,4 @@
-/* Les statues cyclopéennes de Freya. La première, à mi-chemin : ensevelie,
+/* Les statues cyclopéennes de Véla. La première, à mi-chemin : ensevelie,
    penchée, brisée. La seconde, au sortir de la forêt : droite, plus grande.
    Les pixels viennent d'une photo de statuette réduite aux couleurs du jeu :
    b sombre, m pierre en demi-teinte (tramée), . vide. Elle fait environ dix
@@ -413,7 +413,7 @@ export function buildStatueUpright(base, seed = 7) {
   return objects;
 }
 
-// La statue de l'îlot : Freya debout, plus petite (≈ 70 px), une porte
+// La statue de l'îlot : Véla debout, plus petite (≈ 70 px), une porte
 // taillée dans le bas de sa robe, à la taille du viking. Noir derrière.
 export const DOOR = { w: 5, h: 9 };
 export function buildStatueDoor(base, seed = 7) {

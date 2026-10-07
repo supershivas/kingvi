@@ -1,37 +1,41 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.52.0';
+import { startUpdateCheck } from '../app-update.js?v=1.53.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.52.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.52.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.52.0';
+} from './viking.js?v=1.53.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.52.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.52.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.52.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.52.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.52.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.52.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.52.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.52.0';
-import { createSea } from './sea.js?v=1.52.0';
-import { buildStatueDoor } from './statue.js?v=1.52.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.52.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.52.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT } from './world.js?v=1.52.0';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.52.0';
-import * as PROPS from './props.js?v=1.52.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.52.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.52.0';
-import { audio } from './audio.js?v=1.52.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.52.0';
-import { RUIN_ART } from './ruins-art.js?v=1.52.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.52.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.52.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.52.0';
+} from './world.js?v=1.53.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.0';
+import { createSea } from './sea.js?v=1.53.0';
+import { buildStatueDoor } from './statue.js?v=1.53.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.0';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.0';
+import * as PROPS from './props.js?v=1.53.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.0';
+import { audio, TRACKS } from './audio.js?v=1.53.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.0';
+import { RUIN_ART } from './ruins-art.js?v=1.53.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -157,6 +161,58 @@ card('viking', {
     }
     ctx.globalAlpha = 1;
     drawViking(ctx, pal, `side-walk-${i}`, Math.round(s.x), 19, { clock: t });
+  },
+});
+
+// La neige profonde (game.js : `updateSnow`, `placePlayer`) : tassée, aux
+// mollets, jusqu'à la taille ; il s'enfonce de 0, 1 ou 3 pixels, une
+// collerette bosselée de neige le cerne, et à la taille un sillon aux lèvres
+// irrégulières remplace les pas
+const snowNoise = (x, y, s) => {
+  let h = (x * 374761393 + y * 668265263 + s * 1442695041) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+};
+card('viking', {
+  title: 'Marche dans la neige profonde', tag: 'neige',
+  about: 'Trois neiges : tassée (des pas), aux mollets (des trous plus larges, il s\'enfonce d\'un pixel, 90 % de sa vitesse), jusqu\'à la taille (il s\'enfonce de trois pixels, une collerette de neige bosselée l\'entoure, 80 % de sa vitesse, et il laisse un sillon aux lèvres irrégulières au lieu de pas).',
+  w: 120, h: 60, wide: true,
+  setup(s) { s.x = 0; s.marks = [[], [], []]; s.step = -1; s.last = [null, null, null]; },
+  draw(ctx, pal, t, dt, s) {
+    const SPEEDS = [1, 0.9, 0.8], SINK = [0, 1, 3];
+    s.x += 18 * dt;
+    if (s.x > 130) { s.x = -10; s.marks = [[], [], []]; s.last = [null, null, null]; }
+    const i = Math.floor(t * 7) % 4;
+    for (let lane = 0; lane < 3; lane++) {
+      const ground = 16 + lane * 18, x = Math.round(s.x * SPEEDS[lane]), sink = SINK[lane];
+      if (lane < 2 && (i === 0 || i === 2) && s.step !== i) s.marks[lane].push(lane ? { x: x - 1, y: ground - 2, w: 2, h: 2, t } : { x, y: ground + (i ? 0 : -1), w: 2, h: 1, t });
+      if (lane === 2 && s.last[2] !== x) {
+        s.last[2] = x;
+        for (const k of [-1, 1]) {
+          const n = snowNoise(x, ground, k > 0 ? 3 : 5);
+          if (n < 0.22) continue;
+          const off = 2 + (n > 0.7 ? 1 : 0) + (snowNoise(x >> 2, ground >> 2, 9) > 0.6 ? 1 : 0);
+          s.marks[2].push({ x, y: ground - 1 + k * off, w: 1, h: 1, t });
+          if (n > 0.9) s.marks[2].push({ x: x + 1, y: ground - 1 + k * off + k, w: 1, h: 1, t });
+        }
+      }
+      ctx.fillStyle = pal.b;
+      for (const m of s.marks[lane]) { ctx.globalAlpha = Math.max(0, 0.9 - (t - m.t) / 14); ctx.fillRect(m.x, m.y, m.w, m.h); }
+      ctx.globalAlpha = 1;
+      drawViking(ctx, pal, `side-walk-${i}`, x, ground + sink, { clock: t });
+      if (sink) {
+        // ce qui passe sous la neige, puis la collerette
+        ctx.fillStyle = pal.bg; ctx.fillRect(x - 8, ground + 1, 17, sink + 1);
+        ctx.fillStyle = pal.s || pal.bg;
+        const half = 2 + sink;
+        for (let dx = -half; dx <= half; dx++) {
+          const edge = Math.abs(dx) / half, n = snowNoise(x + dx, Math.round(ground / 3), 7);
+          const h = Math.max(0, Math.round((1 - edge * edge) * sink * 0.7 + n * 1.6 - 0.5));
+          if (h > 0 && !(edge > 0.8 && n < 0.4)) ctx.fillRect(x + dx, ground - h + 1, 1, h);
+        }
+      }
+    }
+    s.step = i;
   },
 });
 
@@ -679,10 +735,42 @@ card('loups', {
   },
 });
 
+// La louve blanche (game.js : `this.hvit`) : les poses du loup, blanches,
+// cernées de bleu nuit ; prise au collet, elle tire sur la corde ; déliée,
+// elle hurle et rentre sous les arbres
+const whiteWolf = g => g.map((row, y) => row.map((c, x) => {
+  const full = (i, j) => { const v = g[j]?.[i]; return !!v && v !== '.' && v !== 'h'; };
+  if (full(x, y)) return 's';
+  if (full(x - 1, y) || full(x + 1, y) || full(x, y - 1) || full(x, y + 1)) return 'b';
+  return c === 'h' ? 'h' : null;
+}));
+card('loups', {
+  title: 'La louve blanche', tag: 'forêt noire',
+  about: 'À la sortie de la forêt noire, dans la grande clairière : une louve blanche, la patte prise dans un collet, attachée à un piquet. Elle tire sur la corde de temps en temps (un grognement sourd, de près). E « Défaire le collet » : elle se relève, hurle, parle de ses petits sur la roche, et rentre sous les arbres. Plus haut, la meute épargne alors Kári.',
+  wide: true, w: 120, h: 30,
+  draw(ctx, pal, t) {
+    const k = t % 10, ground = 22;
+    // le piquet et la corde
+    if (k < 5) {
+      ctx.fillStyle = pal.b;
+      for (let i = 0; i <= 6; i++) ctx.fillRect(40 - 3 - i, ground - 2 + Math.round(i * 0.3), 1, 1);
+      ctx.fillRect(30, ground - 3, 1, 4);
+      const tug = Math.sin(t * 1.7) > 0.93;
+      drawRows(ctx, pal, gridRows(whiteWolf(tug ? WOLF_ANIMS.grogne.frames[0] : WOLF_ANIMS.mort.frames[0])), 40 - 7, ground - WOLF_GROUND, true);
+      drawViking(ctx, pal, walkFrame('side', t), Math.round(90 - Math.min(1, k / 3) * 30), ground, { flip: true, clock: t });
+    } else {
+      const f = k < 6.5 ? WOLF_ANIMS.hurle.frames[0] : WOLF_ANIMS.trot.frames[Math.floor(t * 7) % 2];
+      const x = k < 6.5 ? 33 : Math.round(33 - (k - 6.5) * 26);
+      drawRows(ctx, pal, gridRows(whiteWolf(f)), x, ground - WOLF_GROUND, true);
+      drawViking(ctx, pal, 'side-idle', 60, ground, { flip: true, clock: t });
+    }
+  },
+});
+
 // La meute attaque : elle tourne autour du viking ; l'un gronde, bondit,
 // file au-delà et reprend sa place. Des pistes de loups sur la neige.
 card('loups', {
-  title: 'La meute attaque', about: 'Dans la grande clairière du bosquet : trois loups sortent de la forêt noire, encerclent le viking, grondent et bondissent l\'un après l\'autre pour mordre. Deux coups en abattent un. Autour, leurs pistes dans la neige.', wide: true, w: 160, h: 80,
+  title: 'La meute attaque', about: 'Sur le plateau, en haut de la falaise : trois loups sortent du côté du glacier, encerclent le viking, grondent une seconde et demie et bondissent l\'un après l\'autre, toutes les quatre secondes environ. Deux coups en abattent un, et le premier tombé fait fuir les autres. Si la louve blanche a été déliée, ils tournent sept secondes et s\'en vont sans mordre. Autour, leurs pistes dans la neige.', wide: true, w: 160, h: 80,
   setup(s) {
     const r = rng(8);
     s.prints = [];
@@ -778,7 +866,7 @@ for (const [section, key, title, about, w, h, under] of [
 }
 
 card('statue', {
-  title: 'Freya, ensevelie, penchée, brisée',
+  title: 'Véla, ensevelie, penchée, brisée',
   about: 'À mi-chemin, au bord nord de la piste, dans une clairière. Environ dix fois la taille du viking ; la coiffe et un éclat d\'épaule gisent dans la neige.',
   wide: true, w: 240, h: 100,
   setup(s, v) {
@@ -799,7 +887,7 @@ card('statue', {
 });
 
 card('statue', {
-  title: 'Freya, debout, au sortir de la forêt',
+  title: 'Véla, debout, au sortir de la forêt',
   about: 'Plus grande (une douzaine de fois le viking), droite, à peine enfoncée, de la neige sur la coiffe et les épaules.',
   wide: true, w: 240, h: 140,
   setup(s, v) {
@@ -820,7 +908,7 @@ card('statue', {
 
 // ══ Lac ══
 card('lac', {
-  title: 'Le lac, la barque, l\'îlot', about: 'Au sud de la piste, avant la forêt. On monte dans la barque en marchant dessus, on rame (Maj pour ramer plus fort), on descend en abordant une rive. Sur l\'îlot, une Freya plus petite, une porte taillée dans sa robe.',
+  title: 'Le lac, la barque, l\'îlot', about: 'Au sud de la piste, avant la forêt. On monte dans la barque en marchant dessus, on rame (Maj pour ramer plus fort), on descend en abordant une rive. Sur l\'îlot, une Véla plus petite, une porte taillée dans sa robe.',
   wide: true, w: 260, h: 160,
   setup(s, v) {
     const L = { x: 130, y: 112, rx: 118, ry: 42 }, I = { x: 150, y: 110, rx: 24, ry: 11 };
@@ -879,7 +967,7 @@ card('lac', {
   },
 });
 
-// ══ Nécropole, d'après Lindholm Høje ══
+// ══ Nécropole, d'après un champ de pierres levées du Nord ══
 const NECRO = [
   ['A', 'Navire de pierres', 'Une enceinte en forme de navire : un ovale aux deux bouts pointus, les pierres des étraves plus hautes. Certaines manquent.', () => PROPS.shipSetting(1, 64, 16)],
   ['B', 'Triangle', 'Trois côtés de pierres basses, une pierre haute au sommet.', () => PROPS.triangleSetting(2, 30)],
@@ -976,6 +1064,19 @@ card('falaise', {
     const r = ledgeAt(Math.max(0, along) + 9), rx = Math.round(r.x) - s.x0, top = cliffFoot(Math.round(r.x)) - cliffHeight(Math.round(r.x)) + dy;
     if (k > 8 && k < 9.2) { ctx.fillStyle = pal.s; for (let i = 0; i < 4; i++) ctx.fillRect(rx + ((i * 7 + Math.floor(t * 9)) % 3) - 1, top + ((Math.floor(t * 30) + i * 11) % 18), 1, 1); }
     if (k >= 9.2 && k < 10.4) ctx.drawImage(s.stone, rx - 2, Math.round(top + (k - 9.2) ** 2 * 140) - 3);
+  },
+});
+
+card('falaise', {
+  title: 'Sigrún dans la glace', tag: 'plateau',
+  about: 'Sur le plateau, à l\'est de la meute : la sœur de Kári, debout dans un bloc de glace taillé par le vent, le bras levé, une torche éteinte au poing. Quand la torche approche, la glace pleure et elle parle. E « Allumer ta torche à la sienne » : la glace se fend, fond, il ne reste qu\'une flaque ; elle parle encore, et celle qui vient chercher les morts l\'emmène.',
+  w: 90, h: 34,
+  setup(s, v) { s.frames = Object.fromEntries(Object.entries(ICE_FRAMES).map(([k, r]) => [k, prerender(r, v.pal)])); },
+  draw(ctx, pal, t, dt, s) {
+    const k = t % 9, ground = 30;
+    const key = k < 3 ? 'whole' : k < 4 ? 'crack' : k < 5 ? 'melt1' : k < 6 ? 'melt2' : 'gone';
+    ctx.drawImage(s.frames[key], 40, ground - ICE_FRAMES.whole.length + 1);
+    drawViking(ctx, pal, k < 2 ? walkFrame('side', t) : 'side-idle', Math.round(20 + Math.min(1, k / 2) * 10), ground, { clock: t });
   },
 });
 
@@ -1109,7 +1210,7 @@ card('corbeaux', {
 (function sounds() {
   const el = document.createElement('article');
   el.className = 'demo wide';
-  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures, qui suit l\'humeur du moment : calme sur la grève, sourde et assombrie dans la forêt noire, tendue à l\'approche de l\'autre viking, à son comble au combat, étouffée à l\'intérieur, muette un instant quand le guetteur s\'efface. Le vent suit la météo ; les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
+  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures, en quatre morceaux (la nuit, la glace, l\'aurore, la forge : les trois derniers plus mélodiques, arpèges et mélodie qui se répond et se transforme de phrase en phrase), qui suit l\'humeur du moment : calme sur la grève, sourde et assombrie dans la forêt noire, tendue à l\'approche de l\'autre viking, à son comble au combat, étouffée à l\'intérieur, muette un instant quand le guetteur s\'efface. Le vent suit la météo ; les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
   const box = el.querySelector('.sound-buttons');
   let music = false;
   const add = (label, icon, fn) => {
@@ -1122,6 +1223,9 @@ card('corbeaux', {
   };
   audio.setMusic(false);
   add('Musique', 'music', b => { music = !music; audio.setMusic(music); b.querySelector('span').textContent = music ? 'Couper la musique' : 'Musique'; });
+  // La playlist (Réglages du jeu : « Morceau ») : chaque morceau, à écouter
+  for (const [id, t] of Object.entries(TRACKS)) add(`Morceau : ${t.nom}`, 'playlist', () => { audio.setTrack(id); if (!music) { music = true; audio.setMusic(true); } });
+  add('Morceaux enchaînés', 'arrows-shuffle', () => { audio.setTrack('playlist'); if (!music) { music = true; audio.setMusic(true); } });
   let windOn = false, windTimer = null;
   add('Vent (tempête)', 'wind', b => {
     windOn = !windOn;
@@ -1162,7 +1266,8 @@ card('corbeaux', {
   const section = document.querySelector('#carte .demos');
   const el = document.createElement('article');
   el.className = 'demo wide';
-  el.innerHTML = '<h3><span>Carte de l\'île</span></h3><p>Clique n\'importe où sur l\'île : le jeu s\'ouvre et le viking y apparaît (au point praticable le plus proche). Le point rouge : là où il se trouve.</p>';
+  el.dataset.ile = 7;
+  el.innerHTML = '<h3><span>Carte de SNO 7, l\'île du roi</span></h3><p>L\'île qu\'on joue. Clique n\'importe où sur l\'île : le jeu s\'ouvre et Kári y apparaît (au point praticable le plus proche). Le carré rouge : là où il se trouve.</p>';
   const canvas = document.createElement('canvas');
   const S = 12, N = WORLD / S;
   canvas.width = N; canvas.height = N;
@@ -1170,7 +1275,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D barque (E : vers SNO 4) · N champ des morts (Hrólf) · C corbeaux · A arche (Tages ; T : le temple de Nortia, dessous) · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée (Freya parle) · forêt noire · O bosquet (Hjalti) · G guetteur · B la louve blanche (collet) · 2 grande statue · M maison · F falaise et grotte (le roi) · S sente · P plateau · W les loups · L lac et îlot · trame claire : neige profonde (aux mollets, et plus dense : jusqu\'à la taille)';
+  legend.dataset.old = 'Traces · D barque (E : vers SNO 4) · N champ des morts (Hrólf) · C corbeaux · A arche (Tavé ; T : le temple de Sorne, dessous) · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée (Véla parle) · forêt noire · O bosquet (Hjalti) · G guetteur · B la louve blanche (collet) · 2 grande statue · M maison · F falaise et grotte (le roi) · S sente · P plateau · W les loups · L lac et îlot · trame claire : neige profonde (aux mollets, et plus dense : jusqu\'à la taille)';
   el.append(legend);
   section.append(el);
 
@@ -1195,21 +1300,32 @@ card('corbeaux', {
     const sd = deep > 0.5 || f > 0.25 ? 0 : snowDepth(wx, wy);
     put(i, deep > 0.5 ? DEEP : bayer < f * 0.9 ? MID : sd && bayer < sd * 0.3 ? '#b7c3d6' : SNOW);
   }
-  ctx.putImageData(img, 0, 0);
-  ctx.fillStyle = NIGHT;
-  for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
   const L = landing();
-  const marks = [['A', ARCH.x, ARCH.y], ['c', RUINS.colonne.x, RUINS.colonne.y], ['s', RUINS.socle.x, RUINS.socle.y], ['r', RUINS.arche.x, RUINS.arche.y], ['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['S', LEDGE.bottom.x, LEDGE.bottom.y], ['P', MOTH_LAIR.x, MOTH_LAIR.y], ['L', LAKE.x, LAKE.y],
-    ['N', NECRO_AREA.x + 100, NECRO_AREA.y + 35], ['O', GROVE_TREE.x, GROVE_TREE.y], ['G', WATCHER_AT.x, WATCHER_AT.y], ['W', WOLF_DEN.x, WOLF_DEN.y], ['B', HVIT_AT.x, HVIT_AT.y], ['T', TEMPLE_DOOR_OUT.x, TEMPLE_DOOR_OUT.y]];
-  // La falaise : un trait sombre à son pied
-  ctx.fillStyle = NIGHT;
-  ctx.fillRect(Math.floor(CLIFF.x0 / S), Math.floor(CLIFF.y / S) - 1, Math.ceil((CLIFF.x1 - CLIFF.x0) / S), 2);
-  ctx.font = '9px "DM Mono", monospace';
-  for (const [label, x, y] of marks) {
-    ctx.fillStyle = NIGHT; ctx.fillRect(x / S - 2, y / S - 2, 5, 5);
-    ctx.fillStyle = SNOW; ctx.fillRect(x / S - 1, y / S - 1, 3, 3);
-    ctx.fillStyle = RED; ctx.fillText(label, x / S + 4, y / S - 3);
+  // (comme la carte de SNO 4 : les lieux nommés sur la carte, et leur liste dessous)
+  const marks = [['La grève', L.shore, L.y, 0], ['Le champ des morts', NECRO_AREA.x + 100, NECRO_AREA.y + 35, -1], ['L\'arche et le temple', ARCH.x, ARCH.y, 1], ['Le lac', LAKE.x, LAKE.y, 1],
+    ['La Véla ensevelie', STATUE_BASE.x, STATUE_BASE.y, -1], ['Le bosquet', GROVE_TREE.x, GROVE_TREE.y, -1], ['La louve blanche', HVIT_AT.x, HVIT_AT.y, -1], ['La grande Véla', STATUE2_BASE.x, STATUE2_BASE.y, 1], ['La maison', HOUSE.x, HOUSE.y, 1],
+    ['La falaise et la grotte', CAVE.x, CLIFF.y, 1], ['Les loups', WOLF_DEN.x, WOLF_DEN.y, -1], ['Sigrún', SIGRUN_AT.x, SIGRUN_AT.y, 0],
+    ...SNO7_CUBES.map(c => [`Le cube ${c.kind}`, c.x, c.y, 1])];
+  legend.textContent = marks.map(m => m[0]).join(' · ') + ' · en noir : les traces ; trame claire : la neige profonde (aux mollets, et plus serrée : jusqu\'à la taille)';
+  function drawBase() {
+    ctx.putImageData(img, 0, 0);
+    ctx.fillStyle = NIGHT;
+    for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
+    // La falaise : un trait sombre à son pied
+    ctx.fillStyle = NIGHT;
+    ctx.fillRect(Math.floor(CLIFF.x0 / S), Math.floor(CLIFF.y / S) - 1, Math.ceil((CLIFF.x1 - CLIFF.x0) / S), 2);
+    ctx.font = '500 12px "Grenze Gotisch", serif';
+    ctx.textBaseline = 'middle';
+    // (le nom au-dessus, au niveau ou en dessous du repère : ils ne se marchent pas dessus)
+    for (const [label, x, y, dy] of marks) {
+      ctx.fillStyle = NIGHT; ctx.fillRect(x / S - 2, y / S - 2, 5, 5);
+      ctx.fillStyle = RED; ctx.fillRect(x / S - 1, y / S - 1, 3, 3);
+      const ty = y / S + dy * 9;
+      ctx.lineWidth = 3; ctx.strokeStyle = SNOW; ctx.strokeText(label, x / S + 5, ty);
+      ctx.fillStyle = NIGHT; ctx.fillText(label, x / S + 5, ty);
+    }
   }
+  drawBase();
   function drawHere() {
     view.drawImage(baseCanvas, 0, 0);
     let save = {};
@@ -1219,6 +1335,7 @@ card('corbeaux', {
     view.fillRect(Math.round(save.x / S) - 2, Math.round(save.y / S) - 2, 5, 5);
   }
   drawHere();
+  document.fonts?.ready.then(() => { drawBase(); drawHere(); });
 
   canvas.addEventListener('click', e => {
     const r = canvas.getBoundingClientRect();
@@ -1238,7 +1355,8 @@ card('corbeaux', {
   const section = document.querySelector('#carte .demos');
   const el = document.createElement('article');
   el.className = 'demo wide';
-  el.innerHTML = '<h3><span>Carte de SNO 4, l\'île Carrefour</span></h3><p>L\'île où Kári va en barque (touche E près de la barque de la grève). Clique sur l\'île : le jeu s\'ouvre et Kári y est. En rouge : la barque et les trois vèvè à marcher.</p>';
+  el.dataset.ile = 4;
+  el.innerHTML = '<h3><span>Carte de SNO 4, l\'île Carrefour</span></h3><p>L\'île où Kári va en barque (touche E près de la barque de la grève). Clique sur l\'île : le jeu s\'ouvre et Kári y est. En rouge : la barque et les trois tracés à marcher.</p>';
   const canvas = document.createElement('canvas');
   canvas.width = SNO4_W; canvas.height = SNO4_H;
   canvas.className = 'map';
@@ -1254,6 +1372,7 @@ card('corbeaux', {
   g.fillStyle = RED;
   g.fillRect(SNO4_BOAT.x, SNO4_BOAT.y, 30, 10);
   for (const v of VEVE) for (const [dx, dy] of v.nodes) g.fillRect(v.at.x + dx - 1, v.at.y + dy - 1, 3, 3);
+  // (les deux cubes sont des accessoires de la scène : déjà dessinés)
   g.font = '500 15px "Grenze Gotisch", serif';
   g.textBaseline = 'middle';
   for (const p of PLACES_SNO4) {
@@ -1269,6 +1388,68 @@ card('corbeaux', {
     try { sessionStorage.setItem('kingvi:goto', JSON.stringify({ world: 'sno4', x, y })); } catch { toast('Impossible de préparer le voyage.'); return; }
     location.href = './';
   });
+})();
+
+// ══ L'Archipel des Neuf : une carte d'ensemble, et les sept autres îles ══
+(function archipelago() {
+  const section = document.querySelector('#carte .demos');
+  const C = { snow: SNOW, night: NIGHT, mid: '#8a96b0', deep: '#4a5776', ice: '#b7c3d6', red: RED };
+  // Les autres îles, dessinées d'après la saga (islands.js)
+  for (const I of ARCHIPEL.filter(i => !i.joue)) {
+    const el = document.createElement('article');
+    el.className = 'demo wide';
+    el.dataset.ile = I.n;
+    el.innerHTML = '<h3><span></span></h3><p></p>';
+    el.querySelector('span').textContent = `Carte de SNO ${I.n}, ${I.nom}`;
+    el.querySelector('p').textContent = `${I.about} Pas encore jouable : dessinée d'après la saga.`;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 512;
+    canvas.className = 'map';
+    el.append(canvas);
+    const legend = document.createElement('p');
+    legend.className = 'map-legend';
+    legend.textContent = I.lieux.map(l => l[0]).join(' · ') + ' · le cube blanc · le cube noir';
+    el.append(legend);
+    section.append(el);
+    // (la police du titre doit être là avant d'écrire les noms)
+    const paint = () => paintIsland(canvas.getContext('2d'), I, 512, 512, C);
+    paint();
+    document.fonts?.ready.then(paint);
+  }
+  // La carte d'ensemble : les neuf îles, comptées d'est en ouest
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.dataset.ile = 0;
+  el.innerHTML = '<h3><span>L\'Archipel des Neuf</span></h3><p>Les neuf îles, posées sur une mer qui gèle à moitié, comptées d\'est en ouest (SNO 1 à l\'est, SNO 9 tout à l\'ouest, derrière les Eaux de la Mort). En rouge, les deux qu\'on joue : SNO 7 et SNO 4.</p>';
+  const canvas = document.createElement('canvas');
+  canvas.width = 900; canvas.height = 340;
+  canvas.className = 'map';
+  el.append(canvas);
+  section.append(el);
+  const g = canvas.getContext('2d');
+  const paint = () => {
+    g.fillStyle = NIGHT; g.fillRect(0, 0, 900, 340);
+    const spots = [[820, 120], [720, 230], [610, 110], [520, 240], [420, 120], [330, 250], [230, 140], [130, 230], [50, 110]];
+    ARCHIPEL.forEach((I, k) => {
+      const [cx, cy] = spots[k], R = 44;
+      const shape = I.forme ? I : { forme: { long: 1.2, angle: k, foret: 0.3, monts: 0.3, banquise: 0.4, ilots: 2 }, graine: 7 + k * 13 };
+      for (let y = -R; y < R; y++) for (let x = -R; x < R; x++) {
+        const land = islandLand(shape, (x + R) / (2 * R), (y + R) / (2 * R));
+        if (land > 0) { g.fillStyle = land < 0.04 ? NIGHT : I.joue ? '#f2d6d2' : SNOW; g.fillRect(cx + x, cy + y, 1, 1); }
+      }
+      g.font = '500 17px "Grenze Gotisch", serif'; g.textAlign = 'center'; g.textBaseline = 'top';
+      g.fillStyle = I.joue ? RED : SNOW;
+      g.fillText(`SNO ${I.n}`, cx, cy + R + 2);
+    });
+    // les Eaux de la Mort, entre SNO 8 et SNO 9
+    g.fillStyle = '#0d1424';
+    for (let y = 60; y < 300; y++) for (let x = 84; x < 100; x++) if ((x + y) % 2) g.fillRect(x, y, 1, 1);
+    g.textAlign = 'left';
+  };
+  paint();
+  document.fonts?.ready.then(paint);
+  // L'ordre : l'archipel, puis SNO 1 → 9
+  [...section.querySelectorAll('[data-ile]')].sort((a, b) => a.dataset.ile - b.dataset.ile).forEach(n => section.append(n));
 })();
 
 // ══ Barque ══
@@ -1410,6 +1591,65 @@ card('interieur', {
   },
 });
 
+card('interieur', {
+  title: 'Le temple de Sorne, sous l\'arche', tag: 'la fin de l\'Aube',
+  about: 'Sous l\'arche, entre ses piliers, une dalle (à gauche) : Tavé la fait glisser quand on lui donne le sceau de la crypte, et des marches descendent (à droite). En bas, une salle basse et le mur des ans, hérissé de clous, un par hiver ; le dernier, rouge, est planté à l\'envers. E « Arracher le clou » : la fin de l\'Aube, le jour revient sur l\'île.',
+  wide: true, w: 150, h: 112,
+  setup(s, v) { s.img = prerender(TEMPLE, v.pal); s.slab = prerender(TEMPLE_SLAB, v.pal); s.stairs = prerender(TEMPLE_STAIRS, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    ctx.fillStyle = pal.k; ctx.fillRect(0, 0, 150, 112);
+    ctx.drawImage(s.img, 0, 0);
+    const k = t % 12;
+    // le viking descend les marches, va au mur, arrache le clou
+    const walk = Math.min(1, k / 5);
+    const x = TEMPLE_ENTRY.x, y = Math.round(TEMPLE_ENTRY.y - walk * (TEMPLE_ENTRY.y - NAIL.y - 12));
+    if (k < 8) drawRows(ctx, pal, NAIL_ART, NAIL.x, NAIL.y - 2);
+    else { ctx.globalAlpha = Math.max(0, 1 - (k - 8)); drawRows(ctx, pal, NAIL_ART, NAIL.x, NAIL.y - 2 + Math.round((k - 8) * 6)); ctx.globalAlpha = 1; }
+    drawViking(ctx, pal, walk < 1 ? walkFrame('back', t) : 'back-idle', x, y, { clock: t, wind: 0 });
+    ctx.drawImage(s.slab, 4, 100); ctx.drawImage(s.stairs, 132, 100);
+  },
+});
+
+// ══ Le cube blanc et le cube noir (cubes.js) ══
+card('cubes', {
+  title: 'Les deux cubes', tag: 'sur chaque île',
+  about: 'Les deux seules choses parfaitement droites de l\'archipel : un cube blanc, un cube noir, d\'une matière qu\'on ne connaît pas, posés sur chaque île, toujours loin l\'un de l\'autre. La neige ne tient pas dessus. Ils mesurent presque deux fois le viking. Sur SNO 7 : le blanc au nord du champ des morts, le noir loin à l\'est de la maison ; sur SNO 4 : au nord-est de la source, et près du fromager.',
+  w: 90, h: 30,
+  setup(s, v) { s.w = prerender(CUBE_WHITE, v.pal); s.b = prerender(CUBE_BLACK, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    ctx.drawImage(s.w, 14, 28 - CUBE_WHITE.length + 1);
+    ctx.drawImage(s.b, 58, 28 - CUBE_BLACK.length + 1);
+    drawViking(ctx, pal, 'side-idle', 40, 28, { clock: t });
+  },
+});
+card('cubes', {
+  title: 'Toucher le cube blanc', tag: 'touche E',
+  about: 'Il est tiède, rien n\'y colle. Le toucher referme toutes les blessures, sans qu\'on sente rien (un endroit sûr, avant un combat).',
+  w: 90, h: 30,
+  setup(s, v) { s.w = prerender(CUBE_WHITE, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    const k = t % 6;
+    ctx.drawImage(s.w, 50, 28 - CUBE_WHITE.length + 1);
+    const x = Math.round(14 + Math.min(1, k / 2.5) * 28);
+    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', x, 28, { clock: t });
+    // les gouttes de sang qui pâlissent derrière lui, puis plus rien
+    if (k < 2.5) { ctx.fillStyle = pal.r; for (let i = 0; i < 4; i++) ctx.fillRect(x - 6 - i * 5, 28 - (i % 2), 1, 1); }
+  },
+});
+card('cubes', {
+  title: 'Toucher le cube noir', tag: 'touche E',
+  about: 'Il ne renvoie aucun reflet, pas même le sien. Qui le touche voit l\'île d\'en haut, un instant : la carte (M) se découvre loin autour du cube ; sur SNO 4, toute l\'île.',
+  w: 90, h: 30,
+  setup(s, v) { s.b = prerender(CUBE_BLACK, v.pal); },
+  draw(ctx, pal, t, dt, s) {
+    const k = t % 6;
+    ctx.drawImage(s.b, 50, 28 - CUBE_BLACK.length + 1);
+    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', Math.round(14 + Math.min(1, k / 2.5) * 28), 28, { clock: t });
+    // l'île vue d'en haut : un éclair de carte, tramé
+    if (k > 3 && k < 4.2) { ctx.globalAlpha = 0.5; ctx.fillStyle = pal.b; for (let y = 0; y < 30; y++) for (let x = (y % 2); x < 90; x += 2) ctx.fillRect(x, y, 1, 1); ctx.globalAlpha = 1; }
+  },
+});
+
 // ══ Vagues ══
 card('mer', {
   title: 'Les vagues', about: 'Les rouleaux arrivent sur la grève, s\'amincissent, s\'étalent en nappe puis se retirent ; pas tous ensemble le long de la côte. Au large, de rares moutons naissent, filent avec le vent et s\'éteignent.',
@@ -1507,7 +1747,7 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
     nuit: 'moon', viking: 'walk', cape: 'wind', attaques: 'sword', vent: 'snowflake', arbres: 'tree', rochers: 'mountain', maison: 'home',
     interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave',
     bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', cerfs: 'deer', dessins: 'brush',
-    'ui-boutons': 'click', 'ui-reglages': 'adjustments',
+    'ui-boutons': 'click', 'ui-reglages': 'adjustments', cubes: 'cube',
   };
   const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const themeOf = id => sections.find(s => s.id === id)?.dataset.theme || (tabs.some(t => t.dataset.theme === id) ? id : null);

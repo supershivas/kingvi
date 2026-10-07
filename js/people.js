@@ -1,12 +1,12 @@
 /* Les personnages de la saga : des dessins tirés du héros (viking.js).
    Même gabarit (7 pixels de large, environ 9 de haut, une masse bleu nuit sans
    visage, l'ombre au sol sur la ligne des pieds). On change la silhouette :
-   la tête (casque, capuche, couronne, bonnet étrusque, voile, masque…), le
+   la tête (casque, capuche, couronne, bonnet orsène, voile, masque…), le
    corps (homme, femme, enfant, vieillard…), ce qu'il tient, la taille.
    Placeholders, comme les autres : à redessiner dans l'atelier.
    Couleurs : b (bleu nuit), s (neige), r (rouge de l'accent), h (ombre). */
 
-import { WOLF_ANIMS } from './wolf.js?v=1.52.0';
+import { WOLF_ANIMS } from './wolf.js?v=1.53.0';
 
 export const W = 15;          // largeur d'une image, à l'échelle 1
 export const H = 26;
@@ -47,7 +47,7 @@ const BODIES = {
     side: ['...bbb.', '..bbbbb', '.bbbbb.', '.bbbbb.', 'bbbbbb.'],
     skirt: true, stoop: true,
   },
-  // La Sirène : le haut d'une femme, une queue de poisson repliée
+  // La Dame-Écaille : le haut d'une femme, une queue de poisson repliée
   sirene: {
     front: ['..bbb..', '.bbbbb.', '.bbbbb.', '..bbbb.', '...bbb.', '....bb.', '..bb.bb'],
     side: ['..bbb..', '.bbbbb.', '.bbbb..', '..bbbb.', '...bbb.', '....bb.', '..bb.bb'],
@@ -71,8 +71,8 @@ const HEADS = {
   voile: { front: ['..bbb..', '.bbbbb.'], side: ['..bbb..', '.bbbb..'] },
   tresses: { front: ['..bbb..'], side: ['..bbb..'], braid: true },
   masque: { front: ['..bbb..', '.bsbsb.'], side: ['...bbb.', '...bbs.'] },
-  // SNO 4 : le haut-de-forme des Gede (un verre de lunettes clair), le
-  // chapeau de paille de Legba, le foulard noué des servantes
+  // SNO 4 : le haut-de-forme des Gisants (un verre de lunettes clair), le
+  // chapeau de paille de Clède, le foulard noué des servantes
   'haut-de-forme': { front: ['..bbb..', '..bbb..', '..bbb..', '.bbbbb.', '..sbb..'], side: ['...bbb.', '...bbb.', '...bbb.', '..bbbbb', '...bbs.'] },
   chapeau: { front: ['..bbb..', 'bbbbbbb', '..bbb..'], side: ['..bbb..', 'bbbbbbb', '...bb..'] },
   foulard: { front: ['...bb..', '..bbbb.', '..bbb..'], side: ['.bb....', '..bbbb.', '...bb..'] },
@@ -165,8 +165,8 @@ function compose(spec, view, step = 0) {
     for (let x = x0 + 2; x <= x0 + 4; x++) dot(g, x, bodyTop, 'r');
     dot(g, side ? x0 + 1 : x0 + 2, bodyTop + 1, 'r');
   }
-  // Les accents rouges, un pixel : la braise du cigare (les Gede), l'œil
-  // sous la capuche (Kalfou, Dantor), le cœur (Freda)
+  // Les accents rouges, un pixel : la braise du cigare (les Gisants), l'œil
+  // sous la capuche (Croisée, la Rouge), le cœur (Mirelle)
   if (spec.accent === 'cigare') dot(g, side ? x0 + 6 : x0 + 4, bodyTop - 1, 'r');
   if (spec.accent === 'oeil') dot(g, side ? x0 + 4 : x0 + 3, bodyTop - 1, 'r');
   if (spec.accent === 'coeur') dot(g, x0 + 3, bodyTop + 2, 'r');
@@ -219,7 +219,7 @@ function wolfGrid(frame, white) {
   }));
   return out.map(r => r.map(c => c || '.').join(''));
 }
-// Damballah, le serpent blanc : épais, cerné de nuit, le corps en neige
+// Lazul, le serpent blanc : épais, cerné de nuit, le corps en neige
 const SERPENT_BLANC = [
   '..................bbbb.',
   '...bbb.......bbbb.bssbb',

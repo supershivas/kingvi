@@ -8,8 +8,8 @@
    sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.52.0';
-import { paintFrames } from './viking.js?v=1.52.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.53.0';
+import { paintFrames } from './viking.js?v=1.53.0';
 
 export const WOLF_HP = 2;
 const COUNT = 3;
@@ -99,7 +99,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
   // Tous retournent sous les arbres (on s'est enfui, ou on est tombé)
   function scatter() {
     pack.state = 'leaving';
-    for (const w of alive()) { w.state = 'leave'; w.hp = WOLF_HP; w.sprite.setAlpha(1); }
+    for (const w of alive()) { w.state = 'leave'; w.timer = 0; w.hp = WOLF_HP; w.sprite.setAlpha(1); }
   }
 
   Object.defineProperty(pack, 'engaged', { get: () => pack.state === 'hunt' && alive().length > 0 && !(tame() && !pack.provoked) });
@@ -283,7 +283,8 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
           }
           case 'leave': {
             play(w, 'galop');
-            if (moveToward(w, w.lair.x, w.lair.y, GALLOP, dt) < 3) {
+            // (coincé contre un rocher : au bout de six secondes, il n'est plus là)
+            if (moveToward(w, w.lair.x, w.lair.y, GALLOP, dt) < 3 || w.timer < -6) {
               w.state = 'hidden'; w.sprite.setVisible(false).stop();
             }
             break;

@@ -2,7 +2,7 @@
    Familles, personnages (arbres sur quatre générations et plus), lieux,
    scénarios avec leurs lignes de dialogue, fins. Lu par le labo (onglet
    « La saga », labo-saga.js) ; le jeu n'en lit encore rien.
-   Le second monde (SNO 4, le vodou haïtien) est dans saga-sno4.js : ajouté
+   Le second monde (SNO 4, un culte des esprits venu du sud) est dans saga-sno4.js : ajouté
    ici au reste.
 
    Règle (Jérôme, v1.46.0) : les personnages peuvent parler. Les lignes sont
@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.52.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.53.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -20,7 +20,7 @@ export const BIBLE = [
     titre: 'Ce que raconte la saga',
     texte: [
       `Kári revient sur l'île où il est né et qu'il ne connaît pas. Il a vingt-six hivers. On l'a mis à la mer dans un panier, le jour de sa naissance, parce qu'un devin avait lu dans un foie de bronze que « le fils de Kingvi rallumera le jour ». Son père, le roi Kingvi, ne voulait pas que le jour revienne.`,
-      `Car sur SNO 7 il fait nuit depuis dix-neuf hivers. Quand son plus jeune fils est mort, Kingvi a pris le marteau des Rasna, le peuple d'avant, et il a planté le dernier clou de Nortia, la déesse du sort, à l'envers, dans le cœur de l'année. Le temps s'est arrêté sur l'île. Personne n'y vieillit plus vraiment, rien n'y pousse plus, et la tempête ne cesse pas. Le roi lui-même attend sur son trône, sous la roche, ni mort ni vivant.`,
+      `Car sur SNO 7 il fait nuit depuis dix-neuf hivers. Quand son plus jeune fils est mort, Kingvi a pris le marteau des Orsènes, le peuple d'avant, et il a planté le dernier clou de Sorne, la déesse du sort, à l'envers, dans le cœur de l'année. Le temps s'est arrêté sur l'île. Personne n'y vieillit plus vraiment, rien n'y pousse plus, et la tempête ne cesse pas. Le roi lui-même attend sur son trône, sous la roche, ni mort ni vivant.`,
       `Kári n'est pas venu seul. Eyvind, son frère de lait, l'homme sauvage qu'une louve blanche a élevé, a débarqué avant lui. Le cousin Thorgrim l'attendait sur la grève. Il l'a conduit jusqu'à la maison de la nourrice et l'a tué dans le noir, en le prenant pour Kári. Ce sont les deux pistes qui partent de la grève : une seule ressort, tachée de sang.`,
       `Le reste est la saga : ce que Kári fera du clou, de la couronne, de sa sœur changée en glace, de la nièce qu'il ne connaît pas, et de la peur de mourir qui a gelé son père.`,
     ],
@@ -33,7 +33,7 @@ export const BIBLE = [
       `Personne n'explique l'histoire. On parle comme on parle dans le froid : pour l'essentiel, de travers, avec des silences. Le paysage reste le premier narrateur. Une ligne doit ajouter ce que les traces ne peuvent pas dire (un nom, un regret, une menace), jamais répéter ce qu'on voit.`,
       `Kári parle peu, et presque toujours en dernier. Les morts parlent : c'est la magie de l'île, où le temps arrêté retient les voix. Les dieux parlent encore moins que les morts. Les bêtes ne parlent pas, sauf la louve blanche, qui est une fylgja et pas une bête.`,
       `Aucun choix de réplique. Le joueur répond par des gestes : frapper, épargner, partir, rester, prendre, laisser. Le texte avance seul, au rythme de la lecture (un clic l'accélère), et le monde ne s'arrête pas pendant qu'on parle, sauf dans les intérieurs.`,
-      `Les lignes s'affichent dans un phylactère (propositions dans « Phylactères »). Langue : un français simple et sec, sans archaïsme de théâtre. Les noms nordiques gardent leurs accents (Kári, Ása, Sigrún), et les noms étrusques leur dureté (Larth, Ramtha, Thanchvil).`,
+      `Les lignes s'affichent dans un phylactère (propositions dans « Phylactères »). Langue : un français simple et sec, sans archaïsme de théâtre. Les noms nordiques gardent leurs accents (Kári, Ása, Sigrún), et les noms orsènes leur dureté (Larth, Ramtha, Thanchvil).`,
     ],
   },
   {
@@ -41,8 +41,8 @@ export const BIBLE = [
     titre: 'Le monde : l\'Archipel des Neuf',
     texte: [
       `SNO 7 est la septième des neuf îles de l'Archipel des Neuf, posé sur une mer qui gèle à moitié. On y compte les îles d'est en ouest, comme on comptait les mondes autour de l'Arbre.`,
-      `SNO 3 est l'île des pêcheurs, où Kári a grandi, où Ingunn l'attend et où va naître leur enfant. SNO 8 est l'île de la Brasseuse : Sidrún y tient une taverne au bord du monde, et c'est la dernière île où l'on trouve de la bière. SNO 9 est l'île du Survivant, derrière les Eaux de la Mort, qu'aucun vivant n'a traversées sans le passeur. SNO 4 est l'île Carrefour, où se croisent les routes de la mer et celles des morts : un navire venu d'Haïti s'y est pris dans la glace il y a cent dix hivers, avec ses lwa (le second monde de la saga). Les autres îles sont des noms dans les chansons d'Ásdís.`,
-      `Sur SNO 7 vivent trois peuples, morts ou presque. Les Rasna (les Étrusques, venus du sud en suivant les oiseaux) ont bâti l'arche, le temple de Nortia et les Freya, qu'ils appelaient Uni. Les gens de Hrólf, venus du nord avec trois navires, sont enterrés dans la plaine. Les jötnar, enfin, sont la montagne, le glacier et la neige elle-même.`,
+      `SNO 3 est l'île des pêcheurs, où Kári a grandi, où Ingunn l'attend et où va naître leur enfant. SNO 8 est l'île de la Brasseuse : Sidrún y tient une taverne au bord du monde, et c'est la dernière île où l'on trouve de la bière. SNO 9 est l'île du Survivant, derrière les Eaux de la Mort, qu'aucun vivant n'a traversées sans le passeur. SNO 4 est l'île Carrefour, où se croisent les routes de la mer et celles des morts : un navire venu de Morne-Aurore s'y est pris dans la glace il y a cent dix hivers, avec ses esprits (le second monde de la saga). Les autres îles sont des noms dans les chansons d'Ásdís.`,
+      `Sur SNO 7 vivent trois peuples, morts ou presque. Les Orsènes, venus du sud en suivant les oiseaux, ont bâti l'arche, le temple de Sorne et les Véla, qu'ils appelaient Ilé. Les gens de Hrólf, venus du nord avec trois navires, sont enterrés dans la plaine. Les géants du froid, enfin, sont la montagne, le glacier et la neige elle-même.`,
       `L'île est plus grande que ce qu'on en a vu. Au nord de la plaine se trouve le hameau des Gunnar. Au-delà du plateau, une montagne est un géant qui dort. Sous le lac, une flotte est prise dans la glace. Derrière le trône, une fissure monte jusqu'à une racine trop grande pour l'écran.`,
     ],
   },
@@ -51,19 +51,28 @@ export const BIBLE = [
     titre: 'La magie',
     texte: [
       `Trois magies se croisent, et aucune n'est gratuite.`,
-      `Le seiðr, la magie de Freya et des völvas, voit et lie, au prix de soi. Hallveig y a laissé son visage. Le joueur en voit les effets : le guetteur qui s'efface, les pas qui s'arrêtent net, les rêves.`,
+      `Le seiðr, la magie de Véla et des völvas, voit et lie, au prix de soi. Hallveig y a laissé son visage. Le joueur en voit les effets : le guetteur qui s'efface, les pas qui s'arrêtent net, les rêves.`,
       `Le galdr, ce sont les runes chantées. Kári peut en apprendre trois, une par grande rencontre. Kenaz rallume la torche soufflée. Isa fige l'eau et la neige (marcher sur le lac, arrêter une avalanche de pierres). Ansuz fait parler un mort une fois de plus. Chaque rune chantée coûte une blessure, qui saigne comme un coup reçu.`,
-      `La disciplina des Rasna, c'est lire le sort dans un foie, dans la foudre, dans le vol des oiseaux. Elle ne change rien, elle annonce. Larth lit le foie des loups abattus, Tages parle par énigmes, et le clou de Nortia fixe ce qui est lu.`,
+      `La disciplina des Orsènes, c'est lire le sort dans un foie, dans la foudre, dans le vol des oiseaux. Elle ne change rien, elle annonce. Larth lit le foie des loups abattus, Tavé parle par énigmes, et le clou de Sorne fixe ce qui est lu.`,
       `Et il y a la grande magie, celle qu'on ne fait qu'une fois : le clou planté à l'envers. Elle a arrêté le temps d'une île entière. La saga, c'est la question de l'arracher ou non.`,
     ],
   },
   {
-    id: 'mythes',
-    titre: 'Les trois mythes sous la neige',
+    id: 'cubes',
+    titre: 'Le cube blanc et le cube noir',
     texte: [
-      `Gilgamesh : Kári et Eyvind sont Gilgamesh et Enkidu. Le roi et l'homme sauvage se sont battus trois jours avant de devenir frères, et la mort de l'un jette l'autre dans la peur de mourir. Kingvi a fait le même chemin avant son fils et s'y est perdu. Hvumbi, le gardien de la forêt noire, est Humbaba. Les deux Charun de la falaise sont les hommes-scorpions de la porte du soleil. Sidrún la Brasseuse est Siduri, et Úrsi le passeur est Urshanabi. Útnafi le Survivant est Utnapishtim, la fleur de givre est la plante de jouvence, et le serpent la vole.`,
-      `Les Étrusques : les Rasna lisent les foies (Larth et son foie de bronze, d'après celui de Plaisance). Tages naît d'un sillon avec un visage de vieillard. Nortia est la déesse dont on plantait un clou chaque année. Vanth, la femme ailée à la torche, vient à chaque mort, et Charun garde les portes avec son marteau. Phersu est l'homme masqué du jeu mortel, Uni la déesse que les vikings ont appelée Freya. Les Rasna savaient que leur peuple n'avait qu'un nombre compté de siècles.`,
-      `Le Nord : le Fimbulvetr, l'hiver sans fin, c'est la nuit perpétuelle du jeu. On y croise la völva, les fylgjur, les draugar dans les navires de pierres, la Chasse sauvage et son Chasseur borgne, les corbeaux, les jötnar, Jörmungandr, et les Nornes qui filent au pied de l'Arbre.`,
+      `Sur chaque île de l'archipel, il y a deux cubes : un blanc et un noir, toujours loin l'un de l'autre. Ce sont les deux seules choses parfaitement droites du monde. Ni la pierre, ni la glace, ni les mains n'ont jamais rien fait d'aussi droit. Ils mesurent presque deux fois un homme. La neige ne tient pas dessus.`,
+      `Personne ne sait qui les a posés. Les Orsènes les comptaient déjà parmi les choses d'avant, et n'y plantaient pas de clou. Les gens de Hrólf les ont contournés sans y toucher. Sur SNO 4, on dit que les esprits ne s'en approchent pas : ce qui est trop droit ne laisse pas de place pour passer.`,
+      `Le blanc est tiède. Qui le touche voit ses blessures se fermer sans rien sentir. Le noir ne renvoie aucun reflet, pas même le sien ; qui le touche voit l'île d'en haut, un instant, comme un oiseau ou comme un mort. Larth disait que le blanc garde ce qui a été et que le noir montre ce qui est ; il n'a jamais dit qui montrerait ce qui vient.`,
+    ],
+  },
+  {
+    id: 'mythes',
+    titre: 'Les trois sources sous la neige',
+    texte: [
+      `Le roi et le sauvage : Kári et Eyvind se sont battus trois jours avant de devenir frères, et la mort de l'un jette l'autre dans la peur de mourir. Kingvi a fait le même chemin avant son fils et s'y est perdu. Hvumbi garde la forêt noire. Les deux Karrog gardent la porte du soleil, dans la falaise. Sidrún la Brasseuse tient la taverne au bord du monde, Úrsi passe les Eaux de la Mort, Útnafi le Survivant ne meurt pas ; la fleur de givre rend la jeunesse, et un serpent la vole.`,
+      `Les Orsènes : les Orsènes lisent les foies (Larth et son foie de bronze). Tavé naît d'un sillon avec un visage de vieillard. Sorne est la déesse dont on plantait un clou chaque année. Vaïne, la femme ailée à la torche, vient à chaque mort, et Karrog garde les portes avec son marteau. Fersel est l'homme masqué du jeu mortel, Ilé la déesse que les vikings ont appelée Véla. Les Orsènes savaient que leur peuple n'avait qu'un nombre compté de siècles.`,
+      `Le Nord : l'hiver sans fin, c'est la nuit perpétuelle du jeu. On y croise la völva, les fylgjur, les draugar dans les navires de pierres, la Chasse sauvage et son Chasseur borgne, les corbeaux, les géants du froid, Ormgard, et les Fileuses qui filent au pied de l'Arbre.`,
     ],
   },
   {
@@ -71,7 +80,7 @@ export const BIBLE = [
     titre: 'Une partie, une saga',
     texte: [
       `Chaque partie a la même colonne vertébrale (la grève, la maison, l'autre, le roi). Elle tire ensuite, avec la graine de l'île, quatre scénarios parmi les « souvent » et un parmi les « rares », et une fin parmi quatre selon ce que Kári a fait.`,
-      `Tages, l'enfant au visage de vieillard, assis dans l'arche, annonce les scénarios tirés en trois énigmes. Le joueur entend la partie avant de la vivre, sans la comprendre.`,
+      `Tavé, l'enfant au visage de vieillard, assis dans l'arche, annonce les scénarios tirés en trois énigmes. Le joueur entend la partie avant de la vivre, sans la comprendre.`,
       `Les fins sont l'Aube (arracher le clou), le Roi sous la roche (s'asseoir à la place du père), la Mer (brûler Eyvind sur l'eau et rentrer à SNO 3) et le Bout du monde (passer les Eaux de la Mort jusqu'au Survivant). Une fin vécue reste vraie dans les parties suivantes, d'une manière ou d'une autre. Si Kári s'est assis sur le trône, c'est lui qui attend sous la roche la fois suivante.`,
     ],
   },
@@ -79,15 +88,15 @@ export const BIBLE = [
     id: 'chronologie',
     titre: 'Chronologie',
     liste: [
-      ['il y a des siècles', 'Les Rasna arrivent du sud en suivant les oiseaux. Ils bâtissent l\'arche, le temple de Nortia, et plantent un clou par an dans son mur.'],
+      ['il y a des siècles', 'Les Orsènes arrivent du sud en suivant les oiseaux. Ils bâtissent l\'arche, le temple de Sorne, et plantent un clou par an dans son mur.'],
       ['−900 hivers', 'Le Grand Givre, le premier hiver sans fin. Útnafi le sauve dans son navire. Les dieux lui donnent de ne pas mourir.'],
-      ['−150', 'Naissance d\'Arnth Velchanas, le dernier bâtisseur des Rasna.'],
+      ['−150', 'Naissance d\'Arnth Velkar, le dernier bâtisseur des Orsènes.'],
       ['−95', 'Naissance de Ramtha, petite-fille d\'Arnth.'],
       ['−90', 'Aule, son frère, n\'est pas encore muré.'],
       ['−78', 'Hrólf Barbe-de-Givre débarque avec trois navires. Guerre d\'un hiver. Aule se mure dans la crypte du lac avec les livres de la foudre.'],
       ['−77', 'Paix : Hrólf épouse Ramtha.'],
       ['−75', 'Naissance de Kingvi.'],
-      ['−72', 'Naissance de Thorbrand, fils de Hrólf et de Mjöll, la neige.'],
+      ['−72', 'Naissance de Thorbrand, fils de Hrólf et de Lysa, la neige.'],
       ['−55', 'Mort de Hrólf. On lui dresse le grand navire de pierres de la plaine.'],
       ['−48', 'Hallveig la völva arrive du nord sur la glace et épouse Kingvi.'],
       ['−40', 'Mort de Larth le devin, qui laisse sa dernière lecture : « le fils de Kingvi rallumera le jour ».'],
@@ -96,11 +105,11 @@ export const BIBLE = [
       ['−26', 'Naissance de Kári. Le jour même, Hallveig et la nourrice Thordís le mettent à la mer dans un panier. Il dérive jusqu\'à SNO 3.'],
       ['−25', 'Naissance de Hjalti.'],
       ['−19', 'Hjalti meurt de la fièvre, à six ans. Kingvi plante le dernier clou à l\'envers. La nuit commence. Egil et la flotte des Gunnar sont pris dans le lac qui gèle d\'un coup.'],
-      ['−18', 'Hallveig donne son visage à Freya pour voir où est son fils. Elle devient le guetteur.'],
+      ['−18', 'Hallveig donne son visage à Véla pour voir où est son fils. Elle devient le guetteur.'],
       ['−12', 'Thorbrand se perd dans la Chasse sauvage.'],
       ['−9', 'Thorgrim prend Sigrún de force pour avoir le sang du roi.'],
       ['−8', 'Naissance d\'Ása.'],
-      ['−7', 'Sigrún s\'enfuit et monte voler la torche de Vanth pour rallumer le jour. Vanth la fige dans la glace, la torche à la main. Les Gunnar quittent l\'île, Ása refuse de partir.'],
+      ['−7', 'Sigrún s\'enfuit et monte voler la torche de Vaïne pour rallumer le jour. Vaïne la fige dans la glace, la torche à la main. Les Gunnar quittent l\'île, Ása refuse de partir.'],
       ['−5', 'Sur SNO 3, Kári se bat trois jours contre l\'homme sauvage Eyvind. Ils deviennent frères.'],
       ['−1', 'Kári épouse Ingunn.'],
       ['0', 'Le rêve envoyé par Hallveig appelle Kári. Eyvind part le premier. Thorgrim l\'attend sur la grève.'],
@@ -110,11 +119,11 @@ export const BIBLE = [
 
 // ── Les familles ──
 export const FAMILIES = [
-  { id: 'kingvi', nom: 'La maison de Kingvi', devise: 'Ce qui est à nous ne finit pas.', about: 'La lignée royale de SNO 7, née de la paix entre Hrólf le conquérant et Ramtha des Rasna. Elle a le sang des deux peuples, et celui de la neige par la branche cadette.' },
-  { id: 'rasna', nom: 'Les Rasna', devise: 'Le sort est écrit ; on peut le lire.', about: 'Ceux d\'avant, venus du sud. Bâtisseurs, devins, sculpteurs. Ils savaient que leur peuple avait un nombre compté de siècles et les ont comptés, clou après clou.' },
+  { id: 'kingvi', nom: 'La maison de Kingvi', devise: 'Ce qui est à nous ne finit pas.', about: 'La lignée royale de SNO 7, née de la paix entre Hrólf le conquérant et Ramtha des Orsènes. Elle a le sang des deux peuples, et celui de la neige par la branche cadette.' },
+  { id: 'rasna', nom: 'Les Orsènes', devise: 'Le sort est écrit ; on peut le lire.', about: 'Ceux d\'avant, venus du sud. Bâtisseurs, devins, sculpteurs. Ils savaient que leur peuple avait un nombre compté de siècles et les ont comptés, clou après clou.' },
   { id: 'gunnar', nom: 'Les Gunnar', devise: 'On rame.', about: 'Pêcheurs et passeurs du hameau du nord. Ils ont nourri les enfants des rois et n\'en ont rien eu. Ils descendent, sans le savoir, du Survivant.' },
-  { id: 'utnafi', nom: 'La maison du Survivant', devise: 'Rien ne dure, sauf nous, et ce n\'est pas un cadeau.', about: 'Útnafi, qui a survécu au Grand Givre, et les siens, au bout du monde. La saga de Gilgamesh, sous la neige.' },
-  { id: 'jotnar', nom: 'Les jötnar', devise: '…', about: 'La montagne, le glacier, la neige, la forêt. Ils ne parlent qu\'en dormant, ou quand on les réveille. La branche cadette des rois descend d\'eux.' },
+  { id: 'utnafi', nom: 'La maison du Survivant', devise: 'Rien ne dure, sauf nous, et ce n\'est pas un cadeau.', about: 'Útnafi, qui a survécu au Grand Givre, et les siens, au bout du monde. La plus vieille histoire du monde, sous la neige.' },
+  { id: 'jotnar', nom: 'Les géants du froid', devise: '…', about: 'La montagne, le glacier, la neige, la forêt. Ils ne parlent qu\'en dormant, ou quand on les réveille. La branche cadette des rois descend d\'eux.' },
   { id: 'puissances', nom: 'Les puissances', devise: '', about: 'Ceux qui ne meurent pas et n\'ont pas de famille : les dieux des deux peuples, les gardiens, les bêtes qui ne sont pas des bêtes.' },
 ];
 
@@ -134,8 +143,8 @@ export const PEOPLE = [
     sprite: { corps: 'geant', tete: 'casque', objet: 'hache', echelle: 2 },
     voix: 'Fort, lent, content de lui. Il dit « nous » pour parler de lui-même.',
     bio: [
-      `Il est venu du nord avec trois navires, trois cents hommes et une hache qui avait un nom (personne ne s'en souvient : il le disait trop souvent). Il a fait la guerre aux Rasna pendant un hiver entier, sans la gagner. Alors il a demandé en mariage la petite-fille du devin. Ramtha a dit oui, en posant une condition qu'il n'a pas comprise : « Tu ne toucheras jamais au mur des clous. »`,
-      `Il a tenu parole. Il a aussi aimé Mjöll, la neige, qui venait le voir les nuits de tempête sous la forme d'une femme blanche, et il en a eu un fils, Thorbrand, que Ramtha a élevé sans un mot.`,
+      `Il est venu du nord avec trois navires, trois cents hommes et une hache qui avait un nom (personne ne s'en souvient : il le disait trop souvent). Il a fait la guerre aux Orsènes pendant un hiver entier, sans la gagner. Alors il a demandé en mariage la petite-fille du devin. Ramtha a dit oui, en posant une condition qu'il n'a pas comprise : « Tu ne toucheras jamais au mur des clous. »`,
+      `Il a tenu parole. Il a aussi aimé Lysa, la neige, qui venait le voir les nuits de tempête sous la forme d'une femme blanche, et il en a eu un fils, Thorbrand, que Ramtha a élevé sans un mot.`,
       `On l'a couché dans le grand navire de pierres de la plaine, avec sa hache. Il n'y dort pas bien. Les nuits où le vent tombe, il se redresse et regarde vers la mer.`,
     ],
     lignes: ['Qui foule mon navire ?', 'Nous avons pris cette île avec trois bateaux. Toi, tu as une barque.'],
@@ -144,13 +153,13 @@ export const PEOPLE = [
     id: 'kingvi', nom: 'Kingvi', surnom: 'le Roi sous la roche', famille: 'kingvi', gen: 2, sexe: 'm',
     parents: ['hrolf', 'ramtha'], conjoints: ['hallveig'], statut: 'mort-vivant', vie: '−75 –',
     role: 'Le roi qui a arrêté le temps. Sur son trône, dans la grotte.',
-    lieu: 'La grotte sous la falaise', magie: 'Il a planté le clou de Nortia à l\'envers. Il ne peut plus mourir, ni se lever.',
+    lieu: 'La grotte sous la falaise', magie: 'Il a planté le clou de Sorne à l\'envers. Il ne peut plus mourir, ni se lever.',
     sprite: { corps: 'geant', tete: 'couronne', echelle: 3 },
     voix: 'Très bas, très doux, comme quelqu\'un qui a eu le temps de choisir chaque mot. Jamais en colère.',
     bio: [
-      `On disait de lui qu'il était fait pour deux tiers de neige et pour un tiers d'homme. Il était plus grand que tout le monde, plus fort, plus beau, et il le savait. Jeune, il a gouverné comme on chasse : vite, et pour lui. Il a pris les filles des autres, il a fait marcher les hommes jusqu'au glacier pour en ramener la glace la plus claire, il a fait bâtir sur l'île une salle plus haute que l'arche des Rasna.`,
+      `On disait de lui qu'il était fait pour deux tiers de neige et pour un tiers d'homme. Il était plus grand que tout le monde, plus fort, plus beau, et il le savait. Jeune, il a gouverné comme on chasse : vite, et pour lui. Il a pris les filles des autres, il a fait marcher les hommes jusqu'au glacier pour en ramener la glace la plus claire, il a fait bâtir sur l'île une salle plus haute que l'arche des Orsènes.`,
       `Hallveig l'a changé, un temps. Puis Larth, son grand-père, a lu dans le foie de bronze que son fils « rallumerait le jour », et Kingvi a eu peur pour la première fois. Il a laissé Hallveig mettre leur fils nouveau-né à la mer sans la retenir. Il s'est dit que c'était pour protéger l'enfant. C'était pour se protéger de lui.`,
-      `Quand Hjalti, le petit, est mort de la fièvre à six ans, Kingvi a passé sept jours et sept nuits près du corps, jusqu'à ce qu'il le voie changer. Alors il a eu peur de mourir comme on a peur du noir, sans pouvoir rien faire d'autre. Il est descendu au temple de Nortia, il a pris le marteau des Rasna et il a planté le dernier clou à l'envers, la pointe vers l'année qui venait.`,
+      `Quand Hjalti, le petit, est mort de la fièvre à six ans, Kingvi a passé sept jours et sept nuits près du corps, jusqu'à ce qu'il le voie changer. Alors il a eu peur de mourir comme on a peur du noir, sans pouvoir rien faire d'autre. Il est descendu au temple de Sorne, il a pris le marteau des Orsènes et il a planté le dernier clou à l'envers, la pointe vers l'année qui venait.`,
       `Le temps s'est arrêté sur SNO 7. La nuit est venue et n'est pas repartie. Kingvi s'est assis sur son trône, sous la roche, pour attendre que la peur passe. Elle n'est pas passée. Sa couronne est devenue trop lourde pour sa tête. Il est là depuis dix-neuf hivers et il aime toujours ceux qu'il a perdus.`,
     ],
     lignes: ['Ton frère est mort sans vieillir. N\'est-ce pas ce que nous voulions tous ?', 'Arrache-le, si tu veux. Moi, je n\'ai pas pu.'],
@@ -159,13 +168,13 @@ export const PEOPLE = [
     id: 'hallveig', nom: 'Hallveig', surnom: 'la völva, le guetteur', famille: 'kingvi', gen: 2, sexe: 'f',
     conjoints: ['kingvi'], statut: 'vivant', vie: '−70 –', origine: 'Du nord, sur la glace',
     role: 'La mère de Kári. La grande silhouette encapuchonnée qui s\'efface.',
-    lieu: 'Partout où Kári passe', magie: 'Seiðr. Elle a donné son visage à Freya pour voir de loin. On ne la voit plus de près.',
+    lieu: 'Partout où Kári passe', magie: 'Seiðr. Elle a donné son visage à Véla pour voir de loin. On ne la voit plus de près.',
     sprite: { corps: 'femme', tete: 'haute-capuche', objet: 'baton', echelle: 2 },
     voix: 'Elle ne dit presque rien, et jamais en face. Des phrases d\'un mot, ou des questions.',
     bio: [
       `Elle est arrivée du nord en marchant sur la mer gelée, seule, avec un bâton de fer et un sac de plumes. Les gens de Hrólf ont voulu la renvoyer. Kingvi l'a regardée et l'a épousée la semaine suivante.`,
       `Elle a eu trois enfants. Elle a mis le deuxième à la mer pour le sauver du premier homme qu'elle aimait. Elle a vu mourir le troisième. Elle a vu l'aînée partir vers la falaise et ne pas revenir sous sa forme.`,
-      `Pour savoir où dérivait son fils, elle a fait le seiðr le plus long que la völva de l'île ait jamais fait, et Freya lui a pris son visage en paiement. Depuis, on ne la voit plus que de loin : quand on approche, il n'y a rien sous la capuche, alors elle s'efface. Elle suit les traces des autres et ne laisse les siennes qu'à moitié.`,
+      `Pour savoir où dérivait son fils, elle a fait le seiðr le plus long que la völva de l'île ait jamais fait, et Véla lui a pris son visage en paiement. Depuis, on ne la voit plus que de loin : quand on approche, il n'y a rien sous la capuche, alors elle s'efface. Elle suit les traces des autres et ne laisse les siennes qu'à moitié.`,
       `C'est elle qui a envoyé le rêve qui a ramené Kári. Elle ne sait pas si elle a bien fait.`,
     ],
     lignes: ['Pas encore.', 'Tu as ses épaules.', 'Va.'],
@@ -178,7 +187,7 @@ export const PEOPLE = [
     sprite: { corps: 'geant', tete: 'casque', objet: 'lance', echelle: 2 },
     voix: 'Rauque, amer, drôle quand il a bu.',
     bio: [
-      `Fils de Hrólf et de Mjöll, la neige, il est né une nuit de tempête, déjà chaud, déjà lourd. Ramtha l'a élevé avec Kingvi comme s'il était à elle. Kingvi l'a toujours appelé « mon petit frère de neige » devant tout le monde.`,
+      `Fils de Hrólf et de Lysa, la neige, il est né une nuit de tempête, déjà chaud, déjà lourd. Ramtha l'a élevé avec Kingvi comme s'il était à elle. Kingvi l'a toujours appelé « mon petit frère de neige » devant tout le monde.`,
       `Il a reçu le rivage nord et le droit de s'asseoir à la droite du roi, pas plus. Il a épousé Gudrun, la fille du passeur, parce qu'elle riait de lui sans méchanceté.`,
       `Quand la nuit est venue, il a été le seul à ne pas avoir froid, et à aimer ça. Une nuit de Chasse sauvage, il est sorti pour la regarder passer. Il a couru derrière, en riant. Il n'est pas revenu. Certains disent qu'il chevauche dans la Chasse.`,
     ],
@@ -213,14 +222,14 @@ export const PEOPLE = [
     id: 'sigrun', nom: 'Sigrún', surnom: 'la Femme de glace', famille: 'kingvi', gen: 3, sexe: 'f',
     parents: ['kingvi', 'hallveig'], conjoints: ['thorgrim'], statut: 'mort-vivant', vie: '−30 –',
     role: 'La sœur aînée de Kári, figée dans la glace sur le plateau, une torche éteinte à la main.',
-    lieu: 'Le plateau, en haut de la falaise', magie: 'Vanth l\'a figée. La glace pleure quand une flamme approche.',
+    lieu: 'Le plateau, en haut de la falaise', magie: 'Vaïne l\'a figée. La glace pleure quand une flamme approche.',
     sprite: { corps: 'femme', tete: 'tresses', objet: 'torche' },
     voix: 'Une voix prise dans la glace, qui ne parle que quand une flamme la fait fondre un peu. Calme, amère, tendre pour sa fille.',
     bio: [
       `L'aînée, celle qui aurait dû régner. Elle avait onze ans quand la nuit est tombée, et elle n'a jamais pardonné à son père. Elle a grandi dans le noir en apprenant à faire du feu avec n'importe quoi.`,
-      `Thorgrim l'a prise de force pour avoir le sang du roi et le droit au trône. Elle a eu Ása, et un an plus tard elle est partie. Elle est montée sur la falaise, là où passe Vanth, la femme ailée qui vient chercher les morts avec sa torche, et elle a essayé de lui voler sa torche pour rallumer le jour sur l'île.`,
-      `Vanth l'a laissée prendre la torche, puis l'a figée : « Puisque tu veux la lumière, tiens-la. » Sigrún est debout sur le plateau, dans un bloc de glace claire, le bras levé, la torche éteinte au poing. Le vent a sculpté la glace autour d'elle.`,
-      `Quand une flamme approche, la glace pleure et Sigrún peut parler un peu. Si Kári allume sa torche à la sienne, la glace fond d'un coup : Vanth vient la prendre, enfin.`,
+      `Thorgrim l'a prise de force pour avoir le sang du roi et le droit au trône. Elle a eu Ása, et un an plus tard elle est partie. Elle est montée sur la falaise, là où passe Vaïne, la femme ailée qui vient chercher les morts avec sa torche, et elle a essayé de lui voler sa torche pour rallumer le jour sur l'île.`,
+      `Vaïne l'a laissée prendre la torche, puis l'a figée : « Puisque tu veux la lumière, tiens-la. » Sigrún est debout sur le plateau, dans un bloc de glace claire, le bras levé, la torche éteinte au poing. Le vent a sculpté la glace autour d'elle.`,
+      `Quand une flamme approche, la glace pleure et Sigrún peut parler un peu. Si Kári allume sa torche à la sienne, la glace fond d'un coup : Vaïne vient la prendre, enfin.`,
     ],
     lignes: ['Kári… ? Approche ta flamme. Pas trop.', 'J\'ai voulu ramener la lumière.', 'Ása. Dis-lui que je cherchais du feu.'],
   },
@@ -262,7 +271,7 @@ export const PEOPLE = [
     bio: [
       `Petit-fils de la neige par son père et du Survivant par sa mère, il est plus lourd et plus froid que tous. On l'a appelé « le bâtard du bâtard » jusqu'à ce qu'il soit assez grand pour qu'on arrête.`,
       `Il a deux raisons, et il ne sait plus laquelle est vraie. La couronne d'abord : la dernière lecture de Larth disait aussi que « celui qui arrachera le clou prendra la couronne ». Il a pris Sigrún de force pour avoir le sang du roi. Elle a refusé de toucher au clou pour lui, et elle est partie.`,
-      `La peur ensuite. Il croit que le jour réveillera Hrímnir, le géant de la montagne, son arrière-grand-père, et que le géant noiera l'île en se levant. Il garde la nuit comme on garde une porte.`,
+      `La peur ensuite. Il croit que le jour réveillera Ísgrim, le géant de la montagne, son arrière-grand-père, et que le géant noiera l'île en se levant. Il garde la nuit comme on garde une porte.`,
       `Quand il a appris par les corbeaux que le fils de Kingvi revenait, il a attendu sur la grève. Un homme est arrivé seul dans une barque mâtée. Thorgrim lui a dit : « Je suis ton cousin. Viens, la nourrice t'attend. » Dans la maison noire, il a frappé. En voyant le visage, il a su qu'il s'était trompé : c'était un sauvage aux dents de loup, pas un fils de roi. Il est sorti, il a marché vers l'est, et il attend le bon.`,
       `Il aime sa fille Ása, qui ne veut pas le voir.`,
     ],
@@ -348,28 +357,28 @@ export const PEOPLE = [
     lignes: [],
   },
 
-  // ══ Les Rasna ══
+  // ══ Les Orsènes ══
   {
-    id: 'arnth', nom: 'Arnth Velchanas', surnom: 'le Bâtisseur', famille: 'rasna', gen: 1, sexe: 'm',
+    id: 'arnth', nom: 'Arnth Velkar', surnom: 'le Bâtisseur', famille: 'rasna', gen: 1, sexe: 'm',
     conjoints: ['thanchvil'], statut: 'mort', vie: '−150 – −85',
-    role: 'Le dernier bâtisseur des Rasna. Il a relevé l\'arche.',
+    role: 'Le dernier bâtisseur des Orsènes. Il a relevé l\'arche.',
     lieu: 'L\'arche', magie: 'Il savait où les pierres veulent tenir.',
     sprite: { corps: 'vieux', tete: 'bonnet', objet: 'baton' },
     voix: 'Mort, il ne parle qu\'à travers les pierres : des mots gravés qui apparaissent sous la neige.',
     bio: [
-      `Les Rasna étaient sur l'île depuis des siècles quand il est né, mais ils n'étaient plus que quelques familles. Il a passé sa vie à relever ce que le gel faisait tomber : l'arche, le socle à degrés, le mur du temple où l'on plantait un clou par an.`,
-      `Il a compté les clous. Il en restait neuf avant le dernier siècle des Rasna. Il ne l'a dit qu'à sa femme.`,
+      `Les Orsènes étaient sur l'île depuis des siècles quand il est né, mais ils n'étaient plus que quelques familles. Il a passé sa vie à relever ce que le gel faisait tomber : l'arche, le socle à degrés, le mur du temple où l'on plantait un clou par an.`,
+      `Il a compté les clous. Il en restait neuf avant le dernier siècle des Orsènes. Il ne l'a dit qu'à sa femme.`,
     ],
     lignes: ['ICI LE MUR DES ANS. UN CLOU PAR HIVER. NE PAS PLANTER À REBOURS.'],
   },
   {
-    id: 'thanchvil', nom: 'Thanchvil', surnom: 'la Prêtresse d\'Uni', famille: 'rasna', gen: 1, sexe: 'f',
+    id: 'thanchvil', nom: 'Thanchvil', surnom: 'la Prêtresse d\'Ilé', famille: 'rasna', gen: 1, sexe: 'f',
     conjoints: ['arnth'], statut: 'mort', vie: '−145 – −90',
-    role: 'Prêtresse d\'Uni, celle que les vikings appelleront Freya.',
+    role: 'Prêtresse d\'Ilé, celle que les vikings appelleront Véla.',
     lieu: 'Le temple', magie: 'Elle lisait le vol des oiseaux.',
     sprite: { corps: 'femme', tete: 'voile', objet: 'baton' },
     voix: '—',
-    bio: [`C'est elle qui a voulu les grandes statues. Uni a le visage de sa mère. Quand les vikings sont arrivés, ils ont reconnu Freya dans les statues et les ont laissées debout. Thanchvil a appelé ça « la ruse d'Uni ».`],
+    bio: [`C'est elle qui a voulu les grandes statues. Ilé a le visage de sa mère. Quand les vikings sont arrivés, ils ont reconnu Véla dans les statues et les ont laissées debout. Thanchvil a appelé ça « la ruse d'Ilé ».`],
     lignes: [],
   },
   {
@@ -384,7 +393,7 @@ export const PEOPLE = [
       `Sa dernière lecture, faite dans le foie d'un loup blanc que lui avait amené Kingvi enfant, disait trois choses. « Le fils de Kingvi rallumera le jour. Celui qui arrachera le clou prendra la couronne. Celui qui portera la couronne ne verra plus le jour. » Il est mort en disant que les trois étaient vraies ensemble.`,
       `Son ombre revient près des bêtes qu'on abat, s'accroupit et lit.`,
     ],
-    lignes: ['Case de Tinia : la foudre. Case de Nortia : un clou. Tu vivras encore trois rencontres.', 'Je me suis trompé une fois. De deux jours.'],
+    lignes: ['Case de Tuen : la foudre. Case de Sorne : un clou. Tu vivras encore trois rencontres.', 'Je me suis trompé une fois. De deux jours.'],
   },
   {
     id: 'fasti', nom: 'Fasti', surnom: 'la Tisseuse', famille: 'rasna', gen: 2, sexe: 'f',
@@ -393,26 +402,26 @@ export const PEOPLE = [
     lieu: '—', magie: 'Elle écrivait sur le lin.',
     sprite: { corps: 'femme', tete: 'voile', objet: 'fuseau' },
     voix: '—',
-    bio: [`Elle tissait les bandelettes de lin sur lesquelles les Rasna écrivaient leurs livres sacrés. Le dernier qu'elle a tissé est resté dans la crypte, avec Aule.`],
+    bio: [`Elle tissait les bandelettes de lin sur lesquelles les Orsènes écrivaient leurs livres sacrés. Le dernier qu'elle a tissé est resté dans la crypte, avec Aule.`],
     lignes: [],
   },
   {
     id: 'velia', nom: 'Velia', surnom: 'la Sculptrice', famille: 'rasna', gen: 2, sexe: 'f',
     parents: ['arnth', 'thanchvil'], statut: 'mort', vie: '−115 – −60',
-    role: 'Sœur de Larth. Elle a taillé les Freya. Elle a trouvé Tages dans un sillon.',
+    role: 'Sœur de Larth. Elle a taillé les Véla. Elle a trouvé Tavé dans un sillon.',
     lieu: 'Les statues', magie: 'Ce qu\'elle taillait regardait.',
     sprite: { corps: 'femme', tete: 'bonnet', objet: 'marteau' },
     voix: '—',
     bio: [
-      `Elle a taillé les trois grandes statues d'Uni, que les vikings appelleront Freya : celle qui est ensevelie dans la forêt, celle qui est debout à la sortie de la forêt noire et la petite de l'îlot, avec une porte dans la robe.`,
-      `Un printemps, en labourant le champ devant le temple, elle a vu le sillon s'ouvrir et un enfant en sortir avec un visage de vieillard. Elle l'a pris dans sa robe et l'a appelé Tages.`,
+      `Elle a taillé les trois grandes statues d'Ilé, que les vikings appelleront Véla : celle qui est ensevelie dans la forêt, celle qui est debout à la sortie de la forêt noire et la petite de l'îlot, avec une porte dans la robe.`,
+      `Un printemps, en labourant le champ devant le temple, elle a vu le sillon s'ouvrir et un enfant en sortir avec un visage de vieillard. Elle l'a pris dans sa robe et l'a appelé Tavé.`,
     ],
     lignes: [],
   },
   {
     id: 'ramtha', nom: 'Ramtha', surnom: 'la Paix', famille: 'rasna', gen: 3, sexe: 'f',
     parents: ['larth', 'fasti'], conjoints: ['hrolf'], statut: 'mort', vie: '−95 – −50',
-    role: 'La Rasna qui a épousé le conquérant. Mère de Kingvi.',
+    role: 'La Orsènes qui a épousé le conquérant. Mère de Kingvi.',
     lieu: '—', magie: 'Elle savait lire, comme son père, et elle s\'en est privée.',
     sprite: { corps: 'femme', tete: 'voile' },
     voix: '—',
@@ -426,24 +435,24 @@ export const PEOPLE = [
     id: 'aule', nom: 'Aule', surnom: 'le Muré', famille: 'rasna', gen: 3, sexe: 'm',
     parents: ['larth', 'fasti'], statut: 'mort-vivant', vie: '−92 –',
     role: 'Le frère de Ramtha, muré dans la crypte avec les livres de la foudre. Le sceau du coffre est le sien.',
-    lieu: 'La crypte, sous la petite Freya de l\'îlot', magie: 'Les livres de la foudre : il sait où tombera chaque éclair.',
+    lieu: 'La crypte, sous la petite Véla de l\'îlot', magie: 'Les livres de la foudre : il sait où tombera chaque éclair.',
     sprite: { corps: 'vieux', tete: 'bonnet' },
     voix: 'Sec, ironique, fatigué. Il compte les hivers à voix haute.',
     bio: [
-      `Il n'a pas voulu de la paix avec Hrólf. Quand sa sœur l'a épousé, il est descendu dans la crypte de la petite Uni avec les livres de lin de sa mère et le sceau de la famille, et il a fait murer la porte de la robe derrière lui.`,
-      `Il y est depuis soixante-dix-huit hivers. Le temps arrêté l'a gardé là, ni mort ni vieilli davantage. Il a lu les livres de la foudre tant de fois qu'il les récite. Il est le dernier Rasna vivant, si l'on peut dire vivant.`,
+      `Il n'a pas voulu de la paix avec Hrólf. Quand sa sœur l'a épousé, il est descendu dans la crypte de la petite Ilé avec les livres de lin de sa mère et le sceau de la famille, et il a fait murer la porte de la robe derrière lui.`,
+      `Il y est depuis soixante-dix-huit hivers. Le temps arrêté l'a gardé là, ni mort ni vieilli davantage. Il a lu les livres de la foudre tant de fois qu'il les récite. Il est le dernier Orsènes vivant, si l'on peut dire vivant.`,
     ],
     lignes: ['Tu ouvres, viking ? Soixante-dix-huit hivers que je compte dans le noir.', 'Prends le sceau. Je n\'ai plus rien à fermer.'],
   },
   {
-    id: 'tages', nom: 'Tages', surnom: 'l\'Enfant-Vieillard', famille: 'rasna', gen: 3, sexe: 'm',
+    id: 'tages', nom: 'Tavé', surnom: 'l\'Enfant-Vieillard', famille: 'rasna', gen: 3, sexe: 'm',
     parents: ['velia'], statut: 'immortel', vie: 'sorti d\'un sillon',
     role: 'L\'enfant au visage de vieillard, sorti d\'un sillon. Il annonce la partie en trois énigmes.',
-    lieu: 'Assis sous l\'arche', magie: 'Il a dicté la disciplina aux Rasna. Il sait ce qui va arriver dans la partie.',
+    lieu: 'Assis sous l\'arche', magie: 'Il a dicté la disciplina aux Orsènes. Il sait ce qui va arriver dans la partie.',
     sprite: { corps: 'enfant', tete: 'bonnet' },
     voix: 'Une voix de vieil homme dans un corps d\'enfant. Il parle en énigmes et rit de ses propres énigmes.',
     bio: [
-      `Né d'un sillon, adopté par Velia. Il a dicté aux Rasna tout ce qu'ils savaient du ciel et des foies, en une seule journée, puis il s'est tu pendant cent ans.`,
+      `Né d'un sillon, adopté par Velia. Il a dicté aux Orsènes tout ce qu'ils savaient du ciel et des foies, en une seule journée, puis il s'est tu pendant cent ans.`,
       `Il est assis sous l'arche, petit comme un enfant de cinq ans, avec un visage plus vieux que l'île. Il connaît la partie qui commence, et il la dit en trois énigmes à qui passe sous l'arche. Personne ne comprend avant de l'avoir vécue.`,
     ],
     lignes: ['Trois choses t\'attendent. Une qui vole, une qui dort, une qui ment.', 'Je suis plus vieux que toi et plus petit que ta hache.'],
@@ -606,19 +615,19 @@ export const PEOPLE = [
     lignes: ['Tu as cassé mes rameurs. Bien. Va me couper cent vingt perches.', 'Une perche, une poussée. Lâche-la avant que l\'eau monte au bois.'],
   },
 
-  // ══ Les jötnar ══
+  // ══ Les géants du froid ══
   {
-    id: 'hrimnir', nom: 'Hrímnir', surnom: 'l\'Endormi', famille: 'jotnar', gen: 1, sexe: 'm',
+    id: 'hrimnir', nom: 'Ísgrim', surnom: 'l\'Endormi', famille: 'jotnar', gen: 1, sexe: 'm',
     conjoints: ['fonn'], statut: 'immortel', vie: '—',
     role: 'Le géant qui est une montagne. Sa respiration fait la tempête.',
     lieu: 'La chaîne du nord', magie: 'Il dort. Il parle en dormant. Si le jour revient, il se lèvera.',
     sprite: { corps: 'colosse', tete: 'cornes', echelle: 3 },
     voix: 'Un mot par minute. Ses phrases durent une nuit.',
-    bio: [`Il s'est couché au nord de l'île avant l'arrivée des Rasna et ne s'est pas relevé. La neige l'a recouvert, les sapins ont poussé sur ses épaules. Chaque fois qu'il expire, la tempête se lève. Thorgrim croit qu'il noiera l'île en se levant. En vérité, il veut seulement aller voir la mer.`],
+    bio: [`Il s'est couché au nord de l'île avant l'arrivée des Orsènes et ne s'est pas relevé. La neige l'a recouvert, les sapins ont poussé sur ses épaules. Chaque fois qu'il expire, la tempête se lève. Thorgrim croit qu'il noiera l'île en se levant. En vérité, il veut seulement aller voir la mer.`],
     lignes: ['… … la mer … … est-elle encore … … là ?'],
   },
   {
-    id: 'fonn', nom: 'Fönn', surnom: 'le Glacier', famille: 'jotnar', gen: 1, sexe: 'f',
+    id: 'fonn', nom: 'Skafla', surnom: 'le Glacier', famille: 'jotnar', gen: 1, sexe: 'f',
     conjoints: ['hrimnir'], statut: 'immortel', vie: '—',
     role: 'La géante glacier. Les icebergs plats sont ses larmes.',
     lieu: 'Le glacier du nord-est', magie: 'Elle avance d\'un pas par siècle.',
@@ -642,7 +651,7 @@ export const PEOPLE = [
     lignes: ['J\'entends ton cœur depuis la lisière, petit roi.', 'Laisse-moi vivre et je te donnerai tous les arbres.', 'Ton frère t\'aurait dit de frapper. Ton frère est mort.'],
   },
   {
-    id: 'mjoll', nom: 'Mjöll', surnom: 'la Neige fraîche', famille: 'jotnar', gen: 2, sexe: 'f',
+    id: 'mjoll', nom: 'Lysa', surnom: 'la Neige fraîche', famille: 'jotnar', gen: 2, sexe: 'f',
     parents: ['hrimnir', 'fonn'], conjoints: ['hrolf'], statut: 'immortel', vie: '—',
     role: 'La neige qui tombe. Une femme blanche dans les tempêtes. Mère de Thorbrand.',
     lieu: 'Dans chaque tempête', magie: 'Elle est la neige. Elle efface les traces.',
@@ -654,25 +663,25 @@ export const PEOPLE = [
 
   // ══ Les puissances ══
   {
-    id: 'freya', nom: 'Freya', surnom: 'Uni, pour les Rasna', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
+    id: 'freya', nom: 'Véla', surnom: 'Ilé, pour les Orsènes', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
     role: 'La déesse des statues, deux noms pour un même visage.',
     lieu: 'Les trois statues', magie: 'Le seiðr. Elle a pris le visage de Hallveig.',
     sprite: { corps: 'geant', tete: 'voile', echelle: 3 },
     voix: 'Deux voix ensemble, une ancienne et une nordique.',
-    bio: [`On l'appelait Uni, puis Freya. Elle n'a pas changé ; ce sont les bouches qui ont changé. Elle parle par ses statues. Elle offrira à Kári de l'épouser après sa victoire, comme Ishtar à Gilgamesh. S'il refuse, elle enverra le Taureau de givre.`],
-    lignes: ['On m\'appelait Uni. Puis Freya. Je n\'ai pas changé : ce sont les bouches.', 'Sois mon époux, petit roi. Ton père n\'a pas su.'],
+    bio: [`On l'appelait Ilé, puis Véla. Elle n'a pas changé ; ce sont les bouches qui ont changé. Elle parle par ses statues. Elle offrira à Kári de l'épouser après sa victoire. S'il refuse, elle enverra le Taureau de givre.`],
+    lignes: ['On m\'appelait Ilé. Puis Véla. Je n\'ai pas changé : ce sont les bouches.', 'Sois mon époux, petit roi. Ton père n\'a pas su.'],
   },
   {
-    id: 'vanth', nom: 'Vanth', surnom: 'la Femme ailée', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
+    id: 'vanth', nom: 'Vaïne', surnom: 'la Femme ailée', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
     role: 'Celle qui vient chercher les morts, avec sa torche. Elle vient à chaque mort de Kári.',
     lieu: 'Au-dessus de chaque mort', magie: 'Elle conduit les morts. Elle a figé Sigrún dans la glace.',
     sprite: { corps: 'femme', tete: 'voile', objet: 'torche', ailes: true },
     voix: 'Douce, sans pitié, un peu lasse. Une seule ligne à chaque mort.',
-    bio: [`Étrusque, elle a suivi les Rasna jusqu'ici. Elle a de grandes ailes et une torche qui ne s'éteint pas. Quand Kári meurt, avant que le noir se referme, elle se penche sur lui et dit une ligne, chaque fois une autre. Elle n'emporte jamais personne sur SNO 7 : le temps arrêté le lui interdit. Ça l'agace.`],
+    bio: [`Orsène, elle a suivi les Orsènes jusqu'ici. Elle a de grandes ailes et une torche qui ne s'éteint pas. Quand Kári meurt, avant que le noir se referme, elle se penche sur lui et dit une ligne, chaque fois une autre. Elle n'emporte jamais personne sur SNO 7 : le temps arrêté le lui interdit. Ça l'agace.`],
     lignes: ['Encore toi.', 'Je ne peux pas t\'emmener. Personne ne meurt vraiment, ici.', 'Relève-toi. Ta sœur m\'a volé une torche, je l\'attends toujours.'],
   },
   {
-    id: 'charun', nom: 'Charun Huths et Charun Lufe', surnom: 'les Gardiens de la porte', famille: 'puissances', gen: 1, sexe: 'x', statut: 'immortel',
+    id: 'charun', nom: 'Karrog l\'Aîné et Karrog le Cadet', surnom: 'les Gardiens de la porte', famille: 'puissances', gen: 1, sexe: 'x', statut: 'immortel',
     role: 'Les deux gardiens au marteau, à la porte de la montagne.',
     lieu: 'La falaise, l\'entrée de la grotte, la porte du soleil', magie: 'Leur marteau ferme les portes.',
     sprite: { corps: 'geant', tete: 'masque', objet: 'marteau', echelle: 2 },
@@ -681,12 +690,12 @@ export const PEOPLE = [
     lignes: ['Nul n\'a passé la montagne…', '…que viens-tu y chercher ?'],
   },
   {
-    id: 'nortia', nom: 'Nortia', surnom: 'le Sort', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
+    id: 'nortia', nom: 'Sorne', surnom: 'le Sort', famille: 'puissances', gen: 1, sexe: 'f', statut: 'immortel',
     role: 'La déesse des clous. On plantait un clou par an dans son mur.',
     lieu: 'Le temple sous l\'arche', magie: 'Ce qui est cloué est fixé.',
     sprite: { corps: 'femme', tete: 'voile', objet: 'marteau' },
     voix: 'Un bruit de métal sur la pierre. Ses mots sont des coups.',
-    bio: [`On ne la voit jamais. Son mur est couvert de neuf cents clous, un par hiver depuis l'arrivée des Rasna. Le dernier est planté à l'envers. Elle ne punit personne : elle attend qu'on l'arrache.`],
+    bio: [`On ne la voit jamais. Son mur est couvert de neuf cents clous, un par hiver depuis l'arrivée des Orsènes. Le dernier est planté à l'envers. Elle ne punit personne : elle attend qu'on l'arrache.`],
     lignes: ['Un. Clou. Par. Hiver.'],
   },
   {
@@ -699,12 +708,12 @@ export const PEOPLE = [
     lignes: ['Cours, et tu es à moi.', 'Reste là, fils de Kingvi. Ton oncle te salue.'],
   },
   {
-    id: 'jormungandr', nom: 'Jörmungandr', surnom: 'le Serpent', famille: 'puissances', gen: 1, sexe: 'x', statut: 'immortel',
+    id: 'jormungandr', nom: 'Ormgard', surnom: 'le Serpent', famille: 'puissances', gen: 1, sexe: 'x', statut: 'immortel',
     role: 'Le serpent qui entoure le monde. Il passe au large.',
     lieu: 'La mer', magie: 'Il a volé la fleur de givre et il a fait peau neuve.',
     sprite: { corps: 'serpent' },
     voix: 'Un mot par siècle.',
-    bio: [`On ne voit de lui qu'un dos qui passe au loin, si long qu'on le prend pour une côte. C'est lui qui a mangé la fleur de givre que Gilgamesh, le premier, avait remontée du fond. Il change de peau chaque siècle. Ses peaux échouent sur les grèves de l'archipel.`],
+    bio: [`On ne voit de lui qu'un dos qui passe au loin, si long qu'on le prend pour une côte. C'est lui qui a mangé la fleur de givre que le premier roi de l'archipel avait remontée du fond. Il change de peau chaque siècle. Ses peaux échouent sur les grèves de l'archipel.`],
     lignes: ['… Jeune.'],
   },
   {
@@ -724,12 +733,14 @@ export const PERSON = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
 // ── Ce qu'ils veulent : ce qu'un personnage dit quand on lui parle (touche E),
 // pour qu'on comprenne ce qu'il attend et ce qui pourrait arriver. `apres` :
 // ce qu'il dit une fois la chose faite (le jeu sait quand : `si` ; une liste :
-// la dernière qui est vraie). `don` : la
+// la dernière qui est vraie). `voeu` : ce qu'en dit le carnet des vœux (rayé
+// quand `fait` est vrai). `don` : la
 // relique qu'on peut lui donner (touche E, si elle pend à la ceinture), ce
 // qui se dit alors, et ce que ça fait (`effet`, game.js : `give`).
 const VEUT = {
   tages: {
-    lignes: ['Je dis ce qui vient. Rien de plus.', 'Sous mes pieds, il y a des marches. Une dalle les ferme, et le sceau d\'Aule la tient.', 'Le sceau dort dans un coffre, sous l\'eau, dans la petite Freya du lac. Apporte-le.'],
+    voeu: 'Attend le sceau de la crypte, sous l\'eau du lac, pour ouvrir les marches sous l\'arche.', fait: 'don-tages',
+    lignes: ['Je dis ce qui vient. Rien de plus.', 'Sous mes pieds, il y a des marches. Une dalle les ferme, et le sceau d\'Aule la tient.', 'Le sceau dort dans un coffre, sous l\'eau, dans la petite Véla du lac. Apporte-le.'],
     don: { relique: 'sceau', effet: 'temple', lignes: [['tages', 'Le sceau d\'Aule. Il fermait tout, celui-là.'], ['tages', 'Pousse la dalle. En bas, le mur des ans.'], ['tages', 'Le dernier clou est à l\'envers. Tu sais ce que tu fais ? Moi, oui.']] },
     apres: [
       { si: 'don-tages', lignes: ['La dalle est poussée. Descends.', 'Le clou est à l\'envers, à hauteur d\'homme. Tire, si tu veux. Ou laisse.'] },
@@ -737,28 +748,34 @@ const VEUT = {
     ],
   },
   kingvi: {
-    lignes: ['Je veux ne pas mourir. Je veux que rien ne change.', 'Le clou est sous l\'arche, dans le mur des Rasna. Tu le sais, maintenant.', 'Si tu l\'arraches, je meurs. Et le jour revient. Choisis.'],
+    voeu: 'Ne veut pas mourir, ni que rien change. Le clou doit rester planté.', fait: 'aube',
+    lignes: ['Je veux ne pas mourir. Je veux que rien ne change.', 'Le clou est sous l\'arche, dans le mur des Orsènes. Tu le sais, maintenant.', 'Si tu l\'arraches, je meurs. Et le jour revient. Choisis.'],
     apres: { si: 'aube', lignes: ['Il fait jour, dehors ? Je le sens dans mes os.', 'Ce n\'est pas si terrible. Laisse-moi, maintenant.'] },
   },
   freya: {
+    voeu: 'Voudrait la poupée de paille pendue à l\'arbre du bosquet.', fait: 'don-freya',
     lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Elle a pendu sa poupée à l\'arbre du bosquet.', 'Rapporte-la-moi, et je te garderai.'],
     don: { relique: 'poupee', effet: 'garde', lignes: [['freya', 'La poupée de Hallveig. Elle avait tes yeux, enfant.'], ['freya', 'Je te garde, petit roi. Un coup de plus, et tu tiendras debout.']] },
     apres: { si: 'don-freya', lignes: ['Va. Je regarde pour toi.'] },
   },
   thorgrim: { lignes: ['Viens. Qu\'on en finisse.'] },
   legba: {
-    lignes: ['Je tiens les barrières, petit. Celle-ci est ouverte.', 'Marche mon vèvè, là, à côté de mes mâts : je t\'ouvrirai les chemins de l\'île.'],
+    voeu: 'Veut qu\'on marche son signe, à côté de ses mâts.', fait: 'veve-legba',
+    lignes: ['Je tiens les barrières, petit. Celle-ci est ouverte.', 'Marche mon tracé, là, à côté de mes mâts : je t\'ouvrirai les chemins de l\'île.'],
     apres: { si: 'veve-legba', lignes: ['Les chemins sont ouverts. Regarde ta carte.', 'Va au carrefour. La nuit, c\'est mon autre visage qui garde.'] },
   },
   anaise: {
-    lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton île.', 'Il y a trois vèvè dans la neige : Legba, Damballah, le Baron. Marche-les.'],
+    voeu: 'Veut que sa sœur passe : il faut que le clou tombe, sur SNO 7.', fait: 'aube',
+    lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton île.', 'Il y a trois tracés dans la neige : Clède, Lazul, le Baron. Marche-les.'],
     apres: { si: 'aube', lignes: ['Anisse est passée. Je l\'ai sentie partir. Merci.'] },
   },
   tijo: {
+    voeu: 'Veut que sa maman se réveille. Le sel réveille.', fait: 'clotildeFree',
     lignes: ['Ma maman marche sur la banquise. Elle ne me voit pas.', 'Si tu la croises, donne-lui le sel. Le sel réveille.'],
     apres: { si: 'clotildeFree', lignes: ['Maman est rentrée ! Elle parle trop vite. C\'est bien.'] },
   },
   kalfou: {
+    voeu: 'Veut qu\'on le paie, ou que le clou tombe, pour rouvrir la route des morts.', fait: ['don-kalfou', 'aube'],
     lignes: ['Je garde les morts jusqu\'à ce que la route s\'ouvre.', 'Le clou de ton père bouche tout. Arrache-le, et je rouvrirai.', 'Ou paie-moi. L\'anneau de celui que tu as tué : ça paie un passage.'],
     don: { relique: 'viking', effet: 'passage', lignes: [['kalfou', 'L\'anneau d\'un mort, donné par son tueur. Bon prix.'], ['kalfou', 'Un passage. Pour qui ? Pour ton frère, je sais.'], ['eyvind', 'Merci, Kári. Je monte. Ne pleure pas, il fait trop froid.']] },
     apres: [
@@ -767,27 +784,38 @@ const VEUT = {
     ],
   },
   eyvind: {
-    lignes: ['Arrache le clou, frère. Alors on pourra passer.', 'Ou paie Kalfou pour moi. Il aime les anneaux des morts.', 'Et brûle mon corps, dans la maison, si ce n\'est pas fait. Je veux monter.'],
+    voeu: 'Veut que son corps brûle dans la maison, et passer.', fait: ['brule', 'don-kalfou'],
+    lignes: ['Arrache le clou, frère. Alors on pourra passer.', 'Ou paie Croisée pour moi. Il aime les anneaux des morts.', 'Et brûle mon corps, dans la maison, si ce n\'est pas fait. Je veux monter.'],
     apres: { si: 'aube', lignes: ['Le jour, chez nous. Je le vois d\'ici. Va, frère.'] },
   },
-  anisse: { lignes: ['Dis à Anaïse que j\'attends. Je n\'ai pas peur.', 'Il fait froid, ici. Mais on chante.'] },
+  anisse: {
+    voeu: 'Attend sa sœur pour passer.', fait: 'aube', lignes: ['Dis à Anaïse que j\'attends. Je n\'ai pas peur.', 'Il fait froid, ici. Mais on chante.'] },
   baron: {
+    voeu: 'Veut qu\'on marche sa croix, au sud du cimetière.', fait: 'veve-baron',
     lignes: ['Je ne creuse plus, mon garçon. Personne ne meurt pour de bon.', 'Marche ma croix, au sud du cimetière. Je te ferai rire.'],
     apres: { si: 'veve-baron', lignes: ['Ha ! Tu ris bien, pour un viking.', 'Reviens quand ton papa sera mort. J\'aurai du travail, enfin.'] },
   },
   brigitte: {
+    voeu: 'Voudrait ce qui reste du compagnon, pour lui donner une tombe.', fait: 'don-brigitte',
     lignes: ['Je garde les tombes. Il n\'y a rien à garder, en ce moment.', 'Quand le jour reviendra chez toi, il y aura du monde ici. Je serai prête.', 'Si tu as ce qui reste de ton compagnon, donne-le-moi. Il aura une tombe.'],
     don: { relique: 'boucle', effet: 'tombe', lignes: [['brigitte', 'Une boucle, et de la cendre dedans. C\'est assez pour une tombe.'], ['brigitte', 'Je l\'enterre près de la croix. Le Baron dira les mots.'], ['baron', 'Il riait bien, celui-là ? Alors il dormira bien.']] },
     apres: { si: 'don-brigitte', lignes: ['Ton compagnon dort. Je passe le voir chaque nuit.'] },
   },
-  lucien: { lignes: ['Je vends des bouteilles. Une âme au chaud, ça ne meurt jamais.', 'Tu veux garder quelqu\'un ? Ton frère, peut-être ? Il attend au carrefour.'] },
+  lucien: {
+    voeu: 'Veut garder une âme en bouteille. Ton frère, peut-être.', lignes: ['Je vends des bouteilles. Une âme au chaud, ça ne meurt jamais.', 'Tu veux garder quelqu\'un ? Ton frère, peut-être ? Il attend au carrefour.'] },
   clotilde: { lignes: ['… bwa … bwa …'] },
   damballah: {
+    voeu: 'Regarde le dessin de cendre, sous l\'arbre.', fait: 'veve-damballah',
     lignes: ['Ssss.', 'Sss… (le serpent regarde le dessin de cendre, sous l\'arbre)'],
     apres: { si: 'veve-damballah', lignes: ['Ssssss.'] },
   },
 };
+VEUT.sigrun = {
+  voeu: 'Cherchait du feu pour rallumer le jour. Elle attend une flamme.', fait: 'sigrunFree',
+  lignes: ['(la glace pleure)', 'Approche ta flamme. Pas trop.'],
+};
 VEUT.hvit = {
+  voeu: 'Veut qu\'on défasse le collet qui lui tient la patte.', fait: 'hvitFree',
   lignes: ['(elle gronde, la patte prise dans un collet)'],
   apres: { si: 'hvitFree', lignes: ['Mes petits sont là-haut, sur la roche. Ils te laisseront passer.', 'Ne lève pas la lame sur eux.'] },
 };
@@ -798,16 +826,16 @@ export const PLACES = [
   { id: 'greve', nom: 'La grève', ile: 'SNO 7', nouveau: false, about: 'La barque de Kári, la barque mâtée d\'Önund qui a amené Eyvind, deux pistes.' },
   { id: 'plaine', nom: 'La plaine des morts', ile: 'SNO 7', nouveau: false, about: 'Les trois navires de pierres de Hrólf et de ses hommes. Le plus grand est le sien.' },
   { id: 'hameau', nom: 'Le hameau des Gunnar', ile: 'SNO 7', nouveau: true, about: 'Au nord de la plaine, cinq maisons de tourbe, une table encore mise, un cellier où vit Ása. Des noms gravés à hauteur d\'enfant.' },
-  { id: 'temple', nom: 'Le temple de Nortia', ile: 'SNO 7', nouveau: true, about: 'Sous l\'arche, des marches descendent vers un mur couvert de neuf cents clous. Le dernier est planté à l\'envers.' },
-  { id: 'arche', nom: 'L\'arche', ile: 'SNO 7', nouveau: false, about: 'La porte du temple. Tages y est assis.' },
+  { id: 'temple', nom: 'Le temple de Sorne', ile: 'SNO 7', nouveau: true, about: 'Sous l\'arche, des marches descendent vers un mur couvert de neuf cents clous. Le dernier est planté à l\'envers.' },
+  { id: 'arche', nom: 'L\'arche', ile: 'SNO 7', nouveau: false, about: 'La porte du temple. Tavé y est assis.' },
   { id: 'foret-noire', nom: 'La forêt noire', ile: 'SNO 7', nouveau: false, about: 'Le domaine de Hvumbi. En son cœur, une clairière qu\'on ne trouve que sans torche.' },
   { id: 'bosquet', nom: 'Le bosquet sacré', ile: 'SNO 7', nouveau: false, about: 'L\'arbre mort aux offrandes. La poupée de Hjalti.' },
   { id: 'maison', nom: 'La maison de Thordís', ile: 'SNO 7', nouveau: false, about: 'La maison de la nourrice. Eyvind y est mort.' },
   { id: 'lac', nom: 'Le lac et la flotte prise', ile: 'SNO 7', nouveau: true, about: 'Sous la glace, six barques et leurs pêcheurs debout. Au fond, la fleur de givre.' },
-  { id: 'crypte', nom: 'La crypte d\'Aule', ile: 'SNO 7', nouveau: false, about: 'Sous la petite Freya de l\'îlot. Les livres de la foudre.' },
-  { id: 'falaise', nom: 'La falaise et la porte', ile: 'SNO 7', nouveau: false, about: 'La sente en lacets, les deux Charun à l\'entrée.' },
+  { id: 'crypte', nom: 'La crypte d\'Aule', ile: 'SNO 7', nouveau: false, about: 'Sous la petite Véla de l\'îlot. Les livres de la foudre.' },
+  { id: 'falaise', nom: 'La falaise et la porte', ile: 'SNO 7', nouveau: false, about: 'La sente en lacets, les deux Karrog à l\'entrée.' },
   { id: 'grotte', nom: 'La grotte du roi', ile: 'SNO 7', nouveau: false, about: 'Kingvi sur son trône. Derrière, une fissure qui monte.' },
-  { id: 'plateau', nom: 'Le plateau', ile: 'SNO 7', nouveau: false, about: 'Là où passe Vanth. Sigrún y est debout dans la glace.' },
+  { id: 'plateau', nom: 'Le plateau', ile: 'SNO 7', nouveau: false, about: 'Là où passe Vaïne. Sigrún y est debout dans la glace.' },
   { id: 'racine', nom: 'La Racine', ile: 'SNO 7', nouveau: true, about: 'Au-dessus du plateau, par la fissure : la base d\'un tronc qui sort de l\'écran, et les trois fileuses.' },
   { id: 'geant', nom: 'Le géant endormi', ile: 'SNO 7', nouveau: true, about: 'Au nord, une chaîne de montagnes qui respire. On marche entre ses doigts.' },
   { id: 'porte-soleil', nom: 'La porte du soleil', ile: 'SNO 7', nouveau: true, about: 'Un tunnel sous la montagne : douze lieues de noir complet, sans torche possible. Seul le son guide.' },
@@ -837,10 +865,10 @@ export const SCENARIOS = [
     lignes: [['hrolf', 'Qui foule mon navire ?'], ['kari', 'Kári.'], ['hrolf', 'Ce nom ne nous dit rien. Ton odeur, si.'], ['hrolf', 'Tu sens Ramtha. Et la peur de ton père.'], ['hrolf', 'Il a touché au mur des clous. Nous avions promis.'], ['hrolf', 'Va. Nous sommes fatigués.']],
   },
   {
-    id: 'freya-ensevelie', rarete: 'trame', titre: 'Les deux noms', lieu: 'foret', mythe: 'Étrusque',
-    quand: 'Près de la Freya ensevelie.',
+    id: 'freya-ensevelie', rarete: 'trame', titre: 'Les deux noms', lieu: 'foret', mythe: 'Orsène',
+    quand: 'Près de la Véla ensevelie.',
     recit: `La statue penchée parle avec deux voix superposées, une très ancienne et une nordique. Elle voit plus loin que Kári.`,
-    lignes: [['freya', 'On m\'appelait Uni. Puis Freya.'], ['freya', 'Je n\'ai pas changé. Ce sont les bouches.'], ['freya', 'Ta mère m\'a donné son visage. Je le garde au chaud.'], ['kari', 'Rends-le-lui.'], ['freya', 'Viens le chercher. Plus tard.']],
+    lignes: [['freya', 'On m\'appelait Ilé. Puis Véla.'], ['freya', 'Je n\'ai pas changé. Ce sont les bouches.'], ['freya', 'Ta mère m\'a donné son visage. Je le garde au chaud.'], ['kari', 'Rends-le-lui.'], ['freya', 'Viens le chercher. Plus tard.']],
   },
   {
     id: 'hjalti', rarete: 'trame', titre: 'La poupée', lieu: 'bosquet', mythe: 'Nord',
@@ -862,7 +890,7 @@ export const SCENARIOS = [
     lignes: [['hvit', 'Tu portes l\'odeur de mon petit d\'homme.'], ['hvit', 'Où est-il ?'], ['kari', 'Je le cherche.'], ['hvit', 'Alors suis le sang. Pas les loups.']],
   },
   {
-    id: 'maison', rarete: 'trame', titre: 'La maison de la nourrice', lieu: 'maison', mythe: 'Gilgamesh',
+    id: 'maison', rarete: 'trame', titre: 'La maison de la nourrice', lieu: 'maison', mythe: 'Le roi et le sauvage',
     quand: 'Dans la pièce, près du corps.',
     recit: `Le corps est celui d'Eyvind. Si Kári reste immobile près de lui, le froid de la pièce dessine une forme au-dessus : la fylgja d'Eyvind qui s'en va. Elle a le temps de trois lignes. L'ombre de Thordís range la table dans le coin, sans se retourner.`,
     magie: 'Le mort parle une dernière fois.',
@@ -875,31 +903,31 @@ export const SCENARIOS = [
     lignes: [['thorgrim', 'Ainsi c\'était toi.'], ['thorgrim', 'J\'ai tué le mauvais frère. Il avait des dents de loup.'], ['kari', 'Il s\'appelait Eyvind.'], ['thorgrim', 'Je retiendrai. Le trône à celui qui reste debout.'], ['thorgrim', '(à terre) Ása… elle est au hameau.'], ['thorgrim', 'Ne lui dis pas qui je…']],
   },
   {
-    id: 'bucher', rarete: 'trame', titre: 'Le bûcher', lieu: 'maison', mythe: 'Gilgamesh',
+    id: 'bucher', rarete: 'trame', titre: 'Le bûcher', lieu: 'maison', mythe: 'Le roi et le sauvage',
     quand: 'Quand Kári met le feu au corps d\'Eyvind.',
     recit: `La fumée remplit la pièce. Dehors, le toit s'embrase. Dans la fumée, un instant, une grande silhouette sans visage regarde le feu à côté de Kári. Elle ne s'efface pas, cette fois.`,
     lignes: [['kari', 'Brûle, frère. Que la fumée te porte plus loin que nos rames.'], ['hallveig', 'Il t\'aimait.'], ['kari', 'Qui es-tu ?'], ['hallveig', 'Celle qui t\'a mis à la mer.']],
   },
   {
-    id: 'charun', rarete: 'trame', titre: 'Les gardiens de la porte', lieu: 'falaise', mythe: 'Étrusque, Gilgamesh',
+    id: 'charun', rarete: 'trame', titre: 'Les gardiens de la porte', lieu: 'falaise', mythe: 'Orsène, Le roi et le sauvage',
     quand: 'Au pied de la sente, ou à l\'entrée de la grotte.',
     recit: `Deux grandes formes bleu nuit au nez crochu, chacune avec un marteau, barrent l'entrée. Comme les hommes-scorpions de la porte du soleil, ils demandent pourquoi. Il n'y a pas de bonne réponse à choisir : ils regardent ce que Kári porte à la ceinture.`,
     lignes: [['charun', 'Nul n\'a passé la montagne…'], ['charun', '…que viens-tu y chercher ?'], ['kari', 'Mon père.'], ['charun', 'Il est assis…'], ['charun', '…depuis dix-neuf hivers. Passe.']],
   },
   {
-    id: 'roi', rarete: 'trame', titre: 'Le roi sous la roche', lieu: 'grotte', mythe: 'Gilgamesh, Étrusque',
+    id: 'roi', rarete: 'trame', titre: 'Le roi sous la roche', lieu: 'grotte', mythe: 'Le roi et le sauvage, Orsène',
     quand: 'Devant le trône.',
     recit: `Kingvi n'est pas mort. Sa tête est trop lourde pour sa couronne et il ne peut plus se lever, mais il parle, très doucement. Il reconnaît son fils. Il raconte le clou sans s'excuser. Sa tête s'affaisse à la dernière ligne et la couronne roule : on peut la ramasser.`,
     lignes: [['kingvi', 'Approche. Je ne vois plus bien.'], ['kingvi', 'Tu as mes épaules et la bouche de ta mère.'], ['kari', 'Tu m\'as mis à la mer.'], ['kingvi', 'Oui. J\'avais peur de toi. J\'ai eu peur de tout, ensuite.'], ['kingvi', 'Hjalti a changé, tu sais. Sept jours. Je l\'ai regardé changer.'], ['kingvi', 'Alors j\'ai cloué le temps. Ton frère est mort sans vieillir.'], ['kingvi', 'N\'est-ce pas ce que nous voulions tous ?'], ['kingvi', 'Le clou est sous l\'arche. Arrache-le, si tu veux. Moi, je n\'ai pas pu.']],
   },
   {
-    id: 'glace', rarete: 'trame', titre: 'Celle qui cherchait du feu', lieu: 'plateau', mythe: 'Étrusque',
+    id: 'glace', rarete: 'trame', titre: 'Celle qui cherchait du feu', lieu: 'plateau', mythe: 'Orsène',
     quand: 'Sur le plateau, quand la torche approche de la femme de glace.',
-    recit: `Une femme debout dans un bloc de glace, le bras levé, une torche éteinte au poing. Quand la flamme de Kári approche, la glace pleure et elle parle. Si Kári frappe la glace, elle se fend ; s'il approche sa torche de la sienne, la glace fond d'un coup et Vanth l'emporte.`,
+    recit: `Une femme debout dans un bloc de glace, le bras levé, une torche éteinte au poing. Quand la flamme de Kári approche, la glace pleure et elle parle. Si Kári frappe la glace, elle se fend ; s'il approche sa torche de la sienne, la glace fond d'un coup et Vaïne l'emporte.`,
     lignes: [['sigrun', 'Kári… ? Approche ta flamme. Pas trop.'], ['sigrun', 'J\'ai voulu ramener la lumière.'], ['sigrun', 'Elle m\'a donné sa torche. Et l\'hiver avec.'], ['kari', 'Je vais la ramener.'], ['sigrun', 'Ása. Au hameau. Dis-lui que je cherchais du feu.']],
   },
   {
-    id: 'crypte', rarete: 'trame', titre: 'Le muré', lieu: 'crypte', mythe: 'Étrusque',
+    id: 'crypte', rarete: 'trame', titre: 'Le muré', lieu: 'crypte', mythe: 'Orsène',
     quand: 'Quand on ouvre le coffre de la crypte.',
     recit: `Le coffre n'est pas vide : Aule est assis derrière, dans le noir. Il est maigre comme un livre. Il compte les hivers à voix haute, et il donne son sceau.`,
     lignes: [['aule', 'Tu ouvres, viking ?'], ['aule', 'Soixante-dix-huit hivers que je compte dans le noir.'], ['aule', 'Tu as la bouche de ma sœur. Quelle déception.'], ['aule', 'Prends le sceau. Je n\'ai plus rien à fermer.'], ['aule', 'Et si tu touches au clou, préviens-moi. J\'aimerais mourir assis.']],
@@ -907,7 +935,7 @@ export const SCENARIOS = [
 
   // ── Souvent (quatre par partie) ──
   {
-    id: 'tages', rarete: 'souvent', titre: 'Les trois énigmes', lieu: 'arche', mythe: 'Étrusque',
+    id: 'tages', rarete: 'souvent', titre: 'Les trois énigmes', lieu: 'arche', mythe: 'Orsène',
     quand: 'La première fois qu\'on passe sous l\'arche.',
     recit: `Un enfant est assis sous l'arche, avec un visage de vieillard. Il annonce les scénarios de la partie en énigmes, tirées selon ce qui attend Kári (les lignes ci-dessous sont un exemple). Quand une énigme s'accomplit, la même ligne revient, en gris, au-dessus du viking.`,
     magie: 'Prophétie.',
@@ -932,11 +960,11 @@ export const SCENARIOS = [
     lignes: [['asdis', 'Hrólf prit l\'île. Ramtha prit Hrólf.'], ['asdis', 'Kingvi prit le temps.'], ['asdis', 'Et le temps prit les autres.'], ['asdis', 'J\'ai laissé de la place en bas. Pour toi, neveu.']],
   },
   {
-    id: 'larth', rarete: 'souvent', titre: 'Le foie du loup', lieu: 'foret-noire', mythe: 'Étrusque',
+    id: 'larth', rarete: 'souvent', titre: 'Le foie du loup', lieu: 'foret-noire', mythe: 'Orsène',
     quand: 'Près d\'un loup abattu, quand les corbeaux sont partis.',
     recit: `Une ombre de vieillard au bonnet pointu s'accroupit près du loup mort, sort un foie de bronze et compare. Il lit l'avenir de Kári, une ligne vraie tirée parmi celles de la partie.`,
     magie: 'Haruspicine.',
-    lignes: [['larth', 'Bouge pas. Je lis.'], ['larth', 'Case de Tinia : la foudre. Case de Nortia : un clou.'], ['larth', 'Case d\'Uni : une femme qui t\'offre quelque chose. Refuse, ou ne refuse pas.'], ['larth', 'Tu vivras encore trois rencontres. Peut-être quatre.'], ['larth', 'Je me suis trompé une fois. De deux jours.']],
+    lignes: [['larth', 'Bouge pas. Je lis.'], ['larth', 'Case de Tuen : la foudre. Case de Sorne : un clou.'], ['larth', 'Case d\'Ilé : une femme qui t\'offre quelque chose. Refuse, ou ne refuse pas.'], ['larth', 'Tu vivras encore trois rencontres. Peut-être quatre.'], ['larth', 'Je me suis trompé une fois. De deux jours.']],
   },
   {
     id: 'chasse', rarete: 'souvent', titre: 'La Chasse sauvage', lieu: 'plaine', mythe: 'Nord',
@@ -951,7 +979,7 @@ export const SCENARIOS = [
     lignes: [['egil', 'Il y avait du poisson, ce soir-là. Beaucoup.'], ['egil', 'On a levé les filets et le lac s\'est fermé.'], ['kari', 'Je peux vous sortir ?'], ['egil', 'Arrache-le, là-haut. On aimerait couler, maintenant.'], ['egil', 'Ne reste pas debout au même endroit.']],
   },
   {
-    id: 'hvumbi', rarete: 'souvent', titre: 'Le gardien de la forêt', lieu: 'foret-noire', mythe: 'Gilgamesh',
+    id: 'hvumbi', rarete: 'souvent', titre: 'Le gardien de la forêt', lieu: 'foret-noire', mythe: 'Le roi et le sauvage',
     quand: 'Au cœur de la forêt noire, si l\'on éteint la torche.',
     recit: `Sans torche, la sente mène à une clairière qu'on ne voit pas autrement. Hvumbi s'y lève, haut comme quatre arbres, le visage de racines. Il ôte un manteau de brume à chaque coup reçu, et le cercle de vue se resserre chaque fois. Battu, il supplie. On l'épargne (on part) ou non (on frappe). Épargné, il ouvre la forêt. Tué, la forêt noire s'éclaircit pour toujours, et sa mère le glacier pleure plus fort.`,
     lignes: [['hvumbi', 'J\'entends ton cœur depuis la lisière, petit roi.'], ['hvumbi', 'J\'ai laissé passer l\'autre. Il est de mon sang. Toi ?'], ['hvumbi', '(à genoux) Laisse-moi vivre et je te donnerai tous les arbres.'], ['hvumbi', 'Ton frère t\'aurait dit de frapper.'], ['hvumbi', 'Ton frère est mort.']],
@@ -963,13 +991,13 @@ export const SCENARIOS = [
     lignes: [['mjoll', 'Tu sens comme lui.'], ['mjoll', 'Le grand, avec la barbe. Où est-il ?'], ['kari', 'Dans son navire de pierres.'], ['mjoll', 'Encore ? Il n\'aimait pas rester couché.'], ['mjoll', 'Je recouvre tout. C\'est ma façon d\'oublier.']],
   },
   {
-    id: 'taureau', rarete: 'souvent', titre: 'Le Taureau de givre', lieu: 'plaine', mythe: 'Gilgamesh',
-    quand: 'Après la victoire sur Thorgrim, à la grande Freya debout.',
-    recit: `La grande Freya se penche et propose à Kári de l'épouser, comme Ishtar à Gilgamesh. S'il reste, il devient son époux : la partie continue avec une torche qui ne s'éteint plus, mais la statue garde son ombre. S'il s'en va, elle envoie le Taureau de givre, un aurochs de glace haut comme la maison, qui charge à travers la plaine.`,
+    id: 'taureau', rarete: 'souvent', titre: 'Le Taureau de givre', lieu: 'plaine', mythe: 'Le roi et le sauvage',
+    quand: 'Après la victoire sur Thorgrim, à la grande Véla debout.',
+    recit: `La grande Véla se penche et propose à Kári de l'épouser. S'il reste, il devient son époux : la partie continue avec une torche qui ne s'éteint plus, mais la statue garde son ombre. S'il s'en va, elle envoie le Taureau de givre, un aurochs de glace haut comme la maison, qui charge à travers la plaine.`,
     lignes: [['freya', 'Sois mon époux, petit roi.'], ['freya', 'Ton père n\'a pas su. Toi, tu sauras.'], ['kari', 'Tes époux, que deviennent-ils ?'], ['freya', 'Des statues. Des loups. Des pierres. Tu le savais.'], ['freya', 'Alors cours, petit roi. Je t\'envoie mon taureau.']],
   },
   {
-    id: 'vanth', rarete: 'souvent', titre: 'Vanth à chaque mort', lieu: 'partout', mythe: 'Étrusque',
+    id: 'vanth', rarete: 'souvent', titre: 'Vaïne à chaque mort', lieu: 'partout', mythe: 'Orsène',
     quand: 'À chaque mort de Kári, avant que le noir se referme.',
     recit: `Une femme ailée à la torche se penche sur le corps. Elle dit une ligne, chaque fois une autre, puis le noir se referme. Elle ne peut emporter personne : le temps arrêté l'en empêche. À la dixième mort, elle ne dit rien et elle reste.`,
     magie: 'Psychopompe.',
@@ -1007,10 +1035,10 @@ export const SCENARIOS = [
     lignes: [['ombre', 'Pas par là.'], ['ombre', 'Je suis mort par là.'], ['ombre', 'Il frappe à droite d\'abord.'], ['kari', 'Et toi ?'], ['ombre', 'Moi, je t\'attends ici. Ne te presse pas.']],
   },
   {
-    id: 'deux-freya', rarete: 'souvent', titre: 'Les deux Freya', lieu: 'foret', mythe: 'Étrusque',
-    quand: 'Entre la Freya ensevelie et la grande Freya debout.',
+    id: 'deux-freya', rarete: 'souvent', titre: 'Les deux Véla', lieu: 'foret', mythe: 'Orsène',
+    quand: 'Entre la Véla ensevelie et la grande Véla debout.',
     recit: `Les deux statues se parlent d'un bout à l'autre de la forêt. Kári est entre elles et entend les deux. Elles se disputent pour savoir laquelle est la vraie.`,
-    lignes: [['freya', '(la couchée) Je suis Uni. Velia m\'a taillée la première.'], ['freya', '(la debout) Je suis Freya. On m\'a priée plus longtemps.'], ['freya', '(la couchée) Tu es debout parce que tu as eu de la chance.'], ['freya', '(la debout) Et toi couchée parce qu\'ils t\'ont oubliée.'], ['kari', 'Vous êtes la même.'], ['freya', '(les deux) Tais-toi.']],
+    lignes: [['freya', '(la couchée) Je suis Ilé. Velia m\'a taillée la première.'], ['freya', '(la debout) Je suis Véla. On m\'a priée plus longtemps.'], ['freya', '(la couchée) Tu es debout parce que tu as eu de la chance.'], ['freya', '(la debout) Et toi couchée parce qu\'ils t\'ont oubliée.'], ['kari', 'Vous êtes la même.'], ['freya', '(les deux) Tais-toi.']],
   },
 
   // ── Rare (un par partie, une chance sur trois) ──
@@ -1021,26 +1049,26 @@ export const SCENARIOS = [
     lignes: [['hrolf', 'Nous partons, petit. Nous allons voir si le sud est encore là.'], ['hrolf', 'Monte, si tu veux.'], ['kari', 'Non.'], ['hrolf', 'Bien. Nous n\'aurions pas su où te mettre.']],
   },
   {
-    id: 'serpent', rarete: 'rare', titre: 'Le dos du monde', lieu: 'greve', mythe: 'Nord, Gilgamesh',
+    id: 'serpent', rarete: 'rare', titre: 'Le dos du monde', lieu: 'greve', mythe: 'Nord, Le roi et le sauvage',
     quand: 'Un soir, depuis la grève ou la falaise.',
-    recit: `Un des icebergs plats avance contre le vent. Puis un dos immense longe la côte au loin et soulève une vague qui efface toutes les traces de la grève. Sur le sable, il reste une peau de serpent longue comme la plaine. Jörmungandr dit un mot.`,
+    recit: `Un des icebergs plats avance contre le vent. Puis un dos immense longe la côte au loin et soulève une vague qui efface toutes les traces de la grève. Sur le sable, il reste une peau de serpent longue comme la plaine. Ormgard dit un mot.`,
     lignes: [['jormungandr', '… Jeune.']],
   },
   {
-    id: 'phersu', rarete: 'rare', titre: 'Le jeu de Phersu', lieu: 'arche', mythe: 'Étrusque',
+    id: 'phersu', rarete: 'rare', titre: 'Le jeu de Fersel', lieu: 'arche', mythe: 'Orsène',
     quand: 'Sous le socle à degrés, une nuit sans vent.',
-    recit: `Un homme masqué, Phersu, tient en laisse un loup noir. Il propose un jeu : Kári, la tête dans un sac (la vue réduite à rien, seul le son guide), doit frapper le loup avant que le loup ne le morde trois fois. C'est le jeu mortel des tombes étrusques. Qui gagne repart avec le masque.`,
+    recit: `Un homme masqué, Fersel, tient en laisse un loup noir. Il propose un jeu : Kári, la tête dans un sac (la vue réduite à rien, seul le son guide), doit frapper le loup avant que le loup ne le morde trois fois. C'est le jeu mortel des tombes orsènes. Qui gagne repart avec le masque.`,
     lignes: [['phersu', 'Un jeu, viking ? Tu as l\'air de t\'ennuyer.'], ['phersu', 'Le sac sur la tête. La massue dans la main.'], ['phersu', 'Le chien ne joue pas, lui.'], ['phersu', '(s\'il perd) Garde le masque. Moi, j\'en ai d\'autres.']],
   },
   {
-    id: 'racine', rarete: 'rare', titre: 'La Racine', lieu: 'racine', mythe: 'Nord, Étrusque',
+    id: 'racine', rarete: 'rare', titre: 'La Racine', lieu: 'racine', mythe: 'Nord, Orsène',
     quand: 'Par la fissure derrière le trône.',
-    recit: `On monte longtemps dans le noir. On arrive au pied d'un tronc qui sort de l'écran par le haut. Trois femmes filent près d'un puits, et l'une a un marteau et un clou à la ceinture : Nortia est assise avec les Nornes.`,
+    recit: `On monte longtemps dans le noir. On arrive au pied d'un tronc qui sort de l'écran par le haut. Trois femmes filent près d'un puits, et l'une a un marteau et un clou à la ceinture : Sorne est assise avec les Fileuses.`,
     lignes: [['nornes', 'Ce qui fut.'], ['nornes', 'Ce qui est.'], ['nortia', 'Ce. Qui. Est. Cloué.'], ['nornes', 'Elle n\'est pas d\'ici, mais elle file bien.'], ['nortia', 'Arrache. Ou. Pas. Le. Fil. Attend.']],
   },
   {
-    id: 'porte-soleil', rarete: 'rare', titre: 'Les douze lieues de noir', lieu: 'porte-soleil', mythe: 'Gilgamesh',
-    quand: 'Par la porte que gardent les Charun, si l\'on y retourne.',
+    id: 'porte-soleil', rarete: 'rare', titre: 'Les douze lieues de noir', lieu: 'porte-soleil', mythe: 'Le roi et le sauvage',
+    quand: 'Par la porte que gardent les Karrog, si l\'on y retourne.',
     recit: `Un tunnel sous la montagne, douze lieues de noir complet (la torche ne s'allume pas). L'écran reste noir, et seul le son guide : le vent devant, l'eau à gauche, une respiration derrière. Au bout, un jardin de glace aux arbres de cristal, et la mer.`,
     lignes: [['charun', 'Douze lieues…'], ['charun', '…sans lumière. Personne n\'en est revenu…'], ['charun', '…sauf le premier roi, celui des roseaux.'], ['kari', '(dans le noir) …'], ['siduri-echo', 'Encore un peu. J\'entends ta respiration.']],
   },
@@ -1053,13 +1081,13 @@ export const SCENARIOS = [
 
   // ── Les fins ──
   {
-    id: 'fin-aube', rarete: 'fin', titre: 'L\'Aube', lieu: 'temple', mythe: 'Étrusque, Nord',
-    quand: 'Kári arrache le clou de Nortia.',
-    recit: `Le clou sort avec un cri de métal. Neuf cents clous tombent du mur en même temps. Dehors, pour la seule fois de la saga, le ciel pâlit à l'est. La tempête tombe, la musique s'ouvre. Kingvi meurt enfin et Vanth l'emporte. Le géant du nord se lève, très lentement, il marche jusqu'à la mer et s'y couche. Thorgrim avait tort. La couronne attend : Kári la pose sur la tête d'Ása, ou la jette.`,
+    id: 'fin-aube', rarete: 'fin', titre: 'L\'Aube', lieu: 'temple', mythe: 'Orsène, Nord',
+    quand: 'Kári arrache le clou de Sorne.',
+    recit: `Le clou sort avec un cri de métal. Neuf cents clous tombent du mur en même temps. Dehors, pour la seule fois de la saga, le ciel pâlit à l'est. La tempête tombe, la musique s'ouvre. Kingvi meurt enfin et Vaïne l'emporte. Le géant du nord se lève, très lentement, il marche jusqu'à la mer et s'y couche. Thorgrim avait tort. La couronne attend : Kári la pose sur la tête d'Ása, ou la jette.`,
     lignes: [['nortia', 'Enfin.'], ['kingvi', '(très loin) Merci.'], ['vanth', 'Je l\'emmène. Il était temps.'], ['asa', 'Ça ne fait pas de bruit, le jour.'], ['kari', 'Non.'], ['asa', 'C\'est mieux.']],
   },
   {
-    id: 'fin-roi', rarete: 'fin', titre: 'Le Roi sous la roche', lieu: 'grotte', mythe: 'Gilgamesh',
+    id: 'fin-roi', rarete: 'fin', titre: 'Le Roi sous la roche', lieu: 'grotte', mythe: 'Le roi et le sauvage',
     quand: 'Kári pose la couronne sur sa propre tête et s\'assoit sur le trône.',
     recit: `Kári ne sort plus. La nuit continue. Au début de la partie suivante, un autre viking accoste, et c'est Kári qui attend sous la roche, sur le trône, et qui parle à celui qui vient. Celui qui vient a peut-être le visage de son fils.`,
     lignes: [['kari', '(sur le trône) Approche. Je ne vois plus bien.'], ['kari', 'J\'ai eu peur, moi aussi.'], ['kari', 'Arrache-le, si tu veux. Moi, je n\'ai pas pu.']],
@@ -1071,7 +1099,7 @@ export const SCENARIOS = [
     lignes: [['kari', 'Brûle, frère. Va plus loin que nous.'], ['ingunn', 'Tu as mis le temps.'], ['kari', 'Il y avait du monde.'], ['ingunn', 'Il s\'appellera comme le jour où tu es revenu.']],
   },
   {
-    id: 'fin-bout', rarete: 'fin', titre: 'Le Bout du monde', lieu: 'sno9', mythe: 'Gilgamesh',
+    id: 'fin-bout', rarete: 'fin', titre: 'Le Bout du monde', lieu: 'sno9', mythe: 'Le roi et le sauvage',
     quand: 'Kári passe à la taverne de Sidrún, traverse les Eaux de la Mort et rencontre le Survivant.',
     recit: `Sidrún dit ce qu'elle dit à tous. Úrsi demande cent vingt perches. Útnafi propose l'épreuve : rester éveillé (ne pas lâcher les touches) six jours et sept nuits de jeu. Kári s'endort, et Aldís pose un pain par jour. Pour le consoler, on lui donne la fleur de givre, au fond du lac de SNO 7. Sur le chemin du retour, pendant qu'il se lave dans la mare gelée, le serpent la prend et fait peau neuve. Kári revient les mains vides. Il montre l'arche à Ása : « Regarde les pierres. Ça, ça dure. »`,
     lignes: [['sidrun', 'Pose ta hache. Mange. Tu cherches à ne pas mourir, toi aussi ?'], ['sidrun', 'Remplis ton ventre. Lave tes habits. Regarde l\'enfant qui te tient la main.'], ['sidrun', 'C\'est ça, la part des vivants.'], ['ursi', 'Une perche, une poussée. Lâche-la avant que l\'eau monte au bois.'], ['utnafi', 'Tu veux ne pas mourir ? Commence par ne pas dormir.'], ['aldis', 'Compte les pains, petit. Ils ne mentent pas.'], ['utnafi', 'Ton père aussi s\'est endormi. Le premier soir.'], ['kari', '(à Ása, sous l\'arche) Regarde les pierres. Ça, ça dure.']],
@@ -1082,8 +1110,8 @@ export const SCENARIOS = [
 export const VOICES = {
   corbeau: { nom: 'Le corbeau', role: 'Un œil du Chasseur.' },
   ombre: { nom: 'L\'ombre de Kári', role: 'Lui-même, dans une vie précédente.' },
-  phersu: { nom: 'Phersu', role: 'L\'homme masqué du jeu mortel.' },
-  nornes: { nom: 'Les Nornes', role: 'Les fileuses au pied de l\'Arbre.' },
+  phersu: { nom: 'Fersel', role: 'L\'homme masqué du jeu mortel.' },
+  nornes: { nom: 'Les Fileuses', role: 'Les fileuses au pied de l\'Arbre.' },
   'siduri-echo': { nom: 'Une voix de femme', role: 'Sidrún, de l\'autre côté de la montagne.' },
 };
 

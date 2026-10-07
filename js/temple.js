@@ -1,6 +1,6 @@
-/* Le temple de Nortia, sous l'arche : des marches qui descendent dans la
+/* Le temple de Sorne, sous l'arche : des marches qui descendent dans la
    roche, une salle basse, et au fond le mur des ans, hérissé de clous, un par
-   hiver depuis l'arrivée des Rasna. Le dernier est planté à l'envers, la
+   hiver depuis l'arrivée des Orsènes. Le dernier est planté à l'envers, la
    pointe vers l'année qui venait : rouge, à hauteur d'homme. L'arracher
    rend le temps à l'île (la fin de l'Aube, game.js : `pullNail`).
    Rien de droit : le sol est une flaque cabossée, le mur un front de roche
@@ -82,7 +82,7 @@ export function makeTemple() {
     if (g[y][x] === 'k' || floorD(x, y) >= 1 || inStair(x, y)) continue;
     if ([[1, 0], [-1, 0], [0, 1]].some(([i, j]) => g[y + j][x + i] === 'k')) put(x, y, 'b');
   }
-  // Le marteau des Rasna, posé au pied du mur ; des clous tombés
+  // Le marteau des Orsènes, posé au pied du mur ; des clous tombés
   for (const [x, y, c] of [[58, 45, 'b'], [59, 45, 'b'], [60, 45, 'b'], [61, 44, 'b'], [61, 46, 'b'], [62, 44, 'b'], [62, 45, 'b'], [62, 46, 'b'],
     [88, 49, 'b'], [91, 47, 'b'], [95, 52, 'b'], [52, 55, 'b'], [100, 58, 'b']]) put(x, y, c);
   return g.map(r => r.join(''));
@@ -90,7 +90,7 @@ export function makeTemple() {
 export const TEMPLE = makeTemple();
 
 // Le clou : la tête en bas, la pointe en l'air (planté à rebours)
-export const NAIL_ART = ['r', 'r', 'r', 'rrr'];
+export const NAIL_ART = ['.r.', '.r.', '.r.', 'rrr'];
 
 // L'entrée, dehors, sous l'arche : une dalle (fermée par le sceau d'Aule) ou
 // les marches qui descendent dans le noir

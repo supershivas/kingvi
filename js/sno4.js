@@ -4,13 +4,17 @@
    vent souffle, il fait nuit, la torche brûle.
    La forme suit la carte du labo (saga-sno4.js, PLACES_SNO4 : x, y en
    fractions) : une île de neige cabossée dans la banquise tramée, les quatre
-   pistes du carrefour, les lieux. Ce qui est haut (mâts, poto mitan, croix,
-   cases, mapou, maison aux bouteilles) est posé à part et trié à son pied.
+   pistes du carrefour, les lieux. Ce qui est haut (mâts, Pilier, croix,
+   cases, fromager, maison aux bouteilles) est posé à part et trié à son pied.
    Rien de géométrique : tout est tordu par le bruit.
    Couleurs : s neige, b bleu nuit, r le rouge (la forge). */
 
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.52.0';
-import { makeGroveTree } from './grove.js?v=1.52.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.0';
+import { makeGroveTree } from './grove.js?v=1.53.0';
+import { CUBE_WHITE, CUBE_BLACK, CUBE_FOOT } from './cubes.js?v=1.53.0';
+
+// Le cube blanc et le cube noir (cubes.js) : au nord-est de la source, et près du fromager
+export const SNO4_CUBES = [{ kind: 'blanc', x: 598, y: 138 }, { kind: 'noir', x: 775, y: 316 }];
 
 export const SNO4_W = 960;
 export const SNO4_H = 600;
@@ -52,18 +56,18 @@ function mast(h, seed) {
   for (let k = -2; k <= 3; k++) put(g, 6 + k, h + 1, 'b');
   return toRows(g);
 }
-// La Barrière de Legba : deux mâts plantés, une corde qui pend entre eux
+// La Barrière de Clède : deux mâts plantés, une corde qui pend entre eux
 function barrier() {
   const a = mast(34, 1), b = mast(31, 2), W = 30, H = 37;
   const g = blank(W, H);
   a.forEach((r, y) => [...r].forEach((c, x) => c !== '.' && put(g, x, y + 1, c)));
   b.forEach((r, y) => [...r].forEach((c, x) => c !== '.' && put(g, x + 16, y + 4, c)));
   for (let x = 8; x < 22; x++) put(g, x, 9 + Math.round(Math.sin((x - 8) / 14 * Math.PI) * 4), 'b');
-  // le tonneau de Legba
+  // le tonneau de Clède
   for (let y = 30; y < 36; y++) for (let x = 12; x < 17; x++) put(g, x, y, (x === 12 || x === 16 || y === 32) ? 'b' : 's');
   return toRows(g);
 }
-// Le poto mitan : le grand mât de La Délivrance, planté dans la glace
+// Le Pilier : le grand mât de La Délivrance, planté dans la glace
 function potoMitan() {
   const g = blank(9, 52);
   for (let y = 0; y < 52; y++) { put(g, 4, y, 'b'); put(g, 5, y, y % 7 === 3 ? 's' : 'b'); }
@@ -80,7 +84,7 @@ function cross(h, w, seed) {
   put(g, 1, Math.floor(h / 4) - 1, 's');
   return toRows(g);
 }
-// Une case du lakou, en planches du navire : toit de neige, porte sombre
+// Une case de la cour, en planches du navire : toit de neige, porte sombre
 function hut(w, h, seed) {
   const g = blank(w, h);
   const roof = Math.floor(h * 0.45);
@@ -117,15 +121,16 @@ function forge() {
 
 const grove = makeGroveTree(17);
 export const SNO4_PROPS = [
+  ...SNO4_CUBES.map(c => ({ key: `sno4-cube-${c.kind}`, rows: c.kind === 'blanc' ? CUBE_WHITE : CUBE_BLACK, at: { x: c.x, y: c.y }, foot: CUBE_FOOT })),
   { key: 'sno4-barriere', rows: barrier(), at: SNO4_AT.barriere, foot: 3 },
   { key: 'sno4-poto', rows: potoMitan(), at: SNO4_AT.peristil, foot: 2 },
   { key: 'sno4-forge', rows: forge(), at: SNO4_AT.forge, foot: 6 },
   { key: 'sno4-bouteilles', rows: bottleHouse(), at: SNO4_AT.bouteilles, foot: 8 },
   { key: 'sno4-mapou', rows: grove.rows, at: SNO4_AT.mapou, foot: 3, ax: grove.ax },
   ...[[-34, -6, 7], [-22, 10, 8], [26, 6, 9], [38, -8, 10]].map(([dx, dy, s]) => ({ key: `sno4-case-${s}`, rows: hut(22 + (s % 3) * 2, 16, s), at: { x: SNO4_AT.lakou.x + dx, y: SNO4_AT.lakou.y + dy }, foot: 5 })),
-  // Le péristyle : quatre poteaux autour du poto mitan
+  // La tonnelle : quatre poteaux autour du Pilier
   ...[[-26, -18], [26, -20], [-24, 18], [25, 17]].map(([dx, dy], i) => ({ key: `sno4-poteau-${i}`, rows: mast(20 + i, 30 + i).map(r => r.slice(3, 10)), at: { x: SNO4_AT.peristil.x + dx, y: SNO4_AT.peristil.y + dy }, foot: 1 })),
-  // Le cimetière : la croix du Baron, celle de Brigitte, et les autres
+  // Le cimetière : la croix du Baron, celle de Rosine, et les autres
   { key: 'sno4-croix-baron', rows: cross(22, 13, 1), at: SNO4_AT.cimetiere, foot: 1 },
   { key: 'sno4-croix-brigitte', rows: cross(16, 9, 2), at: { x: SNO4_AT.cimetiere.x + 20, y: SNO4_AT.cimetiere.y + 6 }, foot: 1 },
   ...Array.from({ length: 16 }, (_, i) => {
@@ -164,7 +169,7 @@ export const SNO4_SOULS = Array.from({ length: 46 }, (_, i) => {
 // Clotilde marche de l'épave à la maison aux bouteilles et retour
 export const CLOTILDE_PATH = [SNO4_AT.delivrance, { x: 240, y: 470 }, { x: 520, y: 430 }, { x: 760, y: 380 }, { x: SNO4_AT.bouteilles.x - 30, y: SNO4_AT.bouteilles.y + 16 }];
 
-// ── Le sol : neige, banquise, pistes, vèvè, tombes, l'épave, la source ──
+// ── Le sol : neige, banquise, pistes, tracé, tombes, l'épave, la source ──
 export function paintSno4(ctx, palette) {
   const W = SNO4_W, H = SNO4_H;
   const img = ctx.createImageData(W, H), d = img.data;
@@ -196,7 +201,7 @@ export function paintSno4(ctx, palette) {
   };
   const A = SNO4_AT;
   path(SNO4_ENTRY, A.barriere); path(A.barriere, A.lakou); path(A.lakou, A.forge); path(A.lakou, A.peristil); path(A.forge, A.marche); path(A.cimetiere, A.source);
-  // Le vèvè de Legba, tracé à la cendre dans la cour du lakou : une croix, une canne
+  // Le tracé de Clède, tracé à la cendre dans la cour de la cour : une croix, une canne
   const V = { x: A.lakou.x, y: A.lakou.y + 4 };
   for (let k = -9; k <= 9; k++) { set(V.x + k, V.y + Math.round(k * 0.05), 'b'); set(V.x + Math.round(k * 0.05), V.y + Math.round(k * 0.55), 'b'); }
   for (let k = 0; k < 6; k++) { set(V.x + 9 + (k > 3 ? 1 : 0), V.y - k, 'b'); set(V.x - 9 - (k > 3 ? 1 : 0), V.y - k, 'b'); }
@@ -214,14 +219,14 @@ export function paintSno4(ctx, palette) {
     const edge = Math.abs(y + x * 0.18) > 10 - Math.pow(Math.abs(x) / 44, 3) * 12;
     set(D.x + x, D.y + y, edge || (x % 6 === 0) ? 'b' : B[((D.y + y) & 3) * 4 + ((D.x + x) & 3)] < 5 ? 'b' : 's');
   }
-  // La source de Simbi : un trou d'eau noire, et sa buée tramée
+  // La source de Sibelle : un trou d'eau noire, et sa buée tramée
   const S = A.source;
   for (let y = -10; y <= 10; y++) for (let x = -16; x <= 16; x++) {
     const r = Math.hypot(x / 16, y / 10) + (hash(x, y, 31) - 0.5) * 0.15;
     if (r < 0.6) set(S.x + x, S.y + y, 'b');
     else if (r < 1 && B[((S.y + y) & 3) * 4 + ((S.x + x) & 3)] < (1 - r) * 18) set(S.x + x, S.y + y, 'b');
   }
-  // Le marché d'Ayizan : des étals de planches sur la glace
+  // Le marché de Palme : des étals de planches sur la glace
   for (let i = 0; i < 6; i++) {
     const sx = A.marche.x - 40 + i * 15, sy = A.marche.y + (i % 2) * 8;
     for (let x = 0; x < 10; x++) { set(sx + x, sy, 'b'); set(sx + x, sy + 4, 'b'); }
@@ -230,15 +235,15 @@ export function paintSno4(ctx, palette) {
   ctx.putImageData(img, 0, 0);
 }
 
-// ── Les vèvè qu'on marche : des points de cendre dans la neige. Passer sur
+// ── Les tracé qu'on marche : des points de cendre dans la neige. Passer sur
 // chacun (dans n'importe quel ordre, sans trop traîner) referme le dessin, et
-// le lwa vient (game.js : `checkVeve`). Dessins inspirés des vrais vèvè,
+// le esprit vient (game.js : `checkVeve`). Dessins inspirés des vrais tracé,
 // simplifiés (à faire relire). `at` : le milieu ; `nodes` : les points ;
 // `links` : les traits entre eux (rangs dans `nodes`).
 export const VEVE = [
   {
     id: 'legba', lwa: 'legba', at: { x: SNO4_AT.barriere.x + 46, y: SNO4_AT.barriere.y + 26 },
-    // une croix, et la canne de Legba accrochée aux deux bras
+    // une croix, et la canne de Clède accrochée aux deux bras
     nodes: [[0, -18], [0, 0], [0, 18], [-24, 0], [24, 0], [24, -12], [-24, -12]],
     links: [[0, 1], [1, 2], [3, 1], [1, 4], [4, 5], [3, 6]],
   },

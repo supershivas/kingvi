@@ -5,9 +5,6 @@
    Le navigateur n'autorise le son qu'après un geste du joueur : `unlock()`
    est appelé au premier clic ou à la première touche. */
 
-const BPM = 116;
-const BEAT = 60 / BPM;
-const STEP = BEAT / 4;                          // une double croche
 // La minor 9 : la, do, mi, sol, si ; la basse tourne autour du la
 const CHORDS = [
   [45, 52, 55, 59, 60],                         // Am9
@@ -15,6 +12,39 @@ const CHORDS = [
   [41, 48, 52, 55, 57],                         // Fmaj9
   [45, 52, 55, 60, 62],                         // Am(add11)
 ];
+// ── La playlist : quatre morceaux de deep techno, toujours générés, qui
+// évoluent de phrase en phrase. La nuit (l'original : accords dub) ; la glace
+// (des arpèges qui s'ouvrent) ; l'aurore (une mélodie qui se cherche, se
+// répond, se transforme) ; la forge (plus sourde, une basse qui chante, des
+// frappes de métal). `stab`, `arp`, `lead`, `rim`, `song` (la basse
+// mélodique) : la place de chaque voix (0 → 1).
+export const TRACKS = {
+  nuit: { nom: 'La nuit', about: 'L\'original : grosse caisse feutrée, accords dub noyés d\'écho, nappe.', bpm: 116, chords: CHORDS, stab: 1, arp: 0, lead: 0, rim: 0, song: 0 },
+  glace: {
+    nom: 'La glace', about: 'Des arpèges clairs qui s\'ouvrent et se referment, une mélodie qui passe de temps en temps.', bpm: 118,
+    chords: [[50, 57, 60, 64, 65], [46, 53, 57, 60, 62], [41, 48, 53, 57, 60], [48, 55, 59, 62, 64]],
+    stab: 0.35, arp: 1, lead: 0.45, rim: 0, song: 0,
+  },
+  aurore: {
+    nom: 'L\'aurore', about: 'Le plus mélodique : une ligne chantée qui se cherche, se répond et se transforme, sur des nappes chaudes.', bpm: 120,
+    chords: [[40, 47, 50, 54, 55], [48, 55, 59, 62, 64], [43, 50, 54, 57, 59], [50, 57, 60, 62, 66]],
+    stab: 0.3, arp: 0.35, lead: 1, rim: 0, song: 0,
+  },
+  forge: {
+    nom: 'La forge', about: 'Plus sourde et plus ronde : une basse qui chante, des frappes de métal, un motif obstiné.', bpm: 122,
+    chords: [[41, 48, 51, 55, 56], [37, 44, 48, 51, 53], [39, 46, 50, 53, 55], [36, 43, 46, 51, 53]],
+    stab: 0.6, arp: 0.2, lead: 0.3, rim: 1, song: 1,
+  },
+};
+const TRACK_ORDER = ['nuit', 'glace', 'aurore', 'forge'];
+let choice = 'playlist', current = 'nuit', trackBars = 0;
+let BPM = 116, BEAT = 60 / BPM, STEP = BEAT / 4;   // une double croche
+function useTrack(id) {
+  current = id;
+  BPM = TRACKS[id].bpm; BEAT = 60 / BPM; STEP = BEAT / 4;
+  trackBars = 0;
+  if (delay) delay.delayTime.setTargetAtTime(STEP * 3, ctx.currentTime, 0.5);
+}
 const midi = n => 440 * Math.pow(2, (n - 69) / 12);
 
 let ctx = null, master, musicBus, musicFilter, sfxBus, reverb, delay, noise;
@@ -154,6 +184,70 @@ function pad(t, chord, dur, v) {
   }
 }
 
+// Une note pincée : dents de scie, filtre qui se referme vite, dans l'écho
+function pluck(t, note, v, bright) {
+  const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(note);
+  const o2 = ctx.createOscillator(); o2.type = 'square'; o2.frequency.value = midi(note); o2.detune.value = 6;
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 4;
+  lp.frequency.setValueAtTime(bright, t); lp.frequency.exponentialRampToValueAtTime(260, t + 0.16);
+  const g = envGain(t, 0.07 * v, 0.003, 0.22, musicBus);
+  o.connect(lp); o2.connect(lp); lp.connect(g);
+  const send = ctx.createGain(); send.gain.value = 0.6; g.connect(send); send.connect(delay);
+  o.start(t); o2.start(t); o.stop(t + 0.3); o2.stop(t + 0.3);
+}
+// Une voix chantée : triangle et sinus, attaque douce, un léger vibrato
+function lead(t, note, dur, v) {
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.075 * v, t + Math.min(0.08, dur * 0.3));
+  g.gain.setTargetAtTime(0.0001, t + dur * 0.7, dur * 0.3);
+  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+  g.connect(lp).connect(musicBus);
+  const send = ctx.createGain(); send.gain.value = 0.5; lp.connect(send); send.connect(delay); send.connect(reverb);
+  const vib = ctx.createOscillator(); vib.frequency.value = 5.2;
+  const vg = ctx.createGain(); vg.gain.value = 6; vib.connect(vg);
+  for (const [type, det, k] of [['triangle', 0, 1], ['sine', 1200, 0.35]]) {
+    const o = ctx.createOscillator(); o.type = type; o.frequency.value = midi(note); o.detune.value = det;
+    vg.connect(o.detune);
+    const og = ctx.createGain(); og.gain.value = k; o.connect(og).connect(g);
+    o.start(t); o.stop(t + dur + 0.6);
+  }
+  vib.start(t); vib.stop(t + dur + 0.6);
+}
+// Une frappe de métal : du bruit très filtré, bref, qui sonne
+function rim(t, v) {
+  const s = ctx.createBufferSource(); s.buffer = noise;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700 + Math.random() * 300; bp.Q.value = 14;
+  const g = envGain(t, 0.18 * v, 0.001, 0.07, musicBus);
+  s.connect(bp).connect(g);
+  const send = ctx.createGain(); send.gain.value = 0.3; g.connect(send); send.connect(delay);
+  s.start(t, Math.random()); s.stop(t + 0.12);
+}
+
+// Le motif d'une phrase : des notes (rangs dans l'accord, octave) sur des
+// pas de la mesure ; tiré d'une graine (le morceau, la phrase) : le même
+// motif revient, se répond, se transforme d'une phrase à l'autre
+const motifs = new Map();
+function motif(id, phrase) {
+  const key = `${id}-${phrase}`;
+  if (motifs.has(key)) return motifs.get(key);
+  let r = (phrase + 1) * 7919 + id.length * 104729;
+  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
+  const slots = [0, 2, 3, 6, 8, 10, 11, 14].filter(() => rnd() < 0.62);
+  if (!slots.length) slots.push(0, 8);
+  let deg = Math.floor(rnd() * 5);
+  const notes = slots.map(at => {
+    deg = Math.max(0, Math.min(7, deg + Math.floor(rnd() * 5) - 2));
+    return { at, deg, len: 1 + Math.floor(rnd() * 3) };
+  });
+  const m = { notes, arpOrder: ['up', 'down', 'updown', 'skip'][Math.floor(rnd() * 4)] };
+  motifs.set(key, m);
+  if (motifs.size > 64) motifs.delete(motifs.keys().next().value);
+  return m;
+}
+// Le rang d'une note dans l'accord, sur deux octaves (la basse n'en est pas)
+const tone = (chord, deg) => chord[1 + (deg % 4)] + 12 * Math.floor(deg / 4) + 12;
+
 // Ce qui joue dans chaque phrase : l'entrée, la montée, le plein, la respiration.
 // L'énergie du moment (le lieu, le danger) décide de ce qui peut jouer : au
 // calme, la nappe et quelques accords ; en marche, la grosse caisse ; près de
@@ -177,20 +271,52 @@ function arrangement(bar) {
 function scheduleStep(t, i) {
   const bar = Math.floor(i / 16), s = i % 16;
   if (ctx.currentTime < duckUntil) return;                      // un silence (une présence)
-  const A = arrangement(bar);
+  // La playlist : on change de morceau sur une respiration, toutes les six phrases
+  if (s === 0) {
+    trackBars++;
+    if (choice === 'playlist' && trackBars > 96 && bar % 16 === 0) useTrack(TRACK_ORDER[(TRACK_ORDER.indexOf(current) + 1) % TRACK_ORDER.length]);
+  }
+  const T = TRACKS[current], A = arrangement(bar);
   // Dans l'ombre, les accords descendent d'un ton, plus sourds
-  const chord = CHORDS[Math.floor(bar / 4) % CHORDS.length].map(n => n - (heard.dark > 0.6 ? 2 : 0));
+  const chord = T.chords[Math.floor(bar / 4) % T.chords.length].map(n => n - (heard.dark > 0.6 ? 2 : 0));
+  const phrase = Math.floor(bar / 16), M = motif(current, phrase);
+  const lvl = (from, to) => Math.max(0, Math.min(1, (heard.energy - from) / (to - from)));
+  const brightA = (1600 + 1400 * Math.sin(bar * 0.25 + phrase)) * (1 - 0.5 * heard.dark);
+  // Les arpèges : ils s'ouvrent sur la phrase (de deux à huit notes), plus serrés quand ça monte
+  if (T.arp && A.kick + A.pad > 0) {
+    const open = 2 + Math.floor((bar % 16) / 16 * 6), rate = heard.energy > 0.6 ? 1 : 2;
+    if (s % rate === 0) {
+      const k = (s / rate) % open;
+      const idx = M.arpOrder === 'down' ? open - 1 - k : M.arpOrder === 'updown' ? (Math.floor(s / rate / open) % 2 ? open - 1 - k : k) : M.arpOrder === 'skip' ? (k * 2) % open : k;
+      pluck(t, tone(chord, idx), T.arp * (0.5 + 0.5 * lvl(0.05, 0.4)), brightA);
+    }
+  }
+  // La mélodie : le motif de la phrase ; il se répond (une mesure sur deux,
+  // une note plus bas), et change un peu toutes les quatre mesures
+  if (T.lead && (bar % 16) >= 2) {
+    const answer = bar % 2 === 1, vary = Math.floor(bar / 4) % 4;
+    for (const n of M.notes) {
+      if (n.at !== s) continue;
+      if (answer && n === M.notes.at(-1) && heard.energy < 0.7) continue;   // il laisse respirer
+      const deg = n.deg + (answer ? -1 : 0) + (vary === 2 && n === M.notes[0] ? 2 : 0) + (vary === 3 ? 1 : 0);
+      lead(t, tone(chord, Math.max(0, Math.min(7, deg))), STEP * n.len * 2, T.lead * (0.55 + 0.45 * (1 - heard.dark)));
+    }
+  }
+  // La forge : des frappes de métal, et une basse qui chante le motif à l'octave
+  if (T.rim && A.kick && [4, 12].includes(s)) rim(t, T.rim * A.kick);
+  if (T.rim && A.hats && s === 7 && bar % 2) rim(t, T.rim * 0.5);
+  if (T.song && A.bass) for (const n of M.notes) if (n.at === s) bass(t, chord[1 + (n.deg % 4)] - 12, A.bass * 0.9);
   if (A.kick && s % 4 === 0) kick(t, A.kick);
   if (A.hats && s % 4 === 2) hat(t, A.hats, s === 14 && bar % 2 === 1);
   if (A.hats && (s === 7 || s === 15) && Math.random() < 0.4) hat(t, A.hats * 0.5);
   if (A.fast && s % 2 === 1) hat(t, A.fast * 0.45);
-  if (A.bass && [3, 6, 11, 14].includes(s)) bass(t, chord[0] + (s === 11 && bar % 4 === 3 ? 7 : 0), A.bass);
+  if (A.bass && !T.song && [3, 6, 11, 14].includes(s)) bass(t, chord[0] + (s === 11 && bar % 4 === 3 ? 7 : 0), A.bass);
   if (A.fast && [0, 8].includes(s)) bass(t, chord[0], A.fast * 0.8);
   // Les accords : peu, à des places qui changent d'une mesure à l'autre
   const stabs = [[6], [3, 10], [6, 14], [0, 11]][bar % 4];
   const bright = (1400 + 900 * Math.sin(bar * 0.4)) * (1 - 0.5 * heard.dark) * (1 + 0.6 * A.stabs2);
-  if (A.stab && stabs.includes(s)) stab(t, chord, A.stab, bright);
-  if (A.stabs2 && [2, 9, 13].includes(s) && Math.random() < 0.7) stab(t, chord, A.stabs2 * 0.7, bright);
+  if (A.stab && T.stab && stabs.includes(s)) stab(t, chord, A.stab * T.stab, bright);
+  if (A.stabs2 && T.stab && [2, 9, 13].includes(s) && Math.random() < 0.7) stab(t, chord, A.stabs2 * 0.7 * T.stab, bright);
   if (A.pad && s === 0 && bar % 2 === 0) pad(t, chord, BEAT * 8, A.pad);
 }
 
@@ -327,7 +453,7 @@ const SOUNDS = {
     }
   },
   // Un grondement de gorge, bas et râpeux, avant qu'il ne bondisse
-  growl: () => {
+  growl: ({ v = 1 } = {}) => {
     const t = ctx.currentTime, d = 0.6;
     const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = 85 + Math.random() * 20;
     const am = ctx.createOscillator(); am.frequency.value = 26;
@@ -335,7 +461,7 @@ const SOUNDS = {
     const g = ctx.createGain(); g.gain.value = 0.5;
     am.connect(ag).connect(g.gain);
     const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520;
-    o.connect(lp).connect(g).connect(envGain(t, 0.35, 0.08, d, sfxBus));
+    o.connect(lp).connect(g).connect(envGain(t, 0.35 * v, 0.08, d, sfxBus));
     o.start(t); o.stop(t + d + 0.1); am.start(t); am.stop(t + d + 0.1);
   },
   // Les crocs claquent
@@ -417,6 +543,12 @@ export const audio = {
       s.start(at, Math.random() * 1.5); s.stop(at + 0.08);
     }
   },
+  // Le morceau : 'playlist' (ils s'enchaînent), ou l'un de TRACKS
+  setTrack(id) {
+    choice = id === 'playlist' || TRACKS[id] ? id : 'playlist';
+    if (choice !== 'playlist') useTrack(choice);
+  },
+  get track() { return current; },
   // L'humeur du moment, voulue par le jeu : { energy, dark, muffled } (0 → 1)
   setMood(m) { Object.assign(mood, m); },
   // Un silence de quelques secondes (la musique retient son souffle)

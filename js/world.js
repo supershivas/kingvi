@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.52.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.52.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.52.0';
-import { makeGroveTree } from './grove.js?v=1.52.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.52.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.53.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.53.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.53.0';
+import { makeGroveTree } from './grove.js?v=1.53.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.53.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -239,7 +239,7 @@ const STATUE2_PARTS = buildStatueUpright(STATUE2_BASE, SEED);
 const CROW_AT = trail.find(p => forestDx(p.x, p.y) > 880) || trail[Math.floor(trail.length * 0.25)];
 export const CROWS = off(CROW_AT, 14);
 
-// ── L'îlot du lac : une statue de Freya, une porte dans sa robe ──
+// ── L'îlot du lac : une statue de Véla, une porte dans sa robe ──
 export const STATUE3_BASE = { x: ISLET.x, y: ISLET.y + 4 };
 const STATUE3_PARTS = buildStatueDoor(STATUE3_BASE, SEED);
 export const STATUE3_DOOR_OUT = { x: STATUE3_BASE.x, y: STATUE3_BASE.y + 3 };
@@ -407,7 +407,7 @@ export const CAVE_DOOR_OUT = (() => {
   return { x: CAVE.x, y: bottom + 2 };
 })();
 
-// ── Le champ des morts (d'après Lindholm Høje) : des navires, cercles et
+// ── Le champ des morts (d'après un champ de pierres levées du Nord) : des navires, cercles et
 // triangles de pierres levées, au nord de la piste, à une demi-minute de la
 // barque. Chaque pierre est un objet (triée, elle cache ou non le viking).
 const NECRO_AT = trail.find(p => p.x > LANDING.shore + 560) || trail[50];
@@ -487,7 +487,14 @@ CLEARINGS.push(
 // du glacier, jamais du bord de la falaise (`DEN_OPEN` : le sud)
 export const WOLF_DEN = { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 12, r: 90 };
 export const DEN_OPEN = Math.PI / 2;
-// Le temple de Nortia : des marches sous l'arche, entre ses piliers
+// Le cube blanc et le cube noir (cubes.js) : au nord du champ des morts, et
+// loin à l'est de la maison, vers la mer
+export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 60, y: NECRO.y - 160 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }];
+// (leur pied bloque le passage : sept pixels de part et d'autre, cinq de profondeur)
+export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => Math.abs(x - c.x) <= 7 && y <= c.y + 1 && y >= c.y - 5);
+// Sigrún dans la glace : sur le plateau, à l'est de la meute, vers la mer
+export const SIGRUN_AT = { x: LEDGE.top.x + 78, y: LEDGE.top.y - 46 };
+// Le temple de Sorne : des marches sous l'arche, entre ses piliers
 export const TEMPLE_DOOR_OUT = { x: ARCH.x + 7, y: ARCH.y - 5 };
 
 const trailByChunk = new Map();

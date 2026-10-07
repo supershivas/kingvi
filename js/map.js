@@ -8,7 +8,7 @@
 
 import {
   WORLD, coast, deepForest, forestDensity, trail, landing, HOUSE, STATUE_BASE, STATUE2_BASE, ARCH, CLIFF, CAVE, LAKE, NECRO, WOLF_DEN, GROVE_TREE, HVIT_AT,
-} from './world.js?v=1.52.0';
+} from './world.js?v=1.53.0';
 
 const S = 12;                   // pixels du monde par pixel de carte
 const N = Math.ceil(WORLD / S);
@@ -21,11 +21,11 @@ export const MAP_PLACES = [
   ['La grève', L.shore + 30, L.y],
   ['La plaine des morts', NECRO.x + 100, NECRO.y + 35],
   ['L\'arche', ARCH.x, ARCH.y],
-  ['La Freya ensevelie', STATUE_BASE.x, STATUE_BASE.y],
+  ['La Véla ensevelie', STATUE_BASE.x, STATUE_BASE.y],
   ['Le bosquet', GROVE_TREE.x, GROVE_TREE.y],
   ['La louve blanche', HVIT_AT.x, HVIT_AT.y],
   ['Les loups', WOLF_DEN.x, WOLF_DEN.y],
-  ['La grande Freya', STATUE2_BASE.x, STATUE2_BASE.y],
+  ['La grande Véla', STATUE2_BASE.x, STATUE2_BASE.y],
   ['La maison', HOUSE.x, HOUSE.y],
   ['La falaise', CAVE.x, CLIFF.y],
   ['Le lac', LAKE.x, LAKE.y],
@@ -136,12 +136,12 @@ export function seenBounds({ seen, cell, n }) {
 
 // ── La carte de SNO 4 (on y est) : la scène de l'île vue d'en haut, réduite
 // au quart (sno4.js : le sol et ce qui est debout), ce qu'on n'a pas vu dans
-// le noir, les vèvè marchés, les lieux vus nommés, la croix rouge ──
+// le noir, les tracés marchés, les lieux vus nommés, la croix rouge ──
 const S4 = 4;
 let sno4Base = null;
 async function sno4Terrain(palette) {
   if (sno4Base) return sno4Base;
-  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.52.0');
+  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.53.0');
   const full = document.createElement('canvas');
   full.width = SNO4_W; full.height = SNO4_H;
   const g = full.getContext('2d');
@@ -162,8 +162,8 @@ async function sno4Terrain(palette) {
 
 export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) {
   const base = await sno4Terrain(palette);
-  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.52.0');
-  const { VEVE } = await import('./sno4.js?v=1.52.0');
+  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.53.0');
+  const { VEVE } = await import('./sno4.js?v=1.53.0');
   const { seen, cell, cols, rows, pos } = data;
   const W = base.width, H = base.height;
   const seenAt = (lx, ly) => { const c = Math.floor(lx / cell), r = Math.floor(ly / cell); return c >= 0 && r >= 0 && c < cols && r < rows && seen[r * cols + c]; };
@@ -194,7 +194,7 @@ export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) 
     ctx.fillRect(Math.floor((x - bx0) * z), Math.floor((y - by0) * z), Math.ceil(z), Math.ceil(z));
   }
   const u = Math.max(2, Math.round(z));
-  // Les vèvè marchés (une croix de cendre)
+  // Les tracé marchés (une croix de cendre)
   for (const v of VEVE) {
     if (!data.veve?.includes(v.id) || !seenAt(v.at.x, v.at.y)) continue;
     const mx = Math.round(X(v.at.x)), my = Math.round(Y(v.at.y));

@@ -18,12 +18,13 @@ aucun zoom de caméra (ni molette, ni combat, ni intérieurs), la caméra est
 fixée sur le viking (`FOLLOW` = 1 : elle avance du même pixel que lui) ; on ne voit qu'à distance de vue du héros : net autour
 de lui, flou vers le bord du cercle de vue (`BLUR_SCALE`, fixe), puis le noir, plus loin (`SIGHT`) (le bleu nuit exact,
 par-dessus le CRT et la vignette), tramé par paliers. Sa forme n'est pas
-définie : la portée de la vue, dans 72 directions, dépend du décor (troncs,
-rochers, pierres, statues la bouchent plus ou moins ; elle glisse en suivant
-le décor, lissée d'un angle à l'autre, avec une lente dérive : `updateSight`,
-`castSight`, `sightShape`, `paintSight`, canevas `#sight`).
+définie : la portée de la vue, dans 72 directions, dépend un peu du décor
+(v1.53.0 : plus grande, `SIGHT` 0,86 × 0,70, presque une ellipse ; le décor
+n'en mord plus qu'un quart, quatre passes de lissage, une lente dérive en
+quatre ondes la garde organique : `updateSight`, `castSight`, `sightShape`,
+`paintSight`, canevas `#sight`).
 **Rien de géométrique dans ce monde** : ni droite, ni grille, ni cercle, ni
-arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
+arc parfaits (une seule exception voulue : le cube blanc et le cube noir, voir plus bas). Tout est tordu par du bruit, cassé, effrité, asymétrique
 (falaise, grotte, crypte, pierres, rivages). Seuls les objets fabriqués
 (maison, barques, coffre) gardent quelques lignes, et encore, usées.
 
@@ -49,8 +50,8 @@ barque, mâtée sans voile, vue sous un autre angle, halée sur la grève : le
 sillon de sa quille court jusqu'à l'eau ; ils étaient deux ; des
 icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est (deux pistes côte à côte jusqu'à la maison,
 une seule en ressort) : le champ des morts (navires, cercles et triangles de
-pierres levées, d'après Lindholm Høje), quelques arbres,
-une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Freya ensevelie, penchée et
+pierres levées, d'après un champ de pierres levées du Nord), quelques arbres,
+une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Véla ensevelie, penchée et
 brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre ; trois clairières
 seulement : une vide au premier quart ; au milieu, le bosquet sacré, un grand
@@ -62,7 +63,7 @@ cerné de bleu nuit, `makeWhiteWolf` dans `pack.js`) ; E « Défaire le
 collet » (`freeHvit`, `hvitFree`) : elle parle, hurle et rentre sous les
 arbres ; le guetteur : grande silhouette
 encapuchonnée qui s'efface quand on approche, jamais pendant un combat, ses pas s'arrêtant net), une grande
-Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
+Véla debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
 noire tout autour, un corps, du sang), et elles ressortent tachées de sang
 vers l'est.
@@ -107,14 +108,14 @@ trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et s
 couronne roule au pied de l'estrade (`kingBowed`).
 Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
-Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
+Véla plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
 **L'Aube** (v1.52.0, la première fin) : sous l'arche, entre ses piliers, une
-dalle (`TEMPLE_DOOR_OUT`, image `temple-slab`) que Tages fait glisser quand
+dalle (`TEMPLE_DOOR_OUT`, image `temple-slab`) que Tavé fait glisser quand
 on lui donne le sceau de la crypte ; des marches (`temple-stairs`) descendent
-au **temple de Nortia** (`js/temple.js`, intérieur `temple`, toujours la
+au **temple de Sorne** (`js/temple.js`, intérieur `temple`, toujours la
 nuit) : le mur des ans hérissé de clous, le dernier à l'envers, rouge
-(`NAIL`, image `nail`). E « Arracher le clou » (`pullNail`) : Nortia parle, le
+(`NAIL`, image `nail`). E « Arracher le clou » (`pullNail`) : Sorne parle, le
 vent tombe en bise, la nuit pâlit en une minute avec une lueur d'aube, puis
 le jour pour toujours (`aube` dans la sauvegarde, `applyDaylight`) ;
 `onEnding('aube')` → `playEnding` dans `main.js` : trois lignes sur le noir
@@ -123,8 +124,8 @@ continue de jouer ; les fins vécues sont gardées dans `kingvi:fins` (et
 l'export). **Donner** (touche E) : `veut.don` dans `saga.js` (relique, lignes,
 effet) ; si elle pend à la ceinture, « Donner … » remplace « Parler »
 (`give`, `given` dans la sauvegarde : la relique quitte la ceinture, `isGiven`).
-Freya ← la poupée : un point de vie de plus (`maxHp`) ; Tages ← le sceau : le
-temple ; Kalfou ← l'anneau de l'autre : l'âme d'Eyvind passe ; Brigitte ← la
+Véla ← la poupée : un point de vie de plus (`maxHp`) ; Tavé ← le sceau : le
+temple ; Croisée ← l'anneau de l'autre : l'âme d'Eyvind passe ; Rosine ← la
 boucle : une tombe. `apres` peut être une liste (la dernière vraie : `aube`,
 `don-<id>`, `hvitFree`…).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
@@ -149,7 +150,7 @@ l'autre au rythme de la lecture, `readTime` ; on se tait si celui qui parle
 est loin, et en entrant ou sortant d'un intérieur). Le jeu choisit les scènes
 de la saga (`checkTalk`, `speak`, `sceneLines` dans `game.js` ; les lignes
 viennent de `SCENARIOS` dans `saga.js`), chacune une fois par partie (`said`
-dans la sauvegarde) ; Vanth dit une ligne à chaque mort (`deaths`). Tages et
+dans la sauvegarde) ; Vaïne dit une ligne à chaque mort (`deaths`). Tavé et
 Hjalti sont posés dans le monde d'après `people.js` (`personImage`).
 **Prologue** : au début d'une partie neuve, trois lignes sur le noir disent
 l'état du monde avant que l'iris s'ouvre (`PROLOGUE`, `playPrologue` dans
@@ -176,17 +177,42 @@ inférieur à l'autre (`castShadowBase`, `artBase` : la rangée de pierre
 la plus basse, sans les éclats posés autour), le bout rongé ; sa première
 rangée couvre aussi la rangée noire du pied du rocher (le voile de nuit
 glisse d'une fraction de pixel au rendu : sinon, une ligne claire s'ouvre).
-**Neige profonde** (v1.51.0) : trois niveaux (`snowDepth` dans `world.js`,
-bruit sans `rng` : tassée, aux mollets, à la taille ; jamais sur la piste
-ni en forêt) ; `updateSnow` dans `game.js` : le viking s'enfonce
-(`SNOW_SINK`, sprite et cape rognés par `setCrop`), ralentit (`SNOW_SPEED`,
-80 % à la taille) et n'y laisse plus de pas mais un sillon (deux bords
-tramés). **Touche E** : `actionTarget` (coffre, bûcher, roi, barque vers
+**Neige profonde** (v1.51.0, revue v1.53.0) : trois niveaux (`snowDepth` dans `world.js`,
+bruit sans `rng` : tassée, aux mollets, à la taille ; jamais sur la piste,
+en forêt ni chez les loups) ; `updateSnow` dans `game.js` : le viking
+s'enfonce de 1 ou 3 pixels seulement (`SNOW_SINK`, sprite et cape rognés par
+`setCrop`), une collerette de neige bosselée le cerne (`this.collar`, hasard
+`noise` accroché au monde : jamais de coupe droite), ralentit (`SNOW_SPEED`,
+80 % à la taille) et laisse un sillon aux lèvres irrégulières (écart qui
+ondule, trous, mottes) au lieu de pas. Carte du labo « Marche dans la neige
+profonde ». **Touche E** : `actionTarget` (coffre, bûcher, roi, barque vers
 SNO 4 et retour, parler aux gens), `act`, `onAction` → bouton `#act` (on
 peut aussi cliquer) ; parler dit ce que la personne veut (`veut` de chaque
 personnage dans `saga.js`, `apres` une fois un fait accompli ; `talkTo`).
 L'éclair est blanc pur (couleur `w`, `WHITE` : seule exception aux trois
 couleurs, voulue par Jérôme).
+**Le cube blanc et le cube noir** (v1.53.0, `js/cubes.js` : `CUBE_WHITE`,
+`CUBE_BLACK`, vue isométrique, arêtes d'un pixel ; dessins `cube-blanc`,
+`cube-noir` de l'atelier, groupe « Les cubes, la glace, le temple ») : sur
+chaque île, toujours loin l'un de l'autre ; les seules choses parfaitement
+droites du monde. SNO 7 : `SNO7_CUBES`, `cubeBlocked` (dans `walkable`) ;
+SNO 4 : `SNO4_CUBES` (accessoires de la scène). E « Toucher le cube … »
+(`touchCube`) : le blanc referme les blessures, le noir découvre la carte
+(900 px autour ; toute SNO 4). `cubes` dans la sauvegarde. Saga : page
+« Le cube blanc et le cube noir ». **Sigrún dans la glace** (`js/sigrun.js`,
+`ICE_FRAMES` ; `SIGRUN_AT` sur le plateau) : torche allumée près d'elle, la
+glace parle (scène `glace`) ; E « Allumer ta torche à la sienne »
+(`freeSigrun`) : la glace se fend, fond, une flaque ; Vaïne l'emmène
+(`sigrunFree`). **Le carnet des vœux** (touche J, `#wishes`, `game.wishes()`) :
+en tête, ce que Kári pense devoir faire (`goal`), puis ce que veulent ceux
+qu'on a croisés (`met`, `veut.voeu`, rayé quand `veut.fait` est vrai :
+`facts`). **Le fil** : Kári dit son but à voix haute quand il change (6 s
+après) et toutes les deux minutes s'il traîne (`checkGoal`). **Les messages
+du jeu** (relique trouvée…) : la bulle de neige des phylactères, en bas
+(`note` dans `main.js`, `#note`, `brokenBox`) ; le toast du design system
+reste pour l'interface (export, mise à jour). **Chargement** : `#loader`
+(la nuit, des flocons d'un pixel) jusqu'à ce que le titre, la mer et les
+polices soient prêts (`hideLoader`).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
 par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
@@ -200,7 +226,12 @@ pierre (rocher, cairn, statue, falaise) fait jaillir des étincelles, la lame
 sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 `strikeRock`).
 Le son est synthétisé (aucun fichier) : une deep techno contemplative et
-changeante, le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
+changeante, en **playlist** (v1.53.0 : `TRACKS` dans `audio.js` : la nuit,
+l'original ; la glace, arpèges ; l'aurore, la plus mélodique ; la forge,
+basse qui chante et frappes de métal ; motif de phrase `motif`, tiré d'une
+graine, qui se répond et se transforme ; `audio.setTrack('playlist' | id)`,
+Réglages « Morceau », `prefs.track` ; en playlist, un morceau toutes les six
+phrases), le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
 l'épée (fendre l'air, neige, chair, bois, pierre), le coffre, les loups
 (hurlement, grondement, morsure, glapissement). Il démarre au premier geste du
 joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
@@ -219,13 +250,16 @@ sujet ouvert déplie ses variantes en lettres A, B, C… (point d'accent sur la
 retenue) et n'en montre qu'une ; flèches du clavier, balayage ; adresse
 `#loups-B` ; sur téléphone, puces sous l'en-tête et barre en bas. Les
 phylactères sont dans Interface, pas dans la saga. Sur la neige aux couleurs du jeu :
-carte de l'île (un clic y téléporte le viking ; neige profonde tramée, tous
-les lieux), carte de SNO 4 (un clic y emmène Kári : rendez-vous
-`kingvi:goto` en sessionStorage, lu par `create`), chapitres, barque, jour et nuit, viking,
+les cartes (v1.53.0) : l'Archipel des Neuf, puis « Carte de SNO 1 » à
+« Carte de SNO 9 » (même convention partout : titre, lieux nommés dans la
+gothique, leur liste dessous) ; SNO 7 et SNO 4 sont les vraies (un clic y
+téléporte Kári ; pour SNO 4, rendez-vous `kingvi:goto` en sessionStorage,
+lu par `create`), les sept autres dessinées d'après la saga (`js/islands.js` :
+`ARCHIPEL`, `paintIsland`, `islandLand`), chapitres, barque, jour et nuit, viking,
 cape, attaques (8 directions, tourbillon, arbre qui tombe, rocher qui éclate), torche, meute,
 grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
-(lettres A, B, C…) : pontons, seconde barque, nécropole d'après Lindholm Høje,
+(lettres A, B, C…) : pontons, seconde barque, nécropole d'après un champ de pierres levées du Nord,
 ambiances de vent, arbres, rochers, maison, statues, corbeaux, loups, cerfs
 et biches ; dans Interface, les boutons de l'accueil et le menu Réglages
 (maquettes HTML jouables, `js/labo-ui.js`, `css/labo-ui.css` : A l'actuel,
@@ -266,7 +300,7 @@ est cachée et ne sort que pendant l'attaque.
   `wolvesDead` (loups tués, là où ils sont tombés ; ceux d'avant v1.52.0, dans la forêt, sont oubliés), `fire` (l'incendie),
   `hvitFree`, `wolvesSpared`, `templeOpen`, `aube`, `given` (personne → relique donnée),
   `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
-  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `salt`, `clotildeFree`, `seen4`, `veve` (SNO 4), `chips` (coups déjà portés
+  `deaths` (morts, pour Vaïne), `seen` (la carte : cases vues), `salt`, `clotildeFree`, `seen4`, `veve` (SNO 4), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
@@ -298,12 +332,16 @@ est cachée et ne sort que pendant l'attaque.
   Sigrún n'est plus le megamoth : figée dans la glace sur le plateau (pas encore en jeu).
   **Second monde** (`js/saga-sno4.js`, ajouté par saga.js : `BIBLE_SNO4`,
   `FAMILIES_SNO4`, `PEOPLE_SNO4`, `PLACES_SNO4` avec x, y pour la carte du labo,
-  `SCENARIOS_SNO4` avec `ile: 'SNO 4'`) : SNO 4, l'île Carrefour, bâtie sur le
-  vodou haïtien (Jérôme, v1.48.0), toujours dans le froid. Trois ensembles : les
-  Gede, les lwa du péristyle (Rada et Petwo), le lakou Jean-Louis (héroïne :
-  Anaïse). `WORLDS`, `worldOf` rangent le labo par monde. Respect du vodou :
-  page « Ce que ce monde refuse » (pas de poupée à épingles, zonbi victimes, les
-  lwa ne se combattent pas ; vèvè à faire relire). **Jouable avec Kári**
+  `SCENARIOS_SNO4` avec `ile: 'SNO 4'`) : SNO 4, l'île Carrefour, celle des esprits
+  venus du sud par la mer (Jérôme, v1.48.0), toujours dans le froid. Trois ensembles : les
+  Gisants, les esprits de la tonnelle (Doux et Ardents), la cour Jean-Louis (héroïne :
+  Anaïse). `WORLDS`, `worldOf` rangent le labo par monde. Page « Ce que ce monde
+  refuse » (pas de poupée à épingles, les dormeurs sont des victimes, on ne combat
+  pas un esprit). **Aucun nom réel** (Jérôme, v1.53.0) : ni pays, ni dieux, ni
+  esprits, ni rites d'une religion ou d'une mythologie réelle ; on ne garde que
+  l'inspiration (Véla, Sorne, Vaïne, Tavé, les Orsènes ; Clède, Baron Cendre, Mèt
+  Croisée, Lazul, Morne-Aurore…). Les identifiants du code (`freya`, `legba`,
+  `lakou`…) restent, pour les sauvegardes ; seuls les textes changent. **Jouable avec Kári**
   (v1.49.0) : `js/sno4.js` (scène de 960 × 600 posée loin en mer comme la
   grotte, `INTERIORS.sno4` à `{ x: 80, y: 5400 }` (zone sans terre, vérifiée), en
   plein air : `outdoor`, `roofed(key)` décide neige, vent, cape, éclair ;
@@ -316,11 +354,11 @@ est cachée et ne sort que pendant l'attaque.
   `personImage` d'après `PERSON`), les âmes du carrefour, Clotilde qui marche
   (`updateSno4`) ; scènes `kari-*` de `saga-sno4.js` ; le sel de Ti-Jo
   (`salt`) réveille Clotilde (`clotildeFree`). Mourir ou se sauvegarder sur
-  SNO 4 ramène à la grève de SNO 7. **Vèvè** (v1.50.0) : `VEVE` dans `sno4.js`
+  SNO 4 ramène à la grève de SNO 7. **Tracé** (v1.50.0) : `VEVE` dans `sno4.js`
   (points `nodes` et traits `links` autour de `at`) ; on les marche : chaque
   point foulé à moins de `VEVE_NODE` px compte, tous en moins de `VEVE_TIME` s
   referment le dessin (`checkVeve`, `drawVeve` : graphique au ras du sol,
-  `veveClosed`) ; Legba ouvre toute la carte de SNO 4, Damballah met le vent au
+  `veveClosed`) ; Clède ouvre toute la carte de SNO 4, Lazul met le vent au
   calme une minute, le Baron monte Kári 16 s (`ridden` : il tangue). Faits
   gardés dans `veve`. **Carte de SNO 4** : cases de 24 px (`seen4`, `SEEN4_*`),
   `mapData()` rend `world: 'sno4'`, `renderSno4Map` dans `map.js` (la scène
@@ -520,7 +558,9 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   agrandie d'un facteur entier ; on y déplace les reliques par glisser-déposer
   ou clic puis clic, `game.belt()`, `game.moveRelic(de, vers)` ; pause pendant
   qu'il est ouvert), `onRelic` → un toast.
-- `js/temple.js` — le temple de Nortia (`TEMPLE`, `NAIL`, `NAIL_ART`,
+- `js/islands.js` — l'Archipel des Neuf pour le labo (voir plus haut) ;
+  `js/cubes.js` — les deux cubes ; `js/sigrun.js` — la glace de Sigrún.
+- `js/temple.js` — le temple de Sorne (`TEMPLE`, `NAIL`, `NAIL_ART`,
   `TEMPLE_SLAB`, `TEMPLE_STAIRS`, `templeWalkable`, `atTempleDoor`,
   `nearNail`) ; posé à `{ x: 150, y: 150 }` en mer.
 - `js/fire.js` — l'incendie : `FIRE` (les temps), flammes `FIRE_FRAMES`,
@@ -566,11 +606,12 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   du morceau (1024 px de large) et en change ~22 fois par seconde
   (`swayTrees`) : `treeWind` (quasi rien sous la bise), `treeLean`,
   `treeFreq` (les petits arbres battent plus vite).
-- `js/pack.js` — la meute dans le jeu (`createPack` : repaires à la lisière
-  de `WOLF_DEN`, cercle, grogne → bond → morsure `onBite`, `hitAt`,
-  retraite si on fuit ou tombe ; réglages `CROUCH` (1 s de grognement avant
-  le bond), `LUNGE_GAP`, `HIT` (marge de la lame), `ROUT` : deux loups tombés,
-  les autres fuient pour de bon) ; `pack.engaged` compte comme un combat
+- `js/pack.js` — la meute dans le jeu (`createPack` : repaires autour de
+  `WOLF_DEN`, cercle, grogne → bond → morsure `onBite`, `hitAt`,
+  retraite si on fuit ou tombe ; réglages `CROUCH` (1,5 s de grognement avant
+  le bond), `LUNGE_GAP`, `HIT` (marge de la lame), `ROUT` : un loup tombé,
+  les autres fuient pour de bon ; `tame`, `SPARE` : épargné ; un loup qui
+  fuit et reste coincé disparaît au bout de 6 s) ; `pack.engaged` compte comme un combat
   (musique, pas de guérison).
 - `js/wolf.js` — loups, d'après le dessin fourni (`assets/loups.png` →
   `WOLF_ART` dans `ruins-art.js`) : deux temps de marche, deux de course,
@@ -583,7 +624,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   filent jusqu'à sortir de l'écran), charognards, une volée par cadavre
   (l'autre viking, les loups : `updateCarrion`, `flockFor`). Cerfs et biches codés mais retirés pour
   le moment (`DEER_ENABLED = false`).
-- `js/statue.js` — la statue de Freya : pixels tirés d'une photo
+- `js/statue.js` — la statue de Véla : pixels tirés d'une photo
   (b sombre, m demi-teinte), lissés, cassés (coiffe, épaule), inclinés,
   enfouis ; éclats et débris autour. `buildStatueUpright` : la grande, droite ;
   `buildStatueDoor` : celle de l'îlot, réduite, une porte dans la robe.
@@ -682,6 +723,10 @@ n'est jamais implémenté automatiquement.
 
 - Dans la grotte, la caméra monte près du trône (`updateLook`, `LOOK_UP`, `setFollowOffset`) : le roi fait ~100 px, plus que la moitié de l'écran.
 
+- **Vérifier la syntaxe d'un module** : `node --check js/x.js` ne dit rien
+  (le fichier n'est pas lu comme un module) ; utiliser
+  `node --input-type=module --check < js/x.js`. Une apostrophe dans un texte
+  entre apostrophes a ainsi cassé la saga sans que `--check` la voie.
 - **Cache de GitHub Pages** (dix minutes) : après une mise à jour, le
   navigateur mélangeait anciens et nouveaux modules (le jeu tournait avec
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages

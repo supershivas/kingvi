@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.52.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.52.0';
-import { TITLE_ART } from './title-art.js?v=1.52.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.52.0';
-import { showChapter } from './chapters.js?v=1.52.0';
-import { createTitleSea } from './titlesea.js?v=1.52.0';
-import { audio } from './audio.js?v=1.52.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.52.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.52.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.53.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.53.0';
+import { TITLE_ART } from './title-art.js?v=1.53.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.53.0';
+import { showChapter } from './chapters.js?v=1.53.0';
+import { createTitleSea } from './titlesea.js?v=1.53.0';
+import { audio, TRACKS } from './audio.js?v=1.53.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.53.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.52.0');
-const debug = DEBUG ? await import('./debug.js?v=1.52.0') : null;
+const { createGame } = await import('./game.js?v=1.53.0');
+const debug = DEBUG ? await import('./debug.js?v=1.53.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -58,6 +58,29 @@ if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt =
 if (prefs.quality > 3) { prefs.quality = 3; write(PREFS_KEY, prefs); }
 let save = read(SAVE_KEY, {});
 
+// ── Les messages du jeu : une bulle de neige comme les phylactères ──
+let noteTimer, noteSeed = 7;
+async function note(title, text) {
+  const { brokenBox } = await import('./dialogue.js?v=1.53.0');
+  const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
+  box.innerHTML = '';
+  const b = document.createElement('b'); b.textContent = title;
+  const t = document.createElement('span'); t.textContent = text;
+  box.append(b, t);
+  el.hidden = false;
+  // (la bulle en pixels du jeu, autour du texte, avec une marge de 3 pixels)
+  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--px')) || 3, PAD = 3;
+  const bw = Math.ceil(box.offsetWidth / unit) + PAD * 2, bh = Math.ceil(box.offsetHeight / unit) + PAD * 2;
+  canvas.width = bw; canvas.height = bh;
+  canvas.style.width = `${bw * unit}px`; canvas.style.height = `${bh * unit}px`;
+  canvas.style.left = `${-PAD * unit}px`; canvas.style.top = `${-PAD * unit}px`;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, bw, bh);
+  brokenBox(ctx, 0, 0, bw, bh, palette.s, palette.b, noteSeed++);
+  clearTimeout(noteTimer);
+  noteTimer = setTimeout(() => { el.hidden = true; }, 3800);
+}
+
 // ── Toast ──
 let toastTimer;
 function toast(text) {
@@ -70,14 +93,14 @@ function toast(text) {
 
 // ── Jeu ──
 let irisBusy = false, irisRun = 0, ending = false;     // (l'iris, plus bas)
-const settings = $('settings'), inventory = $('inventory'), mapDialog = $('map');
+const settings = $('settings'), inventory = $('inventory'), mapDialog = $('map'), wishes = $('wishes');
 const game = createGame({
   parent: $('stage'),
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   // (et tant que le noir de l'iris n'est pas ouvert : rien ne se passe dans le noir)
-  isPaused: () => settings.open || inventory.open || mapDialog.open || !$('title').hidden || irisBusy || ending,
+  isPaused: () => settings.open || inventory.open || mapDialog.open || wishes.open || !$('title').hidden || irisBusy || ending,
   quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
@@ -94,7 +117,7 @@ const game = createGame({
   // Une fin : quelques lignes sur le noir, puis « Fin », et l'on continue de
   // jouer dans le monde changé (la fin vécue est gardée : `kingvi:fins`)
   onEnding: id => playEnding(id),
-  // Ce qu'on peut faire ici (touche E) : « E · Parler à Legba »
+  // Ce qu'on peut faire ici (touche E) : « E · Parler à Clède »
   onAction: label => {
     const el = $('act');
     el.hidden = !label;
@@ -106,7 +129,7 @@ const game = createGame({
   // Une relique ramassée : un mot discret, et elle entre dans l'inventaire
   onRelic: id => {
     const r = game.relics().find(x => x.id === id);
-    if (r) toast(`Relique trouvée : ${r.name}`);
+    if (r) note('Relique trouvée', r.name);
     $('open-inventory').classList.add('new');
   },
   onTally: (t, what) => {
@@ -219,6 +242,39 @@ $('close-inventory').addEventListener('click', () => inventory.close());
 inventory.addEventListener('click', e => { if (e.target === inventory) inventory.close(); });
 window.addEventListener('keydown', e => { if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleInventory(); } });
 
+// ── Le carnet des vœux (touche J) : ce que veulent ceux qu'on a croisés ──
+function toggleWishes(force) {
+  const open = force ?? !wishes.open;
+  if (open === wishes.open) return;
+  if (!open) { wishes.close(); return; }
+  if (!$('title').hidden || irisBusy || settings.open || inventory.open || mapDialog.open) return;
+  const list = $('wishes-list');
+  list.replaceChildren();
+  const items = game.wishes();
+  if (!items.length) {
+    const li = document.createElement('li');
+    li.className = 'wish-empty';
+    li.textContent = 'Personne encore. Parle à ceux que tu croises (touche E).';
+    list.append(li);
+  }
+  // (ce qui reste à faire d'abord)
+  for (const w of items.sort((a, b) => a.done - b.done)) {
+    const li = document.createElement('li');
+    li.classList.toggle('done', w.done);
+    const b = document.createElement('b');
+    b.textContent = w.name;
+    const t = document.createElement('span');
+    t.textContent = w.voeu;
+    li.append(b, t);
+    list.append(li);
+  }
+  wishes.showModal();
+}
+$('open-wishes').addEventListener('click', () => toggleWishes());
+$('close-wishes').addEventListener('click', () => wishes.close());
+wishes.addEventListener('click', e => { if (e.target === wishes) wishes.close(); });
+window.addEventListener('keydown', e => { if (e.code === 'KeyJ' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleWishes(); } });
+
 // ── La carte qui se construit (touche M) : ce qu'on a vu de l'île ──
 let mapModule = null, mapTimer = 0;
 async function toggleMap(force) {
@@ -227,7 +283,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.52.0');
+  mapModule = mapModule || await import('./map.js?v=1.53.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -288,7 +344,7 @@ const TUTO = [
   { text: () => touchScreen ? 'Tout au bord de la croix, on court' : 'Maj pour courir', done: e => e.type === 'keydown' && e.key === 'Shift', wait: touchScreen ? 7 : 25 },
   { text: () => touchScreen ? 'Touche l\'écran pour frapper' : 'Clic pour frapper, vers le pointeur', done: e => e.type === 'pointerdown', wait: 25 },
   { text: () => touchScreen ? 'Doigt tenu deux secondes : le coup tourbillonnant' : 'Bouton tenu deux secondes : le coup tourbillonnant', wait: 8 },
-  { text: () => 'M : la carte · I : l\'inventaire', done: e => e.type === 'keydown' && (e.code === 'KeyM' || e.code === 'KeyI'), wait: 12 },
+  { text: () => 'M : la carte · I : l\'inventaire · J : le carnet des vœux', done: e => e.type === 'keydown' && (e.code === 'KeyM' || e.code === 'KeyI' || e.code === 'KeyJ'), wait: 12 },
 ];
 let tutoStep = -1, tutoTimer = 0;
 function tutoShow(i) {
@@ -403,6 +459,16 @@ drawTitle();
 const title = $('title');
 const hasSave = () => save.x != null;
 const titleSea = createTitleSea($('title-sea'), palette);
+// Le chargement s'efface quand tout est là : le titre dessiné, la mer qui
+// tourne (deux images), les polices (au plus quatre secondes d'attente)
+function hideLoader() {
+  const el = $('loader');
+  if (!el || el.classList.contains('gone')) return;
+  el.classList.add('gone');
+  setTimeout(() => el.remove(), 700);
+}
+Promise.race([document.fonts?.ready || Promise.resolve(), new Promise(r => setTimeout(r, 4000))])
+  .then(() => requestAnimationFrame(() => requestAnimationFrame(hideLoader)));
 function openTitle() {
   if (settings.open) settings.close();
   titleSea.start();
@@ -547,6 +613,16 @@ if (prefs.sfxVol == null) prefs.sfxVol = prefs.sfx === false ? 0 : 80;
 if (prefs.windVol == null) prefs.windVol = prefs.sfx === false ? 0 : 35;
 const LEVELS = [['opt-music', 'musicVol', 'music'], ['opt-sfx', 'sfxVol', 'sfx'], ['opt-windvol', 'windVol', 'wind']];
 for (const [, key, kind] of LEVELS) audio.setVolume(kind, prefs[key] / 100);
+// Le morceau : la playlist (les morceaux s'enchaînent), ou un seul
+const trackSelect = $('opt-track');
+const TRACK_CHOICES = [['playlist', 'Tous, l\'un après l\'autre', 'Les quatre morceaux s\'enchaînent, toutes les trois minutes environ.'], ...Object.entries(TRACKS).map(([id, t]) => [id, t.nom, t.about])];
+for (const [id, nom] of TRACK_CHOICES) trackSelect.append(new Option(nom, id));
+if (!TRACK_CHOICES.some(c => c[0] === prefs.track)) prefs.track = 'playlist';
+trackSelect.value = prefs.track;
+const trackAbout = () => { $('track-about').textContent = TRACK_CHOICES.find(c => c[0] === prefs.track)[2]; };
+trackAbout();
+audio.setTrack(prefs.track);
+trackSelect.addEventListener('change', () => { prefs.track = trackSelect.value; write(PREFS_KEY, prefs); audio.setTrack(prefs.track); trackAbout(); unlockAudio(); });
 const unlockAudio = () => { if (!audio.silent) audio.unlock(); };
 window.addEventListener('pointerdown', unlockAudio);
 window.addEventListener('keydown', unlockAudio);

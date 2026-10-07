@@ -479,3 +479,33 @@ body {
 }
 .act[hidden] { display: none; }
 .act b { font-family: var(--font-mono); font-weight: 400; border: 1px solid var(--game-snow); padding: 0 6px; line-height: 1.5; }
+
+/* ── Le carnet des vœux : un nom, ce qu'il veut ; rayé quand c'est fait ── */
+.wishes { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; max-height: min(60vh, 520px); overflow: auto; }
+.wishes li { display: grid; gap: 2px; }
+.wishes li b { font-weight: 600; }
+.wishes li.done span { text-decoration: line-through; opacity: .55; }
+.wishes li.done b { opacity: .55; }
+.wishes .wish-empty { opacity: .7; }
+
+/* ── Le chargement : la nuit, quelques flocons d'un pixel qui tombent ── */
+.loader { position: fixed; inset: 0; z-index: 1000; display: grid; place-content: center; justify-items: center; gap: 18px; background: var(--game-night); color: var(--game-snow); transition: opacity .6s ease; }
+.loader.gone { opacity: 0; pointer-events: none; }
+.loader-flakes { position: relative; width: 72px; height: 48px; }
+.loader-flakes i { position: absolute; top: 0; width: 6px; height: 6px; background: var(--game-snow); animation: loader-fall 1.8s steps(8) infinite; opacity: 0; }
+.loader-flakes i:nth-child(1) { left: 4px; animation-delay: 0s; }
+.loader-flakes i:nth-child(2) { left: 22px; animation-delay: .45s; }
+.loader-flakes i:nth-child(3) { left: 40px; animation-delay: .9s; }
+.loader-flakes i:nth-child(4) { left: 56px; animation-delay: 1.2s; }
+.loader-flakes i:nth-child(5) { left: 30px; animation-delay: 1.5s; }
+@keyframes loader-fall { 0% { transform: translate(0, 0); opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { transform: translate(-6px, 42px); opacity: 0; } }
+.loader-text { margin: 0; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .3em; text-transform: uppercase; opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .loader-flakes i { animation: none; opacity: .8; } }
+
+/* ── Les messages du jeu : la même bulle de neige que les phylactères (B),
+   aux bords cassés en pixels du jeu, posée en bas au milieu ── */
+.note { position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 6; pointer-events: none; transition: opacity .35s ease; }
+.note[hidden] { display: block; opacity: 0; visibility: hidden; }
+.note-bubble { position: absolute; left: 0; top: 0; image-rendering: pixelated; image-rendering: crisp-edges; }
+.note-text { position: relative; width: max-content; max-width: min(70vw, calc(var(--px, 3px) * 120)); font-family: var(--font-body); font-size: max(14px, calc(var(--px, 3px) * 4.6)); line-height: 1.25; color: var(--game-night); }
+.note-text b { display: block; font-family: var(--font-game-title); font-weight: 500; font-size: 1.05em; line-height: 1; margin-bottom: 2px; opacity: .85; }

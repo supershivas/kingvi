@@ -4,39 +4,41 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.52.0';
+} from './viking.js?v=1.53.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
-  GLADE, HVIT_AT, TEMPLE_DOOR_OUT,
-} from './world.js?v=1.52.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.52.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.52.0';
-import { createGround } from './ground.js?v=1.52.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.52.0';
-import { chapterById } from './chapters.js?v=1.52.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.52.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.52.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.52.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.52.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.52.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.52.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.52.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.52.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.52.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.52.0';
-import { createFauna } from './fauna.js?v=1.52.0';
-import { createWeather } from './weather.js?v=1.52.0';
-import { createTalk } from './dialogue.js?v=1.52.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.52.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.52.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.52.0';
-import { personSprite } from './people.js?v=1.52.0';
-import { createSea } from './sea.js?v=1.52.0';
-import { audio } from './audio.js?v=1.52.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.52.0';
+  GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
+} from './world.js?v=1.53.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.53.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.53.0';
+import { createGround } from './ground.js?v=1.53.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.53.0';
+import { chapterById } from './chapters.js?v=1.53.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.53.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.53.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.53.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.53.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.53.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.53.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.53.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.53.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.53.0';
+import { createFauna } from './fauna.js?v=1.53.0';
+import { createWeather } from './weather.js?v=1.53.0';
+import { createTalk } from './dialogue.js?v=1.53.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.53.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.53.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.53.0';
+import { personSprite } from './people.js?v=1.53.0';
+import { createSea } from './sea.js?v=1.53.0';
+import { audio } from './audio.js?v=1.53.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.53.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -49,7 +51,13 @@ const OWN_PRINT_LIFE = 40000;  // la neige recouvre nos pas en 40 s
 // La neige profonde (snowDepth : 0 tassée, 1 aux mollets, 2 jusqu'à la taille) :
 // la vitesse, et de combien de pixels le viking s'enfonce
 const SNOW_SPEED = [1, 0.9, 0.8];
-const SNOW_SINK = [0, 2, 5];
+const SNOW_SINK = [0, 1, 3];
+// Un hasard fixe, accroché au monde (la collerette et le sillon de la neige profonde)
+const noise = (x, y, s) => {
+  let h = (x * 374761393 + y * 668265263 + s * 1442695041) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+};
 const TARGET_HEIGHT = 280;     // hauteur visée de l'écran, en pixels du jeu (près du viking)
 
 // Profondeurs : le sol et ce qui y est tracé sont sous tout ; les objets
@@ -73,7 +81,9 @@ const STEP = 1 / 60, MAX_FRAME = 0.5;
 // Le cercle de vue, en hauteurs d'écran : ses rayons, et où le noir commence
 // à monter (fraction du rayon) ; au-delà, tout est noir
 const LOOK_UP = 62;     // de combien la vue monte devant le roi (pixels du jeu)
-const SIGHT = { rx: 0.73, ry: 0.60, fade: 0.76 };
+// (v1.53.0 : plus grand, et presque une ellipse : le décor ne l'échancre plus
+// qu'un peu, une lente respiration la garde organique)
+const SIGHT = { rx: 0.86, ry: 0.70, fade: 0.74 };
 // La carte qui se construit : l'île en cases de SEEN_CELL pixels ; on voit
 // à SEEN_R pixels autour de soi. Gardé en bits, en base64, dans la sauvegarde.
 const SEEN_CELL = 48, SEEN_N = Math.ceil(WORLD / SEEN_CELL), SEEN_R = 110;
@@ -139,7 +149,7 @@ const canvasSize = (w, h, factor, dpr) => ({ width: Math.max(1, Math.ceil(w * dp
 const boatRects = [];
 const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
 // (sur le ponton, on marche au-dessus de l'eau)
-const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y);
+const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y) && !cubeBlocked(x, y);
 
 // Les intérieurs (la maison, la crypte de la statue du lac) sont posés loin en
 // mer, hors de l'île : quand on y entre, on y est téléporté ; tout autour, un
@@ -161,8 +171,8 @@ const INTERIORS = {
     walk: caveWalkable, atDoor: atCaveDoor, door: CAVE_DOOR_OUT, radius: 5, dark: true,
     exit: { x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 6 }, enterFacing: 'back',
   },
-  // Le temple de Nortia, sous l'arche (temple.js) : fermé par une dalle tant
-  // que Tages n'a pas le sceau d'Aule (`templeOpen`) ; toujours la nuit
+  // Le temple de Sorne, sous l'arche (temple.js) : fermé par une dalle tant
+  // que Tavé n'a pas le sceau d'Aule (`templeOpen`) ; toujours la nuit
   temple: {
     at: { x: 150, y: 150 }, key: 'temple', w: TEMPLE_W, h: TEMPLE_H, entry: TEMPLE_ENTRY,
     walk: templeWalkable, atDoor: atTempleDoor, door: TEMPLE_DOOR_OUT, radius: 5, dark: true,
@@ -379,6 +389,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.templeOpen = !!save.templeOpen;
       this.aube = !!save.aube;
       this.aubeAt = null;
+      this.sigrunFree = !!save.sigrunFree;
+      // Ceux qu'on a rencontrés (le carnet des vœux)
+      this.met = new Set(save.met || []);
       this.relicDrops = { ...(save.relicDrops || {}) };
       // Ce qu'on a trouvé pend à la ceinture (un crochet chacun ; on les déplace dans l'inventaire)
       this.belt = this.normalBelt(save.belt);
@@ -445,7 +458,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.art('fallen', CORPSE);
       const end = trail.at(-1);
       const post = nearestWalkable(Math.round(end.x + Math.cos(end.heading) * 18), Math.round(end.y + Math.sin(end.heading) * 18)) || { x: end.x, y: end.y };
-      // (Freya garde celui qui lui a rendu la poupée : un coup de plus)
+      // (Véla garde celui qui lui a rendu la poupée : un coup de plus)
       this.maxHp = FOE_HP + (this.given?.has('freya') ? 1 : 0);
       this.hp = this.maxHp;
       this.invuln = 0;
@@ -519,7 +532,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.talk = createTalk(screenEl, palette);
       this.foeAlive = this.foe.alive;
       this.wolvesDown = this.pack.deadList.length;
-      // Tages, l'enfant au visage de vieillard, assis contre un pilier de l'arche
+      // Tavé, l'enfant au visage de vieillard, assis contre un pilier de l'arche
       const tagesAt = nearestWalkable(ARCH.x + 18, ARCH.y + 22) || { x: ARCH.x + 18, y: ARCH.y + 22 };
       this.tages = { ...tagesAt, img: this.personImage('tages', tagesAt.x, tagesAt.y) };
 
@@ -534,7 +547,16 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       for (let k = 0; k <= 6; k++) this.hvitRope.fillRect(hv.x - 3 - k, hv.y - 2 + Math.round(k * 0.3), 1, 1);
       this.hvitRope.fillStyle(hex(palette.k), 1).fillRect(hv.x - 10, hv.y - 3, 1, 4);
 
-      // ── Le temple de Nortia : sous l'arche, une dalle, puis des marches ──
+      // ── Le cube blanc et le cube noir ──
+      this.cubes = SNO7_CUBES.map(c => ({ ...c, img: this.add.image(c.x + 0.5, c.y + 2, `cube-${c.kind}`).setOrigin(0.5, 1).setDepth(c.y) }));
+      this.cubesTouched = new Set(save.cubes || []);
+
+      // ── Sigrún, debout dans la glace sur le plateau ──
+      const sg = nearestWalkable(SIGRUN_AT.x, SIGRUN_AT.y) || SIGRUN_AT;
+      this.sigrun = { x: sg.x, y: sg.y };
+      this.ice = this.add.image(sg.x + 0.5, sg.y + 1, this.sigrunFree ? 'glace-gone' : 'glace-whole').setOrigin(0.5, 1).setDepth(sg.y);
+
+      // ── Le temple de Sorne : sous l'arche, une dalle, puis des marches ──
       const T = TEMPLE_DOOR_OUT;
       this.templeDoor = this.add.image(T.x + 0.5, T.y + 2, this.templeOpen ? 'temple-stairs' : 'temple-slab').setOrigin(0.5, 1).setDepth(DEPTH_MARKS + 1);
       const TI = INTERIORS.temple.at;
@@ -674,6 +696,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       art('nail', NAIL_ART);
       art('temple-slab', TEMPLE_SLAB);
       art('temple-stairs', TEMPLE_STAIRS);
+      for (const [k, rows] of Object.entries(ICE_FRAMES)) art(`glace-${k}`, rows);
+      art('cube-blanc', CUBE_WHITE);
+      art('cube-noir', CUBE_BLACK);
       for (const [k, rows] of Object.entries(THRONE_FRAMES)) art(`throne-${k}`, rows);
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
@@ -752,6 +777,23 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         this.cropped = sink;
         if (sink) this.player.setCrop(0, 0, this.player.frame.width, GROUND + 1 - sink); else this.player.setCrop();
       }
+      // Autour de lui, la neige remuée : une collerette bosselée, jamais une
+      // ligne droite (le hasard est accroché au monde : elle roule quand il avance)
+      if (!this.collar) this.collar = this.add.graphics();
+      const c = this.collar;
+      c.clear();
+      if (sink > 0) {
+        c.setDepth(depth + 0.02).fillStyle(hex(palette.s), 1);
+        const half = 2 + sink;
+        for (let dx = -half; dx <= half; dx++) {
+          const edge = Math.abs(dx) / half;
+          const n = noise(px + dx, Math.round(y / 3), 7);
+          const h = Math.max(0, Math.round((1 - edge * edge) * sink * 0.7 + n * 1.6 - 0.5));
+          if (h > 0 && !(edge > 0.8 && n < 0.4)) c.fillRect(px + dx, py - h + 1, 1, h);
+        }
+        c.fillStyle(hex(palette.b), 0.5);
+        for (let dx = -half - 1; dx <= half + 1; dx += 1) if (noise(px + dx, Math.round(y), 11) < 0.35) c.fillRect(px + dx, py + 1, 1, 1);
+      }
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
       const a = this.capeAnchor[this.player.frame.name];
       if (!a) return;
@@ -799,11 +841,18 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         const f = this.furrowAt;
         if (!f || Math.abs(f.x - x) + Math.abs(f.y - y) >= 1) {
           this.furrowAt = { x, y };
-          // (le sillon : ses deux lèvres, la neige rejetée de part et d'autre,
-          // et un creux clair entre elles ; un pixel manque de temps en temps)
-          if ((x + y) % 5 !== 0) {
-            if (this.facing === 'side') { this.mark(x, y - 3, 1, 1, OWN_PRINT_LIFE * 1.5); this.mark(x, y + 1, 1, 1, OWN_PRINT_LIFE * 1.5); }
-            else { this.mark(x - 2, y, 1, 1, OWN_PRINT_LIFE * 1.5); this.mark(x + 2, y, 1, 1, OWN_PRINT_LIFE * 1.5); }
+          // (le sillon : ses deux lèvres, la neige rejetée de part et d'autre ;
+          // leur écart ondule, des mottes s'en détachent, des trous les coupent :
+          // rien de droit)
+          const life = OWN_PRINT_LIFE * 1.5, side = this.facing === 'side';
+          for (const k of [-1, 1]) {
+            const n = noise(x, y, k > 0 ? 3 : 5);
+            if (n < 0.22) continue;                              // un trou
+            const off = 2 + (n > 0.7 ? 1 : 0) + (noise(x >> 2, y >> 2, 9) > 0.6 ? 1 : 0);
+            const [mx, my] = side ? [x, y - 1 + k * off] : [x + k * off, y];
+            this.mark(mx, my, 1, 1, life);
+            // une motte qui déborde
+            if (n > 0.9) this.mark(mx + (side ? 1 : k), my + (side ? k : 0), 1, 1, life);
           }
         }
       }
@@ -1367,7 +1416,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.player.setTexture('fallen').setOrigin(0.5, 1).setFlipX(dir < 0).setAlpha(1);
       this.cape.setVisible(false);
       this.bleed(this.pos.x, this.pos.y, 14);
-      // Vanth se penche sur le corps : une ligne, chaque fois une autre
+      // Vaïne se penche sur le corps : une ligne, chaque fois une autre
       const vanth = SCENARIOS.find(x => x.id === 'vanth').lignes;
       const body = { x: this.pos.x, y: this.pos.y - 8 };
       this.talk.say([{ who: 'vanth', name: speakerName('vanth'), text: vanth[this.deaths % vanth.length][1], at: () => body }], { interrupt: true });
@@ -1430,7 +1479,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.seenClock = (this.seenClock || 0) - dt;
       if (this.seenClock <= 0) { this.seenClock = 0.5; this.markSeen(); }
       this.talkClock = (this.talkClock || 0) - dt;
-      if (this.talkClock <= 0) { this.talkClock = 0.25; this.checkTalk(); }
+      if (this.talkClock <= 0) { this.talkClock = 0.25; this.checkTalk(); this.checkGoal(); }
       const lift = this.inside || this.rowing ? 0 : deckLift(this.pos.x, this.pos.y);
       this.lift = this.lift == null || Math.abs(lift - this.lift) > 30 ? lift
         : this.lift + Math.max(-1, Math.min(1, lift - this.lift)) * Math.min(Math.abs(lift - this.lift), 90 * dt);
@@ -1451,7 +1500,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (this.ridden > 0 && !isPaused()) {
         this.ridden -= dt;
         const k = this.clock / 1000;
-        // (le pas du Gede : il tangue, s'arrête, repart)
+        // (le pas du Gisant : il tangue, s'arrête, repart)
         if (mx || my) mx += Math.sin(k * 7) * 0.9;
         else if (Math.sin(k * 1.3) > 0.4) mx = Math.sin(k * 5) * 0.5;
       }
@@ -1589,10 +1638,10 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       for (let i = 0; i < N; i++) {
         const a = i / N * Math.PI * 2;
         // La dérive : trois ondes lentes qui ne se répètent pas
-        const drift = 1 + 0.05 * Math.sin(a * 2 + t * 0.21 + 1.3) + 0.04 * Math.sin(a * 3 - t * 0.17 + 4.1) + 0.03 * Math.sin(a * 5 + t * 0.33 + 0.7);
+        const drift = 1 + 0.035 * Math.sin(a * 2 + t * 0.21 + 1.3) + 0.03 * Math.sin(a * 3 - t * 0.17 + 4.1) + 0.02 * Math.sin(a * 5 + t * 0.33 + 0.7) + 0.012 * Math.sin(a * 9 - t * 0.11 + 2.2);
         // (le brouillard referme la vue ; l'éclair la rouvre un instant)
         const fog = roofed(this.inside) ? 0 : weather.fog * 0.42;
-        const want = Math.max(0.3, Math.min(1, this.sightTarget[i] * drift * (1 - fog)));
+        const want = Math.max(0.3, Math.min(1.04, this.sightTarget[i] * drift * (1 - fog)));
         f[i] += (want - f[i]) * ease;
       }
     }
@@ -1636,11 +1685,12 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           const c = grid[gy * gw + gx];
           if (c) { T *= 1 - c * 0.5; if (T < 0.25) break; }
         }
-        out[n] = Math.max(0.4, Math.min(1, d / R));
+        // (le décor ne mord plus qu'un quart de la vue : elle reste ellipsoïdale)
+        out[n] = 0.75 + 0.25 * Math.max(0.4, Math.min(1, d / R));
       }
-      // Lissée d'un angle à l'autre (deux passes) : un tronc fait une échancrure, pas une dent
+      // Lissée d'un angle à l'autre (quatre passes) : une ondulation douce, jamais une dent
       const tmp = this.sightTmp || (this.sightTmp = new Float32Array(N));
-      for (let pass = 0; pass < 2; pass++) {
+      for (let pass = 0; pass < 4; pass++) {
         for (let i = 0; i < N; i++) tmp[i] = (out[(i + N - 2) % N] + 2 * out[(i + N - 1) % N] + 3 * out[i] + 2 * out[(i + 1) % N] + out[(i + 2) % N]) / 9;
         out.set(tmp);
       }
@@ -1825,7 +1875,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           }
         }
       }
-      // Sur SNO 4, la forge d'Ogou ouvre la nuit autour d'elle
+      // Sur SNO 4, la forge de Ferraud ouvre la nuit autour d'elle
       if (this.inside === 'sno4' && rt.visible) {
         const A = INTERIORS.sno4.at, F = SNO4_AT.forge, src = this.textures.get('firelight-0-0').source[0];
         const fx = A.x + F.x, fy = A.y + F.y - 4;
@@ -1899,7 +1949,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           if (I.byBoat) continue;
           // (la maison brûle, ou n'est plus qu'une ruine : on n'y entre plus)
           if (key === 'house' && this.fire != null) continue;
-          // (le temple : scellé tant que Tages n'a pas le sceau)
+          // (le temple : scellé tant que Tavé n'a pas le sceau)
           if (key === 'temple' && !this.templeOpen) continue;
           const d = Math.hypot(this.pos.x - I.door.x, this.pos.y - I.door.y);
           if (d > 12) I.armed = true;
@@ -2123,6 +2173,18 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         const T = INTERIORS.temple.at;
         if (nearNail(P.x - T.x, P.y - T.y)) return { label: 'Arracher le clou', run: () => this.pullNail() };
       }
+      // Les cubes (sur SNO 7, et ceux de SNO 4 dans sa scène)
+      {
+        const A = this.inside === 'sno4' ? INTERIORS.sno4.at : null;
+        const list = this.inside === 'sno4' ? SNO4_CUBES.map(c => ({ ...c, x: A.x + c.x, y: A.y + c.y })) : this.inside ? [] : this.cubes;
+        for (const c of list) if (Math.abs(P.x - c.x) < 14 && P.y > c.y - 4 && P.y < c.y + 12) return { label: `Toucher le cube ${c.kind}`, run: () => this.touchCube(c) };
+      }
+      // Sigrún : la glace, la torche éteinte au poing
+      if (!this.inside && !this.sigrunFree && d(this.sigrun) < 16) {
+        const lit = this.torchOn > 0.5 && !this.torchOut;
+        return lit ? { label: 'Allumer ta torche à la sienne', run: () => this.freeSigrun() }
+          : { label: 'Toucher la glace', run: () => this.talk.say([{ who: 'kari', name: speakerName('kari'), text: 'Froide. Il faudrait une flamme.', at: () => this.heroHead() }], { interrupt: true }) };
+      }
       // La louve blanche, la patte prise
       if (!this.inside && this.hvit.state === 'snared' && d(this.hvit) < 18 && !this.pack.engaged) return { label: 'Défaire le collet', run: () => this.freeHvit() };
       if (this.inside === 'cave' && this.nearKing()) return { label: 'Parler au roi', run: () => this.talkTo('kingvi', () => ({ x: INTERIORS.cave.at.x + THRONE.x, y: INTERIORS.cave.at.y + THRONE.y - 70 })) };
@@ -2163,6 +2225,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     // Donner : la relique quitte la ceinture, il dit ce qu'il en fait, et ça agit
     give(id, head) {
       const don = PERSON[id].veut.don;
+      this.met.add(id);
       this.given.set(id, don.relique);
       const slot = this.belt.indexOf(don.relique);
       if (slot >= 0) this.belt[slot] = null;
@@ -2170,10 +2233,10 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.talk.say(don.lignes.map(([who, text]) => ({ who, name: speakerName(who), text, at: at(who) })), { interrupt: true });
       audio.play('presence');
       if (don.effet === 'garde') {
-        // Freya : un point de vie de plus, pour toujours, et les blessures refermées
+        // Véla : un point de vie de plus, pour toujours, et les blessures refermées
         this.maxHp = FOE_HP + 1; this.hp = this.maxHp;
       } else if (don.effet === 'temple') {
-        // Tages : la dalle glisse, les marches descendent dans le noir
+        // Tavé : la dalle glisse, les marches descendent dans le noir
         this.time.delayedCall(2400, () => {
           this.templeOpen = true;
           audio.play('clang'); audio.play('snow');
@@ -2182,10 +2245,110 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           this.persist();
         });
       } else if (don.effet === 'passage' && W?.eyvind) {
-        // Kalfou : l'âme d'Eyvind passe
+        // Croisée : l'âme d'Eyvind passe
         this.time.delayedCall(7000, () => this.tweens.add({ targets: W.eyvind.img, alpha: 0, y: W.eyvind.img.y - 12, duration: 3000, onComplete: () => W.eyvind.img.setVisible(false) }));
       }
       this.persist();
+    }
+
+    // ── Sigrún : la glace se fend, fond, et elle s'en va avec celle qui vient chercher les morts ──
+    freeSigrun() {
+      if (this.sigrunFree) return;
+      this.sigrunFree = true;
+      this.met.add('sigrun');
+      const S = this.sigrun, ice = this.ice;
+      audio.play('clang');
+      const steps = [['crack', 0], ['melt1', 1600], ['melt2', 3200], ['gone', 4800]];
+      for (const [k, t] of steps) this.time.delayedCall(t, () => { ice.setTexture(`glace-${k}`); audio.play('snow'); });
+      // Elle, debout dans la flaque, puis plus rien
+      this.time.delayedCall(4800, () => {
+        const img = this.personImage('sigrun', S.x, S.y);
+        img.setDepth(S.y + 0.5);
+        const head = () => ({ x: S.x, y: S.y - 12 });
+        this.speak('sigrun-libre', [['sigrun', 'Chaud. Enfin chaud.', head], ['vanth', 'Tu as tenu ma torche assez longtemps. Viens.', () => ({ x: S.x + 10, y: S.y - 26 })], ['sigrun', 'Kári. Dis à Ása que je cherchais du feu.', head]], { interrupt: true });
+        this.time.delayedCall(11000, () => this.tweens.add({ targets: img, alpha: 0, y: img.y - 14, duration: 3200, onComplete: () => img.destroy() }));
+      });
+      for (let k = -5; k <= 5; k++) ground.decal(S.x + k, S.y + (k % 3 ? 0 : 1), 1, 1, 'b', 0.35);
+      this.persist();
+    }
+
+    // ── Les cubes : le blanc est tiède et referme les blessures ; le noir ne
+    // renvoie aucun reflet, et qui le touche voit l'île d'en haut ──
+    touchCube(c) {
+      const hero = () => this.heroHead(), first = !this.cubesTouched.has(`${this.inside === 'sno4' ? 'sno4' : 'sno7'}-${c.kind}`);
+      this.cubesTouched.add(`${this.inside === 'sno4' ? 'sno4' : 'sno7'}-${c.kind}`);
+      audio.play('presence');
+      if (c.kind === 'blanc') {
+        this.hp = this.maxHp;
+        this.talk.say([
+          { who: 'kari', name: speakerName('kari'), text: 'Tiède. Rien n\'y colle, pas même la neige.', at: hero },
+          ...(first ? [{ who: 'kari', name: speakerName('kari'), text: 'Mes blessures se sont fermées. Je n\'ai rien senti.', at: hero }] : []),
+        ], { interrupt: true });
+      } else {
+        // (l'île d'en haut : la carte se découvre loin autour du cube)
+        if (this.inside === 'sno4') { const all = this.seen4; if (all) all.fill(1); }
+        else {
+          const R = 900, c0 = Math.floor((c.x - R) / SEEN_CELL), c1 = Math.floor((c.x + R) / SEEN_CELL), r0 = Math.floor((c.y - R) / SEEN_CELL), r1 = Math.floor((c.y + R) / SEEN_CELL);
+          for (let r = r0; r <= r1; r++) for (let q = c0; q <= c1; q++) {
+            if (q < 0 || r < 0 || q >= SEEN_N || r >= SEEN_N) continue;
+            if (Math.hypot((q + 0.5) * SEEN_CELL - c.x, (r + 0.5) * SEEN_CELL - c.y) < R) this.seen[r * SEEN_N + q] = 1;
+          }
+        }
+        this.talk.say([
+          { who: 'kari', name: speakerName('kari'), text: 'Froid. Pas un reflet dedans, pas même le mien.', at: hero },
+          { who: 'kari', name: speakerName('kari'), text: 'Un instant, j\'ai vu l\'île d\'en haut. (M : la carte)', at: hero },
+        ], { interrupt: true });
+      }
+      this.persist();
+    }
+
+    // ── Le carnet des vœux : ce qui est fait, d'après le jeu ──
+    facts() {
+      const f = {
+        'veve-legba': this.veveDone?.has('legba'), 'veve-baron': this.veveDone?.has('baron'), 'veve-damballah': this.veveDone?.has('damballah'),
+        clotildeFree: this.clotildeFree, hvitFree: this.hvitFree, aube: this.aube, sigrunFree: this.sigrunFree,
+        templeOpen: this.templeOpen, kingBowed: this.kingBowed, brule: this.fire != null,
+      };
+      for (const who of this.given.keys()) f[`don-${who}`] = true;
+      return f;
+    }
+    // Ce que Kári pense devoir faire maintenant : le fil de l'histoire, d'un
+    // grand moment au suivant (il le dit quand le but change, et quand il
+    // traîne longtemps ; c'est aussi la première ligne du carnet des vœux)
+    goal() {
+      if (this.inside === 'sno4') return this.aube ? 'Tout est dit, ici. La barque me ramènera à SNO 7.' : 'Le carrefour, les esprits, les signes dans la neige. Et rentrer, la barque attend.';
+      if (this.foe.alive) return 'Les traces vont vers l\'est. Quelqu\'un les a faites. Les suivre jusqu\'au bout.';
+      if (this.fire == null) return 'Eyvind est resté dans la maison. Je dois revenir le brûler (E, près de lui).';
+      if (!this.kingBowed) return 'La falaise, plus à l\'est. Une sente monte dans la roche, une grotte s\'ouvre au pied. Le roi y attend.';
+      if (!this.templeOpen && !this.given.has('tages')) {
+        if (this.relics.has('sceau') && !this.isGiven('sceau')) return 'J\'ai le sceau de la crypte. Tavé l\'attend, sous l\'arche, à l\'ouest.';
+        return this.met.has('tages') ? 'Le sceau de la crypte : dans la petite Véla du lac, sur l\'îlot. La barque est au ponton.' : 'Le roi a parlé d\'un clou, sous l\'arche, à l\'ouest. L\'enfant-vieillard, Tavé, y est assis.';
+      }
+      if (!this.aube) return 'Les marches, sous l\'arche. Le mur des ans, et le clou planté à l\'envers.';
+      if (!this.sigrunFree) return 'Il fait jour. Sur le plateau, ma sœur attend dans la glace. Il lui faut une flamme.';
+      return 'Il fait jour. La barque de la grève pourrait m\'emmener plus loin : SNO 4, l\'île Carrefour.';
+    }
+    checkGoal() {
+      if (this.dead || isPaused() || this.talk.busy || this.pack.engaged || (this.foe.engaged && this.foe.alive) || this.voyaging) { this.goalIdle = 0; return; }
+      const g = this.goal();
+      this.goalIdle = (this.goalIdle || 0) + 0.25;
+      // (le but a changé : il le dit après un temps ; sinon, toutes les deux minutes)
+      const changed = g !== this.goalSaid;
+      if ((changed && this.goalIdle > 6 && this.goalSaid !== undefined) || this.goalIdle > 120) {
+        this.goalSaid = g; this.goalIdle = 0;
+        this.talk.say([{ who: 'kari', name: speakerName('kari'), text: g, at: () => this.heroHead() }]);
+      }
+      if (this.goalSaid === undefined) this.goalSaid = g;     // (au chargement : rien à dire tout de suite)
+    }
+    wishes() {
+      const f = this.facts();
+      const list = [{ id: 'kari', name: 'Kári', voeu: this.goal(), done: false }];
+      for (const id of this.met) {
+        const v = PERSON[id]?.veut;
+        if (!v?.voeu) continue;
+        list.push({ id, name: speakerName(id), voeu: v.voeu, done: [].concat(v.fait || []).some(k => f[k]) });
+      }
+      return list;
     }
 
     // ── La louve blanche : on défait le collet, elle se relève, parle, et s'en va ──
@@ -2194,6 +2357,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (h.state !== 'snared') return;
       h.state = 'free'; h.t = 0;
       this.hvitFree = true;
+      this.met.add('hvit');
       this.hvitRope.setVisible(false);
       audio.play('wood');
       h.sprite.play('hvit-hurle');
@@ -2210,7 +2374,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         // Elle tire sur la corde, de temps en temps
         const tug = Math.sin(h.t * 1.7) > 0.93;
         h.sprite.setFrame(tug ? 'grogne-0' : 'mort-0').setFlipX(true);
-        if (tug && !h.tugged && Math.hypot(this.pos.x - h.x, this.pos.y - h.y) < 120) { h.tugged = true; audio.play('growl', { v: 0.4 }); }
+        // (un grognement sourd, de près seulement, et pas à chaque secousse)
+        const dist = Math.hypot(this.pos.x - h.x, this.pos.y - h.y);
+        if (tug && !h.tugged && dist < 70 && h.t - (h.growled ?? -99) > 12) { h.tugged = true; h.growled = h.t; audio.play('growl', { v: 0.3 * (1 - dist / 70) + 0.1 }); }
         if (!tug) h.tugged = false;
         return;
       }
@@ -2223,7 +2389,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (h.t > 13) { h.state = 'gone'; h.sprite.setVisible(false); }
     }
 
-    // ── Le clou de Nortia : on l'arrache, le jour revient (la fin de l'Aube) ──
+    // ── Le clou de Sorne : on l'arrache, le jour revient (la fin de l'Aube) ──
     pullNail() {
       if (this.aube) return;
       this.aube = true;
@@ -2246,16 +2412,13 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     talkTo(id, head) {
       const v = PERSON[id]?.veut;
       if (!v) return;
-      const done = {
-        'veve-legba': this.veveDone?.has('legba'), 'veve-baron': this.veveDone?.has('baron'), 'veve-damballah': this.veveDone?.has('damballah'),
-        clotildeFree: this.clotildeFree, hvitFree: this.hvitFree, aube: this.aube,
-      };
-      for (const who of this.given.keys()) done[`don-${who}`] = true;
+      this.met.add(id);
+      const done = this.facts();
       const after = [].concat(v.apres || []).filter(a => done[a.si]).at(-1);
       const lines = after ? after.lignes : v.lignes;
       this.talk.say(lines.map(text => ({ who: id, name: speakerName(id), text, at: head })), { interrupt: true });
     }
-    // Annoncer ce qu'on peut faire (main.js l'affiche : « E · Parler à Legba »)
+    // Annoncer ce qu'on peut faire (main.js l'affiche : « E · Parler à Clède »)
     updateAction(dt) {
       this.actionClock = (this.actionClock || 0) - dt;
       if (this.actionClock > 0) return;
@@ -2308,7 +2471,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // Le feu de la forge
       const F = SNO4_AT.forge;
       this.forgeFlame = at({ y: F.y + 1 }, this.add.image(A.x + F.x + 0.5, A.y + F.y - 1, 'feu-0').setOrigin(0.5, 1));
-      // Les gens et les lwa
+      // Les gens et les esprits
       const who = (id, dx, dy, place, o = {}) => {
         const P = SNO4_AT[place], x = A.x + P.x + dx, y = A.y + P.y + dy;
         const img = this.personImage(id, x, y, o);
@@ -2328,7 +2491,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         lucien: who('lucien', -6, 4, 'bouteilles'),
         damballah: who('damballah', -18, -4, 'mapou'),
       };
-      // (son âme est passée : Kalfou a eu l'anneau)
+      // (son âme est passée : Croisée a eu l'anneau)
       if (this.given.has('kalfou')) this.sno4People.eyvind.img.setVisible(false);
       // Les âmes qui attendent au carrefour
       this.souls = SNO4_SOULS.map((p, i) => {
@@ -2342,7 +2505,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.clotilde = { img: this.personImage('clotilde', A.x + c0.x, A.y + c0.y), t: 0, x: A.x + c0.x, y: A.y + c0.y };
       objs.push(this.clotilde.img);
       if (this.clotildeFree) this.clotilde.img.setVisible(false);
-      // Les vèvè : des points de cendre reliés par des traits pâles, au ras du sol
+      // Les tracé : des points de cendre reliés par des traits pâles, au ras du sol
       this.veves = VEVE.map(v => {
         const g = this.add.graphics().setDepth(D);
         objs.push(g);
@@ -2354,7 +2517,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       objs.forEach(o => o.setVisible(false));
       return this.sno4;
     }
-    // Un vèvè : pâle et pointillé tant qu'il n'est pas marché ; les points
+    // Un tracé : pâle et pointillé tant qu'il n'est pas marché ; les points
     // marchés se noircissent, les traits entre deux points marchés deviennent pleins
     drawVeve(st) {
       const { v, g } = st, A = INTERIORS.sno4.at, done = this.veveDone.has(v.id);
@@ -2378,8 +2541,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         else { g.fillRect(p.x - 1, p.y - 2, 3, 1); g.fillRect(p.x - 2, p.y - 1, 1, 3); g.fillRect(p.x + 2, p.y - 1, 1, 3); g.fillRect(p.x - 1, p.y + 2, 3, 1); }
       }
     }
-    // Marcher les vèvè (sur SNO 4) : chaque point foulé compte ; tous en moins
-    // de VEVE_TIME secondes, le dessin se referme et le lwa vient
+    // Marcher les tracés (sur SNO 4) : chaque point foulé compte ; tous en moins
+    // de VEVE_TIME secondes, le dessin se referme et le esprit vient
     checkVeve(dt) {
       if (this.inside !== 'sno4' || !this.veves || this.dead) return;
       const A = INTERIORS.sno4.at, t = this.clock / 1000;
@@ -2409,7 +2572,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const hero = () => this.heroHead();
       const head = (k, up = 11) => () => ({ x: W[k].x, y: W[k].y - up });
       if (v.id === 'legba') {
-        this.seen4.fill(1);                                    // Legba ouvre les chemins : toute la carte
+        this.seen4.fill(1);                                    // Clède ouvre les chemins : toute la carte
         this.speak('kari-veve-legba', this.sceneLines('kari-veve-legba', null, w => w === 'kari' ? hero : head('legba')), { interrupt: true });
       } else if (v.id === 'damballah') {
         // Le vent tombe une minute sur toute l'île ; le serpent blanc descend
@@ -2521,6 +2684,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     speak(id, lines, { once = true, interrupt = false } = {}) {
       if (once && this.said.has(id)) return false;
       this.said.add(id);
+      for (const [who] of lines) if (who !== 'kari') this.met.add(who);
       this.talk.say(lines.map(([who, text, at]) => ({ who, name: speakerName(who), text, at: typeof at === 'function' ? at : () => at })), { interrupt });
       this.persist();
       return true;
@@ -2538,16 +2702,21 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         // Le grand navire de pierres : Hrólf se redresse
         const ship = { x: NECRO.x + NECRO_W / 2, y: NECRO.y + NECRO_H / 2 };
         if (P.x > NECRO.x - 40 && P.x < NECRO.x + NECRO_W + 40 && P.y > NECRO.y - 30 && P.y < NECRO.y + NECRO_H + 80) this.speak('draugr', this.sceneLines('draugr', [0, 1, 2, 3, 4, 5], w => w === 'kari' ? hero : fixed(ship.x, ship.y - 10)));
+        // Sigrún : la glace pleure quand la flamme approche
+        if (!this.sigrunFree && near(this.sigrun, 44) && this.torchOn > 0.5 && !this.torchOut) {
+          const sh = () => ({ x: this.sigrun.x, y: this.sigrun.y - 22 });
+          this.speak('glace', this.sceneLines('glace', null, w => w === 'kari' ? hero : sh));
+        }
         // La louve blanche, prise dans un collet
         if (this.hvit.state === 'snared' && near(this.hvit, 60)) this.speak('hvit-collet', [['kari', 'Une louve. Blanche.', hero], ['kari', 'La patte prise dans un collet.', hero]]);
-        // Tages, sous l'arche
+        // Tavé, sous l'arche
         if (near(this.tages, 64)) this.speak('tages', this.sceneLines('tages', [0, 1], () => fixed(this.tages.x, this.tages.y - 9)).concat([
           ['tages', 'Une qui pend à un arbre.', fixed(this.tages.x, this.tages.y - 9)],
           ['tages', 'Un qui attend au bout.', fixed(this.tages.x, this.tages.y - 9)],
           ['tages', 'Un qui dort sous la roche, assis.', fixed(this.tages.x, this.tages.y - 9)],
           ['tages', 'Hé hé. Tu n\'as rien compris. C\'est normal.', fixed(this.tages.x, this.tages.y - 9)],
         ]));
-        // La Freya ensevelie : deux voix
+        // La Véla ensevelie : deux voix
         if (near(STATUE_BASE, 96)) this.speak('freya-ensevelie', this.sceneLines('freya-ensevelie', null, w => w === 'kari' ? hero : fixed(STATUE_BASE.x, STATUE_BASE.y - 40)));
         // Le bosquet : un enfant pâle joue sous l'arbre
         if (near(GROVE_TREE, 96) && !this.said.has('hjalti')) {
@@ -3216,6 +3385,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,
         wolvesDead: this.pack ? this.pack.deadList : [],
+        sigrunFree: this.sigrunFree, met: [...this.met], cubes: [...(this.cubesTouched || [])],
         hvitFree: this.hvitFree, wolvesSpared: this.wolvesSpared, templeOpen: this.templeOpen, aube: this.aube,
         given: Object.fromEntries(this.given),
       });
@@ -3459,6 +3629,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     setWind: name => weather.setPreset(name),
     // La touche d'action (E), aussi au doigt (main.js : le bouton « E · … »)
     act: () => game.scene.getScene('island')?.act(),
+    wishes: () => game.scene.getScene('island')?.wishes() || [],
     // Un éclair, tout de suite (debug, harnais)
     strike: (near = 1) => weather.strike(near),
     // La carte : les cases vues, et où l'on est

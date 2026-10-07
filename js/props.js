@@ -1,5 +1,5 @@
 /* Propositions de décor, pour le labo (à choisir avant d'entrer dans le jeu) :
-   la nécropole (relecture de Lindholm Høje : enceintes de pierres en forme de
+   la nécropole (relecture de un champ de pierres levées du Nord : enceintes de pierres en forme de
    navire, triangles, cercles, tertres), le ponton de l'accostage et la seconde
    barque. Chaque générateur renvoie des lignes de pixels (b sombre, s neige,
    k noir, . vide). */

@@ -43,13 +43,13 @@ pierres levées, offrandes) et le joueur le lit.
 ## La saga
 
 Le récit complet (qui sont Kári, Eyvind, Thorgrim, le roi, le guetteur ; le
-clou de Nortia et la nuit qui dure depuis dix-neuf hivers ; l'Archipel des
-Neuf ; la magie ; les mythes nordiques, étrusques et de Gilgamesh), les
+clou de Sorne et la nuit qui dure depuis dix-neuf hivers ; l'Archipel des
+Neuf ; la magie ; le Nord, les Orsènes et le roi qui ne voulait pas mourir), les
 arbres généalogiques, les lieux à venir et les scénarios avec leurs lignes de
 dialogue sont dans `js/saga.js`, lisibles dans l'onglet « La saga » du labo.
 Une partie des scénarios est dans le jeu (v1.47.0, phylactère B) ; les autres restent des propositions. Le megamoth est retiré : Sigrún est figée dans la glace.
 
-Un second monde, SNO 4, l'île Carrefour, bâti sur le vodou haïtien (v1.48.0, dans `js/saga-sno4.js`, pas encore jouable) : les lwa, les Gede de Baron Samedi, le lakou Jean-Louis et son héroïne Anaïse. Ses refus propres sont dans sa page « Ce que ce monde refuse ».
+Un second monde, SNO 4, l'île Carrefour, bâti sur un culte des esprits venu du sud (v1.48.0, dans `js/saga-sno4.js`, pas encore jouable) : les esprits, les Gisants de Baron Cendre, la cour Jean-Louis et son héroïne Anaïse. Ses refus propres sont dans sa page « Ce que ce monde refuse ».
 
 ## Le voyage, chapitre par chapitre
 
@@ -60,21 +60,21 @@ souffle (sauf aux combats).
 | # | Chapitre | Ce qu'on y trouve | Ce qu'on y lit |
 |---|---|---|---|
 | I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues | Ils étaient deux |
-| II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après Lindholm Høje), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
+| II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après un champ de pierres levées du Nord), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
 | — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire (on monte dessus, les piliers bloquent) ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
-| III | La forêt | La forêt s'épaissit ; une statue géante de Freya ensevelie, penchée, brisée | Des dieux tombés |
+| III | La forêt | La forêt s'épaissit ; une statue géante de Véla ensevelie, penchée, brisée | Des dieux tombés |
 | IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, la grande clairière). Longue à traverser. À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes | L'oppression, la perte de repères |
 | V | La louve blanche | À la sortie du noir, dans la grande clairière, une louve blanche prise dans un collet. On peut la délier (E) : elle parle de ses petits, sur la roche, et s'en va. Pas de combat dans la forêt (Jérôme, v1.52.0 : les loups étaient trop durs pour un premier combat) | La pitié, une dette |
 | — | (le guetteur) | Plus loin, une grande silhouette encapuchonnée qui s'efface quand on approche ; ses pas s'arrêtent net | Une présence, sans explication |
-| VI | La maison | Une grande Freya debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
+| VI | La maison | Une grande Véla debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
 | VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |
 | VIII | L'incendie | L'autre mort, on revient à la maison et on met le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; une ruine qui fume, la boucle du compagnon dans les cendres | Le bûcher, le deuil |
 | IX | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte ; une sente en lacets dans la face, des pierres qui tombent (un filet de neige les annonce) | L'ascension, au-delà du récit des traces |
 | X | Les loups | Sur le plateau, en haut de la sente : une meute de trois loups (hurlement au loin avant). Ils grondent longtemps avant de bondir ; le premier abattu fait fuir les autres. Si l'on a délié la louve, ils tournent et s'en vont sans mordre | Le danger, ou la dette payée |
 | XI | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
-| XII | Le mur des ans | Tages, sous l'arche, attend le sceau de la crypte ; donné, la dalle glisse. En bas, le temple de Nortia : un mur hérissé de clous, le dernier à l'envers, rouge. On peut l'arracher (E) | Le choix |
+| XII | Le mur des ans | Tavé, sous l'arche, attend le sceau de la crypte ; donné, la dalle glisse. En bas, le temple de Sorne : un mur hérissé de clous, le dernier à l'envers, rouge. On peut l'arracher (E) | Le choix |
 | Fin | L'aube | Le clou arraché : trois lignes sur le noir, puis la nuit pâlit et le jour revient, pour toujours, sur l'île ; on continue de marcher dans le jour. Les autres le disent quand on leur parle | Le temps qui reprend |
-| Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
+| Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Véla plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
 la barque ; les chapitres s'inscrivent de nouveau. Les traces ne disparaissent pas : on peut
@@ -99,8 +99,8 @@ la piste tassée.
 Près de ce qui peut se faire (coffre, bûcher, roi, barque) ou de quelqu'un,
 un petit cadre dit quoi ; E (ou un clic sur ce cadre) le fait. Parler dit ce
 que la personne veut, et autre chose une fois qu'on l'a fait. Si l'on porte
-ce qu'elle attend, E le lui donne : Freya garde (un point de vie de plus),
-Tages ouvre le temple, Kalfou fait passer Eyvind, Brigitte enterre le
+ce qu'elle attend, E le lui donne : Véla garde (un point de vie de plus),
+Tavé ouvre le temple, Croisée fait passer Eyvind, Rosine enterre le
 compagnon. Donner est une autre façon d'avancer que frapper.
 
 ### Le jour et la nuit
@@ -168,7 +168,29 @@ Pas d'autre couleur, sauf le blanc pur de l'éclair (décision de Jérôme,
 v1.51.0). Les nuances viennent de la trame (pixels alternés), du
 voile de nuit et de la lueur rasante de l'aube et du crépuscule.
 
+### Les cubes
+Sur chaque île, un cube blanc et un cube noir, loin l'un de l'autre : les
+seules choses parfaitement droites du monde, et c'est voulu (tout le reste
+est tordu, cassé, organique). Le blanc referme les blessures ; le noir montre
+l'île d'en haut. On ne sait pas d'où ils viennent, et le jeu ne le dira pas.
+
+### Le carnet des vœux et le fil
+Touche J : en tête, ce que Kári pense devoir faire ; puis ce que veulent ceux
+qu'on a croisés, rayé quand c'est fait. Kári dit son but à voix haute quand
+il change, et s'il traîne longtemps. Jamais de flèche ni de marqueur : une
+pensée, dans sa bouche.
+
+### La musique
+Une playlist de quatre morceaux de deep techno générés (la nuit, la glace,
+l'aurore, la forge), les trois derniers plus mélodiques ; toujours
+évolutifs (un motif par phrase, qui se répond et se transforme). Au choix
+dans les Réglages, ou enchaînés.
+
 ## Ce que le jeu refuse
+
+- **Aucun nom réel** (Jérôme, v1.53.0) : ni pays, ni dieux, ni esprits, ni
+  rites d'une religion ou d'une mythologie réelle. On prend l'inspiration,
+  on invente les noms.
 
 Propositions à valider par Jérôme. Les tensions avec l'existant sont
 signalées, pas tranchées.
