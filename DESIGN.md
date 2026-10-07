@@ -134,6 +134,12 @@ tomber. Frapper une pierre fait jaillir des étincelles, la lame rebondit ;
 chaque coup arrache un éclat, et tous les rochers finissent par céder. Un
 compteur discret, en haut à droite, dit combien.
 
+### Le mons
+Loin des traces, au creux des landes du sud, une bête qui n'est pas une bête
+attend qu'on la découvre. Le roi sous la roche lui a pris son œil, la pierre
+rouge qu'il porte sur la poitrine. On la lui rend : il voit de nouveau, et
+s'arrache une griffe pour Kári. Une petite quête pour qui s'écarte du chemin.
+
 ### La musique et le son
 La musique : des morceaux enregistrés (assets/music/), planants, qui
 s'enchaînent en fondu ; la forêt noire, les loups et l'aube ont le leur, qui

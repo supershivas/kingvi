@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.59.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.60.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -627,6 +627,15 @@ export const PEOPLE = [
     lignes: ['… … la mer … … est-elle encore … … là ?'],
   },
   {
+    id: 'mons', nom: 'Le mons', surnom: 'l\'Œil-Perdu', famille: 'jotnar', gen: 2, sexe: 'm',
+    parents: ['fonn'], statut: 'immortel', vie: '—',
+    role: 'Une bête qui n\'est pas une bête, au creux des landes du sud. Le roi sous la roche lui a pris son œil, une pierre rouge.',
+    lieu: 'Le creux du sud, loin des traces', magie: 'Il voit la chaleur. Sans son œil, il ne voit que le froid.',
+    voix: 'Un grondement de pierre qui roule, avec des mots dedans.',
+    bio: [`Né d'un iceberg qui n'a jamais atteint la mer, il est resté au fond d'un creux, au sud du lac, là où personne ne marche. Le roi sous la roche, du temps où il régnait, lui a arraché son œil, une pierre rouge, pour la porter sur sa poitrine. Depuis, le mons agite son bras dans le vide, à la recherche de quelque chose de chaud.`],
+    lignes: ['Rouge… mon œil… il l\'a sur son cœur.'],
+  },
+  {
     id: 'fonn', nom: 'Skafla', surnom: 'le Glacier', famille: 'jotnar', gen: 1, sexe: 'f',
     conjoints: ['hrimnir'], statut: 'immortel', vie: '—',
     role: 'La géante glacier. Les icebergs plats sont ses larmes.',
@@ -759,6 +768,13 @@ const VEUT = {
     apres: { si: 'don-freya', lignes: ['Va. Je regarde pour toi.'] },
   },
   thorgrim: { lignes: ['Viens. Qu\'on en finisse.'] },
+  // Le mons (v1.60.0) : au creux du sud, loin des traces ; le rubis du roi est son œil
+  mons: {
+    voeu: 'Veut son œil : une pierre rouge que le roi sous la roche porte sur la poitrine.', fait: 'don-mons',
+    lignes: ['N\'aie pas peur. Je ne vois pas. Je ne vois plus.', 'Le roi sous la roche m\'a pris mon œil. Une pierre rouge. Il la porte sur son cœur.', 'Va dans la grotte, sous la falaise. Frappe-le, il la lâchera. Rapporte-la.'],
+    don: { relique: 'rubis', effet: 'griffe', lignes: [['mons', 'Mon œil… Chaud. Je te vois, maintenant. Tu es petit.'], ['mons', 'Prends ça. Je l\'arrache pour toi : une griffe repousse en cent ans.'], ['kari', 'Elle est chaude. Elle bat, comme un cœur.']] },
+    apres: { si: 'don-mons', lignes: ['Je te vois. Va. Je regarde les braises de ta torche, de loin.'] },
+  },
   legba: {
     voeu: 'Veut qu\'on marche son signe, à côté de ses mâts.', fait: 'veve-legba',
     lignes: ['Je tiens les barrières, petit. Celle-ci est ouverte.', 'Marche mon tracé, là, à côté de mes mâts : je t\'ouvrirai les chemins de l\'île.'],

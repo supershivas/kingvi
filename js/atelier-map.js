@@ -4,7 +4,7 @@
    (`assets/design/placements.json`). Le jeu les lit en construisant l'île
    (`placed` dans world.js) : il faut le relancer pour voir le changement.
    Un repère ne se pose que sur la terre (ni la mer ni le lac). */
-import { designsReady, readPlacements, writePlacements, placementsDepot, placements } from './design-store.js?v=1.59.0';
+import { designsReady, readPlacements, writePlacements, placementsDepot, placements } from './design-store.js?v=1.60.0';
 
 const PAL = { s: '#dfe6ee', b: '#1f2a44', r: '#c0392b' };
 
@@ -12,8 +12,8 @@ export async function mountMap(host, { say = () => {}, onChange = () => {}, onPu
   host.innerHTML = '<p class="design-note">Chargement de l\'île…</p>';
   await designsReady;
   // (le monde se construit ici, avec les placements déjà connus)
-  const W = await import('./world.js?v=1.59.0');
-  const M = await import('./map.js?v=1.59.0');
+  const W = await import('./world.js?v=1.60.0');
+  const M = await import('./map.js?v=1.60.0');
   const PLACES = [
     ['cube-blanc', 'Le cube blanc', W.SNO7_CUBES[0]],
     ['cube-noir', 'Le cube noir', W.SNO7_CUBES[1]],
@@ -29,6 +29,7 @@ export async function mountMap(host, { say = () => {}, onChange = () => {}, onPu
     ['meute', 'La tanière des loups', W.WOLF_DEN],
     ['sigrun', 'Sigrún dans la glace', W.SIGRUN_AT],
     ['pas-des-morts', 'Le pas des morts', W.PASSAGE_AT],
+    ['mons', 'Le mons', W.MONS_AT],
   ];
   // (le monde a pu se construire avant que les placements publiés soient lus :
   // ceux-ci passent par-dessus)

@@ -12,10 +12,10 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames,
-} from './designs.js?v=1.59.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.59.0';
-import { publish, pending, customChanged, placementsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.59.0';
-import { mountMap } from './atelier-map.js?v=1.59.0';
+} from './designs.js?v=1.60.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.60.0';
+import { publish, pending, customChanged, placementsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.60.0';
+import { mountMap } from './atelier-map.js?v=1.60.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -381,25 +381,25 @@ function openEditor(name) {
     const custom = customOf(d.name);
     const names = seq ? [...new Set(seq.names)] : [d.name];
     // Une animation créée ici : on peut y ajouter des images, ou en retirer
-    const reshape = (delta) => (at, rows, move = 0) => {
+    const reshape = (delta) => (at, rows, move = 0, blank = false) => {
       const all = custom ? customNames(custom) : [];
       const cur = all.map(nm => rowsOf(nm));
       cur[at] = rows;
       if (move) { [cur[at], cur[at + move]] = [cur[at + move], cur[at]]; }
-      else if (delta > 0) cur.splice(at + 1, 0, rows.slice()); else cur.splice(at, 1);
+      else if (delta > 0) cur.splice(at + 1, 0, blank ? rows.map(r => '.'.repeat(r.length)) : rows.slice()); else cur.splice(at, 1);
       setCustomFrames(custom.id, cur.length);
       const next = customNames(customOf(`custom-${custom.id}-0`));
       next.forEach((nm, i) => { setLocalDesign(nm, cur[i]); applyLocal(nm, cur[i]); });
       for (const nm of all.slice(next.length)) { setLocalDesign(nm, null); applyLocal(nm, null); }
       const show = next[Math.min(next.length - 1, move ? at + move : delta > 0 ? at + 1 : Math.max(0, at - 1))];
       selected = show; buildTree(); select(show); status();
-      say(move ? 'Image déplacée.' : delta > 0 ? `Image copiée (${next.length} images).` : `Image retirée (${next.length} images).`);
+      say(move ? 'Image déplacée.' : delta > 0 ? `Image ajoutée (${next.length} images).` : `Image retirée (${next.length} images).`);
       openEditor(show);
     };
     openPixelEditor({
       frames: names.map(nm => ({ name: nm, label: byName(nm).label, original: originalRows(nm), rows: rowsOf(nm) })),
       index: names.indexOf(d.name),
-      onAddFrame: custom && custom.frames > 1 ? reshape(1) : null,
+      onAddFrame: custom && custom.frames > 1 ? (at, rows, blank) => reshape(1)(at, rows, 0, blank) : null,
       onRemoveFrame: custom && custom.frames > 2 ? reshape(-1) : null,
       onMoveFrame: custom && custom.frames > 1 ? (at, dir, rows) => reshape(0)(at, rows, dir) : null,
       order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,

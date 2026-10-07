@@ -182,6 +182,15 @@ sur la carte, un clic sur un lieu vu (ou son nom) y mène (`renderMap` rend
 `places`, `game.canTravel()`, `game.travel(x, y)` : point praticable le plus
 proche, fondu de `teleport`) ; ni en combat, ni dedans, ni en barque, ni sur
 la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ».
+**Le mons** (v1.60.0) : une bête qui n'est pas une bête (`mons` dans `saga.js`,
+famille des géants du froid), animée par l'asset de l'atelier « Un mons »
+(`custom-un-mons-*`, `customDefs`) ; au creux des landes du sud, loin des
+traces (`MONS_AT`, `monsBlocked` dans `world.js`, déplaçable dans l'atelier,
+« Le creux du mons » sur la carte) ; invisible jusqu'à ce qu'on l'approche
+(110 px : il apparaît, parle le premier ; `updateMons`). Quête : son œil est
+le rubis du roi ; E « Donner le rubis du roi » (`veut.don`, effet `griffe`) :
+il s'arrache une griffe, nouvelle relique `griffe` (« La griffe du mons »).
+Carte du labo « Le mons ».
 **Ce qu'on voit** (v1.57.0, `js/describe.js` : `DESCRIPTIONS`, `describe`) :
 un clic droit sur n'importe quoi (le sol aussi), ou un clic sur une chose à
 plus de 28 px du viking hors combat (`fighting`), la décrit dans la bulle des

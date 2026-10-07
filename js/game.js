@@ -4,43 +4,43 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.59.0';
+} from './viking.js?v=1.60.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
-  GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
+  GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT, monsBlocked,
   PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER,
-} from './world.js?v=1.59.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.59.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.59.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.59.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.59.0';
-import { createGround } from './ground.js?v=1.59.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.59.0';
-import { chapterById } from './chapters.js?v=1.59.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.59.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.59.0';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.59.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.59.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.59.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.59.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.59.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.59.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.59.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.59.0';
-import { createFauna } from './fauna.js?v=1.59.0';
-import { createWeather } from './weather.js?v=1.59.0';
-import { createTalk } from './dialogue.js?v=1.59.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.59.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.59.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.59.0';
-import { describe } from './describe.js?v=1.59.0';
-import { personSprite } from './people.js?v=1.59.0';
-import { createSea } from './sea.js?v=1.59.0';
-import { audio } from './audio.js?v=1.59.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.59.0';
+} from './world.js?v=1.60.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.60.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.60.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.60.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.60.0';
+import { createGround } from './ground.js?v=1.60.0';
+import { designRows, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.60.0';
+import { chapterById } from './chapters.js?v=1.60.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.60.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.60.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.60.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.60.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.60.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.60.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.60.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.60.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.60.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.60.0';
+import { createFauna } from './fauna.js?v=1.60.0';
+import { createWeather } from './weather.js?v=1.60.0';
+import { createTalk } from './dialogue.js?v=1.60.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.60.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.60.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.60.0';
+import { describe } from './describe.js?v=1.60.0';
+import { personSprite } from './people.js?v=1.60.0';
+import { createSea } from './sea.js?v=1.60.0';
+import { audio } from './audio.js?v=1.60.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.60.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -151,7 +151,7 @@ const canvasSize = (w, h, factor, dpr) => ({ width: Math.max(1, Math.ceil(w * dp
 const boatRects = [];
 const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
 // (sur le ponton, on marche au-dessus de l'eau)
-const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y) && !cubeBlocked(x, y);
+const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y) && !cubeBlocked(x, y) && !monsBlocked(x, y);
 
 // Les intérieurs (la maison, la crypte de la statue du lac) sont posés loin en
 // mer, hors de l'île : quand on y entre, on y est téléporté ; tout autour, un
@@ -713,6 +713,22 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       art('house-burning', HOUSE_BURNING);
       art('house-ruin', HOUSE_RUIN);
       FIRE_FRAMES.forEach((rows, i) => art(`feu-${i}`, rows));
+      // ── Le mons (v1.60.0) : au creux du sud, loin des traces. Son animation est
+      // celle de l'atelier (« Un mons », custom-un-mons-0…) ; s'il n'y en a pas,
+      // une masse de nuit. Il apparaît quand on le découvre ; il a perdu son œil
+      {
+        const def = customDefs().find(c => c.id === 'un-mons');
+        const blank = def ? Array.from({ length: def.h }, () => '.'.repeat(def.w)) : null;
+        const frames = def ? customNames(def).map(nm => designRows(nm, blank)) : [];
+        const fallback = Array.from({ length: 22 }, (_, y) => Array.from({ length: 16 }, (_, x) => Math.hypot((x - 7.5) / 7.5, (y - 12) / 10) < 1 ? 'b' : '.').join(''));
+        const list = frames.length ? frames : [fallback];
+        list.forEach((rows, i) => art(`mons-${i}`, rows));
+        const met = this.met?.has('mons');
+        this.mons = {
+          x: MONS_AT.x, y: MONS_AT.y, n: list.length, fps: def?.fps || 6, shown: !!met,
+          img: this.add.image(MONS_AT.x + 0.5, MONS_AT.y + 1, 'mons-0').setOrigin(0.5, 1).setDepth(MONS_AT.y).setAlpha(met ? 1 : 0),
+        };
+      }
       for (const [k, rows] of Object.entries(MOTH_FRAMES)) art(mothKey(k), rows);
       art('pierre-chute', FALLING_STONE);
       art('room', ROOM);
@@ -1637,6 +1653,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
       this.updateHvit(dt);
+      this.updateMons(dt);
       this.updateFire(dt, time);
       this.updateRelics();
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
@@ -2241,6 +2258,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (!this.inside && this.tages) people.push(['tages', this.tages, 9]);
       if (!this.inside && d(STATUE_BASE) < 90) people.push(['freya', { x: STATUE_BASE.x, y: STATUE_BASE.y }, 40, 90]);
       if (!this.inside && this.foe.alive && !this.foe.engaged) people.push(['thorgrim', this.foe.pos, 11]);
+      if (!this.inside && this.mons?.shown) people.push(['mons', this.mons, 30, 40]);
       if (this.inside === 'sno4' && this.sno4People) {
         for (const [id, w] of Object.entries(this.sno4People)) if (!(id === 'eyvind' && this.given.has('kalfou'))) people.push([id, w, id === 'kalfou' ? 24 : id === 'damballah' ? 5 : 11, id === 'kalfou' ? 34 : 24]);
         if (!this.clotildeFree) people.push(['clotilde', this.clotilde, 11]);
@@ -2258,7 +2276,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           const name = relicById(don.relique).name;
           return { label: `Donner ${name[0].toLowerCase() + name.slice(1)}`, run: () => this.give(best.id, head) };
         }
-        return { label: `Parler à ${speakerName(best.id)}`, run: () => this.talkTo(best.id, head) };
+        // (« à Le mons » → « au mons », « à Les… » → « aux… »)
+        const who = speakerName(best.id).replace(/^Le /, 'au ').replace(/^Les /, 'aux ').replace(/^(?!au |aux )/, 'à ');
+        return { label: `Parler ${who}`, run: () => this.talkTo(best.id, head) };
       }
       return null;
     }
@@ -2285,6 +2305,10 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           this.templeDoor.setTexture('temple-stairs');
           this.persist();
         });
+      } else if (don.effet === 'griffe') {
+        // Le mons : il arrache une griffe et la jette aux pieds de Kári
+        const M = this.mons, to = nearestWalkable(Math.round(this.pos.x + (M.x < this.pos.x ? 6 : -6)), Math.round(this.pos.y + 4)) || this.pos;
+        this.time.delayedCall(4200, () => { audio.play('flesh'); this.dropRelic('griffe', { x: M.x, y: M.y - 18 }, to, null, 'clang'); });
       } else if (don.effet === 'passage' && W?.eyvind) {
         // Croisée : l'âme d'Eyvind passe
         this.time.delayedCall(7000, () => this.tweens.add({ targets: W.eyvind.img, alpha: 0, y: W.eyvind.img.y - 12, duration: 3000, onComplete: () => W.eyvind.img.setVisible(false) }));
@@ -2360,6 +2384,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (key === 'viking') return { kind: 'foe', seed: Math.floor(this.clock / 4000) };
       if (key === 'fallen') return { kind: 'foe-dead', seed: 0 };
       if (key === 'wolf') { const w = this.pack.wolves?.find(v => v.sprite === im); return { kind: w && w.hp <= 0 ? 'wolf-dead' : 'wolf', seed: 0 }; }
+      if (key.startsWith('mons-')) return { kind: this.given.has('mons') ? 'mons-seeing' : 'mons', seed: Math.floor(this.clock / 4000) };
       if (key === 'hvit') return { kind: this.hvitFree ? 'hvit-free' : 'hvit', seed: 0 };
       if (key.startsWith('house')) return { kind: key, seed: 0 };
       if (key.startsWith('boat-')) return { kind: 'boat', seed: Math.floor(this.clock / 4000) };
@@ -2496,6 +2521,22 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const head = () => ({ x: h.x, y: h.y - 10 });
       this.speak('hvit-libre', [['hvit', 'Tu m\'as déliée, petit d\'homme.', head], ['hvit', 'Là-haut, sur la roche, mes petits ont faim.', head], ['hvit', 'Ils te laisseront passer. Ne lève pas la lame sur eux.', head]], { interrupt: true });
       this.persist();
+    }
+    // Le mons : il remue (l'animation de l'atelier) ; découvert, il apparaît
+    // dans un souffle et parle le premier
+    updateMons() {
+      const M = this.mons;
+      if (!M) return;
+      const vis = !this.inside;
+      M.img.setVisible(vis);
+      if (!vis) return;
+      M.img.setTexture(`mons-${Math.floor(this.clock / 1000 * M.fps) % M.n}`);
+      if (!M.shown && Math.hypot(this.pos.x - M.x, this.pos.y - M.y) < 110 && !this.dead) {
+        M.shown = true;
+        audio.play('presence'); audio.hush(4);
+        this.tweens.add({ targets: M.img, alpha: 1, duration: 1800 });
+        this.time.delayedCall(1600, () => this.talkTo('mons', () => ({ x: M.x, y: M.y - 30 })));
+      }
     }
     updateHvit(dt) {
       const h = this.hvit;

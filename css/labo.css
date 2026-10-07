@@ -278,3 +278,4 @@ html.pxe-open { overflow: hidden; }
 .desc-list { margin: 8px 0 0; font-size: .86rem; }
 .desc-list dt { margin-top: 10px; font-weight: 600; }
 .desc-list dd { margin: 2px 0 0 14px; opacity: .85; }
+.pxe-strip-tools .confirm { background: var(--accent); color: #fff; border-color: var(--accent); }

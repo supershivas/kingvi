@@ -80,6 +80,8 @@ export const DESCRIPTIONS = {
   hvit: { title: 'Hvít, la louve blanche', lines: ['Blanche comme la neige, prise dans un collet.', 'Elle me regarde sans peur.'] },
   'hvit-free': { title: 'Hvít', lines: ['Libre. Elle ne m\'oubliera pas.'] },
   watcher: { title: 'Le guetteur', lines: ['Une grande silhouette encapuchonnée. Elle me regarde venir.'] },
+  mons: { title: 'Le mons', lines: ['Une bête qui n\'est pas une bête. Il agite son bras dans le vide.', 'Il a un trou rouge à la place de l\'œil.', 'Il cherche quelque chose de chaud.'] },
+  'mons-seeing': { title: 'Le mons', lines: ['Il me voit, maintenant. Il suit la braise de ma torche.', 'Son œil rouge brille dans le noir.'] },
   crow: { title: 'Un corbeau', lines: ['Noir, patient. Il attend qu\'on meure.'] },
   deer: { title: 'Un cerf', lines: ['Il lève la tête, puis s\'en va.'] },
 };

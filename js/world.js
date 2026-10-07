@@ -1,10 +1,10 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.59.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.59.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.59.0';
-import { makeGroveTree } from './grove.js?v=1.59.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.59.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.60.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.60.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.60.0';
+import { makeGroveTree } from './grove.js?v=1.60.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.60.0';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed } from './design-store.js?v=1.59.0';
+import { placed } from './design-store.js?v=1.60.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -498,6 +498,10 @@ export const DEN_OPEN = Math.PI / 2;
 export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }].map(c => placed(`cube-${c.kind}`, c));
 // (leur pied bloque le passage : le losange du sol, sous le cube ; vu de
 // trois quarts, il va de la pointe basse, en c.y, à la pointe haute, 29 plus haut)
+// Le mons (v1.60.0) : au creux des landes du sud, loin des traces, là où
+// aucun lieu ne mène ; son pied bloque (game.js : le dessin, la quête)
+export const MONS_AT = placed('mons', { x: 1180, y: 4020 });
+export const monsBlocked = (x, y) => Math.abs(x - MONS_AT.x) < 9 && y > MONS_AT.y - 3 && y < MONS_AT.y + 2;
 export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => {
   const d = Math.abs(x - c.x);
   return d <= 29 && y <= c.y + 1 - d * 0.5 && y >= c.y - 29 + d * 0.5;

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.60.0 — 2026-10-07
+- Le mons : une bête qui n'est pas une bête, celle dessinée dans l'atelier, attend au creux des landes du sud, loin des traces ; elle apparaît quand on la découvre et parle la première
+- Sa quête : le roi sous la roche lui a pris son œil, une pierre rouge ; rends-lui le rubis du roi, il s'arrache une griffe pour toi : nouvelle relique, la griffe du mons
+- Éditeur de l'atelier : « Ajouter » met une image vide juste après celle-ci (« Copier » la duplique) ; retirer une image demande un second clic
+
 ## 1.59.0 — 2026-10-07
 - Atelier, nouvel onglet Carte : on fait glisser les lieux de l'île (les deux cubes, les statues, l'arche, les ruines, l'arbre aux offrandes, le guetteur, la louve blanche, la tanière des loups, Sigrún, le pas des morts) ; jamais dans l'eau ; « Publier pour tous » les envoie avec les dessins, et le jeu les prend à son lancement
 - Éditeur de pixels : la lecture joue maintenant l'animation sur la grande image

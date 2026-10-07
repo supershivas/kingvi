@@ -12,7 +12,8 @@
    - le sceau : dans le coffre de la crypte ;
    - l'anneau : il tombe de la main de l'autre viking quand il meurt ;
    - la dent : elle tombe du premier loup abattu ;
-   - la boucle : dans les cendres de la maison, quand le toit s'effondre.
+   - la boucle : dans les cendres de la maison, quand le toit s'effondre ;
+   - la griffe : le mons l'arrache pour toi quand tu lui rends son œil (le rubis).
 
    Ce qu'on a trouvé pend à la ceinture du viking (invisible en jeu) : dans
    l'inventaire, on les y déplace d'un crochet à l'autre (`belt` dans la
@@ -191,6 +192,22 @@ export const RELICS = [
       'bbbb',
       '....',
     ],
+  },
+  {
+    id: 'griffe', name: 'La griffe du mons', about: 'Il l\'a arrachée pour toi, en échange de son œil. Elle est chaude, et bat comme un cœur.',
+    rows: [
+      '..........',
+      '......bb..',
+      '.....bssb.',
+      '....bssb..',
+      '...bssb...',
+      '..bssb....',
+      '..bsb.....',
+      '.bsrb.....',
+      '.bbb......',
+      '..........',
+    ],
+    ground: ['..b.', '.bs.', 'bsb.', 'bb..'],
   },
 ];
 
