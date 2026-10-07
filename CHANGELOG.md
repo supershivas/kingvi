@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.48.0 — 2026-10-07
+- Labo, La saga : un second monde, SNO 4, l'île Carrefour. Un trois-mâts venu d'Haïti s'y est pris dans la glace il y a cent dix hivers, avec ses lwa ; les morts de l'archipel s'y entassent au grand carrefour depuis que le temps s'est arrêté sur SNO 7
+- Trois nouvelles familles, avec leurs arbres et leurs histoires : les Gede (Baron Samedi, Maman Brigitte, les Barons La Croix et Cimetière, Gede Nibo, Masaka, Zaranyen, et Gede Frèt, né sur l'île), les lwa du péristyle (Papa Legba, Mèt Kalfou, Damballah, Ayida Wedo, Erzulie Freda et Dantor, Agwe, La Sirène, Ogou, Simbi, Loko, Ayizan, Gran Bwa, les Marasa), et le lakou Jean-Louis, quatre générations, avec Anaïse, l'héroïne, et Lucien Deux-Mains, le bokor
+- Le vodou dans le jeu, en propositions : vèvè tracés en marchant dans la neige, possession par les lwa, offrandes, sel qui réveille les zonbi, tambours ; et ce que ce monde refuse (pas de poupées à épingles, pas de hordes de zombies)
+- Douze lieux (avec une carte de l'île), dix-neuf scénarios et leurs dialogues, dont la rencontre de Kári et d'Anaïse au carrefour ; nouvelles silhouettes (haut-de-forme, chapeau de paille, foulard, sirène, serpent blanc)
+
 ## 1.47.0 — 2026-10-07
 - Les personnages parlent : quelques rencontres de la saga sont dans le jeu, dans le phylactère retenu (B, le lambeau de neige)
 - Au début d'une partie neuve, trois lignes sur le noir disent l'état du monde ; puis des consignes, une à la fois, guident les premiers pas

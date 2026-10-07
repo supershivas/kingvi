@@ -4,10 +4,10 @@
    et les propositions de phylactères (A, B, C…), jouées sur une scène aux
    pixels du jeu. */
 import {
-  BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName,
-} from './saga.js?v=1.47.0';
-import { personSprite } from './people.js?v=1.47.0';
-import { brokenBox } from './dialogue.js?v=1.47.0';
+  BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName, WORLDS, worldOf,
+} from './saga.js?v=1.48.0';
+import { personSprite } from './people.js?v=1.48.0';
+import { brokenBox } from './dialogue.js?v=1.48.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {
@@ -178,10 +178,21 @@ function openFiche(id) {
   box.scrollTop = 0;
 }
 
+// Un titre entre les deux mondes de la saga (quand on passe de l'un à l'autre)
+function worldBreak(root, item, state) {
+  const w = worldOf(item);
+  if (state.w === w) return;
+  state.w = w;
+  const h = el('h3', `saga-world saga-world-${w}`, WORLDS[w]);
+  root.append(h);
+}
+
 // ══ La bible ══
 (function bible() {
   const root = demos('saga-bible');
+  const state = {};
   for (const page of BIBLE) {
+    worldBreak(root, page, state);
     const card = el('article', 'demo saga-page' + (page.liste ? ' wide' : ''));
     card.append(el('h3', null, page.titre));
     if (page.texte) page.texte.forEach(t => card.append(el('p', 'saga-text', t)));
@@ -340,7 +351,9 @@ function drawTree(fid) {
   legend.innerHTML = `<h3>Lire les arbres</h3>
     <p>Un clic sur un personnage ouvre son histoire. Trait plein : un couple ; trait coudé : les enfants ; pointillés : frères et sœurs de lait. En gris, les alliés venus d'une autre famille. Contour rouge : mort ; double contour : ni mort ni vivant ; pointillés : immortel ou à naître.</p>`;
   root.append(legend);
+  const state = {};
   for (const f of FAMILIES) {
+    worldBreak(root, f, state);
     const card = el('article', 'demo wide saga-family');
     const h = el('h3');
     h.append(el('span', null, f.nom));
@@ -354,9 +367,11 @@ function drawTree(fid) {
 (function cast() {
   const root = demos('saga-personnages');
   const intro = el('article', 'demo wide');
-  intro.innerHTML = `<h3>D'après le héros</h3><p>Chaque personnage reprend la masse du viking (7 pixels de large, sans visage, l'ombre sur la ligne des pieds) et change la silhouette : tête (casque, capuche, couronne, bonnet étrusque, voile, masque, cornes), corps (homme, femme, enfant, vieillard), ce qu'il tient, sa taille (les géants ×2, les jötnar ×3). Placeholders à redessiner dans l'atelier. Face, puis marche de profil.</p>`;
+  intro.innerHTML = `<h3>D'après le héros</h3><p>Chaque personnage reprend la masse du viking (7 pixels de large, sans visage, l'ombre sur la ligne des pieds) et change la silhouette : tête (casque, capuche, couronne, bonnet étrusque, voile, masque, cornes ; pour SNO 4, le haut-de-forme des Gede, le chapeau de paille de Legba, le foulard des servantes), corps (homme, femme, enfant, vieillard), ce qu'il tient, sa taille (les géants ×2, les jötnar ×3). Placeholders à redessiner dans l'atelier. Face, puis marche de profil.</p>`;
   root.append(intro);
+  const state = {};
   for (const f of FAMILIES) {
+    worldBreak(root, f, state);
     const card = el('article', 'demo wide');
     card.append(el('h3', null, f.nom));
     const grid = el('div', 'saga-cast');
@@ -398,28 +413,82 @@ function drawTree(fid) {
     }
     card.append(ul);
     root.append(card);
+    if (ile === 'SNO 4') root.append(sno4Map(list));
   }
 })();
+
+// La carte de SNO 4 : une île de neige cabossée dans la banquise tramée, les
+// quatre pistes du carrefour, et les lieux nommés (aux couleurs du jeu)
+function sno4Map(list) {
+  const card = el('article', 'demo wide');
+  card.append(el('h3', null, 'Carte de SNO 4, l\'île Carrefour'), el('p', null, 'Esquisse, pas encore une île du jeu : la grève et l\'épave à l\'ouest, le carrefour au milieu, le cimetière au nord-est, la maison aux bouteilles sur la banquise à l\'est.'));
+  const W = 200, H = 120, k = 4;
+  const c = el('canvas', 'saga-map');
+  c.width = W * k; c.height = H * k;
+  c.style.maxWidth = '100%';
+  const g = c.getContext('2d');
+  const noise = (x, y) => Math.sin(x * 0.11 + Math.sin(y * 0.07) * 2) * 0.5 + Math.sin(y * 0.13 + x * 0.05) * 0.35 + Math.sin((x + y) * 0.21) * 0.15;
+  const land = (x, y) => Math.hypot((x - W * 0.48) / (W * 0.4), (y - H * 0.5) / (H * 0.36)) + noise(x, y) * 0.18 < 1;
+  const ice = (x, y) => Math.hypot((x - W * 0.5) / (W * 0.5), (y - H * 0.52) / (H * 0.5)) + noise(x + 40, y) * 0.12 < 1.02;
+  const B = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    let col = COL.b;
+    if (land(x, y)) col = COL.s;
+    else if (ice(x, y)) col = B[(y & 3) * 4 + (x & 3)] < 7 ? COL.s : COL.b;     // la banquise, tramée
+    g.fillStyle = col; g.fillRect(x * k, y * k, k, k);
+  }
+  // Les quatre pistes du carrefour, en pointillés
+  const K = list.find(p => p.id === 'kalfou');
+  g.fillStyle = COL.b;
+  for (const [dx, dy] of [[1, 0.05], [-1, 0.08], [0.1, 1], [-0.05, -1]]) {
+    for (let i = 3; i < 70; i += 2) {
+      const x = Math.round(K.x * W + dx * i + Math.sin(i * 0.3) * 1.5), y = Math.round(K.y * H + dy * i * 0.6);
+      if (land(x, y)) g.fillRect(x * k, y * k, k, k);
+    }
+  }
+  g.font = `500 ${15}px "Grenze Gotisch", serif`;
+  g.textBaseline = 'middle';
+  for (const p of list) {
+    if (p.x == null) continue;
+    const x = p.x * W * k, y = p.y * H * k;
+    g.fillStyle = COL.b; g.fillRect(x - 6, y - 6, 12, 12);
+    g.fillStyle = p.id === 'kalfou' ? COL.r : COL.s; g.fillRect(x - 3, y - 3, 6, 6);
+    const tw = g.measureText(p.nom).width, lx = Math.min(W * k - tw - 4, x + 10);
+    g.lineWidth = 4; g.lineJoin = 'round'; g.strokeStyle = COL.s; g.strokeText(p.nom, lx, y);
+    g.fillStyle = COL.b; g.fillText(p.nom, lx, y);
+  }
+  card.append(c);
+  return card;
+}
 
 // ══ Les scénarios ══
 let playScene = () => {};
 (function scenarios() {
   const root = demos('saga-scenarios');
   const head = el('article', 'demo wide');
-  head.innerHTML = `<h3>${SCENARIOS.length} scénarios</h3><p>La trame est toujours là ; chaque partie tire quatre scénarios « souvent » et, une fois sur trois, un « rare » ; une fin parmi quatre. Les dialogues suivent la règle de la parole (bible). « Phylactères » rejoue n'importe quelle scène.</p>`;
+  head.innerHTML = `<h3>${SCENARIOS.length} scénarios</h3><p>La trame est toujours là ; chaque partie tire quatre scénarios « souvent » et, une fois sur trois, un « rare » ; une fin parmi celles de son monde. Deux mondes : SNO 7 (le roi, les mythes nordiques, étrusques et Gilgamesh) et SNO 4 (l'île Carrefour, le vodou haïtien). Les dialogues suivent la règle de la parole (bible). « Phylactères » rejoue n'importe quelle scène.</p>`;
   const filters = el('div', 'saga-filters');
   const all = [['tout', 'Tout'], ...Object.entries(RARITY)];
   head.append(filters);
   root.append(head);
   const list = el('div', 'saga-scenes');
   root.append(list);
-  let current = 'tout';
+  let current = 'tout', world = 'tout';
+  const worlds = el('div', 'saga-filters');
+  for (const [k, label] of [['tout', 'Les deux mondes'], ...Object.entries(WORLDS)]) {
+    const b = el('button', 'btn-ghost', label);
+    b.type = 'button';
+    if (k === 'tout') b.classList.add('on');
+    b.addEventListener('click', () => { world = k; worlds.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); render(); });
+    worlds.append(b);
+  }
+  head.append(worlds);
   function render() {
     list.replaceChildren();
-    for (const s of SCENARIOS.filter(x => current === 'tout' || x.rarete === current)) {
+    for (const s of SCENARIOS.filter(x => (current === 'tout' || x.rarete === current) && (world === 'tout' || worldOf(x) === world))) {
       const card = el('article', 'demo saga-scene');
       const h = el('h3');
-      h.append(el('span', 'tag', s.rarete), el('span', null, s.titre));
+      h.append(el('span', 'tag', `${s.ile || 'SNO 7'} · ${s.rarete}`), el('span', null, s.titre));
       card.append(h);
       const place = PLACES.find(p => p.id === s.lieu);
       card.append(el('p', 'saga-meta', [place?.nom, s.quand, s.mythe && `mythe : ${s.mythe}`, s.magie && `magie : ${s.magie}`].filter(Boolean).join(' · ')));
@@ -518,9 +587,12 @@ function fitStages() {
 }
 
 const scene = () => SCENARIOS.find(s => s.id === sceneId) || SCENARIOS[0];
+// Le héros de la scène : Kári sur SNO 7, Anaïse sur SNO 4 (sauf s'ils se croisent)
+const heroOf = s => (s.ile === 'SNO 4' && !s.lignes.some(([w]) => w === 'kari') ? 'anaise' : 'kari');
 function otherOf(s, upTo) {
-  for (let i = upTo; i >= 0; i--) if (s.lignes[i][0] !== 'kari') return s.lignes[i][0];
-  return s.lignes.find(([w]) => w !== 'kari')?.[0] || null;
+  const me = heroOf(s);
+  for (let i = upTo; i >= 0; i--) if (s.lignes[i][0] !== me) return s.lignes[i][0];
+  return s.lignes.find(([w]) => w !== me)?.[0] || null;
 }
 const lineTime = t => 0.9 + t.length * 0.055;   // temps de lecture
 
@@ -582,10 +654,10 @@ function renderStage(st, now) {
   const other = otherOf(s, line);
   const offscreen = key === 'G' || who === 'siduri-echo';
   drawGround(st.ctx, t);
-  const hero = drawFigure(st.ctx, 'kari', HERO_X, false, t);
+  const hero = drawFigure(st.ctx, heroOf(s), HERO_X, false, t);
   const them = other && !offscreen ? drawFigure(st.ctx, other, OTHER_X, true, t) : null;
   if (key === 'G') drawSight(st.ctx, HERO_X, FLOOR - 6, 52);
-  const speaker = who === 'kari' ? hero : them;
+  const speaker = who === heroOf(s) ? hero : them;
   const fade = Math.min(1, elapsed / 0.35, Math.max(0, (total - elapsed) / 0.45));
   const shown = Math.min(txt.length, Math.floor(elapsed * 38));
   st.fxc.clearRect(0, 0, SW, SH);
@@ -715,10 +787,10 @@ const STYLE_RENDER = {
   head.innerHTML = `<h3>La même scène, sept façons de parler</h3><p>Choisir une scène : elle se joue dans toutes les propositions. Le texte s'écrit au rythme de la lecture, la ligne suivante vient seule. Proposition à retenir (lettre), puis à brancher dans le jeu.</p>`;
   const sel = el('select', 'design-input saga-select');
   sel.setAttribute('aria-label', 'Scène');
-  for (const [r, label] of Object.entries(RARITY)) {
+  for (const [w, wl] of Object.entries(WORLDS)) for (const [r, label] of Object.entries(RARITY)) {
     const og = el('optgroup');
-    og.label = label;
-    SCENARIOS.filter(s => s.rarete === r).forEach(s => {
+    og.label = `${wl.split(',')[0]} · ${label}`;
+    SCENARIOS.filter(s => s.rarete === r && worldOf(s) === w).forEach(s => {
       const o = el('option', null, s.titre);
       o.value = s.id;
       og.append(o);

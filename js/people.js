@@ -6,7 +6,7 @@
    Placeholders, comme les autres : à redessiner dans l'atelier.
    Couleurs : b (bleu nuit), s (neige), r (rouge de l'accent), h (ombre). */
 
-import { WOLF_ANIMS } from './wolf.js?v=1.47.0';
+import { WOLF_ANIMS } from './wolf.js?v=1.48.0';
 
 export const W = 15;          // largeur d'une image, à l'échelle 1
 export const H = 26;
@@ -47,6 +47,12 @@ const BODIES = {
     side: ['...bbb.', '..bbbbb', '.bbbbb.', '.bbbbb.', 'bbbbbb.'],
     skirt: true, stoop: true,
   },
+  // La Sirène : le haut d'une femme, une queue de poisson repliée
+  sirene: {
+    front: ['..bbb..', '.bbbbb.', '.bbbbb.', '..bbbb.', '...bbb.', '....bb.', '..bb.bb'],
+    side: ['..bbb..', '.bbbbb.', '.bbbb..', '..bbbb.', '...bbb.', '....bb.', '..bb.bb'],
+    still: true,
+  },
   bebe: {
     front: ['..bbb..', '.bbbbb.', '.bbbbb.', '..bbb..'],
     side: ['..bbb..', '.bbbbb.', '.bbbbb.', '..bbb..'],
@@ -65,6 +71,11 @@ const HEADS = {
   voile: { front: ['..bbb..', '.bbbbb.'], side: ['..bbb..', '.bbbb..'] },
   tresses: { front: ['..bbb..'], side: ['..bbb..'], braid: true },
   masque: { front: ['..bbb..', '.bsbsb.'], side: ['...bbb.', '...bbs.'] },
+  // SNO 4 : le haut-de-forme des Gede (un verre de lunettes clair), le
+  // chapeau de paille de Legba, le foulard noué des servantes
+  'haut-de-forme': { front: ['..bbb..', '..bbb..', '..bbb..', '.bbbbb.', '..sbb..'], side: ['...bbb.', '...bbb.', '...bbb.', '..bbbbb', '...bbs.'] },
+  chapeau: { front: ['..bbb..', 'bbbbbbb', '..bbb..'], side: ['..bbb..', 'bbbbbbb', '...bb..'] },
+  foulard: { front: ['...bb..', '..bbbb.', '..bbb..'], side: ['.bb....', '..bbbb.', '...bb..'] },
   cornes: { front: ['b.....b', '.b.b.b.', '..bbb..'], side: ['b...b..', '.b.bb..', '..bbb..'] },
 };
 
@@ -107,6 +118,14 @@ function holdItem(g, item, hx, hy, top, side) {
     case 'rame': vline(g, hx, GROUND, top - 2); stamp(g, ['b', 'bb', 'bb'], hx, GROUND - 2); break;
     case 'fuseau': vline(g, hx, hy - 1, hy + 2); dot(g, hx + 1, hy, 'b'); break;
     case 'foie': stamp(g, ['bb.', 'bbb', '.b.'], hx, hy - 1); break;
+    case 'canne': vline(g, hx, GROUND, hy - 1); dot(g, hx - 1, hy - 2); dot(g, hx - 2, hy - 1); break;
+    case 'machette': vline(g, hx, hy, hy + 1); for (let i = 0; i < 4; i++) dot(g, hx + 1 + (i >> 1), hy - 1 - i, i ? 's' : 'b'); dot(g, hx + 3, hy - 4, 'b'); break;
+    case 'couteau': vline(g, hx, hy, hy + 1); dot(g, hx, hy - 1, 's'); dot(g, hx, hy - 2, 's'); break;
+    case 'asson': vline(g, hx, hy - 1, hy + 2); stamp(g, ['.b.', 'bsb', '.b.'], hx - 1, hy - 4); break;
+    case 'pelle': vline(g, hx, GROUND - 3, top - 1); dot(g, hx - 1, top - 1); dot(g, hx + 1, top - 1); stamp(g, ['bbb', 'bbb', '.b.'], hx - 1, GROUND - 2); break;
+    case 'croix': vline(g, hx, GROUND, top - 2); for (let x = hx - 2; x <= hx + 2; x++) dot(g, x, top); break;
+    case 'bouteille': stamp(g, ['.b', 'bb', 'bb', 'bb'], hx, hy - 2); break;
+    case 'trompette': stamp(g, ['b..', '.bb', '.bbb'], hx, hy - 2); break;
     case 'chope': stamp(g, ['bb', 'bb'], hx, hy - 1); dot(g, hx + 1, hy - 2, 's'); break;
     default: break;
   }
@@ -146,6 +165,11 @@ function compose(spec, view, step = 0) {
     for (let x = x0 + 2; x <= x0 + 4; x++) dot(g, x, bodyTop, 'r');
     dot(g, side ? x0 + 1 : x0 + 2, bodyTop + 1, 'r');
   }
+  // Les accents rouges, un pixel : la braise du cigare (les Gede), l'œil
+  // sous la capuche (Kalfou, Dantor), le cœur (Freda)
+  if (spec.accent === 'cigare') dot(g, side ? x0 + 6 : x0 + 4, bodyTop - 1, 'r');
+  if (spec.accent === 'oeil') dot(g, side ? x0 + 4 : x0 + 3, bodyTop - 1, 'r');
+  if (spec.accent === 'coeur') dot(g, x0 + 3, bodyTop + 2, 'r');
   if (spec.objet) holdItem(g, spec.objet, CX + 4, bodyTop + 2, top, side);
   if (spec.blanc) whiten(g);
   shadow(g, CX - 4, CX + 4);
@@ -195,6 +219,16 @@ function wolfGrid(frame, white) {
   }));
   return out.map(r => r.map(c => c || '.').join(''));
 }
+// Damballah, le serpent blanc : épais, cerné de nuit, le corps en neige
+const SERPENT_BLANC = [
+  '..................bbbb.',
+  '...bbb.......bbbb.bssbb',
+  '..bsssb....bbsssbbbbbb.',
+  '.bssbssb..bssbbssb.....',
+  'bssb.bssbbssb..bb......',
+  'bbb...bsssb............',
+  '.......bbb.............',
+];
 const SERPENT = [
   '.................bbb.',
   '..bb......bbb....b.bb',
@@ -209,6 +243,9 @@ export function personSprite(spec = {}) {
   if (spec.corps === 'loup') {
     const walk = WOLF_ANIMS.trot.frames.map(f => wolfGrid(f, true));
     return { front: walk[0], walk: [walk[0], walk[1], walk[0], walk[1]], ground: 7, cx: 8, w: walk[0][0].length, h: walk[0].length };
+  }
+  if (spec.corps === 'serpent' && spec.blanc) {
+    return { front: SERPENT_BLANC, walk: null, ground: SERPENT_BLANC.length - 1, cx: 11, w: SERPENT_BLANC[0].length, h: SERPENT_BLANC.length };
   }
   if (spec.corps === 'serpent') {
     return { front: SERPENT, walk: null, ground: SERPENT.length - 1, cx: 10, w: SERPENT[0].length, h: SERPENT.length };

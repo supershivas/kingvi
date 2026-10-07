@@ -250,6 +250,14 @@ est cachée et ne sort que pendant l'attaque.
   192 × 84 pixels du jeu, texte en HTML posé au pixel près (`placeText`),
   bulles en pixels (`brokenBox`, de `dialogue.js`) ; **B est retenue** et dans le jeu.
   Sigrún n'est plus le megamoth : figée dans la glace sur le plateau (pas encore en jeu).
+  **Second monde** (`js/saga-sno4.js`, ajouté par saga.js : `BIBLE_SNO4`,
+  `FAMILIES_SNO4`, `PEOPLE_SNO4`, `PLACES_SNO4` avec x, y pour la carte du labo,
+  `SCENARIOS_SNO4` avec `ile: 'SNO 4'`) : SNO 4, l'île Carrefour, bâtie sur le
+  vodou haïtien (Jérôme, v1.48.0), toujours dans le froid. Trois ensembles : les
+  Gede, les lwa du péristyle (Rada et Petwo), le lakou Jean-Louis (héroïne :
+  Anaïse). `WORLDS`, `worldOf` rangent le labo par monde. Respect du vodou :
+  page « Ce que ce monde refuse » (pas de poupée à épingles, zonbi victimes, les
+  lwa ne se combattent pas ; vèvè à faire relire). Pas encore jouable.
 - `js/dialogue.js` — la parole (bulle B), partagée jeu/labo ; `js/map.js` — la
   carte qui se construit (voir la Description).
 - `js/debug.js` — le mode debug du playtest, chargé seulement avec

@@ -1,11 +1,11 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.47.0';
-import { loadDesigns, designRows } from './design-store.js?v=1.47.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.47.0';
-import { showChapter } from './chapters.js?v=1.47.0';
-import { createTitleSea } from './titlesea.js?v=1.47.0';
-import { audio } from './audio.js?v=1.47.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.47.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.47.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.48.0';
+import { loadDesigns, designRows } from './design-store.js?v=1.48.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.48.0';
+import { showChapter } from './chapters.js?v=1.48.0';
+import { createTitleSea } from './titlesea.js?v=1.48.0';
+import { audio } from './audio.js?v=1.48.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.48.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.48.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -13,8 +13,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.47.0');
-const debug = DEBUG ? await import('./debug.js?v=1.47.0') : null;
+const { createGame } = await import('./game.js?v=1.48.0');
+const debug = DEBUG ? await import('./debug.js?v=1.48.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -215,7 +215,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.47.0');
+  mapModule = mapModule || await import('./map.js?v=1.48.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();

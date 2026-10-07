@@ -49,6 +49,8 @@ arbres généalogiques, les lieux à venir et les scénarios avec leurs lignes d
 dialogue sont dans `js/saga.js`, lisibles dans l'onglet « La saga » du labo.
 Une partie des scénarios est dans le jeu (v1.47.0, phylactère B) ; les autres restent des propositions. Le megamoth est retiré : Sigrún est figée dans la glace.
 
+Un second monde, SNO 4, l'île Carrefour, bâti sur le vodou haïtien (v1.48.0, dans `js/saga-sno4.js`, pas encore jouable) : les lwa, les Gede de Baron Samedi, le lakou Jean-Louis et son héroïne Anaïse. Ses refus propres sont dans sa page « Ce que ce monde refuse ».
+
 ## Le voyage, chapitre par chapitre
 
 Chaque chapitre s'inscrit une fois par vie, en haut de l'écran

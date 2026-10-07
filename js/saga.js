@@ -2,13 +2,16 @@
    Familles, personnages (arbres sur quatre générations et plus), lieux,
    scénarios avec leurs lignes de dialogue, fins. Lu par le labo (onglet
    « La saga », labo-saga.js) ; le jeu n'en lit encore rien.
-   Pas d'import : ce module ne dépend de rien.
+   Le second monde (SNO 4, le vodou haïtien) est dans saga-sno4.js : ajouté
+   ici au reste.
 
    Règle (Jérôme, v1.46.0) : les personnages peuvent parler. Les lignes sont
    courtes, rares, et ne racontent jamais l'histoire à la place du paysage.
 
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
+
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.48.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -38,7 +41,7 @@ export const BIBLE = [
     titre: 'Le monde : l\'Archipel des Neuf',
     texte: [
       `SNO 7 est la septième des neuf îles de l'Archipel des Neuf, posé sur une mer qui gèle à moitié. On y compte les îles d'est en ouest, comme on comptait les mondes autour de l'Arbre.`,
-      `SNO 3 est l'île des pêcheurs, où Kári a grandi, où Ingunn l'attend et où va naître leur enfant. SNO 8 est l'île de la Brasseuse : Sidrún y tient une taverne au bord du monde, et c'est la dernière île où l'on trouve de la bière. SNO 9 est l'île du Survivant, derrière les Eaux de la Mort, qu'aucun vivant n'a traversées sans le passeur. Les autres îles sont des noms dans les chansons d'Ásdís.`,
+      `SNO 3 est l'île des pêcheurs, où Kári a grandi, où Ingunn l'attend et où va naître leur enfant. SNO 8 est l'île de la Brasseuse : Sidrún y tient une taverne au bord du monde, et c'est la dernière île où l'on trouve de la bière. SNO 9 est l'île du Survivant, derrière les Eaux de la Mort, qu'aucun vivant n'a traversées sans le passeur. SNO 4 est l'île Carrefour, où se croisent les routes de la mer et celles des morts : un navire venu d'Haïti s'y est pris dans la glace il y a cent dix hivers, avec ses lwa (le second monde de la saga). Les autres îles sont des noms dans les chansons d'Ásdís.`,
       `Sur SNO 7 vivent trois peuples, morts ou presque. Les Rasna (les Étrusques, venus du sud en suivant les oiseaux) ont bâti l'arche, le temple de Nortia et les Freya, qu'ils appelaient Uni. Les gens de Hrólf, venus du nord avec trois navires, sont enterrés dans la plaine. Les jötnar, enfin, sont la montagne, le glacier et la neige elle-même.`,
       `L'île est plus grande que ce qu'on en a vu. Au nord de la plaine se trouve le hameau des Gunnar. Au-delà du plateau, une montagne est un géant qui dort. Sous le lac, une flotte est prise dans la glace. Derrière le trône, une fissure monte jusqu'à une racine trop grande pour l'écran.`,
     ],
@@ -715,6 +718,7 @@ export const PEOPLE = [
   },
 ];
 
+PEOPLE.push(...PEOPLE_SNO4);
 export const PERSON = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
 
 // ── Les lieux (anciens et nouveaux : le monde s'agrandit) ──
@@ -1010,6 +1014,15 @@ export const VOICES = {
   nornes: { nom: 'Les Nornes', role: 'Les fileuses au pied de l\'Arbre.' },
   'siduri-echo': { nom: 'Une voix de femme', role: 'Sidrún, de l\'autre côté de la montagne.' },
 };
+
+BIBLE.push(...BIBLE_SNO4);
+FAMILIES.push(...FAMILIES_SNO4);
+PLACES.push(...PLACES_SNO4);
+SCENARIOS.push(...SCENARIOS_SNO4);
+Object.assign(VOICES, VOICES_SNO4);
+// Les deux mondes de la saga (pour ranger le labo)
+export const WORLDS = { sno7: 'SNO 7, l\'île du roi', sno4: 'SNO 4, l\'île Carrefour' };
+export const worldOf = x => (x.monde || (x.ile === 'SNO 4' ? 'sno4' : null) || FAMILIES.find(f => f.id === x.famille)?.monde || 'sno7');
 
 export const speakerName = id => PERSON[id]?.nom || VOICES[id]?.nom || id;
 

@@ -3,7 +3,7 @@
    tokens pour le reste. */
 
 .saga-sprite { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
-.saga-text { font-size: .92rem !important; color: var(--text-secondary) !important; line-height: 1.55; max-width: 72ch; }
+.saga-text { white-space: pre-line; font-size: .92rem !important; color: var(--text-secondary) !important; line-height: 1.55; max-width: 72ch; }
 .saga-meta { font-size: .78rem !important; color: var(--text-muted); }
 .saga-page h3 { font-family: var(--font-game-title); font-size: 1.5rem; font-weight: 500; }
 .saga-chrono { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; font-size: .88rem; margin: 0; }
@@ -103,3 +103,8 @@
 .ph-rune { font-family: 'Noto Sans Runic', var(--font-body); opacity: .8; }
 .ph-hors { color: var(--game-snow); font-style: italic; text-align: right; }
 .ph-hors .ph-name { font-style: normal; }
+
+/* ── Les deux mondes : un titre entre eux ── */
+.saga-world { grid-column: 1 / -1; font-family: var(--font-game-title); font-size: 2rem; font-weight: 500; margin: 18px 0 0; padding-bottom: 6px; border-bottom: 2px solid var(--game-night); color: var(--game-night); }
+.saga-world-sno4 { margin-top: 36px; }
+.saga-map { display: block; image-rendering: pixelated; border-radius: var(--radius-sm); }
