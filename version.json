@@ -1,7 +1,9 @@
 {
-  "version": "1.63.3",
+  "version": "1.64.0",
   "date": "2026-10-07",
   "changes": [
-    "La musique joue en permanence : aux chapitres et aux présences, elle fléchit un peu au lieu de s'arrêter"
+    "La carte, l'inventaire et le carnet s'ouvrent avec la lettre M, I, J, en AZERTY comme en QWERTY",
+    "Firefox ne lance plus sa recherche quand on tape une touche sans effet",
+    "L'inventaire montre aussi les points de vie et les quêtes"
   ]
 }

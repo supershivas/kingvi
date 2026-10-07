@@ -652,8 +652,9 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   touche I ou le sac de l'en-tête (`#inventory`, `renderInventory` dans
   `main.js` : la ceinture dessinée (`BELT`, dessin `ceinture` de l'atelier),
   agrandie d'un facteur entier ; on y déplace les reliques par glisser-déposer
-  ou clic puis clic, `game.belt()`, `game.moveRelic(de, vers)` ; pause pendant
-  qu'il est ouvert), `onRelic` → un toast.
+  ou clic puis clic, `game.belt()`, `game.moveRelic(de, vers)` ; dessous, la
+  vie (un cran par point, `game.health()`) et les quêtes, comme le carnet des
+  vœux (`fillWishes`) ; pause pendant qu'il est ouvert), `onRelic` → un toast.
 - `js/islands.js` — l'Archipel des Neuf pour le labo (voir plus haut) ;
   `js/cubes.js` — les deux cubes ; `js/sigrun.js` — la glace de Sigrún.
 - `js/temple.js` — le temple de Sorne (`TEMPLE`, `NAIL`, `NAIL_ART`,
@@ -879,7 +880,12 @@ n'est jamais implémenté automatiquement.
   filtrage au plus proche (sinon le halo et les ombres tramés se fondent).
 
 - Les déplacements lisent `event.code` (touches physiques), pas `event.key` :
-  ZQSD en AZERTY et WASD en QWERTY marchent sans rien configurer.
+  ZQSD en AZERTY et WASD en QWERTY marchent sans rien configurer. Les
+  commandes (M, I, J, E) lisent la lettre (`keyIs` de `js/keys.js`, v1.64.0) :
+  par `event.code`, la carte s'ouvrait avec la touche « , » en AZERTY.
+- Firefox lance sa recherche dans la page quand on tape une lettre sans effet :
+  `stopTypeahead` (`js/keys.js`) retient les touches imprimables hors des
+  champs de saisie.
 - Tout changement dans `world.js` qui consomme le générateur aléatoire
   (`rng`) ou touche au tracé déplace les traces et les objets : vérifier la
   carte de l'île (la piste doit atteindre son bout, sans se perdre dans la

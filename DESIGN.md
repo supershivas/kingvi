@@ -150,7 +150,8 @@ Les bruitages (vent, épée, corbeaux, loups) restent synthétisés.
 ### L'interface qui existe
 Volontairement mince : l'écran d'accueil (titre gothique sur la mer de nuit),
 les chapitres, l'inventaire (touche I : la ceinture du viking, où pendent
-les reliques ; on les déplace d'un crochet à l'autre),
+les reliques ; on les déplace d'un crochet à l'autre ; dessous, la vie et
+les quêtes),
 les points de vie (seulement en combat), le compteur d'arbres et de rochers
 (dès le premier), la teinte rouge à un point de vie, une consigne de
 commandes qui s'efface d'elle-même. Un curseur de qualité de l'image (de

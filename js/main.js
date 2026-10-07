@@ -1,13 +1,14 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.63.3';
-import { loadDesigns, designRows, refreshLocal, textOverrides, TEXTS_KEY, tuningOverrides, TUNING_KEY, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.63.3';
-import { TITLE_ART } from './title-art.js?v=1.63.3';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.63.3';
-import { showChapter } from './chapters.js?v=1.63.3';
-import { createTitleSea } from './titlesea.js?v=1.63.3';
-import { audio, TRACKS } from './audio.js?v=1.63.3';
-import { PROLOGUE, ENDINGS } from './story.js?v=1.63.3';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.63.3';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.63.3';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.64.0';
+import { loadDesigns, designRows, refreshLocal, textOverrides, TEXTS_KEY, tuningOverrides, TUNING_KEY, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.64.0';
+import { TITLE_ART } from './title-art.js?v=1.64.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.64.0';
+import { keyIs, stopTypeahead } from './keys.js?v=1.64.0';
+import { showChapter } from './chapters.js?v=1.64.0';
+import { createTitleSea } from './titlesea.js?v=1.64.0';
+import { audio, TRACKS } from './audio.js?v=1.64.0';
+import { PROLOGUE, ENDINGS } from './story.js?v=1.64.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.64.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.64.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -35,18 +36,18 @@ await loadDesigns();
 // Les textes réécrits dans l'atelier (texts.js) : écrits dans leurs données
 // avant que le jeu ne les lise ; de nouveau quand l'atelier en change un
 {
-  const { applyTexts } = await import('./texts.js?v=1.63.3');
+  const { applyTexts } = await import('./texts.js?v=1.64.0');
   applyTexts(textOverrides());
   window.addEventListener('storage', e => { if (e.key === TEXTS_KEY || e.key === null) applyTexts(textOverrides()); });
 }
 // Les nombres du jeu réglés dans l'atelier (tuning.js) : de même
 {
-  const { applyTuning } = await import('./tuning.js?v=1.63.3');
+  const { applyTuning } = await import('./tuning.js?v=1.64.0');
   applyTuning(tuningOverrides());
   window.addEventListener('storage', e => { if (e.key === TUNING_KEY || e.key === null) applyTuning(tuningOverrides()); });
 }
-const { createGame } = await import('./game.js?v=1.63.3');
-const debug = DEBUG ? await import('./debug.js?v=1.63.3') : null;
+const { createGame } = await import('./game.js?v=1.64.0');
+const debug = DEBUG ? await import('./debug.js?v=1.64.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -92,7 +93,7 @@ let save = read(SAVE_KEY, {});
 // ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
 // de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
 async function snowBox(el, seed) {
-  const { brokenBox } = await import('./dialogue.js?v=1.63.3');
+  const { brokenBox } = await import('./dialogue.js?v=1.64.0');
   const canvas = el.querySelector('.snow-bg');
   if (!canvas || el.hidden) return;
   const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3;
@@ -114,7 +115,7 @@ window.addEventListener('resize', () => setTimeout(() => {
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.63.3');
+  const { brokenBox } = await import('./dialogue.js?v=1.64.0');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -250,6 +251,11 @@ function renderInventory() {
   $('inv-count').textContent = `${found} relique${found > 1 ? 's' : ''} sur ${list.length} · ${BELT_SLOTS} crochets`;
   const pick = byId.get(shown) || (held != null && byId.get(belt[held])) || byId.get(belt.find(Boolean));
   show(pick?.found ? pick : null);
+  // La vie (un cran par point) et les quêtes, sous la ceinture
+  const { hp, max } = game.health();
+  $('inv-life').replaceChildren(...Array.from({ length: max }, (_, i) => { const p = document.createElement('i'); p.className = i < hp ? 'on' : ''; return p; }));
+  $('inv-life-text').textContent = `${hp} sur ${max}`;
+  fillWishes($('inv-quests'), game.wishes());
 }
 // Glisser une relique d'un crochet à l'autre (souris, doigt, stylet)
 function startDrag(e, from, el) {
@@ -298,17 +304,11 @@ function toggleInventory(force) {
 $('open-inventory').addEventListener('click', () => toggleInventory());
 $('close-inventory').addEventListener('click', () => inventory.close());
 inventory.addEventListener('click', e => { if (e.target === inventory) inventory.close(); });
-window.addEventListener('keydown', e => { if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleInventory(); } });
+window.addEventListener('keydown', e => { if (keyIs(e, 'i')) { e.preventDefault(); toggleInventory(); } });
 
-// ── Le carnet des vœux (touche J) : ce que veulent ceux qu'on a croisés ──
-function toggleWishes(force) {
-  const open = force ?? !wishes.open;
-  if (open === wishes.open) return;
-  if (!open) { wishes.close(); return; }
-  if (!$('title').hidden || irisBusy || settings.open || inventory.open || mapDialog.open) return;
-  const list = $('wishes-list');
+// Ce que veulent ceux qu'on a croisés (le carnet, et l'inventaire)
+function fillWishes(list, items) {
   list.replaceChildren();
-  const items = game.wishes();
   if (!items.length) {
     const li = document.createElement('li');
     li.className = 'wish-empty';
@@ -326,12 +326,23 @@ function toggleWishes(force) {
     li.append(b, t);
     list.append(li);
   }
+}
+
+stopTypeahead();
+
+// ── Le carnet des vœux (touche J) : ce que veulent ceux qu'on a croisés ──
+function toggleWishes(force) {
+  const open = force ?? !wishes.open;
+  if (open === wishes.open) return;
+  if (!open) { wishes.close(); return; }
+  if (!$('title').hidden || irisBusy || settings.open || inventory.open || mapDialog.open) return;
+  fillWishes($('wishes-list'), game.wishes());
   wishes.showModal();
 }
 $('open-wishes').addEventListener('click', () => toggleWishes());
 $('close-wishes').addEventListener('click', () => wishes.close());
 wishes.addEventListener('click', e => { if (e.target === wishes) wishes.close(); });
-window.addEventListener('keydown', e => { if (e.code === 'KeyJ' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleWishes(); } });
+window.addEventListener('keydown', e => { if (keyIs(e, 'j')) { e.preventDefault(); toggleWishes(); } });
 
 // ── La carte qui se construit (touche M) : ce qu'on a vu de l'île ──
 let mapModule = null, mapTimer = 0, mapPlaces = [];
@@ -341,7 +352,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.63.3');
+  mapModule = mapModule || await import('./map.js?v=1.64.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -377,7 +388,7 @@ $('map-canvas').addEventListener('click', e => {
   game.travel(best.x, best.y + 12);
 });
 mapDialog.addEventListener('click', e => { if (e.target === mapDialog) mapDialog.close(); });
-window.addEventListener('keydown', e => { if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleMap(); } });
+window.addEventListener('keydown', e => { if (keyIs(e, 'm')) { e.preventDefault(); toggleMap(); } });
 
 // ── Croix directionnelle, sur écran tactile ──
 // Huit directions selon l'angle du pouce ; tout au bord de la croix, on court
@@ -417,7 +428,7 @@ const TUTO = [
   { text: () => touchScreen ? 'Tout au bord de la croix, on court' : 'Maj pour courir', done: e => e.type === 'keydown' && e.key === 'Shift', wait: touchScreen ? 7 : 25 },
   { text: () => touchScreen ? 'Touche l\'écran pour frapper' : 'Clic pour frapper, vers le pointeur', done: e => e.type === 'pointerdown', wait: 25 },
   { text: () => touchScreen ? 'Doigt tenu deux secondes : le coup tourbillonnant' : 'Bouton tenu deux secondes : le coup tourbillonnant', wait: 8 },
-  { text: () => 'M : la carte · I : l\'inventaire · J : le carnet des vœux', done: e => e.type === 'keydown' && (e.code === 'KeyM' || e.code === 'KeyI' || e.code === 'KeyJ'), wait: 12 },
+  { text: () => 'M : la carte · I : l\'inventaire · J : le carnet des vœux', done: e => e.type === 'keydown' && (keyIs(e, 'm') || keyIs(e, 'i') || keyIs(e, 'j')), wait: 12 },
 ];
 let tutoStep = -1, tutoTimer = 0;
 function tutoShow(i) {

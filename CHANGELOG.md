@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.64.0 — 2026-10-07
+- La carte (M), l'inventaire (I), le carnet (J) et l'action (E) suivent la lettre écrite sur la touche : en AZERTY, M ouvre bien la carte
+- Firefox ne lance plus sa recherche dans la page quand on tape une touche sans effet
+- L'inventaire montre aussi les points de vie et les quêtes (ce que veulent ceux qu'on a croisés)
+
 ## 1.63.3 — 2026-10-07
 - La musique joue en permanence : elle se coupait de 2 à 9 secondes aux chapitres, aux présences (le guetteur, le mons), après les combats et à l'entrée dans le jeu ; elle ne fait plus que fléchir un peu
 
