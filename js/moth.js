@@ -6,7 +6,7 @@
    plonge : quatre coups l'abattent ; il tombe en tournoyant et reste sur la
    neige, ailes ouvertes. Si l'on s'éloigne, il retourne se poser.
 
-   Les dessins sont des placeholders, à redessiner dans l'atelier du labo
+   Les dessins sont des placeholders, à redessiner dans l'atelier (atelier.html)
    (dossier « Le megamoth ») : `megamoth-repos`, `megamoth-vol-0` → `-3`,
    `megamoth-mort`. Le module ne connaît la scène que par ce qu'on lui passe. */
 

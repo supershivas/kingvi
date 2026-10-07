@@ -2,7 +2,7 @@
    jeu (Grenze Gotisch), tracé petit puis travaillé comme de la pierre sous la
    neige (croûte de neige, ombre tramée, éclats, glaçons). Figé ici une fois
    pour toutes (il ne dépend plus de la police du navigateur) : il se
-   redessine à la main dans l'atelier du labo (dessin « titre », groupe
+   redessine à la main dans l'atelier (atelier.html) (dessin « titre », groupe
    « Le titre »). s : neige, b : bleu nuit. 147 × 29. */
 export const TITLE_ART = [
   '......................s.................................................s..........................................................................',

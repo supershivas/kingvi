@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.58.0 — 2026-10-07
+- L'atelier de dessin quitte le labo : c'est maintenant une page à part (atelier.html), avec son en-tête « ATELIER » et son icône au pinceau ; on y va depuis les Réglages du jeu ou l'en-tête du labo
+- « Nouvel asset » marche de nouveau : la fenêtre de création s'ouvrait cachée et figeait la page
+- Le labo n'a plus d'onglet Dessins ; il montre toujours les dessins publiés et retouchés
+
 ## 1.57.0 — 2026-10-07
 - Ce qu'on voit : un clic droit sur n'importe quoi (un rocher, un arbre, une statue, la maison, la mer, la neige, les traces, un loup, quelqu'un…) affiche une courte description ; un clic sur une chose trop loin pour l'épée, hors combat, la décrit aussi au lieu de frapper dans le vide
 - Le roulis de la barque échouée se tire de la barque redessinée dans l'atelier

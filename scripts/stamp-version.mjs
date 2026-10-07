@@ -26,7 +26,7 @@ for (const f of readdirSync(join(root, 'js')).filter(f => f.endsWith('.js'))) {
   ]);
 }
 // Les pages : scripts de modules et feuilles de style locales
-for (const f of ['index.html', 'labo.html']) {
+for (const f of ['index.html', 'labo.html', 'atelier.html']) {
   stamp(f, [
     /(<script type="module" src=")([^"?]+\.js)(?:\?v=[^"]*)?(")/g,
     /(<link rel="stylesheet" href=")((?!https?:)[^"?]+\.css)(?:\?v=[^"]*)?(")/g,

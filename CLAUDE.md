@@ -456,9 +456,13 @@ est cachée et ne sort que pendant l'attaque.
   de son dessin : on passe sous les branches du grand arbre mort du bosquet,
   entre les racines, autour d'une statue. `foot` doit rester la profondeur du
   pied, pas la hauteur de l'objet.
-- `js/design-store.js`, `js/designs.js`, `js/labo-designs.js`,
+- `atelier.html`, `js/atelier.js`, `css/atelier.css`, `js/design-store.js`, `js/designs.js`,
   `js/pixel-editor.js`, `assets/design/` — **les dessins redessinables à la
-  main** (atelier : l'asset choisi à gauche, les dossiers à droite avec recherche, aide dans une boîte « ? » ; **assets créés** : `addCustom`, nom `custom-<id>` ou `custom-<id>-<n>`, type décor / animation / relique / autre, taille 4 → 160, catalogue dans `kingvi:custom` et `assets/design/custom.json`, publiés avec le reste ; dossiers « Mes … »), dans l'onglet Dessins du labo (10 groupes, 159 images, dont les placeholders de
+  main** (atelier : l'asset choisi à gauche, les dossiers à droite avec recherche, aide dans une boîte « ? » ; **assets créés** : `addCustom`, nom `custom-<id>` ou `custom-<id>-<n>`, type décor / animation / relique / autre, taille 4 → 160, catalogue dans `kingvi:custom` et `assets/design/custom.json`, publiés avec le reste ; dossiers « Mes … »), dans **l'atelier, une app à part** (v1.58.0 : `atelier.html`, hors du labo ; en-tête
+  `#1C1C1E`, « ATELIER » encadré, favicon au pinceau `favicon-atelier.svg`/`.png` ;
+  liens depuis les Réglages du jeu et l'en-tête du labo ; le labo montre et
+  compare, l'atelier modifie ; ses boîtes de dialogue vont au `body` : rangées
+  dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page) (10 groupes, 159 images, dont les placeholders de
 l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques : éléments du
   décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
   cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
@@ -761,6 +765,10 @@ n'est jamais implémenté automatiquement.
   secondaire).
 
 ## Pièges connus
+
+- Une boîte de dialogue (`<dialog>`) ne se range jamais dans les `.demos` du
+  labo : la navigation en fait une variante cachée (`.lab-off`), elle s'ouvre
+  invisible et bloque toute la page (« Nouvel asset » figeait le labo).
 
 - Une relique qui tombe (`dropRelic`) se ramasse là où elle atterrit : `d.x`,
   `d.y` sont posés sur `to`, pas sur `from` (le rubis partait de la poitrine du

@@ -1,0 +1,10 @@
+/* L'atelier (atelier.html) : une app à part. En-tête bleu nuit (le labo est
+   en couleur d'accent), « ATELIER » encadré ; un écran fixe, seul le corps
+   défile. Les composants de l'atelier (dz-, design-) sont dans labo.css. */
+.atelier { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.atelier-page .topbar { background: #1C1C1E; border-bottom: 0; flex: none; }
+.atelier-page .topbar .brand, .atelier-page .topbar .brand-name, .atelier-page .topbar .icon-btn { color: #fff; }
+.atelier-page .topbar .brand-mark { background: rgba(255,255,255,.12); color: #fff; }
+.atelier-badge { color: #fff; border: 1px solid rgba(255,255,255,.8); border-radius: 3px; padding: 2px 8px; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .3em; }
+.atelier-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 20px 40px; background: var(--bg, #f2f0eb); }
+@media (max-width: 768px) { .atelier-body { padding: 12px 12px 32px; } }

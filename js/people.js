@@ -6,7 +6,7 @@
    Placeholders, comme les autres : à redessiner dans l'atelier.
    Couleurs : b (bleu nuit), s (neige), r (rouge de l'accent), h (ombre). */
 
-import { WOLF_ANIMS } from './wolf.js?v=1.57.0';
+import { WOLF_ANIMS } from './wolf.js?v=1.58.0';
 
 export const W = 15;          // largeur d'une image, à l'échelle 1
 export const H = 26;

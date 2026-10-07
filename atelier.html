@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr" class="atelier-html">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#1C1C1E"/>
+<title>Atelier — KINGVI SNO 7</title>
+<link rel="icon" href="favicon-atelier.png" sizes="32x32" type="image/png"/>
+<link rel="icon" href="favicon-atelier.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
+<link rel="stylesheet" href="css/style.css?v=1.58.0"/>
+<link rel="stylesheet" href="css/labo.css?v=1.58.0"/>
+<link rel="stylesheet" href="css/atelier.css?v=1.58.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.58.0"/>
+</head>
+<body class="atelier-page">
+
+<!-- L'atelier : une app à part, hors du labo. Le labo montre et compare les
+     variantes ; l'atelier modifie le jeu (dessins, assets créés), enregistre
+     dans ce navigateur et publie dans le dépôt. En-tête bleu nuit, « ATELIER »
+     encadré, favicon au pinceau -->
+<div class="atelier">
+<header class="topbar safe-top">
+  <a class="brand" href="./" title="Revenir au jeu">
+    <span class="brand-mark"><i class="ti ti-sword" aria-hidden="true"></i></span>
+    <span class="brand-name">KINGVI SNO 7</span>
+  </a>
+  <span class="topbar-label atelier-badge">Atelier</span>
+  <div class="topbar-actions">
+    <a class="icon-btn icon-only" href="labo.html" title="Le labo : voir les animations" aria-label="Labo">
+      <i class="ti ti-flask" aria-hidden="true"></i>
+    </a>
+    <a class="icon-btn icon-only" href="./#reglages" title="Réglages" aria-label="Réglages">
+      <i class="ti ti-settings" aria-hidden="true"></i>
+    </a>
+  </div>
+</header>
+<main class="atelier-body" id="atelier-host"></main>
+</div>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script type="module" src="js/atelier.js?v=1.58.0"></script>
+</body>
+</html>

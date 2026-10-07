@@ -1,6 +1,6 @@
 /* Les reliques de l'île : ce qu'on ramasse en chemin et qui va dans
    l'inventaire (touche I). Chacune a son dessin, à redessiner dans l'atelier
-   du labo (onglet Dessins) : ceux d'ici ne sont que des placeholders, de la
+   du atelier (atelier.html) : ceux d'ici ne sont que des placeholders, de la
    taille qu'il faut garder. Deux dessins par relique : celui de l'inventaire
    (`rows`, RELIC_SIZE, dossier « Reliques ») et celui qu'on voit à terre sur
    l'île (`ground`, RELIC_GROUND_SIZE, dossier « Reliques sur l'île »).

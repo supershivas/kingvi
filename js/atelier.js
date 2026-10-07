@@ -1,4 +1,5 @@
-/* Labo, onglet Dessins : l'atelier. Redessiner à la main le décor, les reliques,
+/* L'atelier (atelier.html, v1.58.0) : une page à part, hors du labo. Le labo
+   montre et compare ; l'atelier modifie le jeu. Redessiner à la main le décor, les reliques,
    les ruines et arches, les poses du viking, de sa cape, du loup, des cerfs et
    des biches (voir designs.js), ou créer un nouvel asset de la taille voulue,
    dans l'éditeur de pixels intégré (pixel-editor.js). Chaque trait est
@@ -10,11 +11,11 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
-} from './designs.js?v=1.57.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.57.0';
-import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.57.0';
+} from './designs.js?v=1.58.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.58.0';
+import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.58.0';
 
-const host = document.querySelector('#dessins .demos');
+const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
 const COL = { s: '#dfe6ee', b: '#1f2a44', k: '#1f2a44', r: '#c0392b', h: 'rgba(31,42,68,.3)' };
 const byName = name => DESIGNS.find(d => d.name === name);
@@ -129,7 +130,10 @@ host.innerHTML = `
   </form>
 </dialog>`;
 
-const $ = sel => host.querySelector(sel);
+// (les boîtes de dialogue vont au corps de la page : rangées dans une zone
+// cachée, elles s'ouvraient invisibles et figeaient tout)
+for (const d of host.querySelectorAll('dialog')) document.body.append(d);
+const $ = sel => host.querySelector(sel) || document.body.querySelector(sel);
 const note = $('.design-note'), chip = $('[data-chip]');
 const say = t => { note.textContent = t; };
 
