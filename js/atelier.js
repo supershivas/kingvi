@@ -12,10 +12,11 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames,
-} from './designs.js?v=1.60.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.60.0';
-import { publish, pending, customChanged, placementsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.60.0';
-import { mountMap } from './atelier-map.js?v=1.60.0';
+} from './designs.js?v=1.61.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.61.0';
+import { publish, pending, customChanged, placementsChanged, textsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.61.0';
+import { mountMap } from './atelier-map.js?v=1.61.0';
+import { mountTexts } from './atelier-texts.js?v=1.61.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -151,7 +152,7 @@ $('[data-key-help]').addEventListener('click', () => { keyDialog.close(); helpDi
 
 const syncKey = () => { $('[data-forget]').hidden = !getToken(); status(); };
 function status() {
-  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0);
+  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0);
   chip.textContent = unpub ? `${unpub} à publier` : 'Tout est publié';
   chip.classList.toggle('warn', unpub > 0);
   chip.title = unpub ? 'Invisible sur les autres appareils tant que vous n\'avez pas publié.' : '';
@@ -482,11 +483,15 @@ loadDesigns().then(() => {
 });
 
 // ── Les onglets de l'atelier : les dessins, la carte (placer les lieux) ──
-let mapMounted = false;
+let mapMounted = false, textsMounted = false;
 function showTool() {
-  const tool = location.hash === '#carte' ? 'carte' : 'dessins';
+  const tool = location.hash === '#carte' ? 'carte' : location.hash === '#textes' ? 'textes' : 'dessins';
   for (const a of document.querySelectorAll('.atelier-tabs a')) a.classList.toggle('on', a.dataset.tool === tool);
   for (const p of document.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tool;
+  if (tool === 'textes' && !textsMounted) {
+    textsMounted = true;
+    mountTexts(document.getElementById('atelier-texts'), { onChange: status, onPublish: () => $('[data-publish]').click() });
+  }
   if (tool === 'carte' && !mapMounted) {
     mapMounted = true;
     mountMap(document.getElementById('atelier-map'), { say: t => toastSay(t), onChange: status, onPublish: () => $('[data-publish]').click() });

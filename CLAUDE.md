@@ -472,7 +472,14 @@ est cachée et ne sort que pendant l'attaque.
   liens depuis les Réglages du jeu et l'en-tête du labo ; le labo montre et
   compare, l'atelier modifie ; ses boîtes de dialogue vont au `body` : rangées
   dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page ;
-  deux onglets : **Dessins** et **Carte** (v1.59.0, `js/atelier-map.js`,
+  trois onglets : **Textes** (v1.61.0, `js/atelier-texts.js`, `js/texts.js` :
+  `textEntries` recense chaque texte dans ses données — prologue et fins
+  (`js/story.js`), chapitres, ce que disent les gens (rôle, vœu, répliques,
+  dons, après), scènes de la saga, descriptions, reliques — sous une clé
+  stable ; `applyTexts` remet ceux du code puis écrit les réécrits, sur place ;
+  `kingvi:texts` puis `assets/design/texts.json`, appliqués par `main.js`
+  après `loadDesigns`, et de nouveau quand l'atelier change un texte : le jeu
+  ouvert les prend aussitôt), **Dessins** et **Carte** (v1.59.0, `js/atelier-map.js`,
   `mountMap` : on fait glisser les lieux sur l'île, jamais dans l'eau ;
   `placed(id, défaut)` dans `world.js` pour les cubes, les statues, l'arche,
   les ruines, le bosquet, le guetteur, la louve, la tanière, Sigrún, le pas des

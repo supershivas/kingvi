@@ -212,6 +212,21 @@ export function placed(id, def) {
   return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? { ...def, x: Math.round(p.x), y: Math.round(p.y) } : def;
 }
 
+// ── Les textes (v1.61.0) : l'atelier réécrit les textes du jeu (texts.js).
+// `assets/design/texts.json` (publié) puis ce navigateur (`kingvi:texts` ;
+// null : revenir au texte du code) ; appliqués par main.js avant le jeu ──
+export const TEXTS_KEY = 'kingvi:texts';
+let textDepot = {};
+export function readTexts() { try { return JSON.parse(localStorage.getItem(TEXTS_KEY)) || {}; } catch { return {}; } }
+export function writeTexts(o) { try { Object.keys(o).length ? localStorage.setItem(TEXTS_KEY, JSON.stringify(o)) : localStorage.removeItem(TEXTS_KEY); } catch { /* rien */ } }
+export const textsDepot = () => textDepot;
+export const setTextsDepot = o => { textDepot = o || {}; };
+export const textOverrides = () => {
+  const all = { ...textDepot, ...readTexts() };
+  for (const k of Object.keys(all)) if (typeof all[k] !== 'string') delete all[k];
+  return all;
+};
+
 // (résolue au premier chargement des dessins : le labo peut attendre la maison publiée)
 let readyResolve;
 export const designsReady = new Promise(r => { readyResolve = r; });
@@ -236,6 +251,15 @@ export async function loadDesigns() {
     const res = await fetch('assets/design/placements.json', { cache: 'no-cache' });
     placeDepot = res.ok ? await res.json() : {};
   } catch { placeDepot = {}; }
+  try {
+    const res = await fetch('assets/design/texts.json', { cache: 'no-cache' });
+    textDepot = res.ok ? await res.json() : {};
+  } catch { textDepot = {}; }
+  {
+    const mine = readTexts();
+    for (const [k, v] of Object.entries(mine)) if ((textDepot[k] ?? null) === v) delete mine[k];
+    writeTexts(mine);
+  }
   {
     // (un placement d'ici que le dépôt publie à l'identique : ce navigateur suit le dépôt)
     const mine = readPlacements();

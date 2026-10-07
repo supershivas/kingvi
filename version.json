@@ -1,8 +1,8 @@
 {
-  "version": "1.60.0",
+  "version": "1.61.0",
   "date": "2026-10-07",
   "changes": [
-    "Le mons : une bête dessinée dans l'atelier attend loin des traces, au sud ; rends-lui son œil, il te donne une nouvelle relique",
-    "Éditeur : un vrai bouton « Ajouter » (image vide) à côté de « Copier », et retirer une image demande confirmation"
+    "Atelier, onglet Textes : réécrire le prologue, les fins, les chapitres, ce que disent les gens, les scènes, les descriptions et les reliques",
+    "Le jeu ouvert prend le texte aussitôt ; « Publier pour tous » l'envoie à tout le monde"
   ]
 }

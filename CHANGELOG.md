@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.61.0 — 2026-10-07
+- Atelier, nouvel onglet Textes : le prologue, la fin, les noms des chapitres, ce que disent les gens (qui ils sont, leur vœu, leurs répliques, ce qu'ils disent quand on leur donne une relique), les scènes de la saga, les descriptions du clic droit et les reliques se réécrivent
+- Recherche dans tous les textes ; chaque texte réécrit montre l'original et se remet d'un clic
+- Le jeu ouvert dans un autre onglet prend le nouveau texte aussitôt ; « Publier pour tous » l'envoie à tout le monde
+
 ## 1.60.0 — 2026-10-07
 - Le mons : une bête qui n'est pas une bête, celle dessinée dans l'atelier, attend au creux des landes du sud, loin des traces ; elle apparaît quand on la découvre et parle la première
 - Sa quête : le roi sous la roche lui a pris son œil, une pierre rouge ; rends-lui le rubis du roi, il s'arrache une griffe pour toi : nouvelle relique, la griffe du mons

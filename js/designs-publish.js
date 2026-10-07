@@ -7,8 +7,8 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.60.0';
-import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot } from './design-store.js?v=1.60.0';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.61.0';
+import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot } from './design-store.js?v=1.61.0';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
@@ -56,6 +56,8 @@ const mergePlaces = (remote, mine) => {
   return Object.fromEntries(Object.keys(out).sort().map(k => [k, out[k]]));
 };
 const samePlaces = (a, b) => JSON.stringify(mergePlaces(a, {})) === JSON.stringify(mergePlaces(b, {}));
+// Les textes réécrits : même principe (null : revenir au texte du code)
+export const textsChanged = () => !samePlaces(mergePlaces(textsDepot(), readTexts()), textsDepot());
 export const placementsChanged = () => !samePlaces(mergePlaces(placementsDepot(), readPlacements()), placementsDepot());
 
 // Écrit tout d'un coup : les blobs, un arbre, un commit, puis avance `main`.
@@ -64,7 +66,7 @@ export async function publish(progress = () => {}) {
   const token = getToken();
   if (!token) throw new Error('Pas de jeton GitHub.');
   const items = pending();
-  if (!items.length && !customChanged() && !placementsChanged()) throw new Error('Rien à publier : aucun dessin retouché, aucun lieu déplacé.');
+  if (!items.length && !customChanged() && !placementsChanged() && !textsChanged()) throw new Error('Rien à publier : aucun dessin retouché, aucun lieu déplacé, aucun texte réécrit.');
 
   for (let attempt = 0; ; attempt++) {
     progress('Lecture du dépôt…');
@@ -103,6 +105,16 @@ export async function publish(progress = () => {}) {
       const blobP = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(places, null, 2) + '\n', encoding: 'utf-8' } });
       tree.push({ path: 'assets/design/placements.json', mode: '100644', type: 'blob', sha: blobP.sha });
     }
+    // Les textes réécrits
+    const tx = await gh(token, `/contents/assets/design/texts.json?ref=${BRANCH}`);
+    let remoteTexts = {};
+    try { remoteTexts = tx ? JSON.parse(decodeURIComponent(escape(atob(tx.content.replace(/\n/g, ''))))) : {}; } catch { remoteTexts = {}; }
+    const texts = mergePlaces(remoteTexts, readTexts());
+    const textsMoved = !samePlaces(texts, remoteTexts);
+    if (textsMoved) {
+      const blobT = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(texts, null, 2) + '\n', encoding: 'utf-8' } });
+      tree.push({ path: 'assets/design/texts.json', mode: '100644', type: 'blob', sha: blobT.sha });
+    }
     let n = 0;
     for (const it of items) {
       progress(`Envoi des images (${++n}/${items.length})…`);
@@ -116,7 +128,7 @@ export async function publish(progress = () => {}) {
     const newTree = await gh(token, '/git/trees', { method: 'POST', body: { base_tree: commit.tree.sha, tree } });
     const made = await gh(token, '/git/commits', {
       method: 'POST',
-      body: { message: items.length ? `Publie ${items.length} dessin${items.length > 1 ? 's' : ''} depuis l'atelier` : 'Publie les lieux déplacés depuis l\'atelier', tree: newTree.sha, parents: [head] },
+      body: { message: items.length ? `Publie ${items.length} dessin${items.length > 1 ? 's' : ''} depuis l'atelier` : (textsMoved ? 'Publie les textes réécrits depuis l\'atelier' : 'Publie les lieux déplacés depuis l\'atelier'), tree: newTree.sha, parents: [head] },
     });
     try {
       await gh(token, `/git/refs/heads/${BRANCH}`, { method: 'PATCH', body: { sha: made.sha } });
@@ -124,6 +136,7 @@ export async function publish(progress = () => {}) {
       // publient les autres appareils), en gardant un moment ce qu'il vient d'envoyer
       if (defsChanged) setCustomDepot(defs);
       if (placesChanged) { setPlacementsDepot(places); writePlacements({}); }
+      if (textsMoved) { setTextsDepot(texts); writeTexts({}); }
       markSent(Object.fromEntries(items.map(i => [i.name, i.rows])));
       for (const it of items) setLocalDesign(it.name, null);
       return items.length;
