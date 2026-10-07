@@ -12,13 +12,13 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.63.2';
-import { openPixelEditor } from './pixel-editor.js?v=1.63.2';
-import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.63.2';
-import { mountMap } from './atelier-map.js?v=1.63.2';
-import { mountTuning } from './atelier-tuning.js?v=1.63.2';
-import { mountTexts } from './atelier-texts.js?v=1.63.2';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.63.2';
+} from './designs.js?v=1.63.3';
+import { openPixelEditor } from './pixel-editor.js?v=1.63.3';
+import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.63.3';
+import { mountMap } from './atelier-map.js?v=1.63.3';
+import { mountTuning } from './atelier-tuning.js?v=1.63.3';
+import { mountTexts } from './atelier-texts.js?v=1.63.3';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.63.3';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));

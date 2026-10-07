@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.63.3 — 2026-10-07
+- La musique joue en permanence : elle se coupait de 2 à 9 secondes aux chapitres, aux présences (le guetteur, le mons), après les combats et à l'entrée dans le jeu ; elle ne fait plus que fléchir un peu
+
 ## 1.63.2 — 2026-10-07
 - Le pas des morts a maintenant un indice : la nuit, l'étrave du grand navire de pierres luit à peine, tant qu'on n'y a pas posé la main ; la première fois qu'il passe près du navire, Kári la remarque à voix haute
 - Ces deux répliques se réécrivent dans l'atelier (Textes, « Prologue, fins, chapitres » → Les indices)

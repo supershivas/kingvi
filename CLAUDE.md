@@ -304,8 +304,9 @@ l'épée (fendre l'air, neige, chair, bois, pierre), le coffre, les loups
 joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
 L'humeur (`musicMood` dans `game.js` → `audio.setMood({ energy, dark,
 muffled, place })`) ne change plus les notes : un filtre assombrit un peu
-dans la forêt noire et étouffe à l'intérieur ; le silence d'une présence ou
-d'un chapitre (`audio.hush`, `duckBus`) éteint la musique quelques secondes.
+dans la forêt noire et étouffe à l'intérieur ; une présence ou un chapitre
+(`audio.hush`, `duckBus`) la fait fléchir à 60 % quelques secondes : elle ne
+s'arrête jamais, elle joue en permanence (Jérôme, v1.63.3).
 
 La page `labo.html` suit le labo du design system (conventions, 8 ter ;
 v1.51.0) : en-tête couleur d'accent avec « LABO » encadré, favicon à fiole

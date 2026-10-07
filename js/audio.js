@@ -160,9 +160,10 @@ function scheduler() {
   followMood();
   if (!deck) { startTrack(choice === 'playlist' ? TRACK_ORDER[0] : choice); return; }
   const t = ctx.currentTime, el = deck.el;
-  // Un silence (une présence, un chapitre) : la musique retient son souffle
+  // Une présence, un chapitre : la musique fléchit un peu, en douceur, sans
+  // jamais s'arrêter (v1.63.3 : elle joue en permanence, voulu par Jérôme)
   const hush = t < duckUntil;
-  if (hush !== hushed) { hushed = hush; duckBus.gain.setTargetAtTime(hush ? 0.0001 : 1, t, hush ? 0.35 : 1.2); }
+  if (hush !== hushed) { hushed = hush; duckBus.gain.setTargetAtTime(hush ? 0.6 : 1, t, hush ? 0.8 : 1.5); }
   // Un lieu qui a son morceau (stable depuis 3 s) : on y passe en fondu
   const place = mood.place || null;
   if (place !== placeWanted) { placeWanted = place; placeSince = t; }
