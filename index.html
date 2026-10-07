@@ -12,8 +12,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.53.1"/>
-<link rel="stylesheet" href="mobile.css?v=1.53.1"/>
+<link rel="stylesheet" href="css/style.css?v=1.53.2"/>
+<link rel="stylesheet" href="mobile.css?v=1.53.2"/>
 <script src="vendor/phaser.min.js"></script>
 </head>
 <body>
@@ -89,8 +89,9 @@
   </div>
   <!-- Les messages du jeu (une relique trouvée…) : la bulle de neige des phylactères -->
   <div id="note" class="note" role="status" hidden><canvas class="note-bubble"></canvas><div class="note-text"></div></div>
-  <button id="act" class="act" type="button" hidden><b>E</b><span></span></button>
-  <p id="hint" class="hint gone">ZQSD pour marcher · Maj pour courir · clic pour frapper</p>
+  <!-- (le cadre de la touche E et les consignes : dans la bulle de neige des phylactères, `snowBox`) -->
+  <button id="act" class="act" type="button" hidden><canvas class="snow-bg" aria-hidden="true"></canvas><b>E</b><span></span></button>
+  <p id="hint" class="hint gone"><canvas class="snow-bg" aria-hidden="true"></canvas><span>ZQSD pour marcher · Maj pour courir · clic pour frapper</span></p>
 </main>
 
 <dialog id="map" class="modal stone" aria-labelledby="map-title">
@@ -221,6 +222,6 @@
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/main.js?v=1.53.1"></script>
+<script type="module" src="js/main.js?v=1.53.2"></script>
 </body>
 </html>

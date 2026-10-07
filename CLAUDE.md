@@ -195,7 +195,8 @@ personnage dans `saga.js`, `apres` une fois un fait accompli ; `talkTo`).
 L'éclair est blanc pur (couleur `w`, `WHITE` : seule exception aux trois
 couleurs, voulue par Jérôme).
 **Le cube blanc et le cube noir** (v1.53.0, `js/cubes.js` : `CUBE_WHITE`,
-`CUBE_BLACK`, vue isométrique, arêtes d'un pixel ; dessins `cube-blanc`,
+`CUBE_BLACK`, vue isométrique, arêtes d'un pixel, 59 × 62 pixels, sept fois
+le viking (v1.53.2) ; leur pied bloque un losange au sol, `cubeBlocked` ; dessins `cube-blanc`,
 `cube-noir` de l'atelier, groupe « Les cubes, la glace, le temple ») : sur
 chaque île, toujours loin l'un de l'autre ; les seules choses parfaitement
 droites du monde. SNO 7 : `SNO7_CUBES`, `cubeBlocked` (dans `walkable`) ;
@@ -213,7 +214,10 @@ qu'on a croisés (`met`, `veut.voeu`, rayé quand `veut.fait` est vrai :
 après) et toutes les deux minutes s'il traîne (`checkGoal`). **Les messages
 du jeu** (relique trouvée…) : la bulle de neige des phylactères, en bas
 (`note` dans `main.js`, `#note`, `brokenBox`) ; le toast du design system
-reste pour l'interface (export, mise à jour). **Chargement** : `#loader`
+reste pour l'interface (export, mise à jour). Le cadre de la touche E
+(`#act`) et les consignes (`#hint`) sont aussi dans la bulle de neige
+(`snowBox` dans `main.js` : un canevas `.snow-bg` sous le texte, `brokenBox`
+à la taille de l'élément, une graine par texte, redessiné au redimensionnement). **Chargement** : `#loader`
 (la nuit, des flocons d'un pixel) jusqu'à ce que le titre, la mer et les
 polices soient prêts (`hideLoader`).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.

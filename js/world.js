@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.53.1';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.53.1';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.53.1';
-import { makeGroveTree } from './grove.js?v=1.53.1';
-import { monumentParts, monumentSize } from './ruins.js?v=1.53.1';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.53.2';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.53.2';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.53.2';
+import { makeGroveTree } from './grove.js?v=1.53.2';
+import { monumentParts, monumentSize } from './ruins.js?v=1.53.2';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -489,9 +489,13 @@ export const WOLF_DEN = { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 12, r: 90 };
 export const DEN_OPEN = Math.PI / 2;
 // Le cube blanc et le cube noir (cubes.js) : au nord du champ des morts, et
 // loin à l'est de la maison, vers la mer
-export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 60, y: NECRO.y - 160 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }];
-// (leur pied bloque le passage : sept pixels de part et d'autre, cinq de profondeur)
-export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => Math.abs(x - c.x) <= 7 && y <= c.y + 1 && y >= c.y - 5);
+export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }];
+// (leur pied bloque le passage : le losange du sol, sous le cube ; vu de
+// trois quarts, il va de la pointe basse, en c.y, à la pointe haute, 29 plus haut)
+export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => {
+  const d = Math.abs(x - c.x);
+  return d <= 29 && y <= c.y + 1 - d * 0.5 && y >= c.y - 29 + d * 0.5;
+});
 // Sigrún dans la glace : sur le plateau, à l'est de la meute, vers la mer
 export const SIGRUN_AT = { x: LEDGE.top.x + 78, y: LEDGE.top.y - 46 };
 // Le temple de Sorne : des marches sous l'arche, entre ses piliers

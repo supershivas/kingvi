@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.53.1';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.53.1';
-import { TITLE_ART } from './title-art.js?v=1.53.1';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.53.1';
-import { showChapter } from './chapters.js?v=1.53.1';
-import { createTitleSea } from './titlesea.js?v=1.53.1';
-import { audio, TRACKS } from './audio.js?v=1.53.1';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.53.1';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.1';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.53.2';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.53.2';
+import { TITLE_ART } from './title-art.js?v=1.53.2';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.53.2';
+import { showChapter } from './chapters.js?v=1.53.2';
+import { createTitleSea } from './titlesea.js?v=1.53.2';
+import { audio, TRACKS } from './audio.js?v=1.53.2';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.53.2';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.2';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.53.1');
-const debug = DEBUG ? await import('./debug.js?v=1.53.1') : null;
+const { createGame } = await import('./game.js?v=1.53.2');
+const debug = DEBUG ? await import('./debug.js?v=1.53.2') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -58,10 +58,32 @@ if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt =
 if (prefs.quality > 3) { prefs.quality = 3; write(PREFS_KEY, prefs); }
 let save = read(SAVE_KEY, {});
 
+// ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
+// de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
+async function snowBox(el, seed) {
+  const { brokenBox } = await import('./dialogue.js?v=1.53.2');
+  const canvas = el.querySelector('.snow-bg');
+  if (!canvas || el.hidden) return;
+  const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--px')) || 3;
+  const bw = Math.ceil(el.offsetWidth / unit), bh = Math.ceil(el.offsetHeight / unit);
+  if (!bw || !bh) return;
+  canvas.width = bw; canvas.height = bh;
+  canvas.style.width = `${bw * unit}px`; canvas.style.height = `${bh * unit}px`;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, bw, bh);
+  brokenBox(ctx, 0, 0, bw, bh, palette.s, palette.b, seed);
+}
+// (une graine par texte : la même bulle pour le même message, sans scintiller)
+const seedOf = text => [...text].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 9973, 7);
+// (la taille d'un pixel du jeu change avec l'écran : on redessine)
+window.addEventListener('resize', () => setTimeout(() => {
+  for (const id of ['act', 'hint']) { const el = $(id); if (!el.hidden) snowBox(el, seedOf(el.querySelector('span').textContent)); }
+}, 120));
+
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.53.1');
+  const { brokenBox } = await import('./dialogue.js?v=1.53.2');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -121,7 +143,7 @@ const game = createGame({
   onAction: label => {
     const el = $('act');
     el.hidden = !label;
-    if (label) el.querySelector('span').textContent = label;
+    if (label) { el.querySelector('span').textContent = label; snowBox(el, seedOf(label)); }
   },
   // La traversée en barque, entre SNO 7 et SNO 4
   onVoyage: (to, done) => voyage(to, done),
@@ -283,7 +305,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.53.1');
+  mapModule = mapModule || await import('./map.js?v=1.53.2');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -351,8 +373,10 @@ function tutoShow(i) {
   clearTimeout(tutoTimer);
   if (i >= TUTO.length) { hideHint(); return; }
   tutoStep = i;
-  hint.textContent = TUTO[i].text();
+  const text = TUTO[i].text();
+  hint.querySelector('span').textContent = text;
   hint.classList.remove('gone');
+  snowBox(hint, seedOf(text));
   tutoTimer = setTimeout(() => tutoDone(i), TUTO[i].wait * 1000);
 }
 function tutoDone(i) {

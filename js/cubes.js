@@ -10,7 +10,8 @@
    Vus de trois quarts : le dessus en losange, deux faces, des arêtes d'un
    pixel. Couleurs : s neige, b bleu nuit, k le noir (le même bleu nuit), h l'ombre. */
 
-const W = 15, C = 7, SIDE = 8;      // largeur, colonne du milieu, hauteur des faces
+// (v1.53.2 : quatre fois plus grands, sept fois le viking : on les voit de loin)
+const W = 59, C = 29, SIDE = 32;    // largeur, colonne du milieu, hauteur des faces
 const H = Math.round(C) + SIDE + 1;  // jusqu'à la pointe basse
 
 // Pour chaque colonne : le haut du losange (yu), son bas (yl), le pied (yb)
@@ -46,7 +47,7 @@ function cube(paint) {
 
 // Le blanc : le dessus et la face gauche pleins de neige, la droite tramée,
 // des arêtes nettes
-export const CUBE_WHITE = cube((p, x, y) => p === 'edge' ? 'b' : p === 'right' ? ((x + y) % 2 ? 'b' : 's') : 's');
+export const CUBE_WHITE = cube((p, x, y) => p === 'edge' ? 'b' : p === 'right' ? ((x + y) % 2 ? 'b' : 's') : p === 'left' ? ((x + y * 3) % 7 === 0 ? 'b' : 's') : 's');
 // Le noir : bleu nuit plein ; le dessus tramé d'un quart de clair (la seule
 // lumière qu'il prend), son rebord haut éclairé, les faces mates
 export const CUBE_BLACK = cube((p, x, y) => {
@@ -58,6 +59,6 @@ export const CUBE_BLACK = cube((p, x, y) => {
   return 'k';
 });
 
-export const CUBE_W = W, CUBE_H = H + 1;
-// La profondeur du pied qui bloque le passage
-export const CUBE_FOOT = 6;
+export const CUBE_W = W, CUBE_H = H + 1, CUBE_C = C;
+// La profondeur du pied qui bloque le passage (le losange du sol)
+export const CUBE_FOOT = 24;

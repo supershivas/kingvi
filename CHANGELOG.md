@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.53.2 — 2026-10-07
+- Le cube blanc et le cube noir sont quatre fois plus grands (sept fois le viking) : on les voit de loin, et on en fait le tour
+- Le cadre de la touche E (« E · Parler à… ») et les consignes du début s'affichent dans la bulle de neige des phylactères, comme les paroles et les messages du jeu
+
 ## 1.53.1 — 2026-10-07
 - Neige aux mollets : le viking laisse les mêmes pas que d'habitude, avec une ou deux mottes de neige soulevée autour (plus de trous carrés réguliers)
 - Neige jusqu'à la taille : il n'est plus enseveli (la neige ne ronge que le bas du corps, d'un pixel irrégulier) ; le sillon a deux lèvres serrées contre lui, celle de devant en morceaux

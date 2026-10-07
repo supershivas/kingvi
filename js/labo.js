@@ -1,41 +1,41 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.53.1';
+import { startUpdateCheck } from '../app-update.js?v=1.53.2';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.53.1';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.1';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.1';
+} from './viking.js?v=1.53.2';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.2';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.2';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.53.1';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.1';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.1';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.1';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.1';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.1';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.1';
-import { createSea } from './sea.js?v=1.53.1';
-import { buildStatueDoor } from './statue.js?v=1.53.1';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.1';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.1';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.1';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.1';
-import * as PROPS from './props.js?v=1.53.1';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.1';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.1';
-import { audio, TRACKS } from './audio.js?v=1.53.1';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.1';
-import { RUIN_ART } from './ruins-art.js?v=1.53.1';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.1';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.1';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.53.1';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.1';
+} from './world.js?v=1.53.2';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.2';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.2';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.2';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.2';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.2';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.2';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.2';
+import { createSea } from './sea.js?v=1.53.2';
+import { buildStatueDoor } from './statue.js?v=1.53.2';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.2';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.2';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.2';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.2';
+import * as PROPS from './props.js?v=1.53.2';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.2';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.2';
+import { audio, TRACKS } from './audio.js?v=1.53.2';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.2';
+import { RUIN_ART } from './ruins-art.js?v=1.53.2';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.2';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.2';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.2';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.2';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.2';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.2';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.2';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1622,40 +1622,40 @@ card('interieur', {
 // ══ Le cube blanc et le cube noir (cubes.js) ══
 card('cubes', {
   title: 'Les deux cubes', tag: 'sur chaque île',
-  about: 'Les deux seules choses parfaitement droites de l\'archipel : un cube blanc, un cube noir, d\'une matière qu\'on ne connaît pas, posés sur chaque île, toujours loin l\'un de l\'autre. La neige ne tient pas dessus. Ils mesurent presque deux fois le viking. Sur SNO 7 : le blanc au nord du champ des morts, le noir loin à l\'est de la maison ; sur SNO 4 : au nord-est de la source, et près du fromager.',
-  w: 90, h: 30,
+  about: 'Les deux seules choses parfaitement droites de l\'archipel : un cube blanc, un cube noir, d\'une matière qu\'on ne connaît pas, posés sur chaque île, toujours loin l\'un de l\'autre. La neige ne tient pas dessus. Ils mesurent sept fois le viking (59 pixels de large, 62 de haut). Sur SNO 7 : le blanc au nord du champ des morts, le noir loin à l\'est de la maison ; sur SNO 4 : au nord-est de la source, et près du fromager.',
+  wide: true, w: 200, h: 72,
   setup(s, v) { s.w = prerender(CUBE_WHITE, v.pal); s.b = prerender(CUBE_BLACK, v.pal); },
   draw(ctx, pal, t, dt, s) {
-    ctx.drawImage(s.w, 14, 28 - CUBE_WHITE.length + 1);
-    ctx.drawImage(s.b, 58, 28 - CUBE_BLACK.length + 1);
-    drawViking(ctx, pal, 'side-idle', 40, 28, { clock: t });
+    ctx.drawImage(s.w, 8, 70 - CUBE_WHITE.length + 1);
+    ctx.drawImage(s.b, 132, 70 - CUBE_BLACK.length + 1);
+    drawViking(ctx, pal, walkFrame('side', t), Math.round(80 + Math.sin(t * 0.5) * 12), 70, { clock: t });
   },
 });
 card('cubes', {
   title: 'Toucher le cube blanc', tag: 'touche E',
   about: 'Il est tiède, rien n\'y colle. Le toucher referme toutes les blessures, sans qu\'on sente rien (un endroit sûr, avant un combat).',
-  w: 90, h: 30,
+  wide: true, w: 160, h: 72,
   setup(s, v) { s.w = prerender(CUBE_WHITE, v.pal); },
   draw(ctx, pal, t, dt, s) {
     const k = t % 6;
-    ctx.drawImage(s.w, 50, 28 - CUBE_WHITE.length + 1);
-    const x = Math.round(14 + Math.min(1, k / 2.5) * 28);
-    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', x, 28, { clock: t });
-    // les gouttes de sang qui pâlissent derrière lui, puis plus rien
-    if (k < 2.5) { ctx.fillStyle = pal.r; for (let i = 0; i < 4; i++) ctx.fillRect(x - 6 - i * 5, 28 - (i % 2), 1, 1); }
+    ctx.drawImage(s.w, 92, 70 - CUBE_WHITE.length + 1);
+    const x = Math.round(14 + Math.min(1, k / 2.5) * 70);
+    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', x, 62, { clock: t });
+    // les gouttes de sang derrière lui, puis plus rien
+    if (k < 2.5) { ctx.fillStyle = pal.r; for (let i = 0; i < 4; i++) ctx.fillRect(x - 6 - i * 5, 62 - (i % 2), 1, 1); }
   },
 });
 card('cubes', {
   title: 'Toucher le cube noir', tag: 'touche E',
   about: 'Il ne renvoie aucun reflet, pas même le sien. Qui le touche voit l\'île d\'en haut, un instant : la carte (M) se découvre loin autour du cube ; sur SNO 4, toute l\'île.',
-  w: 90, h: 30,
+  wide: true, w: 160, h: 72,
   setup(s, v) { s.b = prerender(CUBE_BLACK, v.pal); },
   draw(ctx, pal, t, dt, s) {
     const k = t % 6;
-    ctx.drawImage(s.b, 50, 28 - CUBE_BLACK.length + 1);
-    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', Math.round(14 + Math.min(1, k / 2.5) * 28), 28, { clock: t });
+    ctx.drawImage(s.b, 92, 70 - CUBE_BLACK.length + 1);
+    drawViking(ctx, pal, k < 2.5 ? walkFrame('side', t) : 'side-idle', Math.round(14 + Math.min(1, k / 2.5) * 70), 62, { clock: t });
     // l'île vue d'en haut : un éclair de carte, tramé
-    if (k > 3 && k < 4.2) { ctx.globalAlpha = 0.5; ctx.fillStyle = pal.b; for (let y = 0; y < 30; y++) for (let x = (y % 2); x < 90; x += 2) ctx.fillRect(x, y, 1, 1); ctx.globalAlpha = 1; }
+    if (k > 3 && k < 4.2) { ctx.globalAlpha = 0.5; ctx.fillStyle = pal.b; for (let y = 0; y < 72; y++) for (let x = (y % 2); x < 160; x += 2) ctx.fillRect(x, y, 1, 1); ctx.globalAlpha = 1; }
   },
 });
 
