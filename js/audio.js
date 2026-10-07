@@ -1,53 +1,27 @@
-/* Le son, entièrement synthétisé (Web Audio) : aucun fichier, aucune
-   dépendance. Une musique de deep techno contemplative, générée en continu
-   (grosse caisse feutrée, basse ronde, accords dub noyés d'écho, nappe), et
-   les bruitages : le vent (qui suit la météo du jeu), les corbeaux, l'épée.
+/* Le son (Web Audio). La musique (v1.56.0) : des morceaux enregistrés
+   (`assets/music/`, MP3), joués l'un après l'autre en fondu enchaîné ; les
+   bruitages restent synthétisés : le vent (qui suit la météo du jeu), les
+   corbeaux, l'épée, les loups.
    Le navigateur n'autorise le son qu'après un geste du joueur : `unlock()`
    est appelé au premier clic ou à la première touche. */
 
-// La minor 9 : la, do, mi, sol, si ; la basse tourne autour du la
-const CHORDS = [
-  [45, 52, 55, 59, 60],                         // Am9
-  [43, 50, 53, 57, 59],                         // G6/9
-  [41, 48, 52, 55, 57],                         // Fmaj9
-  [45, 52, 55, 60, 62],                         // Am(add11)
-];
-// ── La playlist : quatre morceaux de deep techno, toujours générés, qui
-// évoluent de phrase en phrase. La nuit (l'original : accords dub) ; la glace
-// (des arpèges qui s'ouvrent) ; l'aurore (une mélodie qui se cherche, se
-// répond, se transforme) ; la forge (plus sourde, une basse qui chante, des
-// frappes de métal). `stab`, `arp`, `lead`, `rim`, `song` (la basse
-// mélodique) : la place de chaque voix (0 → 1).
+// ── La playlist : les fichiers de `assets/music/`. `lieu` : le morceau que le
+// jeu préfère à un endroit (la forêt noire, les loups) ; on y passe en fondu,
+// et on le laisse finir quand on s'en va ──
 export const TRACKS = {
-  nuit: { nom: 'La nuit', about: 'L\'original : grosse caisse feutrée, accords dub noyés d\'écho, nappe.', bpm: 116, chords: CHORDS, stab: 1, arp: 0, lead: 0, rim: 0, song: 0 },
-  glace: {
-    nom: 'La glace', about: 'Des arpèges clairs qui s\'ouvrent et se referment, une mélodie qui passe de temps en temps.', bpm: 118,
-    chords: [[50, 57, 60, 64, 65], [46, 53, 57, 60, 62], [41, 48, 53, 57, 60], [48, 55, 59, 62, 64]],
-    stab: 0.35, arp: 1, lead: 0.45, rim: 0, song: 0,
-  },
-  aurore: {
-    nom: 'L\'aurore', about: 'Le plus mélodique : une ligne chantée qui se cherche, se répond et se transforme, sur des nappes chaudes.', bpm: 120,
-    chords: [[40, 47, 50, 54, 55], [48, 55, 59, 62, 64], [43, 50, 54, 57, 59], [50, 57, 60, 62, 66]],
-    stab: 0.3, arp: 0.35, lead: 1, rim: 0, song: 0,
-  },
-  forge: {
-    nom: 'La forge', about: 'Plus sourde et plus ronde : une basse qui chante, des frappes de métal, un motif obstiné.', bpm: 122,
-    chords: [[41, 48, 51, 55, 56], [37, 44, 48, 51, 53], [39, 46, 50, 53, 55], [36, 43, 46, 51, 53]],
-    stab: 0.6, arp: 0.2, lead: 0.3, rim: 1, song: 1,
-  },
+  'spring-reverb': { nom: 'Spring Reverb', file: 'Spring Reverb.mp3', about: 'Planant : des échos qui ruissellent.' },
+  'foret-noire': { nom: 'La Forêt Noire', file: 'La Forêt Noire.mp3', about: 'Sourd et sombre ; il vient de lui-même sous les arbres noirs.', lieu: 'foret-noire' },
+  'breaks': { nom: 'Abstract Breaks', file: 'Abstract Breaks.mp3', about: 'Des cassures de rythme, au loin.' },
+  'aube': { nom: 'L\'aube', file: 'L\'aube.mp3', about: 'Le plus lumineux ; il vient à la fin, quand la nuit pâlit.', lieu: 'aube' },
+  'breaks-2': { nom: 'Abstract Breaks II', file: 'Abstract Breaks II.mp3', about: 'La suite, plus nue.' },
+  'loups': { nom: 'The wolves', file: 'The wolves II.mp3', about: 'Tendu ; il vient quand la meute est là.', lieu: 'loups' },
 };
-const TRACK_ORDER = ['nuit', 'glace', 'aurore', 'forge'];
-let choice = 'playlist', current = 'nuit', trackBars = 0;
-let BPM = 116, BEAT = 60 / BPM, STEP = BEAT / 4;   // une double croche
-function useTrack(id) {
-  current = id;
-  BPM = TRACKS[id].bpm; BEAT = 60 / BPM; STEP = BEAT / 4;
-  trackBars = 0;
-  if (delay) delay.delayTime.setTargetAtTime(STEP * 3, ctx.currentTime, 0.5);
-}
-const midi = n => 440 * Math.pow(2, (n - 69) / 12);
+const TRACK_ORDER = Object.keys(TRACKS);
+const XFADE = 8;                                    // le fondu enchaîné, en secondes
+const TRACK_GAIN = 0.75;
+let choice = 'playlist', current = null;
 
-let ctx = null, master, musicBus, musicFilter, sfxBus, reverb, delay, noise;
+let ctx = null, master, musicBus, duckBus, musicFilter, sfxBus, reverb, noise;
 // L'humeur voulue par le jeu (0 → 1) et celle qu'on entend, qui la rejoint
 // en douceur : énergie (du silence au combat), ombre, étouffement
 const mood = { energy: 0.35, dark: 0, muffled: 0 };
@@ -57,7 +31,7 @@ let duckUntil = 0;
 const vol = { music: 0.7, sfx: 0.8, wind: 0.35 };
 let windBus;
 let fireGain = null, fireFilter;                    // l'incendie : un grondement, des crépitements
-let nextStep = 0, stepIndex = 0, timer = null;
+let timer = null;
 
 function makeNoise() {
   const len = ctx.sampleRate * 2, buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -89,20 +63,15 @@ function build() {
   // Le filtre de l'humeur : il assombrit la musique dans la forêt noire et
   // l'étouffe à l'intérieur
   musicFilter = ctx.createBiquadFilter(); musicFilter.type = 'lowpass'; musicFilter.frequency.value = 6000; musicFilter.Q.value = 0.7;
+  // (les platines → le silence d'une présence → le volume → le filtre)
+  duckBus = ctx.createGain(); duckBus.connect(musicBus);
   musicBus.connect(musicFilter).connect(master);
   sfxBus = ctx.createGain(); sfxBus.gain.value = vol.sfx; sfxBus.connect(master);
   windBus = ctx.createGain(); windBus.gain.value = vol.wind; windBus.connect(master);
-  // Réverbération et écho dub (croche pointée, retour filtré)
+  // La réverbération des bruitages (une salle immense)
   reverb = makeReverb();
   const revOut = ctx.createGain(); revOut.gain.value = 0.5;
-  reverb.connect(revOut).connect(musicBus);
-  delay = ctx.createDelay(2); delay.delayTime.value = STEP * 3;
-  const fb = ctx.createGain(); fb.gain.value = 0.55;
-  const fbFilter = ctx.createBiquadFilter(); fbFilter.type = 'lowpass'; fbFilter.frequency.value = 1400;
-  delay.connect(fbFilter).connect(fb).connect(delay);
-  const delOut = ctx.createGain(); delOut.gain.value = 0.6;
-  fbFilter.connect(delOut).connect(musicBus);
-  delOut.connect(reverb);
+  reverb.connect(revOut).connect(sfxBus);
   buildWind();
 }
 
@@ -141,196 +110,6 @@ function envGain(t, peak, attack, decay, dest) {
   return g;
 }
 
-function kick(t, v) {
-  const o = ctx.createOscillator();
-  o.frequency.setValueAtTime(110, t);
-  o.frequency.exponentialRampToValueAtTime(42, t + 0.09);
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 180;
-  o.connect(lp).connect(envGain(t, 0.9 * v, 0.004, 0.42, musicBus));
-  o.start(t); o.stop(t + 0.5);
-}
-
-function hat(t, v, open = false) {
-  const s = ctx.createBufferSource(); s.buffer = noise;
-  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7500;
-  const g = envGain(t, 0.07 * v, 0.002, open ? 0.18 : 0.04, musicBus);
-  s.connect(hp).connect(g);
-  if (open) g.connect(delay);
-  s.start(t, Math.random()); s.stop(t + 0.25);
-}
-
-function bass(t, note, v) {
-  const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(note - 12);
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 6;
-  lp.frequency.setValueAtTime(420, t); lp.frequency.exponentialRampToValueAtTime(110, t + 0.18);
-  o.connect(lp).connect(envGain(t, 0.28 * v, 0.01, 0.24, musicBus));
-  o.start(t); o.stop(t + 0.3);
-}
-
-// L'accord dub : bref, étouffé, qui ne vit que dans l'écho et la réverbération
-function stab(t, chord, v, bright) {
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 3;
-  lp.frequency.setValueAtTime(bright, t); lp.frequency.exponentialRampToValueAtTime(300, t + 0.25);
-  const g = envGain(t, 0.12 * v, 0.006, 0.32, musicBus);
-  lp.connect(g);
-  const send = ctx.createGain(); send.gain.value = 0.9; g.connect(send);
-  send.connect(delay); send.connect(reverb);
-  for (const n of chord) for (const det of [-7, 7]) {
-    const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(n); o.detune.value = det;
-    o.connect(lp); o.start(t); o.stop(t + 0.4);
-  }
-}
-
-// La nappe : quelques sinus lents sur une mesure entière, dans la réverbération
-function pad(t, chord, dur, v) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.linearRampToValueAtTime(0.08 * v, t + dur * 0.4);
-  g.gain.linearRampToValueAtTime(0.0001, t + dur);
-  g.connect(reverb); g.connect(musicBus);
-  for (const n of chord.slice(1)) {
-    const o = ctx.createOscillator(); o.type = 'triangle'; o.frequency.value = midi(n + 12);
-    o.detune.value = (Math.random() - 0.5) * 12;
-    o.connect(g); o.start(t); o.stop(t + dur + 0.1);
-  }
-}
-
-// Une note pincée : dents de scie, filtre qui se referme vite, dans l'écho
-function pluck(t, note, v, bright) {
-  const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = midi(note);
-  const o2 = ctx.createOscillator(); o2.type = 'square'; o2.frequency.value = midi(note); o2.detune.value = 6;
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 4;
-  lp.frequency.setValueAtTime(bright, t); lp.frequency.exponentialRampToValueAtTime(260, t + 0.16);
-  const g = envGain(t, 0.07 * v, 0.003, 0.22, musicBus);
-  o.connect(lp); o2.connect(lp); lp.connect(g);
-  const send = ctx.createGain(); send.gain.value = 0.6; g.connect(send); send.connect(delay);
-  o.start(t); o2.start(t); o.stop(t + 0.3); o2.stop(t + 0.3);
-}
-// Une voix chantée : triangle et sinus, attaque douce, un léger vibrato
-function lead(t, note, dur, v) {
-  const g = ctx.createGain();
-  g.gain.setValueAtTime(0.0001, t);
-  g.gain.linearRampToValueAtTime(0.075 * v, t + Math.min(0.08, dur * 0.3));
-  g.gain.setTargetAtTime(0.0001, t + dur * 0.7, dur * 0.3);
-  const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
-  g.connect(lp).connect(musicBus);
-  const send = ctx.createGain(); send.gain.value = 0.5; lp.connect(send); send.connect(delay); send.connect(reverb);
-  const vib = ctx.createOscillator(); vib.frequency.value = 5.2;
-  const vg = ctx.createGain(); vg.gain.value = 6; vib.connect(vg);
-  for (const [type, det, k] of [['triangle', 0, 1], ['sine', 1200, 0.35]]) {
-    const o = ctx.createOscillator(); o.type = type; o.frequency.value = midi(note); o.detune.value = det;
-    vg.connect(o.detune);
-    const og = ctx.createGain(); og.gain.value = k; o.connect(og).connect(g);
-    o.start(t); o.stop(t + dur + 0.6);
-  }
-  vib.start(t); vib.stop(t + dur + 0.6);
-}
-// Une frappe de métal : du bruit très filtré, bref, qui sonne
-function rim(t, v) {
-  const s = ctx.createBufferSource(); s.buffer = noise;
-  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700 + Math.random() * 300; bp.Q.value = 14;
-  const g = envGain(t, 0.18 * v, 0.001, 0.07, musicBus);
-  s.connect(bp).connect(g);
-  const send = ctx.createGain(); send.gain.value = 0.3; g.connect(send); send.connect(delay);
-  s.start(t, Math.random()); s.stop(t + 0.12);
-}
-
-// Le motif d'une phrase : des notes (rangs dans l'accord, octave) sur des
-// pas de la mesure ; tiré d'une graine (le morceau, la phrase) : le même
-// motif revient, se répond, se transforme d'une phrase à l'autre
-const motifs = new Map();
-function motif(id, phrase) {
-  const key = `${id}-${phrase}`;
-  if (motifs.has(key)) return motifs.get(key);
-  let r = (phrase + 1) * 7919 + id.length * 104729;
-  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
-  const slots = [0, 2, 3, 6, 8, 10, 11, 14].filter(() => rnd() < 0.62);
-  if (!slots.length) slots.push(0, 8);
-  let deg = Math.floor(rnd() * 5);
-  const notes = slots.map(at => {
-    deg = Math.max(0, Math.min(7, deg + Math.floor(rnd() * 5) - 2));
-    return { at, deg, len: 1 + Math.floor(rnd() * 3) };
-  });
-  const m = { notes, arpOrder: ['up', 'down', 'updown', 'skip'][Math.floor(rnd() * 4)] };
-  motifs.set(key, m);
-  if (motifs.size > 64) motifs.delete(motifs.keys().next().value);
-  return m;
-}
-// Le rang d'une note dans l'accord, sur deux octaves (la basse n'en est pas)
-const tone = (chord, deg) => chord[1 + (deg % 4)] + 12 * Math.floor(deg / 4) + 12;
-
-// Ce qui joue dans chaque phrase : l'entrée, la montée, le plein, la respiration.
-// L'énergie du moment (le lieu, le danger) décide de ce qui peut jouer : au
-// calme, la nappe et quelques accords ; en marche, la grosse caisse ; près de
-// l'ennemi, la basse et le charleston ; au combat, tout, plus dense, plus clair.
-function arrangement(bar) {
-  const e = heard.energy;
-  const phrase = Math.floor(bar / 16) % 6;
-  const breath = e < 0.85 && (phrase === 0 || phrase === 4);   // les respirations (sauf au combat)
-  const lvl = (from, to) => Math.max(0, Math.min(1, (e - from) / (to - from)));
-  return {
-    kick: breath ? 0 : lvl(0.3, 0.5),
-    hats: breath ? lvl(0.6, 0.9) * 0.5 : lvl(0.55, 0.8),
-    fast: lvl(0.85, 1),                                          // charleston en doubles croches
-    bass: lvl(0.22, 0.45),
-    stab: 0.5 + 0.5 * lvl(0.1, 0.7),
-    stabs2: lvl(0.8, 1),                                         // accords plus serrés
-    pad: 1 - 0.7 * lvl(0.6, 1),
-  };
-}
-
-function scheduleStep(t, i) {
-  const bar = Math.floor(i / 16), s = i % 16;
-  if (ctx.currentTime < duckUntil) return;                      // un silence (une présence)
-  // La playlist : on change de morceau sur une respiration, toutes les six phrases
-  if (s === 0) {
-    trackBars++;
-    if (choice === 'playlist' && trackBars > 96 && bar % 16 === 0) useTrack(TRACK_ORDER[(TRACK_ORDER.indexOf(current) + 1) % TRACK_ORDER.length]);
-  }
-  const T = TRACKS[current], A = arrangement(bar);
-  // Dans l'ombre, les accords descendent d'un ton, plus sourds
-  const chord = T.chords[Math.floor(bar / 4) % T.chords.length].map(n => n - (heard.dark > 0.6 ? 2 : 0));
-  const phrase = Math.floor(bar / 16), M = motif(current, phrase);
-  const lvl = (from, to) => Math.max(0, Math.min(1, (heard.energy - from) / (to - from)));
-  const brightA = (1600 + 1400 * Math.sin(bar * 0.25 + phrase)) * (1 - 0.5 * heard.dark);
-  // Les arpèges : ils s'ouvrent sur la phrase (de deux à huit notes), plus serrés quand ça monte
-  if (T.arp && A.kick + A.pad > 0) {
-    const open = 2 + Math.floor((bar % 16) / 16 * 6), rate = heard.energy > 0.6 ? 1 : 2;
-    if (s % rate === 0) {
-      const k = (s / rate) % open;
-      const idx = M.arpOrder === 'down' ? open - 1 - k : M.arpOrder === 'updown' ? (Math.floor(s / rate / open) % 2 ? open - 1 - k : k) : M.arpOrder === 'skip' ? (k * 2) % open : k;
-      pluck(t, tone(chord, idx), T.arp * (0.5 + 0.5 * lvl(0.05, 0.4)), brightA);
-    }
-  }
-  // La mélodie : le motif de la phrase ; il se répond (une mesure sur deux,
-  // une note plus bas), et change un peu toutes les quatre mesures
-  if (T.lead && (bar % 16) >= 2) {
-    const answer = bar % 2 === 1, vary = Math.floor(bar / 4) % 4;
-    for (const n of M.notes) {
-      if (n.at !== s) continue;
-      if (answer && n === M.notes.at(-1) && heard.energy < 0.7) continue;   // il laisse respirer
-      const deg = n.deg + (answer ? -1 : 0) + (vary === 2 && n === M.notes[0] ? 2 : 0) + (vary === 3 ? 1 : 0);
-      lead(t, tone(chord, Math.max(0, Math.min(7, deg))), STEP * n.len * 2, T.lead * (0.55 + 0.45 * (1 - heard.dark)));
-    }
-  }
-  // La forge : des frappes de métal, et une basse qui chante le motif à l'octave
-  if (T.rim && A.kick && [4, 12].includes(s)) rim(t, T.rim * A.kick);
-  if (T.rim && A.hats && s === 7 && bar % 2) rim(t, T.rim * 0.5);
-  if (T.song && A.bass) for (const n of M.notes) if (n.at === s) bass(t, chord[1 + (n.deg % 4)] - 12, A.bass * 0.9);
-  if (A.kick && s % 4 === 0) kick(t, A.kick);
-  if (A.hats && s % 4 === 2) hat(t, A.hats, s === 14 && bar % 2 === 1);
-  if (A.hats && (s === 7 || s === 15) && Math.random() < 0.4) hat(t, A.hats * 0.5);
-  if (A.fast && s % 2 === 1) hat(t, A.fast * 0.45);
-  if (A.bass && !T.song && [3, 6, 11, 14].includes(s)) bass(t, chord[0] + (s === 11 && bar % 4 === 3 ? 7 : 0), A.bass);
-  if (A.fast && [0, 8].includes(s)) bass(t, chord[0], A.fast * 0.8);
-  // Les accords : peu, à des places qui changent d'une mesure à l'autre
-  const stabs = [[6], [3, 10], [6, 14], [0, 11]][bar % 4];
-  const bright = (1400 + 900 * Math.sin(bar * 0.4)) * (1 - 0.5 * heard.dark) * (1 + 0.6 * A.stabs2);
-  if (A.stab && T.stab && stabs.includes(s)) stab(t, chord, A.stab * T.stab, bright);
-  if (A.stabs2 && T.stab && [2, 9, 13].includes(s) && Math.random() < 0.7) stab(t, chord, A.stabs2 * 0.7 * T.stab, bright);
-  if (A.pad && s === 0 && bar % 2 === 0) pad(t, chord, BEAT * 8, A.pad);
-}
-
 // L'humeur entendue rejoint la voulue : vite quand le danger monte, lentement
 // quand il retombe ; le filtre suit
 function followMood() {
@@ -339,17 +118,60 @@ function followMood() {
   heard.energy += (mood.energy - heard.energy) * (up ? 0.017 : 0.004);
   heard.dark += (mood.dark - heard.dark) * 0.006;
   heard.muffled += (mood.muffled - heard.muffled) * 0.03;
-  const cut = 600 + 7000 * (1 - 0.75 * heard.dark) * (1 - 0.85 * heard.muffled) * (0.55 + 0.45 * heard.energy);
+  // (des morceaux enregistrés : le filtre les assombrit à peine, et les étouffe dedans)
+  const cut = 900 + 15000 * (1 - 0.5 * heard.dark) * (1 - 0.88 * heard.muffled) * (0.75 + 0.25 * heard.energy);
   musicFilter.frequency.setTargetAtTime(cut, ctx.currentTime, 0.3);
 }
 
+// ── Le lecteur : deux platines, l'une qui s'éteint quand l'autre monte ──
+let deck = null;                                    // { id, el, gain, started }
+let placeWanted = null, placeSince = 0, hushed = false;
+function startTrack(id) {
+  if (!ctx || !TRACKS[id]) return;
+  const t = ctx.currentTime, old = deck;
+  const el = new Audio(`assets/music/${encodeURIComponent(TRACKS[id].file)}`);
+  el.preload = 'auto';
+  const gain = ctx.createGain(); gain.gain.value = 0;
+  ctx.createMediaElementSource(el).connect(gain).connect(duckBus);
+  // (le premier morceau monte plus vite : on n'attend pas huit secondes de silence)
+  const fade = old ? XFADE : 3;
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(TRACK_GAIN, t + fade);
+  el.play().catch(() => {});
+  deck = { id, el, gain, started: t };
+  current = id;
+  if (old) {
+    old.fading = true;
+    old.gain.gain.cancelScheduledValues(t);
+    old.gain.gain.setValueAtTime(old.gain.gain.value, t);
+    old.gain.gain.linearRampToValueAtTime(0.0001, t + XFADE);
+    setTimeout(() => { old.el.pause(); old.el.removeAttribute('src'); old.el.load(); old.gain.disconnect(); }, XFADE * 1000 + 300);
+  }
+}
+// Le suivant : dans l'ordre de la playlist, sans les morceaux de lieu (ils
+// viennent quand on y est)
+function nextTrack() {
+  if (choice !== 'playlist') return choice;
+  const pool = TRACK_ORDER.filter(id => !TRACKS[id].lieu);
+  return pool[(pool.indexOf(current) + 1) % pool.length];
+}
 function scheduler() {
   followMood();
-  while (nextStep < ctx.currentTime + 0.15) {
-    scheduleStep(nextStep, stepIndex);
-    nextStep += STEP * (stepIndex % 2 ? 0.94 : 1.06);   // un léger swing
-    stepIndex++;
+  if (!deck) { startTrack(choice === 'playlist' ? TRACK_ORDER[0] : choice); return; }
+  const t = ctx.currentTime, el = deck.el;
+  // Un silence (une présence, un chapitre) : la musique retient son souffle
+  const hush = t < duckUntil;
+  if (hush !== hushed) { hushed = hush; duckBus.gain.setTargetAtTime(hush ? 0.0001 : 1, t, hush ? 0.35 : 1.2); }
+  // Un lieu qui a son morceau (stable depuis 3 s) : on y passe en fondu
+  const place = mood.place || null;
+  if (place !== placeWanted) { placeWanted = place; placeSince = t; }
+  if (choice === 'playlist' && place && t - placeSince > 3 && TRACKS[current]?.lieu !== place && t - deck.started > XFADE + 2) {
+    const id = TRACK_ORDER.find(k => TRACKS[k].lieu === place);
+    if (id) { startTrack(id); return; }
   }
+  // La fin approche : le suivant monte pendant que celui-ci s'éteint
+  if (el.duration && el.duration - el.currentTime < XFADE + 0.3) { startTrack(choice === 'playlist' ? nextTrack() : choice); return; }
+  if ((el.ended || el.error) && t - deck.started > 2) startTrack(nextTrack());
 }
 
 // ── Bruitages ──
@@ -510,7 +332,6 @@ export const audio = {
     if (!ctx) build();
     if (ctx.state === 'suspended') ctx.resume();
     if (!timer) {
-      nextStep = ctx.currentTime + 0.1;
       timer = setInterval(scheduler, 25);
     }
   },
@@ -573,10 +394,15 @@ export const audio = {
   // Le morceau : 'playlist' (ils s'enchaînent), ou l'un de TRACKS
   setTrack(id) {
     choice = id === 'playlist' || TRACKS[id] ? id : 'playlist';
-    if (choice !== 'playlist') useTrack(choice);
+    // (un morceau choisi : on y passe tout de suite, en fondu)
+    if (ctx && deck && choice !== 'playlist' && current !== choice) startTrack(choice);
   },
   get track() { return current; },
-  // L'humeur du moment, voulue par le jeu : { energy, dark, muffled } (0 → 1)
+  // Où en est le morceau (debug, harnais) : { id, temps, durée, platines }
+  seek(sec) { if (deck) deck.el.currentTime = sec; },
+  get playing() { return deck && { id: deck.id, time: deck.el.currentTime, duration: deck.el.duration, paused: deck.el.paused }; },
+  // L'humeur du moment, voulue par le jeu : { energy, dark, muffled } (0 → 1),
+  // et `place` : un lieu qui a son morceau ('foret-noire', 'loups', 'aube')
   setMood(m) { Object.assign(mood, m); },
   // Un silence de quelques secondes (la musique retient son souffle)
   hush(seconds) { if (ctx) duckUntil = ctx.currentTime + seconds; },

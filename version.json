@@ -1,9 +1,8 @@
 {
-  "version": "1.55.0",
+  "version": "1.56.0",
   "date": "2026-10-07",
   "changes": [
-    "Le pas des morts : dans la plaine des morts, la main sur l'étrave du grand navire de pierres, puis on va d'un lieu vu à l'autre en cliquant sur la carte",
-    "La carte prend presque tout l'écran ; le zoom choisi est gardé ; on passe à gauche du roi et on ramasse son rubis",
-    "L'incendie part de la maison dessinée dans l'atelier ; les loups partis ne hurlent plus"
+    "La musique : tes morceaux (assets/music) remplacent la musique synthétisée, enchaînés en fondu",
+    "La forêt noire, les loups et l'aube ont leur morceau, qui vient de lui-même en fondu"
   ]
 }

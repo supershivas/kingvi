@@ -1,43 +1,43 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.55.0';
+import { startUpdateCheck } from '../app-update.js?v=1.56.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.55.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.55.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.55.0';
+} from './viking.js?v=1.56.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.56.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.56.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.55.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.55.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.55.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.55.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.55.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.55.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.55.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.55.0';
-import { createSea } from './sea.js?v=1.55.0';
-import { createTitleSea } from './titlesea.js?v=1.55.0';
-import { buildStatueDoor } from './statue.js?v=1.55.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.55.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.55.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.55.0';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.55.0';
-import { designRows, designsReady } from './design-store.js?v=1.55.0';
-import * as PROPS from './props.js?v=1.55.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.55.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.55.0';
-import { audio, TRACKS } from './audio.js?v=1.55.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.55.0';
-import { RUIN_ART } from './ruins-art.js?v=1.55.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.55.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.55.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.55.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.55.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.55.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.55.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.55.0';
+} from './world.js?v=1.56.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.56.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.56.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.56.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.56.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.56.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.56.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.56.0';
+import { createSea } from './sea.js?v=1.56.0';
+import { createTitleSea } from './titlesea.js?v=1.56.0';
+import { buildStatueDoor } from './statue.js?v=1.56.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.56.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.56.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.56.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.56.0';
+import { designRows, designsReady } from './design-store.js?v=1.56.0';
+import * as PROPS from './props.js?v=1.56.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.56.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.56.0';
+import { audio, TRACKS } from './audio.js?v=1.56.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.56.0';
+import { RUIN_ART } from './ruins-art.js?v=1.56.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.56.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.56.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.56.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.56.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.56.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.56.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.56.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1249,11 +1249,11 @@ card('corbeaux', {
   },
 });
 
-// ══ Son : la musique et les bruitages, synthétisés ══
+// ══ Son : la musique (des fichiers) et les bruitages (synthétisés) ══
 (function sounds() {
   const el = document.createElement('article');
   el.className = 'demo wide';
-  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>Tout est synthétisé dans le navigateur (aucun fichier) : une deep techno lente et changeante, par phrases de 16 mesures, en quatre morceaux (la nuit, la glace, l\'aurore, la forge : les trois derniers plus mélodiques, arpèges et mélodie qui se répond et se transforme de phrase en phrase), qui suit l\'humeur du moment : calme sur la grève, sourde et assombrie dans la forêt noire, tendue à l\'approche de l\'autre viking, à son comble au combat, étouffée à l\'intérieur, muette un instant quand le guetteur s\'efface. Le vent suit la météo ; les corbeaux, l\'épée.</p><div class="sound-buttons"></div>';
+  el.innerHTML = '<h3><span>Musique et bruitages</span></h3><p>La musique : les morceaux de <code>assets/music/</code> (MP3), en playlist, qui s\'enchaînent en fondu de huit secondes (le suivant monte pendant que l\'autre s\'éteint). La forêt noire, les loups et l\'aube ont leur morceau : le jeu y passe en fondu quand on y est (trois secondes de suite), et le laisse finir quand on s\'en va. L\'humeur ne change plus les notes : elle assombrit un peu le son dans la forêt noire, l\'étouffe à l\'intérieur, et le silence d\'une présence ou d\'un chapitre l\'éteint quelques secondes. Les bruitages restent synthétisés (aucun fichier) : le vent qui suit la météo, les corbeaux, l\'épée, les loups.</p><div class="sound-buttons"></div>';
   const box = el.querySelector('.sound-buttons');
   let music = false;
   const add = (label, icon, fn) => {
@@ -1279,11 +1279,11 @@ card('corbeaux', {
   });
   // L'humeur : le jeu la règle selon le lieu et le danger ; ici, à la main
   for (const [label, icon, m] of [
-    ['Humeur : grève', 'sun', { energy: 0.4, dark: 0, muffled: 0 }],
-    ['Humeur : forêt noire', 'trees', { energy: 0.22, dark: 0.9, muffled: 0 }],
-    ['Humeur : il approche', 'alert-triangle', { energy: 0.75, dark: 0.2, muffled: 0 }],
-    ['Humeur : combat', 'swords', { energy: 1, dark: 0, muffled: 0 }],
-    ['Humeur : à l\'intérieur', 'home', { energy: 0.15, dark: 0.3, muffled: 1 }],
+    ['Humeur : grève', 'sun', { energy: 0.4, dark: 0, muffled: 0, place: null }],
+    ['Humeur : forêt noire', 'trees', { energy: 0.22, dark: 0.9, muffled: 0, place: 'foret-noire' }],
+    ['Humeur : il approche', 'alert-triangle', { energy: 0.75, dark: 0.2, muffled: 0, place: null }],
+    ['Humeur : les loups', 'swords', { energy: 1, dark: 0, muffled: 0, place: 'loups' }],
+    ['Humeur : à l\'intérieur', 'home', { energy: 0.15, dark: 0.3, muffled: 1, place: null }],
   ]) add(label, icon, () => { if (!music) { music = true; audio.setMusic(true); } audio.setMood(m); });
   add('Corbeaux', 'feather', () => audio.play('caw', { n: 3 }));
   add('Tonnerre, tout près', 'bolt', () => audio.play('thunder', { near: 1 }));

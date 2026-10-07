@@ -249,24 +249,26 @@ en haut à droite, dit combien d'arbres abattus et de rochers brisés
 pierre (rocher, cairn, statue, falaise) fait jaillir des étincelles, la lame
 sonne et rebondit, le coup s'arrête net (`struckObject`, `shakeTree`,
 `strikeRock`).
-Le son est synthétisé (aucun fichier) : une deep techno contemplative et
-changeante, en **playlist** (v1.53.0 : `TRACKS` dans `audio.js` : la nuit,
-l'original ; la glace, arpèges ; l'aurore, la plus mélodique ; la forge,
-basse qui chante et frappes de métal ; motif de phrase `motif`, tiré d'une
-graine, qui se répond et se transforme ; `audio.setTrack('playlist' | id)`,
-Réglages « Morceau », `prefs.track` ; en playlist, un morceau toutes les six
-phrases), le vent qui suit la météo (étouffé à l'intérieur ; v1.53.4 : plus
+La musique (v1.56.0) : **des fichiers**, les MP3 de `assets/music/` déposés
+par Jérôme (la musique synthétisée est retirée), en **playlist** (`TRACKS`
+dans `audio.js` : nom, fichier, `lieu`) ; deux platines (`<audio>` → Web
+Audio, `startTrack`) : le suivant monte pendant que l'autre s'éteint
+(`XFADE`, 8 s, trois au premier) ; la forêt noire, les loups et l'aube ont
+leur morceau (`lieu` : `musicMood` rend `place`, stable 3 s : fondu vers
+lui ; on le laisse finir en partant) ; `audio.setTrack('playlist' | id)`,
+Réglages « Morceau », `prefs.track`. « The wolves.mp3 » (2 octets) est vide :
+`loups` lit « The wolves II.mp3 ». Les bruitages restent synthétisés (aucun
+fichier) : le vent qui suit la météo (étouffé à l'intérieur ; v1.53.4 : plus
 léger et vivant, `windLayers` : un souffle grave qui respire et se déplace
 d'une oreille à l'autre, un air aigu, deux sifflements qui naissent et
 glissent, chacun ses phases tirées au hasard ; `audio.wind` toutes les 200 ms), les corbeaux,
 l'épée (fendre l'air, neige, chair, bois, pierre), le coffre, les loups
 (hurlement, grondement, morsure, glapissement). Il démarre au premier geste du
 joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
-La musique suit l'humeur du moment (`musicMood` dans `game.js` →
-`audio.setMood({ energy, dark, muffled })`) : calme sur la grève, sourde et
-assombrie dans la forêt noire, tendue à l'approche de l'autre viking, à son
-comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
-secondes quand le guetteur s'efface (`audio.hush`).
+L'humeur (`musicMood` dans `game.js` → `audio.setMood({ energy, dark,
+muffled, place })`) ne change plus les notes : un filtre assombrit un peu
+dans la forêt noire et étouffe à l'intérieur ; le silence d'une présence ou
+d'un chapitre (`audio.hush`, `duckBus`) éteint la musique quelques secondes.
 
 La page `labo.html` suit le labo du design system (conventions, 8 ter ;
 v1.51.0) : en-tête couleur d'accent avec « LABO » encadré, favicon à fiole
@@ -504,9 +506,9 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   est recomposée : peinture d'origine, puis les marques encore là), marques
   permanentes peintes dans la peinture d'origine. L'horloge des marques est
   celle du jeu (`scene.clock`, accélérée par le debug).
-- `js/audio.js` — le son (Web Audio) : séquenceur à 16 pas, 116 BPM, phrases
-  de 16 mesures (`arrangement`, qui dépend de l'énergie entendue), grosse caisse, charleston, basse, accords dub
-  (écho, réverbération générée), nappe ; bruitages (`audio.play('swing' |
+- `js/audio.js` — le son (Web Audio) : la playlist des fichiers de
+  `assets/music/` en fondu enchaîné (`TRACKS`, `startTrack`, `scheduler`) ;
+  bruitages synthétisés (`audio.play('swing' |
   'snow' | 'flesh' | 'wood' | 'clang' | 'caw' | 'creak' | 'presence' | 'howl' | 'growl' | 'bite' | 'yelp')`, `audio.wind(force, rafale, abrité)`, sur son propre canal) ;
   niveaux `audio.setVolume('music' | 'sfx' | 'wind', 0 → 1).
 - `js/viking.js` — le sprite, dessiné pixel par pixel à partir de poses

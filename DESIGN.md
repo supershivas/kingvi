@@ -135,10 +135,11 @@ chaque coup arrache un éclat, et tous les rochers finissent par céder. Un
 compteur discret, en haut à droite, dit combien.
 
 ### La musique et le son
-Tout est synthétisé. Une deep techno contemplative qui suit l'humeur : calme
-sur la grève, sourde dans la forêt noire, tendue à l'approche de l'autre, à
-son comble au combat, puis un silence ; étouffée à l'intérieur ; muette
-quelques secondes quand le guetteur s'efface ou que le roi s'incline.
+La musique : des morceaux enregistrés (assets/music/), planants, qui
+s'enchaînent en fondu ; la forêt noire, les loups et l'aube ont le leur, qui
+vient de lui-même. Sourde dans la forêt noire, étouffée à l'intérieur ;
+muette quelques secondes quand le guetteur s'efface ou que le roi s'incline.
+Les bruitages (vent, épée, corbeaux, loups) restent synthétisés.
 
 ### L'interface qui existe
 Volontairement mince : l'écran d'accueil (titre gothique sur la mer de nuit),
@@ -181,10 +182,9 @@ il change, et s'il traîne longtemps. Jamais de flèche ni de marqueur : une
 pensée, dans sa bouche.
 
 ### La musique
-Une playlist de quatre morceaux de deep techno générés (la nuit, la glace,
-l'aurore, la forge), les trois derniers plus mélodiques ; toujours
-évolutifs (un motif par phrase, qui se répond et se transforme). Au choix
-dans les Réglages, ou enchaînés.
+Une playlist de morceaux enregistrés (Spring Reverb, La Forêt Noire,
+Abstract Breaks I et II, L'aube, The wolves), enchaînés en fondu de huit
+secondes ; au choix dans les Réglages, ou enchaînés.
 
 ## Ce que le jeu refuse
 

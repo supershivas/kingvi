@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.56.0 — 2026-10-07
+- La musique, ce sont maintenant les morceaux déposés dans assets/music (Spring Reverb, La Forêt Noire, Abstract Breaks I et II, L'aube, The wolves) ; la musique synthétisée est retirée
+- Les morceaux s'enchaînent en fondu : le suivant monte pendant huit secondes pendant que l'autre s'éteint
+- Sous les arbres de la forêt noire, quand les loups sortent, et à l'aube, le jeu passe en fondu au morceau du lieu, et le laisse finir quand on s'en va
+- Les bruitages (vent, épée, corbeaux, loups) restent synthétisés
+
 ## 1.55.0 — 2026-10-07
 - Le pas des morts : au creux du grand navire de pierres de la plaine des morts, poser la main sur l'étrave (touche E) ; ensuite, sur la carte (M), un clic sur un lieu déjà vu et l'on y est (pas pendant un combat)
 - La carte prend presque tout l'écran
