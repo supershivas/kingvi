@@ -12,11 +12,12 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames,
-} from './designs.js?v=1.61.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.61.0';
-import { publish, pending, customChanged, placementsChanged, textsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.61.0';
-import { mountMap } from './atelier-map.js?v=1.61.0';
-import { mountTexts } from './atelier-texts.js?v=1.61.0';
+} from './designs.js?v=1.61.1';
+import { openPixelEditor } from './pixel-editor.js?v=1.61.1';
+import { publish, pending, customChanged, placementsChanged, textsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.61.1';
+import { mountMap } from './atelier-map.js?v=1.61.1';
+import { mountTexts } from './atelier-texts.js?v=1.61.1';
+import { readOld, restoreOld } from './design-store.js?v=1.61.1';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -56,6 +57,7 @@ host.innerHTML = `
         <button type="button" class="design-btn" data-key>Clé GitHub…</button>
         <button type="button" class="design-btn quiet" data-forget hidden>Oublier la clé</button>
         <button type="button" class="design-btn" data-copy>Copier mes modifications</button>
+        <button type="button" class="design-btn" data-old hidden></button>
         <label class="design-btn">Importer plusieurs PNG<input type="file" accept="image/png" multiple hidden></label>
       </div>
     </details>
@@ -504,3 +506,17 @@ function toastSay(t) {
 }
 window.addEventListener('hashchange', showTool);
 showTool();
+
+// Des retouches d'ici, plus vieilles qu'une publication du même dessin, ont
+// été mises de côté (le dépôt passe devant) : on peut les retrouver
+{
+  const b = $('[data-old]'), n = Object.keys(readOld()).length;
+  b.hidden = !n;
+  b.textContent = `Retrouver ${n} retouche${n > 1 ? 's' : ''} mise${n > 1 ? 's' : ''} de côté`;
+  b.addEventListener('click', () => {
+    const names = restoreOld();
+    b.hidden = true;
+    buildTree(); showMain(); status();
+    say(`${names.length} retouche${names.length > 1 ? 's' : ''} revenue${names.length > 1 ? 's' : ''} (${names.join(', ')}). Publie-les pour qu'elles passent devant.`);
+  });
+}

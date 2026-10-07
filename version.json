@@ -1,8 +1,8 @@
 {
-  "version": "1.61.0",
+  "version": "1.61.1",
   "date": "2026-10-07",
   "changes": [
-    "Atelier, onglet Textes : réécrire le prologue, les fins, les chapitres, ce que disent les gens, les scènes, les descriptions et les reliques",
-    "Le jeu ouvert prend le texte aussitôt ; « Publier pour tous » l'envoie à tout le monde"
+    "Un dessin publié passe maintenant devant une vieille retouche gardée dans ce navigateur (le titre restait l'ancien)",
+    "Les retouches ainsi mises de côté se retrouvent dans l'atelier"
   ]
 }

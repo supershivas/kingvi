@@ -792,6 +792,13 @@ n'est jamais implémenté automatiquement.
 
 ## Pièges connus
 
+- Une retouche locale passe devant le dépôt : publiée ailleurs (autre appareil,
+  ou avant la dernière retouche), elle cachait la version publiée (« j'ai
+  toujours l'ancien titre »). Chaque retouche est datée (`kingvi:designs-at`),
+  chaque publication aussi (`assets/design/published.json`) : une retouche plus
+  vieille que la dernière publication du même dessin s'efface au chargement,
+  mise de côté (`kingvi:designs-old`) ; l'atelier propose de la retrouver.
+
 - Un module chargé avant `loadDesigns` (le graphe statique de `main.js` :
   `boat.js`, `viking.js`, `titlesea.js`…) ne lit pas les dessins publiés à
   son chargement : ce qui en dépend se calcule à la demande (le roulis de la

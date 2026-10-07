@@ -7,8 +7,8 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.61.0';
-import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot } from './design-store.js?v=1.61.0';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.61.1';
+import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot, setPublishedTimes } from './design-store.js?v=1.61.1';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
@@ -121,6 +121,18 @@ export async function publish(progress = () => {}) {
       const blob = await gh(token, '/git/blobs', { method: 'POST', body: { content: await toBase64(await rowsToPng(it.rows)), encoding: 'base64' } });
       tree.push({ path: `assets/design/${it.name}.png`, mode: '100644', type: 'blob', sha: blob.sha });
     }
+    // La date de publication de chaque dessin envoyé : une retouche plus vieille,
+    // ailleurs, s'effacera devant lui (design-store.js, `loadDesigns`)
+    let times = {};
+    if (items.length) {
+      const pt = await gh(token, `/contents/assets/design/published.json?ref=${BRANCH}`);
+      try { times = pt ? JSON.parse(decodeURIComponent(escape(atob(pt.content.replace(/\n/g, ''))))) : {}; } catch { times = {}; }
+      const now = Date.now();
+      for (const it of items) times[it.name] = now;
+      times = Object.fromEntries(Object.keys(times).sort().map(k => [k, times[k]]));
+      const blobPt = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(times, null, 2) + '\n', encoding: 'utf-8' } });
+      tree.push({ path: 'assets/design/published.json', mode: '100644', type: 'blob', sha: blobPt.sha });
+    }
     const index = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(all, null, 2) + '\n', encoding: 'utf-8' } });
     tree.push({ path: 'assets/design/index.json', mode: '100644', type: 'blob', sha: index.sha });
 
@@ -137,6 +149,7 @@ export async function publish(progress = () => {}) {
       if (defsChanged) setCustomDepot(defs);
       if (placesChanged) { setPlacementsDepot(places); writePlacements({}); }
       if (textsMoved) { setTextsDepot(texts); writeTexts({}); }
+      if (items.length) setPublishedTimes(times);
       markSent(Object.fromEntries(items.map(i => [i.name, i.rows])));
       for (const it of items) setLocalDesign(it.name, null);
       return items.length;

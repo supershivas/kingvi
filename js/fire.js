@@ -7,9 +7,9 @@
    module dit quoi : les durées, les dessins (placeholders à redessiner dans
    l'atelier (atelier.html) : `feu-0` → `feu-3`, `house-burning`, `house-ruin`) et où
    poser les flammes. */
-import { HOUSE_ART } from './world.js?v=1.61.0';
-import { designRows } from './design-store.js?v=1.61.0';
-import { floorPoint } from './interior.js?v=1.61.0';
+import { HOUSE_ART } from './world.js?v=1.61.1';
+import { designRows } from './design-store.js?v=1.61.1';
+import { floorPoint } from './interior.js?v=1.61.1';
 
 // Les temps du feu, en secondes de jeu depuis qu'il a pris
 export const FIRE = {

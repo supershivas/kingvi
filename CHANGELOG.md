@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.61.1 — 2026-10-07
+- Un dessin publié passe maintenant devant une retouche plus ancienne gardée dans ce navigateur : le titre restait l'ancien sur l'appareil où il avait été retouché avant
+- Ces retouches ne sont pas perdues : l'atelier propose « Retrouver … retouches mises de côté » (menu « … »)
+
 ## 1.61.0 — 2026-10-07
 - Atelier, nouvel onglet Textes : le prologue, la fin, les noms des chapitres, ce que disent les gens (qui ils sont, leur vœu, leurs répliques, ce qu'ils disent quand on leur donne une relique), les scènes de la saga, les descriptions du clic droit et les reliques se réécrivent
 - Recherche dans tous les textes ; chaque texte réécrit montre l'original et se remet d'un clic

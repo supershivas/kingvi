@@ -183,7 +183,30 @@ export function setLocalDesign(name, rows) {
   const all = readLocal();
   if (rows) all[name] = rows; else delete all[name];
   try { localStorage.setItem(LOCAL_KEY, JSON.stringify(all)); } catch { return false; }
+  // (la date de chaque retouche : plus vieille que la dernière publication du
+  // même dessin, elle s'efface devant le dépôt, voir `loadDesigns`)
+  const at = readJson(LOCAL_AT_KEY);
+  if (rows) at[name] = Date.now(); else delete at[name];
+  writeJson(LOCAL_AT_KEY, at);
   return true;
+}
+// Les dates : retouches d'ici (`kingvi:designs-at`), publications
+// (`assets/design/published.json`, écrit par designs-publish.js) ; les
+// retouches qui s'effacent sont mises de côté (`kingvi:designs-old`) :
+// l'atelier propose de les retrouver
+export const LOCAL_AT_KEY = 'kingvi:designs-at', OLD_KEY = 'kingvi:designs-old';
+function readJson(key) { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch { return {}; } }
+function writeJson(key, o) { try { Object.keys(o).length ? localStorage.setItem(key, JSON.stringify(o)) : localStorage.removeItem(key); } catch { /* rien */ } }
+let published = {};
+export const publishedTimes = () => published;
+export const setPublishedTimes = o => { published = o || {}; };
+export const readOld = () => readJson(OLD_KEY);
+// Les retouches mises de côté reviennent (datées de maintenant : elles passent devant)
+export function restoreOld() {
+  const old = readOld(), names = Object.keys(old);
+  for (const name of names) { setLocalDesign(name, old[name]); local.set(name, old[name]); }
+  writeJson(OLD_KEY, {});
+  return names;
 }
 export function applyLocal(name, rows) {
   if (rows) local.set(name, rows); else local.delete(name);
@@ -279,13 +302,22 @@ export async function loadDesigns() {
     local.set(name, e.rows);          // (publié il y a peu : le site n'a pas forcément fini de se mettre à jour)
   }
   if (sentChanged) writeSent(sent);
-  const mine = readLocal();
+  try {
+    const res = await fetch('assets/design/published.json', { cache: 'no-cache' });
+    published = res.ok ? await res.json() : {};
+  } catch { published = {}; }
+  const mine = readLocal(), at = readJson(LOCAL_AT_KEY), old = readJson(OLD_KEY);
   let dropped = false;
   for (const [name, rows] of Object.entries(mine)) {
-    if (depot.get(name)?.join('\n') === rows.join('\n')) { delete mine[name]; dropped = true; continue; }
+    if (depot.get(name)?.join('\n') === rows.join('\n')) { delete mine[name]; delete at[name]; dropped = true; continue; }
+    // Publiée depuis (ici ou sur un autre appareil) : la retouche d'ici est plus
+    // vieille, le dépôt passe devant ; elle est mise de côté, pas perdue
+    if (depot.has(name) && published[name] && (at[name] || 0) < published[name]) {
+      old[name] = rows; delete mine[name]; delete at[name]; dropped = true; continue;
+    }
     local.set(name, rows);
   }
-  if (dropped) try { localStorage.setItem(LOCAL_KEY, JSON.stringify(mine)); } catch { /* rien */ }
+  if (dropped) { try { localStorage.setItem(LOCAL_KEY, JSON.stringify(mine)); } catch { /* rien */ } writeJson(LOCAL_AT_KEY, at); writeJson(OLD_KEY, old); }
   readyResolve();
 }
 
