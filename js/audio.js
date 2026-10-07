@@ -56,7 +56,6 @@ let duckUntil = 0;
 // Les niveaux (0 → 1), réglés par le joueur ; le vent a le sien
 const vol = { music: 0.7, sfx: 0.8, wind: 0.35 };
 let windBus;
-let windGain, windFilter, whistleGain, whistleFilter;
 let fireGain = null, fireFilter;                    // l'incendie : un grondement, des crépitements
 let nextStep = 0, stepIndex = 0, timer = null;
 
@@ -107,17 +106,29 @@ function build() {
   buildWind();
 }
 
-// ── Le vent : du bruit filtré, un souffle grave et un sifflement ──
+// ── Le vent (v1.53.4 : plus léger, et vivant) : trois couches de bruit
+// filtré qui respirent chacune à leur rythme, même quand la météo ne change
+// pas : un souffle grave qui enfle et retombe et passe d'une oreille à
+// l'autre, un air aigu et léger, et deux sifflements qui naissent, glissent
+// et s'éteignent, plus souvent quand ça souffle fort ──
+let windLayers = null;
 function buildWind() {
-  const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true;
-  windFilter = ctx.createBiquadFilter(); windFilter.type = 'bandpass'; windFilter.frequency.value = 400; windFilter.Q.value = 0.7;
-  windGain = ctx.createGain(); windGain.gain.value = 0;
-  src.connect(windFilter).connect(windGain).connect(windBus);
-  const src2 = ctx.createBufferSource(); src2.buffer = noise; src2.loop = true; src2.playbackRate.value = 0.7;
-  whistleFilter = ctx.createBiquadFilter(); whistleFilter.type = 'bandpass'; whistleFilter.frequency.value = 1400; whistleFilter.Q.value = 9;
-  whistleGain = ctx.createGain(); whistleGain.gain.value = 0;
-  src2.connect(whistleFilter).connect(whistleGain).connect(windBus);
-  src.start(); src2.start();
+  const layer = (rate, type, freq, q) => {
+    const src = ctx.createBufferSource(); src.buffer = noise; src.loop = true; src.playbackRate.value = rate;
+    const filter = ctx.createBiquadFilter(); filter.type = type; filter.frequency.value = freq; filter.Q.value = q;
+    const gain = ctx.createGain(); gain.gain.value = 0;
+    const pan = ctx.createStereoPanner();
+    src.connect(filter).connect(gain).connect(pan).connect(windBus);
+    src.start(0, Math.random() * 2);
+    return { filter, gain, pan };
+  };
+  windLayers = {
+    body: layer(1, 'bandpass', 400, 0.7),
+    air: layer(1.3, 'highpass', 3200, 0.5),
+    whistles: [layer(0.7, 'bandpass', 1300, 14), layer(0.85, 'bandpass', 1900, 18)],
+    // (chacun ses phases : la même météo ne sonne jamais deux fois pareil)
+    phase: Array.from({ length: 8 }, () => Math.random() * 100),
+  };
 }
 
 // ── Musique : un séquenceur à 16 pas, par phrases de 16 mesures ──
@@ -515,13 +526,29 @@ export const audio = {
   // Le vent : sa force (pixels/s, 0 → ~200) et les rafales (0 → 1) ; `muffled`
   // (0 → 1) : à l'abri (1, dans une pièce), sous les arbres de la forêt noire
   wind(force, gust, muffled = 0) {
-    if (!ctx) return;
-    const t = ctx.currentTime, k = Math.min(1, force / 170) * (1 - 0.85 * Number(muffled));
-    windGain.gain.setTargetAtTime(0.02 + 0.28 * k, t, 0.5);
-    windFilter.frequency.setTargetAtTime(250 + 700 * k + 300 * gust, t, 0.5);
-    whistleGain.gain.setTargetAtTime(Math.max(0, k - 0.45) * 0.12 * (0.4 + gust), t, 0.3);
-    whistleFilter.frequency.setTargetAtTime(1100 + 900 * gust, t, 0.3);
+    if (!ctx || !windLayers) return;
+    const t = ctx.currentTime, L = windLayers, ph = L.phase;
+    const k = Math.min(1, force / 170) * (1 - 0.85 * Number(muffled));
+    // La respiration : de lentes ondes qui ne se répètent pas, une houle de
+    // vent toutes les dix à vingt secondes
+    const breathe = 0.6 + 0.4 * (0.5 + 0.5 * Math.sin(t * 0.11 + ph[0] + Math.sin(t * 0.031 + ph[1]) * 3));
+    const body = L.body;
+    body.gain.gain.setTargetAtTime((0.01 + 0.15 * k) * breathe * (0.85 + 0.3 * gust), t, 0.6);
+    body.filter.frequency.setTargetAtTime(200 + 480 * k + 240 * gust + 110 * Math.sin(t * 0.05 + ph[2]), t, 0.8);
+    body.filter.Q.setTargetAtTime(0.55 + 0.45 * (0.5 + 0.5 * Math.sin(t * 0.07 + ph[3])), t, 1);
+    body.pan.pan.setTargetAtTime(0.45 * Math.sin(t * 0.037 + ph[4]), t, 1.5);
+    // L'air aigu : à peine, qui va et vient
+    L.air.gain.gain.setTargetAtTime((0.003 + 0.03 * k) * (0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 0.09 + ph[5]))), t, 0.8);
+    L.air.pan.pan.setTargetAtTime(-0.5 * Math.sin(t * 0.029 + ph[4]), t, 1.5);
+    // Les sifflements : ils naissent, glissent, s'éteignent ; rien sous la bise
+    L.whistles.forEach((w, i) => {
+      const on = Math.pow(Math.max(0, Math.sin(t * (0.13 + i * 0.05) + ph[6 + i])), 3);
+      w.gain.gain.setTargetAtTime(on * Math.max(0, k - 0.3) * (0.35 + gust) * 0.045, t, 0.5);
+      w.filter.frequency.setTargetAtTime((1100 + i * 650) * (1 + 0.18 * Math.sin(t * 0.21 + ph[6 + i] * 2)) + 350 * gust, t, 0.4);
+      w.pan.pan.setTargetAtTime((i ? 0.6 : -0.6) * Math.sin(t * 0.05 + i), t, 1);
+    });
   },
+
   // L'incendie : son grondement et ses crépitements, selon ce qu'on en entend (0 → 1)
   fire(level) {
     if (!ctx || (!level && !fireGain)) return;

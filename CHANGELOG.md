@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.53.4 — 2026-10-07
+- Le son du vent est plus léger, et il évolue tout seul, même quand la météo ne change pas : un souffle grave qui enfle et retombe et passe d'une oreille à l'autre, un air aigu à peine audible, et des sifflements qui naissent, glissent et s'éteignent, plus souvent quand ça souffle fort
+
 ## 1.53.3 — 2026-10-07
 - La mer de l'écran d'accueil et des traversées est tirée au sort à chaque ouverture : de deux à sept icebergs, de formes, d'éloignements et de vitesses différents (ils changent de forme en repassant), une houle plus ou moins ample et rapide, une barque plus ou moins vive, plus ou moins de moutons, et un autre vent : calme, bise, rafales, tempête (avec ses éclairs) ou tourbillons
 - Pendant qu'on la regarde, le temps tourne tout seul, d'une ambiance à l'autre

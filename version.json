@@ -1,7 +1,7 @@
 {
-  "version": "1.53.3",
+  "version": "1.53.4",
   "date": "2026-10-07",
   "changes": [
-    "L'écran d'accueil et les traversées sont tirés au sort à chaque fois : icebergs, houle, barque, vent et neige, et le temps change pendant qu'on regarde"
+    "Le son du vent est plus léger et vivant : il enfle, retombe, passe d'une oreille à l'autre, et siffle de temps en temps"
   ]
 }

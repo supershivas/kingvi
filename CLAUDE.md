@@ -242,7 +242,10 @@ l'original ; la glace, arpèges ; l'aurore, la plus mélodique ; la forge,
 basse qui chante et frappes de métal ; motif de phrase `motif`, tiré d'une
 graine, qui se répond et se transforme ; `audio.setTrack('playlist' | id)`,
 Réglages « Morceau », `prefs.track` ; en playlist, un morceau toutes les six
-phrases), le vent qui suit la météo (étouffé à l'intérieur), les corbeaux,
+phrases), le vent qui suit la météo (étouffé à l'intérieur ; v1.53.4 : plus
+léger et vivant, `windLayers` : un souffle grave qui respire et se déplace
+d'une oreille à l'autre, un air aigu, deux sifflements qui naissent et
+glissent, chacun ses phases tirées au hasard ; `audio.wind` toutes les 200 ms), les corbeaux,
 l'épée (fendre l'air, neige, chair, bois, pierre), le coffre, les loups
 (hurlement, grondement, morsure, glapissement). Il démarre au premier geste du
 joueur ; trois curseurs dans les Réglages : musique, bruitages, son du vent.
