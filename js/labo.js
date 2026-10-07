@@ -1,41 +1,41 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.53.0';
+import { startUpdateCheck } from '../app-update.js?v=1.53.1';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.53.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.0';
+} from './viking.js?v=1.53.1';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.53.1';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.53.1';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.53.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.0';
-import { createSea } from './sea.js?v=1.53.0';
-import { buildStatueDoor } from './statue.js?v=1.53.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.0';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.0';
-import * as PROPS from './props.js?v=1.53.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.0';
-import { audio, TRACKS } from './audio.js?v=1.53.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.0';
-import { RUIN_ART } from './ruins-art.js?v=1.53.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.53.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.0';
+} from './world.js?v=1.53.1';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.53.1';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.53.1';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.53.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.53.1';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.53.1';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.53.1';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.1';
+import { createSea } from './sea.js?v=1.53.1';
+import { buildStatueDoor } from './statue.js?v=1.53.1';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.53.1';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.53.1';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.53.1';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.53.1';
+import * as PROPS from './props.js?v=1.53.1';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.53.1';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.53.1';
+import { audio, TRACKS } from './audio.js?v=1.53.1';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.53.1';
+import { RUIN_ART } from './ruins-art.js?v=1.53.1';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.53.1';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.53.1';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.53.1';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.1';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.53.1';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.53.1';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -175,7 +175,7 @@ const snowNoise = (x, y, s) => {
 };
 card('viking', {
   title: 'Marche dans la neige profonde', tag: 'neige',
-  about: 'Trois neiges : tassée (des pas), aux mollets (des trous plus larges, il s\'enfonce d\'un pixel, 90 % de sa vitesse), jusqu\'à la taille (il s\'enfonce de trois pixels, une collerette de neige bosselée l\'entoure, 80 % de sa vitesse, et il laisse un sillon aux lèvres irrégulières au lieu de pas).',
+  about: 'Trois neiges : tassée (des pas) ; aux mollets (les mêmes pas, avec une ou deux mottes de neige soulevée autour ; il s\'enfonce d\'un pixel, 90 % de sa vitesse) ; jusqu\'à la taille (il s\'enfonce de trois pixels, la neige ronge le bas du corps d\'un pixel irrégulier, 80 % de sa vitesse, et il laisse un sillon : deux lèvres serrées contre le corps, celle de devant en morceaux).',
   w: 120, h: 60, wide: true,
   setup(s) { s.x = 0; s.marks = [[], [], []]; s.step = -1; s.last = [null, null, null]; },
   draw(ctx, pal, t, dt, s) {
@@ -185,31 +185,40 @@ card('viking', {
     const i = Math.floor(t * 7) % 4;
     for (let lane = 0; lane < 3; lane++) {
       const ground = 16 + lane * 18, x = Math.round(s.x * SPEEDS[lane]), sink = SINK[lane];
-      if (lane < 2 && (i === 0 || i === 2) && s.step !== i) s.marks[lane].push(lane ? { x: x - 1, y: ground - 2, w: 2, h: 2, t } : { x, y: ground + (i ? 0 : -1), w: 2, h: 1, t });
+      // Tassée et aux mollets : le même pas ; aux mollets, une ou deux mottes pâles autour
+      if (lane < 2 && (i === 0 || i === 2) && s.step !== i) {
+        const side = i ? 1 : -1, py = ground - 1 + (side > 0 ? 0 : -1);
+        s.marks[lane].push({ x, y: py, w: 2, h: 1, t, a: 0.9 });
+        if (lane === 1) for (let k = 0; k < 2; k++) {
+          if (snowNoise(x, py, 13 + k) < 0.35) continue;
+          s.marks[1].push({ x: x + Math.round(snowNoise(x, py, 17 + k) * 4 - 2), y: py + Math.round(snowNoise(x, py, 19 + k) * 2 - 1) + side, w: 1, h: 1, t, a: 0.4 });
+        }
+      }
+      // Jusqu'à la taille : le sillon, deux lèvres serrées contre le corps
       if (lane === 2 && s.last[2] !== x) {
         s.last[2] = x;
         for (const k of [-1, 1]) {
           const n = snowNoise(x, ground, k > 0 ? 3 : 5);
-          if (n < 0.22) continue;
-          const off = 2 + (n > 0.7 ? 1 : 0) + (snowNoise(x >> 2, ground >> 2, 9) > 0.6 ? 1 : 0);
-          s.marks[2].push({ x, y: ground - 1 + k * off, w: 1, h: 1, t });
-          if (n > 0.9) s.marks[2].push({ x: x + 1, y: ground - 1 + k * off + k, w: 1, h: 1, t });
+          if (n < (k > 0 ? 0.5 : 0.18)) continue;
+          const off = 1 + (snowNoise(x >> 1, ground >> 1, k > 0 ? 9 : 11) > 0.65 ? 1 : 0);
+          const my = k < 0 ? ground - 1 - off : ground + off - 1;
+          s.marks[2].push({ x, y: my, w: 1, h: 1, t, a: 0.9 });
+          if (n > 0.92) s.marks[2].push({ x: x + 1, y: my + k, w: 1, h: 1, t, a: 0.45 });
         }
       }
       ctx.fillStyle = pal.b;
-      for (const m of s.marks[lane]) { ctx.globalAlpha = Math.max(0, 0.9 - (t - m.t) / 14); ctx.fillRect(m.x, m.y, m.w, m.h); }
+      for (const m of s.marks[lane]) { ctx.globalAlpha = Math.max(0, m.a - (t - m.t) / 14); ctx.fillRect(m.x, m.y, m.w, m.h); }
       ctx.globalAlpha = 1;
       drawViking(ctx, pal, `side-walk-${i}`, x, ground + sink, { clock: t });
       if (sink) {
-        // ce qui passe sous la neige, puis la collerette
-        ctx.fillStyle = pal.bg; ctx.fillRect(x - 8, ground + 1, 17, sink + 1);
+        // ce qui passe sous la neige (rogné, comme dans le jeu), puis la
+        // collerette : un pixel au plus, sur la ligne de la neige
+        // (l'ombre au sol du dessin passe aussi sous la neige)
+        ctx.fillStyle = pal.bg; ctx.fillRect(x - 8, ground + 1, 17, sink + 2);
+        for (const m of s.marks[lane]) if (m.y > ground && m.y <= ground + sink + 2 && Math.abs(m.x - x) <= 8) { ctx.globalAlpha = Math.max(0, m.a - (t - m.t) / 14); ctx.fillStyle = pal.b; ctx.fillRect(m.x, m.y, m.w, m.h); }
+        ctx.globalAlpha = 1;
         ctx.fillStyle = pal.s || pal.bg;
-        const half = 2 + sink;
-        for (let dx = -half; dx <= half; dx++) {
-          const edge = Math.abs(dx) / half, n = snowNoise(x + dx, Math.round(ground / 3), 7);
-          const h = Math.max(0, Math.round((1 - edge * edge) * sink * 0.7 + n * 1.6 - 0.5));
-          if (h > 0 && !(edge > 0.8 && n < 0.4)) ctx.fillRect(x + dx, ground - h + 1, 1, h);
-        }
+        for (let dx = -3; dx <= 3; dx++) if (snowNoise(x + dx, Math.round(ground / 3), 7) > (Math.abs(dx) === 3 ? 0.7 : 0.4)) ctx.fillRect(x + dx, ground, 1, 1);
       }
     }
     s.step = i;

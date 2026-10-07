@@ -7,7 +7,7 @@
    Le corps est centré sur la colonne CX : un retournement horizontal ne le
    décale pas (origine au milieu de la colonne CX). */
 
-import { designGrid } from './design-store.js?v=1.53.0';
+import { designGrid } from './design-store.js?v=1.53.1';
 
 export const FRAME_W = 32;
 export const FRAME_H = 26;

@@ -4,41 +4,41 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.53.0';
+} from './viking.js?v=1.53.1';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
-} from './world.js?v=1.53.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.53.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.53.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.53.0';
-import { createGround } from './ground.js?v=1.53.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.53.0';
-import { chapterById } from './chapters.js?v=1.53.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.53.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.53.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.53.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.53.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.53.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.53.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.53.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.53.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.53.0';
-import { createFauna } from './fauna.js?v=1.53.0';
-import { createWeather } from './weather.js?v=1.53.0';
-import { createTalk } from './dialogue.js?v=1.53.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.53.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.53.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.53.0';
-import { personSprite } from './people.js?v=1.53.0';
-import { createSea } from './sea.js?v=1.53.0';
-import { audio } from './audio.js?v=1.53.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.53.0';
+} from './world.js?v=1.53.1';
+import { ICE_FRAMES } from './sigrun.js?v=1.53.1';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.53.1';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.53.1';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.53.1';
+import { createGround } from './ground.js?v=1.53.1';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.53.1';
+import { chapterById } from './chapters.js?v=1.53.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.53.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.53.1';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.53.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.53.1';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.53.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.53.1';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.53.1';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.53.1';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.53.1';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.53.1';
+import { createFauna } from './fauna.js?v=1.53.1';
+import { createWeather } from './weather.js?v=1.53.1';
+import { createTalk } from './dialogue.js?v=1.53.1';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.53.1';
+import { NECRO_W, NECRO_H } from './props.js?v=1.53.1';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.53.1';
+import { personSprite } from './people.js?v=1.53.1';
+import { createSea } from './sea.js?v=1.53.1';
+import { audio } from './audio.js?v=1.53.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.53.1';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -784,15 +784,15 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       c.clear();
       if (sink > 0) {
         c.setDepth(depth + 0.02).fillStyle(hex(palette.s), 1);
-        const half = 2 + sink;
+        // (un pixel de haut au plus, sur la ligne de la neige : elle ronge le
+        // bas du corps sans l'ensevelir)
+        const half = 3;
         for (let dx = -half; dx <= half; dx++) {
-          const edge = Math.abs(dx) / half;
           const n = noise(px + dx, Math.round(y / 3), 7);
-          const h = Math.max(0, Math.round((1 - edge * edge) * sink * 0.7 + n * 1.6 - 0.5));
-          if (h > 0 && !(edge > 0.8 && n < 0.4)) c.fillRect(px + dx, py - h + 1, 1, h);
+          if (n > (Math.abs(dx) === half ? 0.7 : 0.4)) c.fillRect(px + dx, py, 1, 1);
         }
-        c.fillStyle(hex(palette.b), 0.5);
-        for (let dx = -half - 1; dx <= half + 1; dx += 1) if (noise(px + dx, Math.round(y), 11) < 0.35) c.fillRect(px + dx, py + 1, 1, 1);
+        c.fillStyle(hex(palette.b), 0.45);
+        for (let dx = -half; dx <= half; dx++) if (noise(px + dx, Math.round(y), 11) < 0.2) c.fillRect(px + dx, py + 1, 1, 1);
       }
       // La cape s'accroche à l'épaule côté est (le vent souffle vers l'est)
       const a = this.capeAnchor[this.player.frame.name];
@@ -841,18 +841,19 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         const f = this.furrowAt;
         if (!f || Math.abs(f.x - x) + Math.abs(f.y - y) >= 1) {
           this.furrowAt = { x, y };
-          // (le sillon : ses deux lèvres, la neige rejetée de part et d'autre ;
-          // leur écart ondule, des mottes s'en détachent, des trous les coupent :
-          // rien de droit)
+          // (le sillon : deux lèvres serrées contre le corps, la neige rejetée
+          // de part et d'autre ; celle de derrière plus nette, celle de devant
+          // en morceaux ; leur écart bouge d'un pixel, des trous les coupent,
+          // une motte déborde parfois : rien de droit)
           const life = OWN_PRINT_LIFE * 1.5, side = this.facing === 'side';
           for (const k of [-1, 1]) {
             const n = noise(x, y, k > 0 ? 3 : 5);
-            if (n < 0.22) continue;                              // un trou
-            const off = 2 + (n > 0.7 ? 1 : 0) + (noise(x >> 2, y >> 2, 9) > 0.6 ? 1 : 0);
-            const [mx, my] = side ? [x, y - 1 + k * off] : [x + k * off, y];
+            if (n < (k > 0 ? 0.5 : 0.18)) continue;              // un trou
+            const off = 1 + (noise(x >> 1, y >> 1, k > 0 ? 9 : 11) > 0.65 ? 1 : 0);
+            const [mx, my] = side ? [x, k < 0 ? y - 1 - off : y + off - 1] : [x + k * (off + 1), y];
             this.mark(mx, my, 1, 1, life);
             // une motte qui déborde
-            if (n > 0.9) this.mark(mx + (side ? 1 : k), my + (side ? k : 0), 1, 1, life);
+            if (n > 0.92) ground.mark(mx + (side ? 1 : k), my + (side ? k : 0), 1, 1, life, 'b', 0.45, this.clock || 0);
           }
         }
       }
@@ -861,17 +862,21 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     leavePrint(side) {
       // (jusqu'à la taille, pas de pas : le sillon ; aux mollets, des trous plus larges)
       if (this.snowLevel === 2) { this.stepCount++; return; }
-      if (this.snowLevel === 1) {
-        const x = Math.round(this.pos.x), y = Math.round(this.pos.y);
-        this.mark(x + (this.facing === 'side' ? 0 : side) - 1, y - 2, 2, 2, OWN_PRINT_LIFE);
-        this.stepCount++;
-        return;
-      }
       const x = Math.round(this.pos.x), y = Math.round(this.pos.y) - Math.round(this.lift || 0);
       const horizontal = this.facing === 'side';
       const px = x + (horizontal ? 0 : side);
       const py = y - 1 + (horizontal ? (side > 0 ? 0 : -1) : 0);
       this.mark(px, py, horizontal ? 2 : 1, horizontal ? 1 : 2, OWN_PRINT_LIFE);
+      // Aux mollets : le même pas, et la neige qu'il soulève, une ou deux
+      // mottes pâles posées au hasard autour (le hasard accroché au monde)
+      if (this.snowLevel === 1) {
+        for (let k = 0; k < 2; k++) {
+          const n = noise(px, py, 13 + k);
+          if (n < 0.35) continue;
+          const dx = Math.round(noise(px, py, 17 + k) * 4 - 2), dy = Math.round(noise(px, py, 19 + k) * 2 - 1);
+          ground.mark(px + dx + (horizontal ? 0 : side), py + dy + (horizontal ? side : 0), 1, 1, OWN_PRINT_LIFE, 'b', 0.4, this.clock || 0);
+        }
+      }
       this.stepCount++;
     }
 

@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), eclair(près), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.53.0';
-import { chapterById } from './chapters.js?v=1.53.0';
-import { audio } from './audio.js?v=1.53.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.53.0';
-import { CHEST } from './crypt.js?v=1.53.0';
-import { ROOM_ENTRY } from './interior.js?v=1.53.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.53.1';
+import { WEATHER_PRESETS } from './weather.js?v=1.53.1';
+import { chapterById } from './chapters.js?v=1.53.1';
+import { audio } from './audio.js?v=1.53.1';
+import { THRONE, caveWalkable } from './cave.js?v=1.53.1';
+import { CHEST } from './crypt.js?v=1.53.1';
+import { ROOM_ENTRY } from './interior.js?v=1.53.1';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
   STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
-} from './world.js?v=1.53.0';
+} from './world.js?v=1.53.1';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);

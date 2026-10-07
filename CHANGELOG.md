@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.53.1 — 2026-10-07
+- Neige aux mollets : le viking laisse les mêmes pas que d'habitude, avec une ou deux mottes de neige soulevée autour (plus de trous carrés réguliers)
+- Neige jusqu'à la taille : il n'est plus enseveli (la neige ne ronge que le bas du corps, d'un pixel irrégulier) ; le sillon a deux lèvres serrées contre lui, celle de devant en morceaux
+
 ## 1.53.0 — 2026-10-07
 - Le cube blanc et le cube noir : sur chaque île, loin l'un de l'autre, les deux seules choses parfaitement droites du monde. Toucher le blanc (E) referme les blessures ; toucher le noir montre l'île d'en haut (la carte se découvre)
 - Sigrún, la sœur de Kári, est debout dans la glace sur le plateau. Approcher la torche la fait parler ; allumer sa torche à la sienne (E) fait fondre la glace

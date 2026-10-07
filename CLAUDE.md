@@ -181,10 +181,13 @@ glisse d'une fraction de pixel au rendu : sinon, une ligne claire s'ouvre).
 bruit sans `rng` : tassée, aux mollets, à la taille ; jamais sur la piste,
 en forêt ni chez les loups) ; `updateSnow` dans `game.js` : le viking
 s'enfonce de 1 ou 3 pixels seulement (`SNOW_SINK`, sprite et cape rognés par
-`setCrop`), une collerette de neige bosselée le cerne (`this.collar`, hasard
-`noise` accroché au monde : jamais de coupe droite), ralentit (`SNOW_SPEED`,
-80 % à la taille) et laisse un sillon aux lèvres irrégulières (écart qui
-ondule, trous, mottes) au lieu de pas. Carte du labo « Marche dans la neige
+`setCrop`), une collerette d'un pixel au plus, sur la ligne de la neige,
+ronge le bas du corps (`this.collar`, hasard `noise` accroché au monde :
+jamais de coupe droite, jamais enseveli), ralentit (`SNOW_SPEED`, 80 % à la
+taille). Aux mollets : les pas normaux, plus une ou deux mottes pâles autour
+(`leavePrint`). À la taille : un sillon au lieu de pas, deux lèvres serrées
+contre le corps (à un ou deux pixels), celle de devant en morceaux, des
+trous, une motte parfois. Carte du labo « Marche dans la neige
 profonde ». **Touche E** : `actionTarget` (coffre, bûcher, roi, barque vers
 SNO 4 et retour, parler aux gens), `act`, `onAction` → bouton `#act` (on
 peut aussi cliquer) ; parler dit ce que la personne veut (`veut` de chaque
