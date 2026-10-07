@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.51.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.52.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -723,11 +723,28 @@ export const PERSON = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
 
 // ── Ce qu'ils veulent : ce qu'un personnage dit quand on lui parle (touche E),
 // pour qu'on comprenne ce qu'il attend et ce qui pourrait arriver. `apres` :
-// ce qu'il dit une fois la chose faite (le jeu sait quand : `si`).
+// ce qu'il dit une fois la chose faite (le jeu sait quand : `si` ; une liste :
+// la dernière qui est vraie). `don` : la
+// relique qu'on peut lui donner (touche E, si elle pend à la ceinture), ce
+// qui se dit alors, et ce que ça fait (`effet`, game.js : `give`).
 const VEUT = {
-  tages: { lignes: ['Je dis ce qui vient. Rien de plus.', 'Va au bout des traces. Puis sous la roche, où le roi est assis.', 'Quand tu auras arraché ce qui est cloué, reviens me voir. Je serai plus jeune.'] },
-  kingvi: { lignes: ['Je veux ne pas mourir. Je veux que rien ne change.', 'Le clou est sous l\'arche, dans le mur des Rasna. Tu le sais, maintenant.', 'Si tu l\'arraches, je meurs. Et le jour revient. Choisis.'] },
-  freya: { lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Rends-moi une chose, et je te le rendrai.'] },
+  tages: {
+    lignes: ['Je dis ce qui vient. Rien de plus.', 'Sous mes pieds, il y a des marches. Une dalle les ferme, et le sceau d\'Aule la tient.', 'Le sceau dort dans un coffre, sous l\'eau, dans la petite Freya du lac. Apporte-le.'],
+    don: { relique: 'sceau', effet: 'temple', lignes: [['tages', 'Le sceau d\'Aule. Il fermait tout, celui-là.'], ['tages', 'Pousse la dalle. En bas, le mur des ans.'], ['tages', 'Le dernier clou est à l\'envers. Tu sais ce que tu fais ? Moi, oui.']] },
+    apres: [
+      { si: 'don-tages', lignes: ['La dalle est poussée. Descends.', 'Le clou est à l\'envers, à hauteur d\'homme. Tire, si tu veux. Ou laisse.'] },
+      { si: 'aube', lignes: ['Tu vois ? Plus jeune.', 'Maintenant, ça va vieillir, ici. Et toi aussi.'] },
+    ],
+  },
+  kingvi: {
+    lignes: ['Je veux ne pas mourir. Je veux que rien ne change.', 'Le clou est sous l\'arche, dans le mur des Rasna. Tu le sais, maintenant.', 'Si tu l\'arraches, je meurs. Et le jour revient. Choisis.'],
+    apres: { si: 'aube', lignes: ['Il fait jour, dehors ? Je le sens dans mes os.', 'Ce n\'est pas si terrible. Laisse-moi, maintenant.'] },
+  },
+  freya: {
+    lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Elle a pendu sa poupée à l\'arbre du bosquet.', 'Rapporte-la-moi, et je te garderai.'],
+    don: { relique: 'poupee', effet: 'garde', lignes: [['freya', 'La poupée de Hallveig. Elle avait tes yeux, enfant.'], ['freya', 'Je te garde, petit roi. Un coup de plus, et tu tiendras debout.']] },
+    apres: { si: 'don-freya', lignes: ['Va. Je regarde pour toi.'] },
+  },
   thorgrim: { lignes: ['Viens. Qu\'on en finisse.'] },
   legba: {
     lignes: ['Je tiens les barrières, petit. Celle-ci est ouverte.', 'Marche mon vèvè, là, à côté de mes mâts : je t\'ouvrirai les chemins de l\'île.'],
@@ -735,25 +752,44 @@ const VEUT = {
   },
   anaise: {
     lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton île.', 'Il y a trois vèvè dans la neige : Legba, Damballah, le Baron. Marche-les.'],
+    apres: { si: 'aube', lignes: ['Anisse est passée. Je l\'ai sentie partir. Merci.'] },
   },
   tijo: {
     lignes: ['Ma maman marche sur la banquise. Elle ne me voit pas.', 'Si tu la croises, donne-lui le sel. Le sel réveille.'],
     apres: { si: 'clotildeFree', lignes: ['Maman est rentrée ! Elle parle trop vite. C\'est bien.'] },
   },
-  kalfou: { lignes: ['Je garde les morts jusqu\'à ce que la route s\'ouvre.', 'Le clou de ton père bouche tout. Arrache-le, et je rouvrirai.', 'Ou paie-moi. Une nuit de ta vie.'] },
-  eyvind: { lignes: ['Arrache le clou, frère. Alors on pourra passer.', 'Et brûle mon corps, dans la maison, si ce n\'est pas fait. Je veux monter.'] },
+  kalfou: {
+    lignes: ['Je garde les morts jusqu\'à ce que la route s\'ouvre.', 'Le clou de ton père bouche tout. Arrache-le, et je rouvrirai.', 'Ou paie-moi. L\'anneau de celui que tu as tué : ça paie un passage.'],
+    don: { relique: 'viking', effet: 'passage', lignes: [['kalfou', 'L\'anneau d\'un mort, donné par son tueur. Bon prix.'], ['kalfou', 'Un passage. Pour qui ? Pour ton frère, je sais.'], ['eyvind', 'Merci, Kári. Je monte. Ne pleure pas, il fait trop froid.']] },
+    apres: [
+      { si: 'don-kalfou', lignes: ['Ton frère est passé. Pour les autres, la route reste bouchée.'] },
+      { si: 'aube', lignes: ['La route est ouverte. Ils passent tous, maintenant. Merci, petit roi.'] },
+    ],
+  },
+  eyvind: {
+    lignes: ['Arrache le clou, frère. Alors on pourra passer.', 'Ou paie Kalfou pour moi. Il aime les anneaux des morts.', 'Et brûle mon corps, dans la maison, si ce n\'est pas fait. Je veux monter.'],
+    apres: { si: 'aube', lignes: ['Le jour, chez nous. Je le vois d\'ici. Va, frère.'] },
+  },
   anisse: { lignes: ['Dis à Anaïse que j\'attends. Je n\'ai pas peur.', 'Il fait froid, ici. Mais on chante.'] },
   baron: {
     lignes: ['Je ne creuse plus, mon garçon. Personne ne meurt pour de bon.', 'Marche ma croix, au sud du cimetière. Je te ferai rire.'],
     apres: { si: 'veve-baron', lignes: ['Ha ! Tu ris bien, pour un viking.', 'Reviens quand ton papa sera mort. J\'aurai du travail, enfin.'] },
   },
-  brigitte: { lignes: ['Je garde les tombes. Il n\'y a rien à garder, en ce moment.', 'Quand le jour reviendra chez toi, il y aura du monde ici. Je serai prête.'] },
+  brigitte: {
+    lignes: ['Je garde les tombes. Il n\'y a rien à garder, en ce moment.', 'Quand le jour reviendra chez toi, il y aura du monde ici. Je serai prête.', 'Si tu as ce qui reste de ton compagnon, donne-le-moi. Il aura une tombe.'],
+    don: { relique: 'boucle', effet: 'tombe', lignes: [['brigitte', 'Une boucle, et de la cendre dedans. C\'est assez pour une tombe.'], ['brigitte', 'Je l\'enterre près de la croix. Le Baron dira les mots.'], ['baron', 'Il riait bien, celui-là ? Alors il dormira bien.']] },
+    apres: { si: 'don-brigitte', lignes: ['Ton compagnon dort. Je passe le voir chaque nuit.'] },
+  },
   lucien: { lignes: ['Je vends des bouteilles. Une âme au chaud, ça ne meurt jamais.', 'Tu veux garder quelqu\'un ? Ton frère, peut-être ? Il attend au carrefour.'] },
   clotilde: { lignes: ['… bwa … bwa …'] },
   damballah: {
     lignes: ['Ssss.', 'Sss… (le serpent regarde le dessin de cendre, sous l\'arbre)'],
     apres: { si: 'veve-damballah', lignes: ['Ssssss.'] },
   },
+};
+VEUT.hvit = {
+  lignes: ['(elle gronde, la patte prise dans un collet)'],
+  apres: { si: 'hvitFree', lignes: ['Mes petits sont là-haut, sur la roche. Ils te laisseront passer.', 'Ne lève pas la lame sur eux.'] },
 };
 for (const [id, v] of Object.entries(VEUT)) if (PERSON[id]) PERSON[id].veut = v;
 

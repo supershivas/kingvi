@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.51.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.51.0';
-import { TITLE_ART } from './title-art.js?v=1.51.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.51.0';
-import { showChapter } from './chapters.js?v=1.51.0';
-import { createTitleSea } from './titlesea.js?v=1.51.0';
-import { audio } from './audio.js?v=1.51.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.51.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.51.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.52.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.52.0';
+import { TITLE_ART } from './title-art.js?v=1.52.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.52.0';
+import { showChapter } from './chapters.js?v=1.52.0';
+import { createTitleSea } from './titlesea.js?v=1.52.0';
+import { audio } from './audio.js?v=1.52.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.52.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.52.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.51.0');
-const debug = DEBUG ? await import('./debug.js?v=1.51.0') : null;
+const { createGame } = await import('./game.js?v=1.52.0');
+const debug = DEBUG ? await import('./debug.js?v=1.52.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -69,7 +69,7 @@ function toast(text) {
 }
 
 // ── Jeu ──
-let irisBusy = false, irisRun = 0;     // (l'iris, plus bas)
+let irisBusy = false, irisRun = 0, ending = false;     // (l'iris, plus bas)
 const settings = $('settings'), inventory = $('inventory'), mapDialog = $('map');
 const game = createGame({
   parent: $('stage'),
@@ -77,7 +77,7 @@ const game = createGame({
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   // (et tant que le noir de l'iris n'est pas ouvert : rien ne se passe dans le noir)
-  isPaused: () => settings.open || inventory.open || mapDialog.open || !$('title').hidden || irisBusy,
+  isPaused: () => settings.open || inventory.open || mapDialog.open || !$('title').hidden || irisBusy || ending,
   quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
@@ -91,6 +91,9 @@ const game = createGame({
   // Mort : le noir se referme sur le corps, « Vous êtes mort », on se relève
   // près de la barque ; le noir ne se rouvre qu'une fois l'île prête autour
   onDeath: respawn => die(respawn),
+  // Une fin : quelques lignes sur le noir, puis « Fin », et l'on continue de
+  // jouer dans le monde changé (la fin vécue est gardée : `kingvi:fins`)
+  onEnding: id => playEnding(id),
   // Ce qu'on peut faire ici (touche E) : « E · Parler à Legba »
   onAction: label => {
     const el = $('act');
@@ -224,7 +227,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.51.0');
+  mapModule = mapModule || await import('./map.js?v=1.52.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -324,9 +327,29 @@ const PROLOGUE = [
   'Sur la grève, deux pistes s\'en vont dans la neige.',
 ];
 let freshGame = !DEBUG && save.x == null;
-function playPrologue() {
+// Les fins : ce qui se dit sur le noir quand on en vit une
+const ENDINGS = {
+  aube: [
+    'Le clou est sorti du mur. Sous la roche, un vieil homme a fermé les yeux.',
+    'Sur SNO 7, pour la première fois depuis dix-neuf hivers, le ciel a pâli à l\'est.',
+    'Le temps reprend. Ce qui devait vieillir vieillira. Ce qui devait mourir mourra.',
+  ],
+};
+async function playEnding(id) {
+  if (ending || !ENDINGS[id]) return;
+  ending = true;
+  try {
+    const fins = new Set(JSON.parse(localStorage.getItem('kingvi:fins') || '[]'));
+    fins.add(id);
+    localStorage.setItem('kingvi:fins', JSON.stringify([...fins]));
+  } catch { /* (stockage refusé : la fin reste vécue dans la partie) */ }
+  await playPrologue(ENDINGS[id]);
+  ending = false;
+  showChapter($('screen'), { id, label: 'Fin', title: id === 'aube' ? 'L\'aube' : id }, { hold: 4200 });
+}
+function playPrologue(text = PROLOGUE) {
   const el = $('prologue'), lines = [...el.querySelectorAll('p')];
-  lines.forEach((p, i) => { p.textContent = PROLOGUE[i]; p.classList.remove('in'); });
+  lines.forEach((p, i) => { p.textContent = text[i] || ''; p.classList.remove('in'); });
   el.classList.remove('out');
   el.hidden = false;
   return new Promise(resolve => {
@@ -342,7 +365,7 @@ function playPrologue() {
       setTimeout(() => { el.hidden = true; resolve(); }, 1200);
     };
     lines.forEach((p, i) => timers.push(setTimeout(() => p.classList.add('in'), 600 + i * 3400)));
-    timers.push(setTimeout(end, 600 + PROLOGUE.length * 3400 + 2200));
+    timers.push(setTimeout(end, 600 + text.length * 3400 + 2200));
     el.addEventListener('click', end, { once: true });
     window.addEventListener('keydown', end);
   });
@@ -703,6 +726,7 @@ $('export').addEventListener('click', async () => {
     exportedAt: new Date().toISOString(),
     save,
     prefs,
+    fins: (() => { try { return JSON.parse(localStorage.getItem('kingvi:fins') || '[]'); } catch { return []; } })(),
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');

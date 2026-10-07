@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.52.0 — 2026-10-07
+- Les loups ne sont plus le premier combat : ils attendent sur le plateau, en haut de la sente de la falaise. Ils grondent plus longtemps avant de bondir, attaquent moins souvent, et le premier abattu fait fuir les autres
+- Dans la forêt noire, à la sortie du noir, une louve blanche est prise dans un collet (chapitre V). La délier (E) change la suite : là-haut, ses petits tournent autour de Kári et s'en vont sans mordre, à moins qu'il ne lève la lame sur eux
+- Une première fin, l'Aube : Tages, sous l'arche, attend le sceau de la crypte. Donné, une dalle glisse, des marches descendent au temple de Nortia, au mur des clous. Arracher le dernier clou, planté à l'envers, rend le jour à l'île, pour toujours
+- Donner (E) : une relique qui pend à la ceinture peut aller à qui l'attend. Freya garde Kári (un coup de plus) contre la poupée de sa mère, Kalfou fait passer l'âme d'Eyvind contre l'anneau de l'autre, Maman Brigitte enterre la boucle du compagnon
+- Les personnages disent autre chose après l'Aube, ou une fois qu'on leur a donné ce qu'ils voulaient
 ## 1.51.0 — 2026-10-07
 - L'éclair est blanc
 - La neige n'est plus partout la même : par endroits on s'enfonce aux mollets, parfois jusqu'à la taille. On y avance moins vite (80 %), et l'on n'y laisse plus des pas mais un sillon

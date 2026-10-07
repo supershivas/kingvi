@@ -1,11 +1,15 @@
-/* La meute : dans la grande clairière du bosquet sacré, des loups sortent de
-   la forêt noire quand le viking y entre. Ils l'encerclent, grondent, et
-   bondissent l'un après l'autre pour mordre. Deux coups en abattent un ; s'il
-   s'enfuit loin (ou s'il tombe), les survivants retournent sous les arbres.
+/* La meute : sur le plateau, au-dessus de la falaise (v1.52.0 ; avant, à la
+   sortie de la forêt noire, et c'était le premier combat : trop dur). Les
+   loups sortent du côté du glacier quand le viking approche. Ils l'encerclent,
+   grondent longtemps, et bondissent l'un après l'autre pour mordre. Deux coups
+   en abattent un, et le premier tombé fait fuir les autres ; s'il s'enfuit
+   loin (ou s'il tombe), les survivants s'en retournent. Si l'on a délié la
+   louve blanche dans la forêt (`tame`), ils tournent, flairent, et s'en vont
+   sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.51.0';
-import { paintFrames } from './viking.js?v=1.51.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.52.0';
+import { paintFrames } from './viking.js?v=1.52.0';
 
 export const WOLF_HP = 2;
 const COUNT = 3;
@@ -15,9 +19,11 @@ const TROT = 30, GALLOP = 58, LUNGE = 125;
 // bond (on le voit venir), le temps entre deux attaques, la marge autour d'un
 // loup où la lame porte (il est petit), et combien d'entre eux doivent tomber
 // pour que les autres s'enfuient pour de bon
-const CROUCH = 1.0, LUNGE_GAP = { many: 2.8, few: 3.2, spread: 1.0 }, HIT = { x: 9, y: 6 }, ROUT = 2;
+const CROUCH = 1.5, LUNGE_GAP = { many: 3.8, few: 4.4, spread: 1.0 }, HIT = { x: 11, y: 7 }, ROUT = 1;
+// Épargné (la louve blanche) : combien de temps ils tournent avant de s'en aller
+const SPARE = 7;
 
-export function createPack(scene, palette, { den, radius, open = null, isLand, onBite, bleed, print = () => {}, dead = [] }) {
+export function createPack(scene, palette, { den, radius, open = null, isLand, onBite, bleed, print = () => {}, dead = [], tame = () => false, spared = false, onSpared = () => {} }) {
   // ── La planche ──
   const frames = [];
   for (const [key, anim] of Object.entries(WOLF_ANIMS)) anim.frames.forEach((g, i) => frames.push({ name: `${key}-${i}`, grid: g }));
@@ -49,7 +55,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
 
   // scent : on s'est enfui en saignant ; si l'on revient, ils sortent plus tôt,
   // sur la piste de sang, et poursuivent plus loin
-  const pack = { state: 'idle', wolves, lungeClock: 0, heard: false, scent: false };
+  const pack = { state: spared ? 'gone' : 'idle', wolves, lungeClock: 0, heard: false, scent: false, provoked: false, huntT: 0 };
 
   function play(w, key) {
     const k = `wolf-${key}`;
@@ -96,7 +102,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
     for (const w of alive()) { w.state = 'leave'; w.hp = WOLF_HP; w.sprite.setAlpha(1); }
   }
 
-  Object.defineProperty(pack, 'engaged', { get: () => pack.state === 'hunt' && alive().length > 0 });
+  Object.defineProperty(pack, 'engaged', { get: () => pack.state === 'hunt' && alive().length > 0 && !(tame() && !pack.provoked) });
   Object.defineProperty(pack, 'deadList', { get: () => wolves.filter(w => w.state === 'dead').map(w => ({ i: w.i, x: Math.round(w.pos.x), y: Math.round(w.pos.y), dir: w.dir })) });
 
   // Une pose du loup retouchée dans l'éditeur du labo, dans un autre onglet :
@@ -127,6 +133,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
         if (w.state === 'hidden' || w.state === 'leave') continue;
         if (Math.abs(x - w.pos.x) > HIT.x || Math.abs(y - (w.pos.y - 2)) > HIT.y) continue;
         if (probe) return w;
+        pack.provoked = true;
         w.hp--;
         bleed(w.pos.x, w.pos.y, 4);
         if (w.hp <= 0) {
@@ -145,7 +152,7 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
       return null;
     },
 
-    reset() { if (pack.state === 'hunt') scatter(); },
+    reset() { if (pack.state === 'hunt') { scatter(); pack.provoked = false; } },
 
     // Une image : chacun là où il est, entre les deux derniers pas
     render(alpha) {
@@ -169,9 +176,10 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
       const reach = pack.scent ? radius + 140 : radius * 0.8;
       if (pack.state === 'idle' && !away && dDen < reach && alive().length && !routed()) {
         pack.state = 'hunt';
+        pack.huntT = 0;
         pack.chase = pack.scent ? radius * 4 : radius * 2.6;
         pack.scent = false;
-        pack.lungeClock = 3;
+        pack.lungeClock = 4;
         scene.onPackSound('howl', { n: 2 });
         for (const w of alive()) {
           w.state = 'arrive'; w.timer = w.i * 0.35;
@@ -185,8 +193,18 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
         scatter();
       }
 
+      // Épargné : ils tournent, flairent, puis s'en vont pour de bon
+      if (pack.state === 'hunt' && tame() && !pack.provoked) {
+        pack.huntT += dt;
+        if (pack.huntT > SPARE) {
+          scatter();
+          pack.state = 'sparing';
+          scene.onPackSound('howl', { n: 1 });
+          onSpared();
+        }
+      }
       // Un seul bondit à la fois ; les autres tournent
-      if (pack.state === 'hunt') {
+      if (pack.state === 'hunt' && !(tame() && !pack.provoked)) {
         pack.lungeClock -= dt;
         const busy = wolves.some(w => w.state === 'crouch' || w.state === 'lunge');
         if (pack.lungeClock <= 0 && !busy) {
@@ -273,7 +291,33 @@ export function createPack(scene, palette, { den, radius, open = null, isLand, o
         }
       }
       if (pack.state === 'leaving' && alive().every(w => w.state === 'hidden')) pack.state = 'idle';
+      if (pack.state === 'sparing' && alive().every(w => w.state === 'hidden')) pack.state = 'gone';
       if (pack.state === 'hunt' && !alive().length) pack.state = 'done';
     },
   });
+}
+
+// La louve blanche, Hvít : les mêmes poses que les loups, mais blanche,
+// cernée d'un trait bleu nuit (planche `hvit`, animations `hvit-…`)
+export function makeWhiteWolf(scene, palette) {
+  const frames = [];
+  const whiten = g => g.map((row, y) => row.map((c, x) => {
+    const full = (i, j) => { const v = g[j]?.[i]; return !!v && v !== '.' && v !== 'h'; };
+    if (full(x, y)) return 's';
+    if (full(x - 1, y) || full(x + 1, y) || full(x, y - 1) || full(x, y + 1)) return 'b';
+    return c === 'h' ? 'h' : null;
+  }));
+  const anims = wolfAnims();
+  for (const [key, anim] of Object.entries(anims)) anim.frames.forEach((g, i) => frames.push({ name: `${key}-${i}`, grid: whiten(g.map(r => [...r])) }));
+  const sheet = document.createElement('canvas');
+  const painted = paintFrames(sheet, frames, WOLF_W, WOLF_H, palette);
+  const tex = scene.textures.addCanvas('hvit', sheet);
+  painted.forEach(f => tex.add(f.name, 0, f.x, 0, WOLF_W, WOLF_H));
+  for (const [key, anim] of Object.entries(anims)) {
+    scene.anims.create({
+      key: `hvit-${key}`, frameRate: anim.fps, repeat: key === 'hurle' ? 0 : -1,
+      frames: anim.frames.map((_, i) => ({ key: 'hvit', frame: `${key}-${i}` })),
+    });
+  }
+  return { ground: WOLF_GROUND, h: WOLF_H };
 }

@@ -4,37 +4,39 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.51.0';
+} from './viking.js?v=1.52.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
-} from './world.js?v=1.51.0';
-import { createPack } from './pack.js?v=1.51.0';
-import { createGround } from './ground.js?v=1.51.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.51.0';
-import { chapterById } from './chapters.js?v=1.51.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.51.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.51.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.51.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.51.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.51.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.51.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.51.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.51.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.51.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.51.0';
-import { createFauna } from './fauna.js?v=1.51.0';
-import { createWeather } from './weather.js?v=1.51.0';
-import { createTalk } from './dialogue.js?v=1.51.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.51.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.51.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.51.0';
-import { personSprite } from './people.js?v=1.51.0';
-import { createSea } from './sea.js?v=1.51.0';
-import { audio } from './audio.js?v=1.51.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.51.0';
+  GLADE, HVIT_AT, TEMPLE_DOOR_OUT,
+} from './world.js?v=1.52.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.52.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.52.0';
+import { createGround } from './ground.js?v=1.52.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.52.0';
+import { chapterById } from './chapters.js?v=1.52.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.52.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.52.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.52.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.52.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.52.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.52.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.52.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.52.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.52.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.52.0';
+import { createFauna } from './fauna.js?v=1.52.0';
+import { createWeather } from './weather.js?v=1.52.0';
+import { createTalk } from './dialogue.js?v=1.52.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.52.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.52.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.52.0';
+import { personSprite } from './people.js?v=1.52.0';
+import { createSea } from './sea.js?v=1.52.0';
+import { audio } from './audio.js?v=1.52.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.52.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -159,6 +161,13 @@ const INTERIORS = {
     walk: caveWalkable, atDoor: atCaveDoor, door: CAVE_DOOR_OUT, radius: 5, dark: true,
     exit: { x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 6 }, enterFacing: 'back',
   },
+  // Le temple de Nortia, sous l'arche (temple.js) : fermé par une dalle tant
+  // que Tages n'a pas le sceau d'Aule (`templeOpen`) ; toujours la nuit
+  temple: {
+    at: { x: 150, y: 150 }, key: 'temple', w: TEMPLE_W, h: TEMPLE_H, entry: TEMPLE_ENTRY,
+    walk: templeWalkable, atDoor: atTempleDoor, door: TEMPLE_DOOR_OUT, radius: 5, dark: true,
+    exit: { x: TEMPLE_DOOR_OUT.x, y: TEMPLE_DOOR_OUT.y + 9 }, enterFacing: 'back',
+  },
   // SNO 4, l'île Carrefour (sno4.js) : on y vient en barque depuis la grève,
   // pas par une porte (`voyage`) ; en plein air : la neige, le vent, la nuit
   sno4: {
@@ -185,7 +194,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
+export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -363,6 +372,13 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
 
       // ── Les reliques : trouvées (inventaire) ou tombées et pas encore ramassées ──
       this.relics = new Set(save.relics || []);
+      // Ce qu'on a donné (touche E) : personne → relique ; la relique quitte la ceinture
+      this.given = new Map(Object.entries(save.given || {}));
+      this.hvitFree = !!save.hvitFree;
+      this.wolvesSpared = !!save.wolvesSpared;
+      this.templeOpen = !!save.templeOpen;
+      this.aube = !!save.aube;
+      this.aubeAt = null;
       this.relicDrops = { ...(save.relicDrops || {}) };
       // Ce qu'on a trouvé pend à la ceinture (un crochet chacun ; on les déplace dans l'inventaire)
       this.belt = this.normalBelt(save.belt);
@@ -429,8 +445,9 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       this.art('fallen', CORPSE);
       const end = trail.at(-1);
       const post = nearestWalkable(Math.round(end.x + Math.cos(end.heading) * 18), Math.round(end.y + Math.sin(end.heading) * 18)) || { x: end.x, y: end.y };
-      this.hp = FOE_HP;
-      this.maxHp = FOE_HP;
+      // (Freya garde celui qui lui a rendu la poupée : un coup de plus)
+      this.maxHp = FOE_HP + (this.given?.has('freya') ? 1 : 0);
+      this.hp = this.maxHp;
       this.invuln = 0;
       this.stamina = 1;
       // Arbres abattus, rochers brisés : « x,y » → sens de la chute
@@ -446,11 +463,17 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         onStrike: (x, y, dir) => { audio.play('swing'); this.struckAt(x, y, dir); },
         bleed: (x, y, n) => this.bleed(x, y, n),
       });
-      // ── La meute, dans la grande clairière du bosquet ──
+      // ── La meute, sur le plateau au-dessus de la falaise ──
       this.wolfTracks();
       this.onPackSound = (name, opts) => audio.play(name, opts);
       this.pack = createPack(this, palette, {
-        den: WOLF_DEN, radius: WOLF_DEN.r, open: DEN_OPEN, isLand, dead: save.wolvesDead || [],
+        den: WOLF_DEN, radius: WOLF_DEN.r, open: DEN_OPEN,
+        // (ni la falaise, ni les rochers : ils ne descendent pas la paroi)
+        isLand: (x, y) => isLand(x, y) && !blocked(x, y),
+        // (ceux d'une ancienne partie, tombés dans la forêt, n'y sont plus)
+        dead: (save.wolvesDead || []).filter(d => Math.hypot(d.x - WOLF_DEN.x, d.y - WOLF_DEN.y) < WOLF_DEN.r * 3),
+        tame: () => this.hvitFree, spared: this.wolvesSpared,
+        onSpared: () => { this.wolvesSpared = true; this.persist(); },
         onBite: (x, y, dir) => { audio.play('bite'); this.hurt(dir); },
         bleed: (x, y, n) => this.bleed(x, y, n),
         print: (x, y) => this.wolfPrint(x, y),
@@ -500,6 +523,24 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       const tagesAt = nearestWalkable(ARCH.x + 18, ARCH.y + 22) || { x: ARCH.x + 18, y: ARCH.y + 22 };
       this.tages = { ...tagesAt, img: this.personImage('tages', tagesAt.x, tagesAt.y) };
 
+      // ── La louve blanche, prise dans un collet, dans la clairière à la sortie du noir ──
+      makeWhiteWolf(this, palette);
+      const hv = nearestWalkable(HVIT_AT.x, HVIT_AT.y) || HVIT_AT;
+      this.hvit = { x: hv.x, y: hv.y, state: this.hvitFree ? 'gone' : 'snared', t: 0 };
+      this.hvit.sprite = this.add.sprite(hv.x + 0.5, hv.y + 1, 'hvit', 'mort-0').setOrigin(0.5, 1).setDepth(hv.y).setVisible(!this.hvitFree);
+      this.hvitRope = this.add.graphics().setDepth(hv.y - 0.5).setVisible(!this.hvitFree);
+      // le collet : une corde tendue jusqu'à un piquet
+      this.hvitRope.fillStyle(hex(palette.b), 1);
+      for (let k = 0; k <= 6; k++) this.hvitRope.fillRect(hv.x - 3 - k, hv.y - 2 + Math.round(k * 0.3), 1, 1);
+      this.hvitRope.fillStyle(hex(palette.k), 1).fillRect(hv.x - 10, hv.y - 3, 1, 4);
+
+      // ── Le temple de Nortia : sous l'arche, une dalle, puis des marches ──
+      const T = TEMPLE_DOOR_OUT;
+      this.templeDoor = this.add.image(T.x + 0.5, T.y + 2, this.templeOpen ? 'temple-stairs' : 'temple-slab').setOrigin(0.5, 1).setDepth(DEPTH_MARKS + 1);
+      const TI = INTERIORS.temple.at;
+      this.nail = this.add.image(TI.x + NAIL.x + 0.5, TI.y + NAIL.y + 2, 'nail').setOrigin(0.5, 1).setDepth(DEPTH_ROOM + TI.y + 40).setVisible(false);
+      if (this.aube) { this.nail.setAlpha(0); weather.setPreset('bise'); }
+
       this.time.addEvent({ delay: 4000, loop: true, callback: () => this.persist() });
 
       // Jour et nuit : un voile bleu nuit (multiplié) et, à l'aube et au
@@ -527,7 +568,12 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
     }
 
     applyDaylight() {
-      const d = daylightAt(dayClock());
+      let d = daylightAt(dayClock());
+      // Le clou arraché : la nuit pâlit en une minute, une lueur d'aube, puis le jour
+      if (this.aube) {
+        const k = this.aubeAt == null ? 1 : Math.min(1, (this.clock - this.aubeAt) / 60000);
+        d = { ...d, night: d.night * (1 - k), dusk: Math.max(d.dusk * (1 - k), Math.sin(k * Math.PI) * 0.9) };
+      }
       this.daylight = d;
       this.tint.setAlpha(d.dusk * 0.08);
       sky.style.filter = d.night > 0.01 ? `brightness(${(1 - 0.5 * d.night).toFixed(2)})` : '';
@@ -624,6 +670,10 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       art('room', ROOM);
       art('crypt', CRYPT);
       art('cave', CAVE_ROOM);
+      art('temple', TEMPLE);
+      art('nail', NAIL_ART);
+      art('temple-slab', TEMPLE_SLAB);
+      art('temple-stairs', TEMPLE_STAIRS);
       for (const [k, rows] of Object.entries(THRONE_FRAMES)) art(`throne-${k}`, rows);
       for (const [k, rows] of Object.entries(CHEST_FRAMES)) art(`chest-${k}`, rows);
       for (const [k, rows] of Object.entries(ROWBOAT_FRAMES)) art(`rowboat-${k}`, rows);
@@ -1127,7 +1177,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
           const side = i % 2 ? 1 : -1;
           const x = Math.round(p0.x + (p1.x - p0.x) * t + nx * (w + side * 0.8));
           const y = Math.round(p0.y + (p1.y - p0.y) * t + ny * (w + side * 0.8));
-          if (r() < 0.12 || !isLand(x, y)) continue;         // effacée par le vent
+          if (r() < 0.12 || !isLand(x, y) || blocked(x, y) || y > D.y + 75) continue;   // effacée par le vent ; pas sur la paroi
           ground.decal(x, y, 1, 1, 'b', 0.7);
         }
       }
@@ -1280,7 +1330,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
 
     // Blessé, on saigne en marchant : des gouttes sur la neige
     drip(x, y, dt, hp) {
-      if (hp >= FOE_HP || Math.random() > dt * (FOE_HP - hp) * 2.2) return;
+      if (hp >= this.maxHp || Math.random() > dt * (this.maxHp - hp) * 2.2) return;
       this.mark(Math.round(x + (Math.random() - 0.5) * 4), Math.round(y + (Math.random() - 0.5) * 2), 1, 1, 300000, palette.r);
     }
 
@@ -1331,7 +1381,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
     respawn() {
       const cam = this.cameras.main;
       this.dead = false;
-      this.hp = FOE_HP;
+      this.hp = this.maxHp;
       this.player.setTexture('viking', 'side-idle').setOrigin(ORIGIN_X, ORIGIN_Y).setFlipX(false);
       this.cape.setVisible(true);
       this.foe.reset();
@@ -1343,7 +1393,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       if (this.inside) {
         const I = INTERIORS[this.inside];
         I.image.setVisible(false); I.black.setVisible(false); I.armed = false;
-        this.chest.setVisible(false); this.throne.setVisible(false);
+        this.chest.setVisible(false); this.throne.setVisible(false); this.nail.setVisible(false);
         this.inside = null;
       }
       this.pos = { ...this.spawn };
@@ -1387,7 +1437,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       this.invuln = Math.max(0, this.invuln - dt);
       this.torchOut = Math.max(0, (this.torchOut || 0) - dt);
       // Hors du combat, les blessures se referment peu à peu
-      if (this.hp < FOE_HP && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
+      if (this.hp < this.maxHp && !this.dead && !(this.foe.engaged && this.foe.alive) && !this.pack.engaged) {
         this.healClock = (this.healClock || 0) + dt;
         if (this.healClock > 25) { this.healClock = 0; this.hp++; }
       } else this.healClock = 0;
@@ -1506,6 +1556,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       this.swayClock = (this.swayClock || 0) - dt * 1000;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
+      this.updateHvit(dt);
       this.updateFire(dt, time);
       this.updateRelics();
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
@@ -1636,6 +1687,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       const seen = id => this.chapters.has(id);
       let id = null;
       if (this.inside === 'cave') id = 'roi';
+      else if (this.inside === 'temple') id = 'temple';
       else if (this.inside === 'sno4') id = 'carrefour';
       else if (this.inside) id = null;
       else if (!seen('greve') && this.calm > 2.5) id = 'greve';
@@ -1648,6 +1700,8 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       // (la falaise, après la rencontre au bout des traces)
       else if ((seen('autre') || !this.foe.alive) && x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) id = 'falaise';
       else if (near(HOUSE, 90)) id = 'maison';
+      else if (this.hvit.state === 'snared' && near(this.hvit, 80)) id = 'louve';
+      else if (Math.hypot(x - WOLF_DEN.x, y - WOLF_DEN.y) < WOLF_DEN.r + 30 && y < LEDGE.top.y + 6) id = 'loups';
       else if (deepForest(x, y) > 0.6) id = 'noire';
       else if (forestDensity(x, y) > 0.12) id = 'foret';
       else if (x > NECRO.x - 30 && x < NECRO.x + 260 && y > NECRO.y - 30 && y < NECRO.y + 200) id = 'morts';
@@ -1845,6 +1899,8 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
           if (I.byBoat) continue;
           // (la maison brûle, ou n'est plus qu'une ruine : on n'y entre plus)
           if (key === 'house' && this.fire != null) continue;
+          // (le temple : scellé tant que Tages n'a pas le sceau)
+          if (key === 'temple' && !this.templeOpen) continue;
           const d = Math.hypot(this.pos.x - I.door.x, this.pos.y - I.door.y);
           if (d > 12) I.armed = true;
           // On y entre en marchant vers la porte
@@ -1881,6 +1937,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         I.image.setVisible(true); I.black.setVisible(true);
         if (key === 'crypt') this.chest.setVisible(true);
         if (key === 'cave') this.throne.setVisible(true);
+        if (key === 'temple') this.nail.setVisible(true);
         this.facing = I.enterFacing; this.flip = false; this.player.setFlipX(false);
         this.player.setFrame(`${this.facing}-idle`);
       });
@@ -1895,6 +1952,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         I.image.setVisible(false); I.black.setVisible(false);
         this.chest.setVisible(false);
         this.throne.setVisible(false);
+        this.nail.setVisible(false);
         this.facing = 'front'; this.flip = false;
       });
     }
@@ -2019,11 +2077,11 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       const seen = new Set();
       const belt = Array.from({ length: BELT_SLOTS }, (_, i) => {
         const id = Array.isArray(saved) ? saved[i] : null;
-        if (!id || seen.has(id) || !relicById(id) || !this.relics.has(id)) return null;
+        if (!id || seen.has(id) || !relicById(id) || !this.relics.has(id) || this.isGiven(id)) return null;
         seen.add(id);
         return id;
       });
-      for (const id of this.relics) if (!seen.has(id) && relicById(id)) { const i = belt.indexOf(null); if (i >= 0) { belt[i] = id; seen.add(id); } }
+      for (const id of this.relics) if (!seen.has(id) && relicById(id) && !this.isGiven(id)) { const i = belt.indexOf(null); if (i >= 0) { belt[i] = id; seen.add(id); } }
       return belt;
     }
 
@@ -2060,6 +2118,13 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       const P = this.pos, d = o => Math.hypot(P.x - o.x, P.y - o.y);
       if (this.inside === 'crypt' && !this.chestOpen && this.nearChest()) return { label: 'Ouvrir le coffre', run: () => this.openChest() };
       if (this.inside === 'house' && this.fire == null && !this.foe.alive && this.nearBody()) return { label: 'Mettre le feu au bûcher', run: () => this.lightPyre() };
+      // Le clou à l'envers, au mur des ans
+      if (this.inside === 'temple' && !this.aube) {
+        const T = INTERIORS.temple.at;
+        if (nearNail(P.x - T.x, P.y - T.y)) return { label: 'Arracher le clou', run: () => this.pullNail() };
+      }
+      // La louve blanche, la patte prise
+      if (!this.inside && this.hvit.state === 'snared' && d(this.hvit) < 18 && !this.pack.engaged) return { label: 'Défaire le collet', run: () => this.freeHvit() };
       if (this.inside === 'cave' && this.nearKing()) return { label: 'Parler au roi', run: () => this.talkTo('kingvi', () => ({ x: INTERIORS.cave.at.x + THRONE.x, y: INTERIORS.cave.at.y + THRONE.y - 70 })) };
       // La barque : vers SNO 4, ou le retour
       if (this.inside === 'sno4') {
@@ -2074,7 +2139,7 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
       if (!this.inside && d(STATUE_BASE) < 90) people.push(['freya', { x: STATUE_BASE.x, y: STATUE_BASE.y }, 40, 90]);
       if (!this.inside && this.foe.alive && !this.foe.engaged) people.push(['thorgrim', this.foe.pos, 11]);
       if (this.inside === 'sno4' && this.sno4People) {
-        for (const [id, w] of Object.entries(this.sno4People)) people.push([id, w, id === 'kalfou' ? 24 : id === 'damballah' ? 5 : 11, id === 'kalfou' ? 34 : 24]);
+        for (const [id, w] of Object.entries(this.sno4People)) if (!(id === 'eyvind' && this.given.has('kalfou'))) people.push([id, w, id === 'kalfou' ? 24 : id === 'damballah' ? 5 : 11, id === 'kalfou' ? 34 : 24]);
         if (!this.clotildeFree) people.push(['clotilde', this.clotilde, 11]);
       }
       let best = null;
@@ -2082,8 +2147,96 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         const dist = d(at);
         if (dist < reach && (!best || dist < best.dist)) best = { id, at, up, dist };
       }
-      if (best) return { label: `Parler à ${speakerName(best.id)}`, run: () => this.talkTo(best.id, () => ({ x: best.at.x, y: best.at.y - best.up })) };
+      if (best) {
+        const head = () => ({ x: best.at.x, y: best.at.y - best.up });
+        // Une relique qu'il attend pend à la ceinture : on peut la lui donner
+        const don = PERSON[best.id]?.veut?.don;
+        if (don && !this.given.has(best.id) && this.belt.includes(don.relique)) {
+          const name = relicById(don.relique).name;
+          return { label: `Donner ${name[0].toLowerCase() + name.slice(1)}`, run: () => this.give(best.id, head) };
+        }
+        return { label: `Parler à ${speakerName(best.id)}`, run: () => this.talkTo(best.id, head) };
+      }
       return null;
+    }
+    isGiven(relic) { for (const r of this.given?.values() || []) if (r === relic) return true; return false; }
+    // Donner : la relique quitte la ceinture, il dit ce qu'il en fait, et ça agit
+    give(id, head) {
+      const don = PERSON[id].veut.don;
+      this.given.set(id, don.relique);
+      const slot = this.belt.indexOf(don.relique);
+      if (slot >= 0) this.belt[slot] = null;
+      const W = this.sno4People, at = who => who === id ? head : who === 'kari' ? () => this.heroHead() : W?.[who] ? () => ({ x: W[who].x, y: W[who].y - 11 }) : head;
+      this.talk.say(don.lignes.map(([who, text]) => ({ who, name: speakerName(who), text, at: at(who) })), { interrupt: true });
+      audio.play('presence');
+      if (don.effet === 'garde') {
+        // Freya : un point de vie de plus, pour toujours, et les blessures refermées
+        this.maxHp = FOE_HP + 1; this.hp = this.maxHp;
+      } else if (don.effet === 'temple') {
+        // Tages : la dalle glisse, les marches descendent dans le noir
+        this.time.delayedCall(2400, () => {
+          this.templeOpen = true;
+          audio.play('clang'); audio.play('snow');
+          this.jolt(0.003);
+          this.templeDoor.setTexture('temple-stairs');
+          this.persist();
+        });
+      } else if (don.effet === 'passage' && W?.eyvind) {
+        // Kalfou : l'âme d'Eyvind passe
+        this.time.delayedCall(7000, () => this.tweens.add({ targets: W.eyvind.img, alpha: 0, y: W.eyvind.img.y - 12, duration: 3000, onComplete: () => W.eyvind.img.setVisible(false) }));
+      }
+      this.persist();
+    }
+
+    // ── La louve blanche : on défait le collet, elle se relève, parle, et s'en va ──
+    freeHvit() {
+      const h = this.hvit;
+      if (h.state !== 'snared') return;
+      h.state = 'free'; h.t = 0;
+      this.hvitFree = true;
+      this.hvitRope.setVisible(false);
+      audio.play('wood');
+      h.sprite.play('hvit-hurle');
+      this.time.delayedCall(700, () => audio.play('howl', { n: 1 }));
+      const head = () => ({ x: h.x, y: h.y - 10 });
+      this.speak('hvit-libre', [['hvit', 'Tu m\'as déliée, petit d\'homme.', head], ['hvit', 'Là-haut, sur la roche, mes petits ont faim.', head], ['hvit', 'Ils te laisseront passer. Ne lève pas la lame sur eux.', head]], { interrupt: true });
+      this.persist();
+    }
+    updateHvit(dt) {
+      const h = this.hvit;
+      if (!h || h.state === 'gone') return;
+      h.t += dt;
+      if (h.state === 'snared') {
+        // Elle tire sur la corde, de temps en temps
+        const tug = Math.sin(h.t * 1.7) > 0.93;
+        h.sprite.setFrame(tug ? 'grogne-0' : 'mort-0').setFlipX(true);
+        if (tug && !h.tugged && Math.hypot(this.pos.x - h.x, this.pos.y - h.y) < 120) { h.tugged = true; audio.play('growl', { v: 0.4 }); }
+        if (!tug) h.tugged = false;
+        return;
+      }
+      // Libre : elle attend que les mots soient dits, puis file vers la forêt
+      if (h.t < 9) return;
+      if (h.sprite.anims.currentAnim?.key !== 'hvit-trot') h.sprite.play('hvit-trot');
+      h.x -= 26 * dt; h.y -= 6 * dt;
+      h.sprite.setFlipX(true).setPosition(Math.round(h.x) + 0.5, Math.round(h.y) + 1).setDepth(h.y);
+      if (h.t > 11) h.sprite.setAlpha(Math.max(0, 1 - (h.t - 11) / 2));
+      if (h.t > 13) { h.state = 'gone'; h.sprite.setVisible(false); }
+    }
+
+    // ── Le clou de Nortia : on l'arrache, le jour revient (la fin de l'Aube) ──
+    pullNail() {
+      if (this.aube) return;
+      this.aube = true;
+      this.aubeAt = this.clock;
+      audio.play('clang');
+      this.jolt(0.006);
+      this.tweens.add({ targets: this.nail, y: this.nail.y + 6, alpha: 0, duration: 900, ease: 'Quad.easeIn' });
+      this.time.delayedCall(900, () => audio.play('thunder', { near: 0.3 }));
+      const wall = () => ({ x: INTERIORS.temple.at.x + NAIL.x, y: INTERIORS.temple.at.y + NAIL.y - 4 });
+      this.speak('aube-clou', [['kari', 'Il vient.', () => this.heroHead()], ['nortia', 'Un. Clou. Arraché.', wall], ['nortia', 'Le. Fil. Reprend.', wall]], { interrupt: true });
+      weather.setPreset('bise');
+      this.persist();
+      this.time.delayedCall(6500, () => onEnding('aube'));
     }
     act() {
       const a = this.actionTarget();
@@ -2093,8 +2246,13 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
     talkTo(id, head) {
       const v = PERSON[id]?.veut;
       if (!v) return;
-      const done = { 'veve-legba': this.veveDone?.has('legba'), 'veve-baron': this.veveDone?.has('baron'), 'veve-damballah': this.veveDone?.has('damballah'), clotildeFree: this.clotildeFree };
-      const lines = v.apres && done[v.apres.si] ? v.apres.lignes : v.lignes;
+      const done = {
+        'veve-legba': this.veveDone?.has('legba'), 'veve-baron': this.veveDone?.has('baron'), 'veve-damballah': this.veveDone?.has('damballah'),
+        clotildeFree: this.clotildeFree, hvitFree: this.hvitFree, aube: this.aube,
+      };
+      for (const who of this.given.keys()) done[`don-${who}`] = true;
+      const after = [].concat(v.apres || []).filter(a => done[a.si]).at(-1);
+      const lines = after ? after.lignes : v.lignes;
       this.talk.say(lines.map(text => ({ who: id, name: speakerName(id), text, at: head })), { interrupt: true });
     }
     // Annoncer ce qu'on peut faire (main.js l'affiche : « E · Parler à Legba »)
@@ -2170,6 +2328,8 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         lucien: who('lucien', -6, 4, 'bouteilles'),
         damballah: who('damballah', -18, -4, 'mapou'),
       };
+      // (son âme est passée : Kalfou a eu l'anneau)
+      if (this.given.has('kalfou')) this.sno4People.eyvind.img.setVisible(false);
       // Les âmes qui attendent au carrefour
       this.souls = SNO4_SOULS.map((p, i) => {
         const img = this.personImage(p.k ? 'hjalti' : 'ame', A.x + p.x, A.y + p.y, { soul: true, alpha: 0.4, flip: p.f });
@@ -2378,6 +2538,8 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         // Le grand navire de pierres : Hrólf se redresse
         const ship = { x: NECRO.x + NECRO_W / 2, y: NECRO.y + NECRO_H / 2 };
         if (P.x > NECRO.x - 40 && P.x < NECRO.x + NECRO_W + 40 && P.y > NECRO.y - 30 && P.y < NECRO.y + NECRO_H + 80) this.speak('draugr', this.sceneLines('draugr', [0, 1, 2, 3, 4, 5], w => w === 'kari' ? hero : fixed(ship.x, ship.y - 10)));
+        // La louve blanche, prise dans un collet
+        if (this.hvit.state === 'snared' && near(this.hvit, 60)) this.speak('hvit-collet', [['kari', 'Une louve. Blanche.', hero], ['kari', 'La patte prise dans un collet.', hero]]);
         // Tages, sous l'arche
         if (near(this.tages, 64)) this.speak('tages', this.sceneLines('tages', [0, 1], () => fixed(this.tages.x, this.tages.y - 9)).concat([
           ['tages', 'Une qui pend à un arbre.', fixed(this.tages.x, this.tages.y - 9)],
@@ -3054,6 +3216,8 @@ export function createGame({ onAction = () => {}, onVoyage = (to, done) => done(
         steps: this.stepCount, distance: Math.round(this.distance),
         foeDead: this.foe ? !this.foe.alive : false,
         wolvesDead: this.pack ? this.pack.deadList : [],
+        hvitFree: this.hvitFree, wolvesSpared: this.wolvesSpared, templeOpen: this.templeOpen, aube: this.aube,
+        given: Object.fromEntries(this.given),
       });
     }
 

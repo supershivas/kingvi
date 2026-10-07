@@ -63,14 +63,17 @@ souffle (sauf aux combats).
 | II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après Lindholm Høje), quelques arbres, une volée de corbeaux qui s'envole | Un lieu de sépulture ancien |
 | — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire (on monte dessus, les piliers bloquent) ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
 | III | La forêt | La forêt s'épaissit ; une statue géante de Freya ensevelie, penchée, brisée | Des dieux tombés |
-| IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, les loups). Longue à traverser | L'oppression, la perte de repères |
-| V | Les loups | À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes. À la sortie du noir, une grande clairière ouverte sur la plaine : une meute de trois loups en sort quand on y entre (hurlement au loin avant) | Le danger, le sacré |
+| IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, la grande clairière). Longue à traverser. À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes | L'oppression, la perte de repères |
+| V | La louve blanche | À la sortie du noir, dans la grande clairière, une louve blanche prise dans un collet. On peut la délier (E) : elle parle de ses petits, sur la roche, et s'en va. Pas de combat dans la forêt (Jérôme, v1.52.0 : les loups étaient trop durs pour un premier combat) | La pitié, une dette |
 | — | (le guetteur) | Plus loin, une grande silhouette encapuchonnée qui s'efface quand on approche ; ses pas s'arrêtent net | Une présence, sans explication |
 | VI | La maison | Une grande Freya debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
 | VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |
 | VIII | L'incendie | L'autre mort, on revient à la maison et on met le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; une ruine qui fume, la boucle du compagnon dans les cendres | Le bûcher, le deuil |
 | IX | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte ; une sente en lacets dans la face, des pierres qui tombent (un filet de neige les annonce) | L'ascension, au-delà du récit des traces |
-| X | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
+| X | Les loups | Sur le plateau, en haut de la sente : une meute de trois loups (hurlement au loin avant). Ils grondent longtemps avant de bondir ; le premier abattu fait fuir les autres. Si l'on a délié la louve, ils tournent et s'en vont sans mordre | Le danger, ou la dette payée |
+| XI | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
+| XII | Le mur des ans | Tages, sous l'arche, attend le sceau de la crypte ; donné, la dalle glisse. En bas, le temple de Nortia : un mur hérissé de clous, le dernier à l'envers, rouge. On peut l'arracher (E) | Le choix |
+| Fin | L'aube | Le clou arraché : trois lignes sur le noir, puis la nuit pâlit et le jour revient, pour toujours, sur l'île ; on continue de marcher dans le jour. Les autres le disent quand on leur parle | Le temps qui reprend |
 | Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
@@ -95,7 +98,10 @@ la piste tassée.
 ### La touche d'action (E)
 Près de ce qui peut se faire (coffre, bûcher, roi, barque) ou de quelqu'un,
 un petit cadre dit quoi ; E (ou un clic sur ce cadre) le fait. Parler dit ce
-que la personne veut, et autre chose une fois qu'on l'a fait.
+que la personne veut, et autre chose une fois qu'on l'a fait. Si l'on porte
+ce qu'elle attend, E le lui donne : Freya garde (un point de vie de plus),
+Tages ouvre le temple, Kalfou fait passer Eyvind, Brigitte enterre le
+compagnon. Donner est une autre façon d'avancer que frapper.
 
 ### Le jour et la nuit
 Par défaut, la nuit, toujours (« Toujours la nuit » dans les Réglages).

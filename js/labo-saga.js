@@ -5,10 +5,10 @@
    pixels du jeu. */
 import {
   BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName, WORLDS, worldOf,
-} from './saga.js?v=1.51.0';
-import { personSprite } from './people.js?v=1.51.0';
-import { brokenBox } from './dialogue.js?v=1.51.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.51.0';
+} from './saga.js?v=1.52.0';
+import { personSprite } from './people.js?v=1.52.0';
+import { brokenBox } from './dialogue.js?v=1.52.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.52.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {
@@ -166,7 +166,12 @@ function openFiche(id) {
     box.append(el('h4', null, 'Ce qu\'il veut (touche E, dans le jeu)'));
     const q = el('div', 'saga-quotes');
     p.veut.lignes.forEach(l => q.append(el('blockquote', null, `« ${l} »`)));
-    if (p.veut.apres) p.veut.apres.lignes.forEach(l => q.append(el('blockquote', null, `Après : « ${l} »`)));
+    if (p.veut.don) {
+      const NOMS = { sceau: 'le sceau de la crypte', poupee: 'la poupée de paille', viking: 'l\'anneau de l\'autre', boucle: 'la boucle du compagnon', rubis: 'le rubis du roi', medaillon: 'le médaillon', loup: 'la dent du loup' };
+      q.append(el('p', null, `Si on lui donne ${NOMS[p.veut.don.relique] || p.veut.don.relique} (touche E) :`));
+      p.veut.don.lignes.forEach(([who, l]) => q.append(el('blockquote', null, `${who} : « ${l} »`)));
+    }
+    if (p.veut.apres) [].concat(p.veut.apres).forEach(a => a.lignes.forEach(l => q.append(el('blockquote', null, `Après (${a.si}) : « ${l} »`))));
     box.append(q);
   }
   const lines = p.lignes?.length ? p.lignes : [];

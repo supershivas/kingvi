@@ -55,16 +55,12 @@ brisée, puis la forêt noire, longue à traverser (si dense que le sol est
 noir ; la sente y file sans trop serpenter, se resserre ; trois clairières
 seulement : une vide au premier quart ; au milieu, le bosquet sacré, un grand
 arbre mort (~7 fois le viking) chargé d'offrandes qui tournent au vent, et
-juste après lui le guetteur ; à la sortie du noir, la grande clairière des
-loups, ouverte vers la plaine (`DEN_OPEN` : les repaires sont du côté de la
-forêt) : une meute de trois loups qui sort de la forêt
-quand on y entre (galop en quatre temps, avec un temps pattes rassemblées ;
-des pas d'un pixel, pâles, dans la neige : `wolfPrint` ; hurlement au loin avant ; ils encerclent, grondent, bondissent
-l'un après l'autre pour mordre ; deux coups en abattent un ; quand deux sont
-tombés, les autres s'enfuient et ne reviennent plus ; leurs pistes errent
-autour de la clairière ; si l'on s'enfuit en saignant, ils suivent le sang :
-au retour, ils sortent plus tôt et poursuivent plus loin, `pack.scent` ; le
-guetteur : grande silhouette
+juste après lui le guetteur ; à la sortie du noir, la grande clairière
+(`GLADE`, ouverte vers la plaine) : **la louve blanche**, Hvít, prise dans un
+collet (`HVIT_AT`, `this.hvit`, `updateHvit` ; les poses du loup en blanc
+cerné de bleu nuit, `makeWhiteWolf` dans `pack.js`) ; E « Défaire le
+collet » (`freeHvit`, `hvitFree`) : elle parle, hurle et rentre sous les
+arbres ; le guetteur : grande silhouette
 encapuchonnée qui s'efface quand on approche, jamais pendant un combat, ses pas s'arrêtant net), une grande
 Freya debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
 Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
@@ -94,7 +90,17 @@ haut (`LEDGE.top`) ; dessus, on ne fait qu'avancer ou reculer (`climb`,
 pierres tombent du rebord, annoncées par un filet de neige (`updateRockfall`).
 En haut, un plateau (le **megamoth**, `js/moth.js`, est retiré pour le moment :
 `MOTH_ENABLED = false` dans `game.js`, une bête absente `NO_MOTH` à sa place ;
-code gardé, comme les cerfs). Et l'entrée d'une grotte : on y entre (il y fait toujours
+code gardé, comme les cerfs). Sur le plateau, **la meute** (v1.52.0 : plus
+dans la forêt, ce n'était plus un premier combat ; `WOLF_DEN` près de
+`MOTH_LAIR`, `DEN_OPEN` le sud : ils sortent du côté du glacier, jamais du
+bord ; ils ne passent ni la paroi ni les rochers) : trois loups qui sortent
+quand on approche (galop en quatre temps ; des pas d'un pixel, pâles :
+`wolfPrint` ; hurlement au loin avant) ; ils encerclent, grondent 1,5 s,
+bondissent l'un après l'autre toutes les 4 s environ ; deux coups en abattent
+un, et le premier tombé fait fuir les autres pour de bon (`ROUT` = 1) ; si
+l'on s'enfuit en saignant, ils suivent le sang (`pack.scent`). Si la louve a
+été déliée (`tame`), ils tournent sept secondes sans mordre et s'en vont
+(`wolvesSpared`), à moins qu'on frappe l'un d'eux (`provoked`). Et l'entrée d'une grotte : on y entre (il y fait toujours
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
 ossements, et au fond, dans une grande salle, un roi squelette immense sur son
 trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et sa
@@ -103,6 +109,24 @@ Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Freya plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
+**L'Aube** (v1.52.0, la première fin) : sous l'arche, entre ses piliers, une
+dalle (`TEMPLE_DOOR_OUT`, image `temple-slab`) que Tages fait glisser quand
+on lui donne le sceau de la crypte ; des marches (`temple-stairs`) descendent
+au **temple de Nortia** (`js/temple.js`, intérieur `temple`, toujours la
+nuit) : le mur des ans hérissé de clous, le dernier à l'envers, rouge
+(`NAIL`, image `nail`). E « Arracher le clou » (`pullNail`) : Nortia parle, le
+vent tombe en bise, la nuit pâlit en une minute avec une lueur d'aube, puis
+le jour pour toujours (`aube` dans la sauvegarde, `applyDaylight`) ;
+`onEnding('aube')` → `playEnding` dans `main.js` : trois lignes sur le noir
+(`ENDINGS`, même écran que le prologue), puis « Fin · L'aube », et l'on
+continue de jouer ; les fins vécues sont gardées dans `kingvi:fins` (et
+l'export). **Donner** (touche E) : `veut.don` dans `saga.js` (relique, lignes,
+effet) ; si elle pend à la ceinture, « Donner … » remplace « Parler »
+(`give`, `given` dans la sauvegarde : la relique quitte la ceinture, `isGiven`).
+Freya ← la poupée : un point de vie de plus (`maxHp`) ; Tages ← le sceau : le
+temple ; Kalfou ← l'anneau de l'autre : l'âme d'Eyvind passe ; Brigitte ← la
+boucle : une tombe. `apres` peut être une liste (la dernière vraie : `aube`,
+`don-<id>`, `hvitFree`…).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
 par vie (`chapters` dans la sauvegarde, vidé à la mort ; La grève 2,5 s de
 jeu après l'ouverture du noir, `calm`) : « Chapitre I » en petit, le nom
@@ -110,11 +134,12 @@ en grand dans la gothique du titre, sobre : rien que le texte clair, cerné
 d'une ombre bleu nuit discrète (lisible sur la neige comme sur la mer), qui
 apparaît et s'efface en fondu, sans fond ni mouvement (`CHAPTER_STYLE`
 `sobre`). I La grève, II La plaine
-des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
-VI La maison, VII L'autre (il vient au contact),
+des morts, III La forêt, IV La forêt noire, V La louve blanche (près du
+collet), VI La maison, VII L'autre (il vient au contact),
 VIII L'incendie (le feu pris, près de la maison), IX La falaise (sur la
-sente, ou près de la falaise après lui), X Le roi sous la roche (dans la
-grotte) ; Interlude, Le lac (en barque).
+sente, ou près de la falaise après lui), X Les loups (sur le plateau), XI Le
+roi sous la roche (dans la grotte), XII Le mur des ans (dans le temple) ;
+Fin, L'aube ; Interlude, Le lac (en barque).
 Hors des combats, la musique se tait un instant (`checkChapters` dans
 `game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
 **La parole** (les personnages parlent, Jérôme, v1.46.0 ; phylactère B
@@ -238,7 +263,8 @@ est cachée et ne sort que pendant l'attaque.
 - Données : `localStorage` uniquement (`kingvi:island` : le numéro de l'île de la partie, tiré à « Nouveau jeu » ; `kingvi:save` : position, orientation,
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
-  `wolvesDead` (loups tués, là où ils sont tombés), `fire` (l'incendie),
+  `wolvesDead` (loups tués, là où ils sont tombés ; ceux d'avant v1.52.0, dans la forêt, sont oubliés), `fire` (l'incendie),
+  `hvitFree`, `wolvesSpared`, `templeOpen`, `aube`, `given` (personne → relique donnée),
   `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
   `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `salt`, `clotildeFree`, `seen4`, `veve` (SNO 4), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
@@ -494,6 +520,9 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   agrandie d'un facteur entier ; on y déplace les reliques par glisser-déposer
   ou clic puis clic, `game.belt()`, `game.moveRelic(de, vers)` ; pause pendant
   qu'il est ouvert), `onRelic` → un toast.
+- `js/temple.js` — le temple de Nortia (`TEMPLE`, `NAIL`, `NAIL_ART`,
+  `TEMPLE_SLAB`, `TEMPLE_STAIRS`, `templeWalkable`, `atTempleDoor`,
+  `nearNail`) ; posé à `{ x: 150, y: 150 }` en mer.
 - `js/fire.js` — l'incendie : `FIRE` (les temps), flammes `FIRE_FRAMES`,
   `HOUSE_BURNING`, `HOUSE_RUIN` (générés d'après la maison), où poser les
   flammes (`ROOF_FLAMES`, `RUIN_FLAMES`, `ROOM_FLAMES`), le bûcher (`PYRE`,

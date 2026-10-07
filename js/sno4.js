@@ -9,8 +9,8 @@
    Rien de géométrique : tout est tordu par le bruit.
    Couleurs : s neige, b bleu nuit, r le rouge (la forge). */
 
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.51.0';
-import { makeGroveTree } from './grove.js?v=1.51.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.52.0';
+import { makeGroveTree } from './grove.js?v=1.52.0';
 
 export const SNO4_W = 960;
 export const SNO4_H = 600;

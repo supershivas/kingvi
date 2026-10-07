@@ -7,18 +7,18 @@
    setTime(phase), setWeather(ambiance), eclair(près), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.51.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.51.0';
-import { chapterById } from './chapters.js?v=1.51.0';
-import { audio } from './audio.js?v=1.51.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.51.0';
-import { CHEST } from './crypt.js?v=1.51.0';
-import { ROOM_ENTRY } from './interior.js?v=1.51.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.52.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.52.0';
+import { chapterById } from './chapters.js?v=1.52.0';
+import { audio } from './audio.js?v=1.52.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.52.0';
+import { CHEST } from './crypt.js?v=1.52.0';
+import { ROOM_ENTRY } from './interior.js?v=1.52.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
-  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
-} from './world.js?v=1.51.0';
+  STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GLADE, HVIT_AT, TEMPLE_DOOR_OUT, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
+} from './world.js?v=1.52.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -51,9 +51,9 @@ function setSeed(n) {
 }
 if (params.has('seed')) setSeed(Number(params.get('seed')));
 
-const INSIDE_NAMES = { house: 'maison', crypt: 'crypte', cave: 'grotte' };
+const INSIDE_NAMES = { house: 'maison', crypt: 'crypte', cave: 'grotte', temple: 'temple' };
 // Où sont posées les pièces, loin en mer (game.js, INTERIORS)
-const ROOMS = { house: { x: 700, y: 700 }, crypt: { x: 400, y: 400 }, cave: { x: 300, y: 1000 } };
+const ROOMS = { house: { x: 700, y: 700 }, crypt: { x: 400, y: 400 }, cave: { x: 300, y: 1000 }, temple: { x: 150, y: 150 } };
 const t0 = performance.now();
 
 export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
@@ -69,7 +69,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
     if (x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) return 'falaise';
     if (Math.hypot(x - end.x, y - end.y) < 160) return 'autre';
     if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 90) return 'maison';
-    if (Math.hypot(x - WOLF_DEN.x, y - WOLF_DEN.y) < WOLF_DEN.r + 20) return 'bosquet';
+    if (Math.hypot(x - GLADE.x, y - GLADE.y) < GLADE.r + 20) return 'clairiere';
     if (((x - LAKE.x) / (LAKE.rx + 50)) ** 2 + ((y - LAKE.y) / (LAKE.ry + 50)) ** 2 < 1) return 'lac';
     if (deepForest(x, y) > 0.6) return 'noire';
     if (forestDensity(x, y) > 0.12) return 'foret';
@@ -138,7 +138,10 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
     'freya-ensevelie': () => before(STATUE_BASE, 70),
     'foret-noire': () => firstOnTrail((x, y) => deepForest(x, y) > 0.6),
     arbre: () => before(GROVE_TREE, 120),
-    bosquet: () => before(WOLF_DEN, WOLF_DEN.r + 170),
+    bosquet: () => before(GLADE, GLADE.r + 170),
+    louve: () => nearFree({ x: HVIT_AT.x + 12, y: HVIT_AT.y + 4 }),
+    loups: () => nearFree({ x: LEDGE.top.x, y: LEDGE.top.y - 6 }),
+    temple: () => nearFree({ x: TEMPLE_DOOR_OUT.x, y: TEMPLE_DOOR_OUT.y + 14 }),
     guetteur: () => before(WATCHER_AT, 110),
     'freya-debout': () => before(STATUE2_BASE, 70),
     maison: () => before(HOUSE_DOOR_OUT, 50),

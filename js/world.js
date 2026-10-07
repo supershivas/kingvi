@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.51.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.51.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.51.0';
-import { makeGroveTree } from './grove.js?v=1.51.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.51.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.52.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.52.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.52.0';
+import { makeGroveTree } from './grove.js?v=1.52.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.52.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -468,21 +468,27 @@ export const GROVE_TREE = off(GROVE_AT, 26);
 export const GROVE_HOOKS = GROVE_ART.hooks.map(h => ({ x: GROVE_TREE.x - GROVE_ART.ax + h.x, y: GROVE_TREE.y - GROVE_ART.rows.length + 1 + h.y }));
 export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 4)], -34);
 const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 4 }];
-// La meute : au sortir du noir, la sente la traverse, et la clairière
-// s'ouvre vers l'est sur la forêt claire puis la plaine
+// À la sortie du noir, la grande clairière, ouverte vers l'est sur la forêt
+// claire puis la plaine : la louve blanche y est prise dans un collet
 const DEN_AT = trail[Math.min(trail.length - 1, (DEEP.at(-1)?.i ?? GROVE_AT.i + 60) + 2)];
-export const WOLF_DEN = { ...off(DEN_AT, 4), r: 100 };
+export const GLADE = { ...off(DEN_AT, 4), r: 100 };
+export const HVIT_AT = off(trail[Math.min(trail.length - 1, DEN_AT.i + 3)], 24);
 const DEN_MOUTH = trail[Math.min(trail.length - 1, DEN_AT.i + 12)];
 CLEARINGS.push(
   { x: EMPTY_AT.x, y: EMPTY_AT.y - 6, r: 34, seed: 7 },
   // (l'arbre se détache sur la neige jusqu'à la cime)
   { ...off(GROVE_AT, 12), r: 60, seed: 17 },
   { x: GROVE_TREE.x, y: GROVE_TREE.y - 34, r: 46, seed: 23 },
-  { x: WOLF_DEN.x, y: WOLF_DEN.y, r: WOLF_DEN.r, seed: 13 },
+  { x: GLADE.x, y: GLADE.y, r: GLADE.r, seed: 13 },
   { x: DEN_MOUTH.x, y: DEN_MOUTH.y, r: 72, seed: 29 },
 );
-// Le côté ouvert de la clairière des loups (vers la plaine) : ils n'en sortent pas
-export const DEN_OPEN = Math.atan2(DEN_MOUTH.y - WOLF_DEN.y, DEN_MOUTH.x - WOLF_DEN.x);
+// La meute : sur le plateau, au-dessus de la falaise (v1.52.0 : plus dans la
+// forêt, ce n'est plus le premier combat). Ils sortent du côté de la mer et
+// du glacier, jamais du bord de la falaise (`DEN_OPEN` : le sud)
+export const WOLF_DEN = { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 12, r: 90 };
+export const DEN_OPEN = Math.PI / 2;
+// Le temple de Nortia : des marches sous l'arche, entre ses piliers
+export const TEMPLE_DOOR_OUT = { x: ARCH.x + 7, y: ARCH.y - 5 };
 
 const trailByChunk = new Map();
 for (const p of trail) {
@@ -702,7 +708,7 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
           const o = corridor[y * CHUNK + x] * 1.35 + (n - 0.75) * 0.9;
           lane = o > 0.72 ? 2 : o > 0.45 ? 1 : 0;
           // Aiguilles tombées (rares dans la grande clairière : on y voit les loups)
-          if (lane === 2 && hash(wx, wy, 61) < 0.05 && (hash(wx, wy, 62) < 0.2 || Math.hypot(wx - WOLF_DEN.x, wy - WOLF_DEN.y) > WOLF_DEN.r * 0.85)) lane = 0;
+          if (lane === 2 && hash(wx, wy, 61) < 0.05 && (hash(wx, wy, 62) < 0.2 || Math.hypot(wx - GLADE.x, wy - GLADE.y) > GLADE.r * 0.85)) lane = 0;
         }
         if (deep && lane < 2) {
           const k = deep[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)] * (lane ? 0.45 : 1);
@@ -892,6 +898,7 @@ export function snowDepth(x, y) {
   const n = fbm(x / 380, y / 380, 977, 3) + 0.3 * fbm(x / 70, y / 70, 983, 2);
   if (n < 0.1) return 0;
   if (deepForest(x, y) > 0 || forestDensity(x, y) > 0.25) return 0;
+  if (Math.hypot(x - WOLF_DEN.x, y - WOLF_DEN.y) < WOLF_DEN.r + 40) return 0;   // (le combat des loups)
   if (nearTrail(x, y, 8) || Math.hypot(x - HOUSE.x, y - HOUSE.y) < 70) return n > 0.16 ? 1 : 0;
   return n > 0.19 ? 2 : 1;
 }
