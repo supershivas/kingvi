@@ -181,7 +181,10 @@ main sur l'étrave » (`takePassage`, `passage` dans la sauvegarde) ; ensuite,
 sur la carte, un clic sur un lieu vu (ou son nom) y mène (`renderMap` rend
 `places`, `game.canTravel()`, `game.travel(x, y)` : point praticable le plus
 proche, fondu de `teleport`) ; ni en combat, ni dedans, ni en barque, ni sur
-la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ».
+la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ». L'indice (v1.63.2) :
+la nuit, l'étrave luit à peine (`updateNight`, tant que `passage` est faux) ;
+à 70 px, une fois, Kári la remarque (`HINTS.passage` dans `story.js`, scène
+`indice-passage`, réécrivable dans l'atelier).
 **Ce qui s'ajoute aux dessins** (v1.62.0, `assets/design/extras.json` puis
 `kingvi:design-extras`) : `pads` (le canevas agrandi par les « + » des quatre
 bords de l'éditeur, Maj : 8 pixels ; `growDesign` ; le jeu accepte la taille

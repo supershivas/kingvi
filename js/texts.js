@@ -4,11 +4,11 @@
    story.js) : `applyTexts` y écrit les textes réécrits, sur place, après avoir
    remis ceux du code. main.js l'appelle avant de charger le jeu, et de
    nouveau quand l'atelier, dans un autre onglet, change un texte. */
-import { DESCRIPTIONS } from './describe.js?v=1.63.1';
-import { PEOPLE, SCENARIOS, speakerName } from './saga.js?v=1.63.1';
-import { RELICS } from './relics.js?v=1.63.1';
-import { CHAPTERS } from './chapters.js?v=1.63.1';
-import { PROLOGUE, ENDINGS } from './story.js?v=1.63.1';
+import { DESCRIPTIONS } from './describe.js?v=1.63.2';
+import { PEOPLE, SCENARIOS, speakerName } from './saga.js?v=1.63.2';
+import { RELICS } from './relics.js?v=1.63.2';
+import { CHAPTERS } from './chapters.js?v=1.63.2';
+import { PROLOGUE, ENDINGS, HINTS } from './story.js?v=1.63.2';
 
 // Une entrée : { key, group, section, label, who, get, set } ; `original` : le texte du code
 function build() {
@@ -17,6 +17,7 @@ function build() {
 
   PROLOGUE.forEach((_, i) => add('recit', 'Le prologue', `prologue.${i}`, `Ligne ${i + 1}`, PROLOGUE, i));
   for (const [id, lines] of Object.entries(ENDINGS)) lines.forEach((_, i) => add('recit', `La fin : ${id}`, `ending.${id}.${i}`, `Ligne ${i + 1}`, lines, i));
+  for (const [id, lines] of Object.entries(HINTS)) lines.forEach((_, i) => add('recit', `Les indices : ${id === 'passage' ? 'le pas des morts' : id}`, `hint.${id}.${i}`, `Kári, ${i + 1}`, lines, i, 'kari'));
   for (const c of CHAPTERS) add('recit', 'Les chapitres', `chapter.${c.id}`, c.label, c, 'title');
 
   for (const [kind, d] of Object.entries(DESCRIPTIONS)) {

@@ -16,3 +16,12 @@ export const ENDINGS = {
     'Le temps reprend. Ce qui devait vieillir vieillira. Ce qui devait mourir mourra.',
   ],
 };
+
+// Les indices : ce que Kári remarque à voix haute (game.js, `checkTalk`)
+export const HINTS = {
+  // Près du grand navire de pierres, tant qu'il n'y a pas posé la main
+  passage: [
+    'La pierre de proue luit, à peine. Comme une braise sous la neige.',
+    'Ceux qu\'on a couchés dans ce navire n\'ont jamais fini leur voyage. Si je posais la main sur l\'étrave… (E)',
+  ],
+};

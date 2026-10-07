@@ -1,8 +1,7 @@
 {
-  "version": "1.63.1",
+  "version": "1.63.2",
   "date": "2026-10-07",
   "changes": [
-    "Atelier : « Dans le jeu » (lumière, zone qui bloque, ombre, description) vaut aussi pour les dessins du jeu : la maison, les barques, les cubes, le coffre…",
-    "Le panneau est à côté de l'aperçu, avec « Placer la flamme » et « Tracer la zone » ; les points de vie de Kári se règlent en cours de partie"
+    "Le pas des morts a son indice : l'étrave du grand navire de pierres luit la nuit, et Kári la remarque en passant"
   ]
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.63.2 — 2026-10-07
+- Le pas des morts a maintenant un indice : la nuit, l'étrave du grand navire de pierres luit à peine, tant qu'on n'y a pas posé la main ; la première fois qu'il passe près du navire, Kári la remarque à voix haute
+- Ces deux répliques se réécrivent dans l'atelier (Textes, « Prologue, fins, chapitres » → Les indices)
+
 ## 1.63.1 — 2026-10-07
 - Atelier : le panneau « Dans le jeu » (une lumière, une zone qui bloque, une ombre, ce qu'on en voit au clic droit) vaut maintenant aussi pour les dessins du jeu posés tels quels : la maison, les barques, les cubes, le coffre, le clou, la dalle… ; le jeu ouvert les prend aussitôt
 - Le panneau est à côté de l'aperçu, avec deux boutons clairs : « Placer la flamme » (puis un clic sur le dessin) et « Tracer la zone » (puis glisser)
