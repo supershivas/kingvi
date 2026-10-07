@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.50.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.50.0';
-import { TITLE_ART } from './title-art.js?v=1.50.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.50.0';
-import { showChapter } from './chapters.js?v=1.50.0';
-import { createTitleSea } from './titlesea.js?v=1.50.0';
-import { audio } from './audio.js?v=1.50.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.50.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.50.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.51.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.51.0';
+import { TITLE_ART } from './title-art.js?v=1.51.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.51.0';
+import { showChapter } from './chapters.js?v=1.51.0';
+import { createTitleSea } from './titlesea.js?v=1.51.0';
+import { audio } from './audio.js?v=1.51.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.51.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.51.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.50.0');
-const debug = DEBUG ? await import('./debug.js?v=1.50.0') : null;
+const { createGame } = await import('./game.js?v=1.51.0');
+const debug = DEBUG ? await import('./debug.js?v=1.51.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -91,6 +91,12 @@ const game = createGame({
   // Mort : le noir se referme sur le corps, « Vous êtes mort », on se relève
   // près de la barque ; le noir ne se rouvre qu'une fois l'île prête autour
   onDeath: respawn => die(respawn),
+  // Ce qu'on peut faire ici (touche E) : « E · Parler à Legba »
+  onAction: label => {
+    const el = $('act');
+    el.hidden = !label;
+    if (label) el.querySelector('span').textContent = label;
+  },
   // La traversée en barque, entre SNO 7 et SNO 4
   onVoyage: (to, done) => voyage(to, done),
   // Le compteur d'arbres abattus et de rochers brisés (dès le premier)
@@ -218,7 +224,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.50.0');
+  mapModule = mapModule || await import('./map.js?v=1.51.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -235,6 +241,8 @@ async function toggleMap(force) {
   mapTimer = setInterval(() => mapDialog.open ? paint() : clearInterval(mapTimer), 500);
 }
 $('open-map').addEventListener('click', () => toggleMap());
+// (au doigt : toucher la consigne d'action fait comme la touche E)
+$('act').addEventListener('click', () => game.act());
 $('close-map').addEventListener('click', () => mapDialog.close());
 mapDialog.addEventListener('click', e => { if (e.target === mapDialog) mapDialog.close(); });
 window.addEventListener('keydown', e => { if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleMap(); } });

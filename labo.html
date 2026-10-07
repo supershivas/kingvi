@@ -5,29 +5,31 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#1C1C1E"/>
 <title>Labo — KINGVI SNO 7</title>
-<link rel="icon" href="favicon.ico" sizes="any"/>
-<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="favicon-labo.png" sizes="32x32" type="image/png"/>
+<link rel="icon" href="favicon-labo.svg" type="image/svg+xml"/>
 <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:wght@700&family=DM+Mono:wght@400&family=Grenze+Gotisch:wght@500;800&family=Noto+Sans+Runic&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.34.1/dist/tabler-icons.min.css"/>
-<link rel="stylesheet" href="css/style.css?v=1.50.0"/>
-<link rel="stylesheet" href="css/labo.css?v=1.50.0"/>
-<link rel="stylesheet" href="css/labo-ui.css?v=1.50.0"/>
-<link rel="stylesheet" href="css/labo-saga.css?v=1.50.0"/>
-<link rel="stylesheet" href="mobile.css?v=1.50.0"/>
+<link rel="stylesheet" href="css/style.css?v=1.51.0"/>
+<link rel="stylesheet" href="css/labo.css?v=1.51.0"/>
+<link rel="stylesheet" href="css/labo-ui.css?v=1.51.0"/>
+<link rel="stylesheet" href="css/labo-saga.css?v=1.51.0"/>
+<link rel="stylesheet" href="mobile.css?v=1.51.0"/>
 </head>
 <body class="labo-page">
 
-<!-- En-tête et menu dans un même bloc collé en haut : ils restent visibles quand on défile -->
+<!-- Écran à hauteur fixe (design system, 8 ter) : en-tête, groupes, puis les
+     sujets à gauche et une variante à la fois ; seule la variante défile -->
+<div class="lab">
 <div class="labo-head">
 <header class="topbar safe-top">
   <a class="brand" href="./" title="Revenir au jeu">
     <span class="brand-mark"><i class="ti ti-sword" aria-hidden="true"></i></span>
     <span class="brand-name">KINGVI SNO 7</span>
   </a>
-  <span class="topbar-label">Labo</span>
+  <span class="topbar-label lab-badge">Labo</span>
   <div class="topbar-actions">
     <a class="icon-btn icon-only" href="./#reglages" title="Réglages" aria-label="Réglages">
       <i class="ti ti-settings" aria-hidden="true"></i>
@@ -47,19 +49,19 @@
   <a href="#dessins" data-theme="dessins"><i class="ti ti-brush" aria-hidden="true"></i> Dessins</a>
   <a href="#interface" data-theme="interface"><i class="ti ti-layout" aria-hidden="true"></i> Interface</a>
 </nav>
-<nav class="labo-nav" aria-label="Sections du thème"></nav>
+<nav class="lab-chips" aria-label="Sujets du groupe"></nav>
 </div>
+<div class="lab-body">
+<aside class="lab-side" aria-label="Sujets du groupe"></aside>
 
-<main class="labo">
-  <p class="labo-intro">Toutes les animations du jeu, rangées par thème (onglets en haut),
-    sur la neige, aux couleurs du jeu. Les propositions marquées d'une lettre sont à choisir.</p>
+<main class="labo lab-stage">
 
   <section id="saga-bible" class="labo-section" data-theme="saga"><h2>La bible</h2><div class="demos"></div></section>
   <section id="saga-arbres" class="labo-section" data-theme="saga"><h2>Arbres généalogiques</h2><div class="demos"></div></section>
   <section id="saga-personnages" class="labo-section" data-theme="saga"><h2>Personnages</h2><div class="demos"></div></section>
   <section id="saga-lieux" class="labo-section" data-theme="saga"><h2>Lieux</h2><div class="demos"></div></section>
   <section id="saga-scenarios" class="labo-section" data-theme="saga"><h2>Scénarios et dialogues</h2><div class="demos"></div></section>
-  <section id="saga-phylacteres" class="labo-section" data-theme="saga"><h2>Phylactères (à choisir)</h2><div class="demos"></div></section>
+  <section id="saga-phylacteres" class="labo-section" data-theme="interface"><h2>Phylactères (à choisir)</h2><div class="demos"></div></section>
   <section id="carte" class="labo-section" data-theme="ile"><h2>Carte</h2><div class="demos"></div></section>
   <section id="chapitres" class="labo-section" data-theme="ile"><h2>Chapitres</h2><div class="demos"></div></section>
   <section id="son" class="labo-section" data-theme="ecoute"><h2>Son</h2><div class="demos"></div></section>
@@ -90,12 +92,16 @@
   <section id="ui-boutons" class="labo-section" data-theme="interface"><h2>Boutons de l'accueil (à choisir)</h2><div class="demos"></div></section>
   <section id="ui-reglages" class="labo-section" data-theme="interface"><h2>Menu Réglages (à choisir)</h2><div class="demos"></div></section>
 </main>
+</div>
+<!-- En téléphone : les variantes du sujet ouvert, en bas -->
+<nav class="lab-bar" aria-label="Variantes"></nav>
+</div>
 
 <div id="toast" class="toast" role="status" hidden></div>
 
-<script type="module" src="js/labo.js?v=1.50.0"></script>
-<script type="module" src="js/labo-ui.js?v=1.50.0"></script>
-<script type="module" src="js/labo-designs.js?v=1.50.0"></script>
-<script type="module" src="js/labo-saga.js?v=1.50.0"></script>
+<script type="module" src="js/labo.js?v=1.51.0"></script>
+<script type="module" src="js/labo-ui.js?v=1.51.0"></script>
+<script type="module" src="js/labo-designs.js?v=1.51.0"></script>
+<script type="module" src="js/labo-saga.js?v=1.51.0"></script>
 </body>
 </html>

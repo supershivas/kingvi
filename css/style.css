@@ -470,3 +470,12 @@ body {
 /* ── La traversée vers SNO 4 (main.js, `voyage`) : la mer de l'accueil ── */
 .voyage { position: absolute; inset: 0; z-index: 5; background: var(--game-black); overflow: hidden; cursor: pointer; }
 .voyage[hidden] { display: none; }
+
+/* ── La touche d'action (E) : ce qu'on peut faire ici, en bas de l'écran ── */
+.act {
+  position: absolute; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 4;
+  display: inline-flex; align-items: center; gap: 10px; min-height: var(--tap); padding: 0 16px;
+  border: 0; background: rgba(31,42,68,.72); color: var(--game-snow); font: inherit; font-size: .9rem; cursor: pointer; border-radius: 2px;
+}
+.act[hidden] { display: none; }
+.act b { font-family: var(--font-mono); font-weight: 400; border: 1px solid var(--game-snow); padding: 0 6px; line-height: 1.5; }

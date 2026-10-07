@@ -1,7 +1,7 @@
 /* Vent et neige, partagés entre le jeu et le labo.
    La simulation ne dessine rien elle-même : `draw(rect)` appelle
    rect(x, y, w, h, couleur, opacité) pour chaque pixel ou trait, couleur
-   'b' (sombre) ou 's' (neige). Le vent souffle d'ouest en est.
+   'b' (sombre), 's' (neige) ou 'w' (le blanc pur de l'éclair). Le vent souffle d'ouest en est.
 
    Chaque flocon clair porte une légère ombre sombre : on le voit sur la neige
    comme sur la mer. Aux grandes vitesses il s'étire en trait. Les tourbillons
@@ -246,7 +246,8 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
   }
 
   function draw(rect) {
-    // La foudre : un trait de neige cerné de nuit, qui se ramifie un peu
+    // La foudre : un trait blanc pur (couleur 'w', la seule hors des trois du
+    // jeu, voulue par Jérôme), cerné de nuit, qui se ramifie un peu
     if (w.bolt) {
       const pts = w.bolt.pts;
       for (let i = 1; i < pts.length; i++) {
@@ -255,9 +256,9 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
         for (let k = 0; k <= n; k++) {
           const x = Math.round(x0 + (x1 - x0) * k / (n || 1)), y = Math.round(y0 + (y1 - y0) * k / (n || 1));
           rect(x + 1, y, 1, 1, 'b', 0.8);
-          rect(x, y, 1, 1, 's', 1);
+          rect(x, y, 1, 1, 'w', 1);
         }
-        if (i % 7 === 3) rect(x1 + (i % 2 ? 2 : -2), y1 + 1, 1, 2, 's', 0.8);
+        if (i % 7 === 3) rect(x1 + (i % 2 ? 2 : -2), y1 + 1, 1, 2, 'w', 0.8);
       }
     }
     // Poudrerie : serpents de neige soufflée au ras du sol

@@ -1,8 +1,8 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.50.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.50.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.50.0';
-import { makeGroveTree } from './grove.js?v=1.50.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.50.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.51.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.51.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.51.0';
+import { makeGroveTree } from './grove.js?v=1.51.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.51.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -881,4 +881,17 @@ function solidAt(o, col, row, foot) {
   if (row < o.h - 1 - Math.ceil(foot) || row > o.h - 1 || col < 0 || col >= o.w) return false;
   const c = o.art.rows[row]?.[col];
   return !!c && c !== '.';
+}
+
+// ── La neige profonde : 0 (tassée), 1 (aux mollets), 2 (jusqu'à la taille).
+// Des congères en plaine, de grandes nappes tordues par le bruit ; jamais dans
+// la mer, sur un ponton ou sous les arbres serrés ; la piste est tassée (au
+// plus aux mollets). N'appelle pas le générateur `rng` : l'île ne bouge pas.
+export function snowDepth(x, y) {
+  if (coast(x, y) > -0.02 || deckLift(x, y) > 0) return 0;
+  const n = fbm(x / 380, y / 380, 977, 3) + 0.3 * fbm(x / 70, y / 70, 983, 2);
+  if (n < 0.1) return 0;
+  if (deepForest(x, y) > 0 || forestDensity(x, y) > 0.25) return 0;
+  if (nearTrail(x, y, 8) || Math.hypot(x - HOUSE.x, y - HOUSE.y) < 70) return n > 0.16 ? 1 : 0;
+  return n > 0.19 ? 2 : 1;
 }

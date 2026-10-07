@@ -86,6 +86,17 @@ calme, bise, rafales, tempête, rafales, tourbillons, bise ; fondus de 18 s ;
 ou une autre ambiance figée. Les arbres ploient, la cape bat, le son du vent suit (étouffé à
 l'intérieur et dans la forêt noire).
 
+### La neige profonde
+Par endroits, hors de la piste et des forêts, la neige monte aux mollets,
+parfois à la taille : le viking s'y enfonce, avance à 80 %, et n'y laisse
+plus de pas mais un sillon. On choisit de couper par la neige ou de suivre
+la piste tassée.
+
+### La touche d'action (E)
+Près de ce qui peut se faire (coffre, bûcher, roi, barque) ou de quelqu'un,
+un petit cadre dit quoi ; E (ou un clic sur ce cadre) le fait. Parler dit ce
+que la personne veut, et autre chose une fois qu'on l'a fait.
+
 ### Le jour et la nuit
 Par défaut, la nuit, toujours (« Toujours la nuit » dans les Réglages).
 Sinon, un cycle de 20 minutes sur l'horloge réelle : aube (1 min 30), jour (11 min),
@@ -147,7 +158,8 @@ bord pour courir), toucher l'écran pour frapper.
 | Sang, repères | rouge de l'accent (`--accent`) |
 | Intérieur, coque | noir profond (`--game-black`) |
 
-Pas d'autre couleur. Les nuances viennent de la trame (pixels alternés), du
+Pas d'autre couleur, sauf le blanc pur de l'éclair (décision de Jérôme,
+v1.51.0). Les nuances viennent de la trame (pixels alternés), du
 voile de nuit et de la lueur rasante de l'aube et du crépuscule.
 
 ## Ce que le jeu refuse

@@ -10,9 +10,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
-} from './designs.js?v=1.50.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.50.0';
-import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.50.0';
+} from './designs.js?v=1.51.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.51.0';
+import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.51.0';
 
 const host = document.querySelector('#dessins .demos');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -61,7 +61,7 @@ host.innerHTML = `
   <div class="dz-body">
     <section class="dz-main" aria-live="polite"></section>
     <aside class="dz-tree">
-      <input type="search" class="design-input dz-search" placeholder="Chercher…" aria-label="Chercher un asset">
+      <input type="search" class="design-input dz-search" name="filtre-dessins" placeholder="Chercher…" aria-label="Chercher un asset" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other">
       <div class="dz-folders"></div>
     </aside>
   </div>
@@ -287,6 +287,17 @@ function item(d) {
   return b;
 }
 $('.dz-search').addEventListener('input', e => { filter = e.target.value.trim().toLowerCase(); buildTree(); });
+// Le remplissage automatique du navigateur y mettait un e-mail enregistré :
+// le champ reste vide tant qu'on n'y a pas tapé soi-même
+{
+  const box = $('.dz-search');
+  let typed = false;
+  box.addEventListener('keydown', () => { typed = true; });
+  const clear = () => { if (!typed && box.value) { box.value = ''; filter = ''; buildTree(); } };
+  clear();
+  for (const ms of [200, 800, 2000]) setTimeout(clear, ms);
+  box.addEventListener('focus', () => setTimeout(clear, 0));
+}
 
 // ── L'asset choisi ──
 const main = $('.dz-main');

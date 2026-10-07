@@ -1,8 +1,9 @@
 {
-  "version": "1.50.0",
+  "version": "1.51.0",
   "date": "2026-10-07",
   "changes": [
-    "SNO 4 : des vèvè à tracer en marchant dans la neige (Legba, Damballah, le Baron) ; chacun appelle son lwa",
-    "SNO 4 a sa propre carte (touche M) : elle se dessine à mesure qu'on explore, et Legba peut l'ouvrir en entier"
+    "L'éclair est blanc ; par endroits la neige monte jusqu'à la taille et ralentit le viking",
+    "Touche E pour agir et parler : chacun dit ce qu'il veut",
+    "Labo rangé comme le design system, cartes de l'île et de SNO 4 à jour"
   ]
 }

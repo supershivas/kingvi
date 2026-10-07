@@ -1,35 +1,37 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.50.0';
+import { startUpdateCheck } from '../app-update.js?v=1.51.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.50.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.50.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.50.0';
+} from './viking.js?v=1.51.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.51.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.51.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.50.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.50.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.50.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.50.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.50.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.50.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.50.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.50.0';
-import { createSea } from './sea.js?v=1.50.0';
-import { buildStatueDoor } from './statue.js?v=1.50.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.50.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.50.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR } from './world.js?v=1.50.0';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.50.0';
-import * as PROPS from './props.js?v=1.50.0';
-import { audio } from './audio.js?v=1.50.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.50.0';
-import { RUIN_ART } from './ruins-art.js?v=1.50.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.50.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.50.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.50.0';
+} from './world.js?v=1.51.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.51.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.51.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.51.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.51.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.51.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.51.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.51.0';
+import { createSea } from './sea.js?v=1.51.0';
+import { buildStatueDoor } from './statue.js?v=1.51.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.51.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.51.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN } from './world.js?v=1.51.0';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.51.0';
+import * as PROPS from './props.js?v=1.51.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.51.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.51.0';
+import { audio } from './audio.js?v=1.51.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.51.0';
+import { RUIN_ART } from './ruins-art.js?v=1.51.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.51.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.51.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.51.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -38,7 +40,7 @@ const RED = css.getPropertyValue('--accent').trim();
 const BLACK = css.getPropertyValue('--game-black').trim();
 // Une seule vue par animation : sur la neige, aux couleurs du jeu
 const PALETTES = {
-  blanc: { label: '', bg: SNOW, b: NIGHT, s: SNOW, r: RED, k: BLACK },
+  blanc: { label: '', bg: SNOW, b: NIGHT, s: SNOW, r: RED, k: BLACK, w: '#ffffff' },
 };
 
 const FRAMES = Object.fromEntries(vikingFrames().map(f => [f.name, f]));
@@ -496,7 +498,7 @@ Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
       s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
       if (s.strikeNow) { s.strikeNow = false; s.weather.strike(1); }
       drawViking(ctx, pal, 'side-idle', 50, 50, { wind: Math.min(1, s.weather.wind / 140), clock: t });
-      s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+      s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c] || '#ffffff'; ctx.fillRect(x, y, w, h); });
       if (p.lightning > 0.05) {
         ctx.globalAlpha = 0.75 * (1 - s.weather.flash);
         ctx.fillStyle = pal.b;
@@ -1168,7 +1170,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D barque · C corbeaux · A arche · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · S sente · P plateau · L lac et îlot';
+  legend.textContent = 'Traces · D barque (E : vers SNO 4) · N champ des morts (Hrólf) · C corbeaux · A arche (Tages) · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée (Freya parle) · forêt noire · O bosquet (Hjalti) · G guetteur · W les loups · 2 grande statue · M maison · F falaise et grotte (le roi) · S sente · P plateau · L lac et îlot · trame claire : neige profonde (aux mollets, et plus dense : jusqu\'à la taille)';
   el.append(legend);
   section.append(el);
 
@@ -1189,13 +1191,16 @@ card('corbeaux', {
     const f = forestDensity(wx, wy);
     // Forêt : tramée selon sa densité ; forêt noire : pleine
     const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5][(y & 3) * 4 + (x & 3)] / 16;
-    put(i, deep > 0.5 ? DEEP : bayer < f * 0.9 ? MID : SNOW);
+    // La neige profonde : une trame claire de plus en plus serrée
+    const sd = deep > 0.5 || f > 0.25 ? 0 : snowDepth(wx, wy);
+    put(i, deep > 0.5 ? DEEP : bayer < f * 0.9 ? MID : sd && bayer < sd * 0.3 ? '#b7c3d6' : SNOW);
   }
   ctx.putImageData(img, 0, 0);
   ctx.fillStyle = NIGHT;
   for (const p of trail) ctx.fillRect(Math.floor(p.x / S), Math.floor(p.y / S), 1, 1);
   const L = landing();
-  const marks = [['A', ARCH.x, ARCH.y], ['c', RUINS.colonne.x, RUINS.colonne.y], ['s', RUINS.socle.x, RUINS.socle.y], ['r', RUINS.arche.x, RUINS.arche.y], ['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['S', LEDGE.bottom.x, LEDGE.bottom.y], ['P', MOTH_LAIR.x, MOTH_LAIR.y], ['L', LAKE.x, LAKE.y]];
+  const marks = [['A', ARCH.x, ARCH.y], ['c', RUINS.colonne.x, RUINS.colonne.y], ['s', RUINS.socle.x, RUINS.socle.y], ['r', RUINS.arche.x, RUINS.arche.y], ['D', L.shore, L.y], ['C', CROWS.x, CROWS.y], ['1', STATUE_BASE.x, STATUE_BASE.y], ['2', STATUE2_BASE.x, STATUE2_BASE.y], ['M', HOUSE.x, HOUSE.y], ['F', CAVE.x, CLIFF.y], ['S', LEDGE.bottom.x, LEDGE.bottom.y], ['P', MOTH_LAIR.x, MOTH_LAIR.y], ['L', LAKE.x, LAKE.y],
+    ['N', NECRO_AREA.x + 100, NECRO_AREA.y + 35], ['O', GROVE_TREE.x, GROVE_TREE.y], ['G', WATCHER_AT.x, WATCHER_AT.y], ['W', WOLF_DEN.x, WOLF_DEN.y]];
   // La falaise : un trait sombre à son pied
   ctx.fillStyle = NIGHT;
   ctx.fillRect(Math.floor(CLIFF.x0 / S), Math.floor(CLIFF.y / S) - 1, Math.ceil((CLIFF.x1 - CLIFF.x0) / S), 2);
@@ -1224,6 +1229,44 @@ card('corbeaux', {
     try {
       localStorage.setItem('kingvi:save', JSON.stringify({ ...save, world: WORLD_VERSION, x, y, facing: 'side', flip: false }));
     } catch { toast('Impossible d\'enregistrer la position.'); return; }
+    location.href = './';
+  });
+})();
+
+// ══ Carte de SNO 4 : l'île Carrefour, telle qu'on la joue ; un clic y envoie Kári ══
+(function sno4Map() {
+  const section = document.querySelector('#carte .demos');
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Carte de SNO 4, l\'île Carrefour</span></h3><p>L\'île où Kári va en barque (touche E près de la barque de la grève). Clique sur l\'île : le jeu s\'ouvre et Kári y est. En rouge : la barque et les trois vèvè à marcher.</p>';
+  const canvas = document.createElement('canvas');
+  canvas.width = SNO4_W; canvas.height = SNO4_H;
+  canvas.className = 'map';
+  el.append(canvas);
+  const legend = document.createElement('p');
+  legend.className = 'map-legend';
+  legend.textContent = PLACES_SNO4.map(p => p.nom).join(' · ');
+  el.append(legend);
+  section.append(el);
+  const g = canvas.getContext('2d');
+  paintSno4(g, { s: SNOW, b: NIGHT, r: RED });
+  for (const p of SNO4_PROPS) drawRows(g, PALETTES.blanc, p.rows, p.at.x - p.ax, p.at.y - p.h + 1);
+  g.fillStyle = RED;
+  g.fillRect(SNO4_BOAT.x, SNO4_BOAT.y, 30, 10);
+  for (const v of VEVE) for (const [dx, dy] of v.nodes) g.fillRect(v.at.x + dx - 1, v.at.y + dy - 1, 3, 3);
+  g.font = '500 15px "Grenze Gotisch", serif';
+  g.textBaseline = 'middle';
+  for (const p of PLACES_SNO4) {
+    const x = p.x * SNO4_W, y = p.y * SNO4_H;
+    g.lineWidth = 4; g.strokeStyle = SNOW; g.strokeText(p.nom, x + 8, y);
+    g.fillStyle = NIGHT; g.fillText(p.nom, x + 8, y);
+  }
+  canvas.addEventListener('click', e => {
+    const r = canvas.getBoundingClientRect();
+    const x = Math.round((e.clientX - r.left) / r.width * SNO4_W), y = Math.round((e.clientY - r.top) / r.height * SNO4_H);
+    if (!sno4Walkable(x, y)) { toast('On ne peut pas aller là : choisis un point sur la neige ou la banquise.'); return; }
+    // (le jeu lit ce rendez-vous à son lancement : il fait la traversée d'un coup)
+    try { sessionStorage.setItem('kingvi:goto', JSON.stringify({ world: 'sno4', x, y })); } catch { toast('Impossible de préparer le voyage.'); return; }
     location.href = './';
   });
 })();
@@ -1443,37 +1486,159 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
   document.querySelector('#chapitres .demos').append(el);
 })();
 
-// ══ Navigation : un thème à la fois (onglets), et son sous-menu ══
-// Les sections des autres thèmes sont cachées : leurs animations ne tournent
-// pas. L'adresse garde le thème (#betes) ou la section (#loups).
-(function themes() {
+// ══ Navigation (design system, 8 ter) : les groupes en onglets dans l'en-tête,
+// les sujets du groupe dans la marge de gauche (icône, nombre de variantes),
+// le sujet ouvert déplie ses variantes A, B, C… ; une seule variante à
+// l'écran. Un sujet, c'est une section ; ses variantes, les cartes de sa
+// section (`.demos` > enfants ; un titre `.saga-world` y fait un intertitre).
+// L'adresse garde le sujet et la lettre (#loups-B) ; flèches du clavier,
+// balayage sur téléphone. En téléphone : les sujets en puces sous l'en-tête,
+// les variantes dans une barre en bas.
+(function navigation() {
   const tabs = [...document.querySelectorAll('.labo-tabs a')];
-  const sub = document.querySelector('.labo-nav');
+  const side = document.querySelector('.lab-side');
+  const chips = document.querySelector('.lab-chips');
+  const bar = document.querySelector('.lab-bar');
+  const stage = document.querySelector('.lab-stage');
   const sections = [...document.querySelectorAll('.labo-section')];
+  const ICONS = {
+    'saga-bible': 'book', 'saga-arbres': 'hierarchy-2', 'saga-personnages': 'users', 'saga-lieux': 'map-pin', 'saga-scenarios': 'messages',
+    'saga-phylacteres': 'message-circle', carte: 'map', chapitres: 'bookmark', son: 'volume', barque: 'sailboat', accostage: 'anchor',
+    nuit: 'moon', viking: 'walk', cape: 'wind', attaques: 'sword', vent: 'snowflake', arbres: 'tree', rochers: 'mountain', maison: 'home',
+    interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave',
+    bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', cerfs: 'deer', dessins: 'brush',
+    'ui-boutons': 'click', 'ui-reglages': 'adjustments',
+  };
+  const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const themeOf = id => sections.find(s => s.id === id)?.dataset.theme || (tabs.some(t => t.dataset.theme === id) ? id : null);
-  function open(theme, section) {
+  let theme = null, subject = null, index = 0;
+
+  // Les variantes d'un sujet : les cartes de sa section (et ses intertitres)
+  function variants(section) {
+    const out = [];
+    let group = null;
+    for (const el of section.querySelector('.demos')?.children || []) {
+      if (el.classList.contains('saga-world')) { group = el.textContent; el.dataset.labDivider = '1'; continue; }
+      const h = el.querySelector('h3');
+      const title = (h ? [...h.childNodes].filter(n => !n.classList?.contains('tag')).map(n => n.textContent).join(' ') : el.querySelector('summary')?.textContent || section.querySelector('h2').textContent).trim();
+      out.push({ el, title, group, retained: /retenue|dans le jeu|actuel/i.test(h?.textContent || '') });
+    }
+    return out;
+  }
+
+  function show() {
+    const sec = sections.find(s => s.id === subject);
+    if (!sec) return;
+    const list = variants(sec);
+    index = Math.max(0, Math.min(index, list.length - 1));
+    for (const s of sections) s.hidden = s !== sec;
+    for (const el of sec.querySelector('.demos')?.children || []) el.classList.toggle('lab-off', el.dataset.labDivider === '1' || el !== list[index]?.el);
+    renderMenus(list);
+    stage.scrollTop = 0;
+    const letter = list.length > 1 ? `-${LETTERS[index] || index + 1}` : '';
+    const hash = `#${subject}${letter}`;
+    if (location.hash !== hash) history.replaceState(null, '', hash);
+    try { localStorage.setItem('kingvi:labo-theme', theme); } catch { /* rien */ }
+  }
+
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  function letterButton(v, i) {
+    const b = el('button', `lab-letter${i === index ? ' on' : ''}${v.retained ? ' retained' : ''}`, LETTERS[i] || String(i + 1));
+    b.type = 'button'; b.title = v.title;
+    b.setAttribute('aria-label', `${LETTERS[i] || i + 1} : ${v.title}`);
+    b.addEventListener('click', () => { index = i; show(); });
+    return b;
+  }
+  function renderMenus(list) {
+    const subs = sections.filter(s => s.dataset.theme === theme);
+    // La marge : les sujets, celui qui est ouvert déplie ses variantes
+    side.replaceChildren(...subs.map(s => {
+      const item = el('div', `lab-subject${s.id === subject ? ' open' : ''}`);
+      const head = el('button', 'lab-subject-head');
+      head.type = 'button';
+      const n = variants(s).length;
+      head.innerHTML = `<i class="ti ti-${ICONS[s.id] || 'point'}" aria-hidden="true"></i><span></span><em>${n}</em>`;
+      head.querySelector('span').textContent = s.querySelector('h2').textContent;
+      head.addEventListener('click', () => { subject = s.id; index = 0; show(); });
+      item.append(head);
+      if (s.id === subject) {
+        const ul = el('ol', 'lab-variants');
+        let group = null;
+        list.forEach((v, i) => {
+          if (v.group && v.group !== group) { group = v.group; ul.append(el('li', 'lab-group', group)); }
+          const li = el('li');
+          const b = el('button', `lab-variant${i === index ? ' on' : ''}`);
+          b.type = 'button';
+          b.append(letterButton(v, i), el('span', null, v.title));
+          b.querySelector('.lab-letter').replaceWith(el('b', `lab-letter${i === index ? ' on' : ''}${v.retained ? ' retained' : ''}`, LETTERS[i] || String(i + 1)));
+          b.addEventListener('click', () => { index = i; show(); });
+          li.append(b);
+          ul.append(li);
+        });
+        item.append(ul);
+      }
+      return item;
+    }));
+    // Téléphone : les sujets en puces, les variantes dans la barre du bas
+    chips.replaceChildren(...subs.map(s => {
+      const a = el('button', `lab-chip${s.id === subject ? ' on' : ''}`, s.querySelector('h2').textContent);
+      a.type = 'button';
+      a.addEventListener('click', () => { subject = s.id; index = 0; show(); });
+      return a;
+    }));
+    const prev = el('button', 'lab-step'); prev.type = 'button'; prev.setAttribute('aria-label', 'Variante précédente'); prev.innerHTML = '<i class="ti ti-chevron-left" aria-hidden="true"></i>';
+    const next = el('button', 'lab-step'); next.type = 'button'; next.setAttribute('aria-label', 'Variante suivante'); next.innerHTML = '<i class="ti ti-chevron-right" aria-hidden="true"></i>';
+    prev.addEventListener('click', () => step(-1));
+    next.addEventListener('click', () => step(1));
+    const letters = el('div', 'lab-letters');
+    list.forEach((v, i) => letters.append(letterButton(v, i)));
+    bar.replaceChildren(prev, letters, next, el('span', 'lab-bar-title', list[index]?.title || ''));
+    bar.hidden = list.length < 2;
     for (const t of tabs) {
       const on = t.dataset.theme === theme;
       t.classList.toggle('active', on);
       if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current');
     }
-    sub.replaceChildren(...sections.filter(s => s.dataset.theme === theme).map(s => {
-      const a = document.createElement('a');
-      a.href = `#${s.id}`; a.textContent = s.querySelector('h2').textContent;
-      return a;
-    }));
-    for (const s of sections) s.hidden = s.dataset.theme !== theme;
-    try { localStorage.setItem('kingvi:labo-theme', theme); } catch { /* rien */ }
-    if (section) document.getElementById(section)?.scrollIntoView();
-    else window.scrollTo(0, 0);
   }
+  function step(d) {
+    const n = variants(sections.find(s => s.id === subject)).length;
+    if (n < 2) return;
+    index = (index + d + n) % n;
+    show();
+  }
+
   function route() {
-    const id = decodeURIComponent(location.hash.slice(1));
+    let id = decodeURIComponent(location.hash.slice(1)), letter = null;
+    if (!sections.some(s => s.id === id) && !tabs.some(t => t.dataset.theme === id)) {
+      const m = id.match(/^(.*)-([A-Z])$/);
+      if (m && sections.some(s => s.id === m[1])) { id = m[1]; letter = m[2]; }
+    }
     let saved = null;
     try { saved = localStorage.getItem('kingvi:labo-theme'); } catch { /* rien */ }
-    const theme = themeOf(id) || themeOf(saved) || tabs[0].dataset.theme;
-    open(theme, sections.some(s => s.id === id) ? id : null);
+    theme = themeOf(id) || themeOf(saved) || tabs[0].dataset.theme;
+    subject = sections.some(s => s.id === id) ? id : sections.find(s => s.dataset.theme === theme)?.id;
+    index = letter ? LETTERS.indexOf(letter) : 0;
+    show();
   }
+  for (const t of tabs) t.addEventListener('click', e => { e.preventDefault(); location.hash = t.dataset.theme; });
   window.addEventListener('hashchange', route);
+  // Les cartes s'ajoutent à mesure (modules) : la marge suit
+  for (const s of sections) new MutationObserver(() => { if (s.id === subject) show(); else if (s.dataset.theme === theme) renderMenus(variants(sections.find(x => x.id === subject))); }).observe(s.querySelector('.demos') || s, { childList: true });
+  // Flèches gauche et droite : variante précédente, suivante (pas dans un champ, pas sous une fenêtre)
+  window.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if (document.querySelector('dialog[open]') || e.target.closest?.('input, select, textarea, [contenteditable]')) return;
+    e.preventDefault();
+    step(e.key === 'ArrowLeft' ? -1 : 1);
+  });
+  // Balayage horizontal (téléphone)
+  let touch = null;
+  stage.addEventListener('touchstart', e => { if (e.touches.length === 1) touch = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }, { passive: true });
+  stage.addEventListener('touchend', e => {
+    if (!touch || e.target.closest('canvas, input, .pxe')) { touch = null; return; }
+    const t = e.changedTouches[0], dx = t.clientX - touch.x, dy = t.clientY - touch.y;
+    touch = null;
+    if (Math.abs(dx) > 70 && Math.abs(dy) < 40) step(dx < 0 ? 1 : -1);
+  }, { passive: true });
   route();
 })();

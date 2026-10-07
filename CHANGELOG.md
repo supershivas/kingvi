@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.51.0 — 2026-10-07
+- L'éclair est blanc
+- La neige n'est plus partout la même : par endroits on s'enfonce aux mollets, parfois jusqu'à la taille. On y avance moins vite (80 %), et l'on n'y laisse plus des pas mais un sillon
+- Une touche d'action, E : près du coffre, du bûcher, du roi, de la barque ou de quelqu'un, un petit cadre dit ce qu'on peut faire. Parler à quelqu'un dit ce qu'il veut, et ce qu'il dit change une fois la chose faite
+- Labo : rangé comme le veut le design system (une variante à la fois, sujets dans la marge, lettres A, B, C…, en-tête rouge « LABO ») ; les phylactères passent dans Interface ; la carte de l'île montre les nouveaux lieux et la neige profonde, et SNO 4 a sa carte (un clic y emmène Kári)
+- Atelier : la ceinture est rangée avec le titre ; le champ de recherche n'est plus rempli par le navigateur
 ## 1.50.0 — 2026-10-07
 - SNO 4 : trois vèvè de cendre attendent dans la neige, près de la Barrière, sous le mapou et au sud du cimetière. Marcher sur chacun de leurs points, sans traîner, referme le dessin et appelle le lwa : Legba ouvre les chemins de l'île, Damballah fait tomber le vent une minute, et le Baron monte Kári un moment
 - SNO 4 a sa propre carte (touche M) : l'île vue d'en haut, qui se découvre à mesure qu'on avance, les lieux vus nommés et les vèvè marchés

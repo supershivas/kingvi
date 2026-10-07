@@ -151,6 +151,17 @@ inférieur à l'autre (`castShadowBase`, `artBase` : la rangée de pierre
 la plus basse, sans les éclats posés autour), le bout rongé ; sa première
 rangée couvre aussi la rangée noire du pied du rocher (le voile de nuit
 glisse d'une fraction de pixel au rendu : sinon, une ligne claire s'ouvre).
+**Neige profonde** (v1.51.0) : trois niveaux (`snowDepth` dans `world.js`,
+bruit sans `rng` : tassée, aux mollets, à la taille ; jamais sur la piste
+ni en forêt) ; `updateSnow` dans `game.js` : le viking s'enfonce
+(`SNOW_SINK`, sprite et cape rognés par `setCrop`), ralentit (`SNOW_SPEED`,
+80 % à la taille) et n'y laisse plus de pas mais un sillon (deux bords
+tramés). **Touche E** : `actionTarget` (coffre, bûcher, roi, barque vers
+SNO 4 et retour, parler aux gens), `act`, `onAction` → bouton `#act` (on
+peut aussi cliquer) ; parler dit ce que la personne veut (`veut` de chaque
+personnage dans `saga.js`, `apres` une fois un fait accompli ; `talkTo`).
+L'éclair est blanc pur (couleur `w`, `WHITE` : seule exception aux trois
+couleurs, voulue par Jérôme).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
 par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
@@ -174,11 +185,18 @@ assombrie dans la forêt noire, tendue à l'approche de l'autre viking, à son
 comble au combat, puis un silence ; étouffée à l'intérieur ; muette quelques
 secondes quand le guetteur s'efface (`audio.hush`).
 
-La page `labo.html` regroupe toutes les animations, rangées par thèmes en
-onglets (La saga, L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son, Interface ; un
-seul thème affiché, avec le sous-menu de ses sections ; l'adresse garde le
-thème ou la section, `#betes`, `#loups`), une vue par animation, sur la neige aux couleurs du jeu :
-carte de l'île (un clic y téléporte le viking), chapitres, barque, jour et nuit, viking,
+La page `labo.html` suit le labo du design system (conventions, 8 ter ;
+v1.51.0) : en-tête couleur d'accent avec « LABO » encadré, favicon à fiole
+(`favicon-labo.svg`, `.png`), écran fixe ; les thèmes en onglets (La saga,
+L'île, Le rivage, Le viking, Les bêtes, Ciel et nature, Son, Interface), les
+sujets du thème dans la marge de gauche (icône, nombre de variantes), le
+sujet ouvert déplie ses variantes en lettres A, B, C… (point d'accent sur la
+retenue) et n'en montre qu'une ; flèches du clavier, balayage ; adresse
+`#loups-B` ; sur téléphone, puces sous l'en-tête et barre en bas. Les
+phylactères sont dans Interface, pas dans la saga. Sur la neige aux couleurs du jeu :
+carte de l'île (un clic y téléporte le viking ; neige profonde tramée, tous
+les lieux), carte de SNO 4 (un clic y emmène Kári : rendez-vous
+`kingvi:goto` en sessionStorage, lu par `create`), chapitres, barque, jour et nuit, viking,
 cape, attaques (8 directions, tourbillon, arbre qui tombe, rocher qui éclate), torche, meute,
 grotte et roi mort, intérieur de la maison, lac, crypte,
 falaise, vagues, icebergs, charognards ; et des propositions à choisir
@@ -676,8 +694,12 @@ n'est jamais implémenté automatiquement.
 - La cape est courte et discrète : au calme elle se confond avec le dos ; même
   par grand vent elle ne dépasse que de quelques pixels (pas de cape de héros).
 - Les cairns sont d'un seul tenant et jamais symétriques.
-- Labo : c'est le document qui défile (pas le body comme dans le jeu), pour
-  que l'en-tête et le menu restent collés en haut partout.
+- Labo : un écran fixe (`.lab`, `100dvh`) ; seul `.lab-stage` défile (le
+  document et le body ne défilent plus). Le menu se construit seul
+  (`navigation()` dans `labo.js`) : une section = un sujet (icône `ICONS`),
+  chaque enfant de `.demos` = une variante (lettre A, B…), une seule
+  affichée (`.lab-off` sur les autres) ; un `MutationObserver` suit les
+  cartes ajoutées après coup.
 - JS : un accesseur (`get x()`) passé dans `Object.assign` est évalué une
   fois et figé ; utiliser `Object.defineProperty` (bug de `foe.alive`).
 - Le corps est centré sur la colonne CX et l'origine du sprite est au milieu

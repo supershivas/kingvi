@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.50.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.51.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -720,6 +720,42 @@ export const PEOPLE = [
 
 PEOPLE.push(...PEOPLE_SNO4);
 export const PERSON = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
+
+// ── Ce qu'ils veulent : ce qu'un personnage dit quand on lui parle (touche E),
+// pour qu'on comprenne ce qu'il attend et ce qui pourrait arriver. `apres` :
+// ce qu'il dit une fois la chose faite (le jeu sait quand : `si`).
+const VEUT = {
+  tages: { lignes: ['Je dis ce qui vient. Rien de plus.', 'Va au bout des traces. Puis sous la roche, où le roi est assis.', 'Quand tu auras arraché ce qui est cloué, reviens me voir. Je serai plus jeune.'] },
+  kingvi: { lignes: ['Je veux ne pas mourir. Je veux que rien ne change.', 'Le clou est sous l\'arche, dans le mur des Rasna. Tu le sais, maintenant.', 'Si tu l\'arraches, je meurs. Et le jour revient. Choisis.'] },
+  freya: { lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Rends-moi une chose, et je te le rendrai.'] },
+  thorgrim: { lignes: ['Viens. Qu\'on en finisse.'] },
+  legba: {
+    lignes: ['Je tiens les barrières, petit. Celle-ci est ouverte.', 'Marche mon vèvè, là, à côté de mes mâts : je t\'ouvrirai les chemins de l\'île.'],
+    apres: { si: 'veve-legba', lignes: ['Les chemins sont ouverts. Regarde ta carte.', 'Va au carrefour. La nuit, c\'est mon autre visage qui garde.'] },
+  },
+  anaise: {
+    lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton île.', 'Il y a trois vèvè dans la neige : Legba, Damballah, le Baron. Marche-les.'],
+  },
+  tijo: {
+    lignes: ['Ma maman marche sur la banquise. Elle ne me voit pas.', 'Si tu la croises, donne-lui le sel. Le sel réveille.'],
+    apres: { si: 'clotildeFree', lignes: ['Maman est rentrée ! Elle parle trop vite. C\'est bien.'] },
+  },
+  kalfou: { lignes: ['Je garde les morts jusqu\'à ce que la route s\'ouvre.', 'Le clou de ton père bouche tout. Arrache-le, et je rouvrirai.', 'Ou paie-moi. Une nuit de ta vie.'] },
+  eyvind: { lignes: ['Arrache le clou, frère. Alors on pourra passer.', 'Et brûle mon corps, dans la maison, si ce n\'est pas fait. Je veux monter.'] },
+  anisse: { lignes: ['Dis à Anaïse que j\'attends. Je n\'ai pas peur.', 'Il fait froid, ici. Mais on chante.'] },
+  baron: {
+    lignes: ['Je ne creuse plus, mon garçon. Personne ne meurt pour de bon.', 'Marche ma croix, au sud du cimetière. Je te ferai rire.'],
+    apres: { si: 'veve-baron', lignes: ['Ha ! Tu ris bien, pour un viking.', 'Reviens quand ton papa sera mort. J\'aurai du travail, enfin.'] },
+  },
+  brigitte: { lignes: ['Je garde les tombes. Il n\'y a rien à garder, en ce moment.', 'Quand le jour reviendra chez toi, il y aura du monde ici. Je serai prête.'] },
+  lucien: { lignes: ['Je vends des bouteilles. Une âme au chaud, ça ne meurt jamais.', 'Tu veux garder quelqu\'un ? Ton frère, peut-être ? Il attend au carrefour.'] },
+  clotilde: { lignes: ['… bwa … bwa …'] },
+  damballah: {
+    lignes: ['Ssss.', 'Sss… (le serpent regarde le dessin de cendre, sous l\'arbre)'],
+    apres: { si: 'veve-damballah', lignes: ['Ssssss.'] },
+  },
+};
+for (const [id, v] of Object.entries(VEUT)) if (PERSON[id]) PERSON[id].veut = v;
 
 // ── Les lieux (anciens et nouveaux : le monde s'agrandit) ──
 export const PLACES = [

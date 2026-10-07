@@ -5,10 +5,10 @@
    pixels du jeu. */
 import {
   BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName, WORLDS, worldOf,
-} from './saga.js?v=1.50.0';
-import { personSprite } from './people.js?v=1.50.0';
-import { brokenBox } from './dialogue.js?v=1.50.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.50.0';
+} from './saga.js?v=1.51.0';
+import { personSprite } from './people.js?v=1.51.0';
+import { brokenBox } from './dialogue.js?v=1.51.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.51.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {
@@ -162,6 +162,13 @@ function openFiche(id) {
     box.append(k);
   }
 
+  if (p.veut) {
+    box.append(el('h4', null, 'Ce qu\'il veut (touche E, dans le jeu)'));
+    const q = el('div', 'saga-quotes');
+    p.veut.lignes.forEach(l => q.append(el('blockquote', null, `« ${l} »`)));
+    if (p.veut.apres) p.veut.apres.lignes.forEach(l => q.append(el('blockquote', null, `Après : « ${l} »`)));
+    box.append(q);
+  }
   const lines = p.lignes?.length ? p.lignes : [];
   const scenes = spokenIn(id);
   if (lines.length || scenes.length) {
@@ -497,7 +504,7 @@ let playScene = () => {};
   head.append(filters);
   root.append(head);
   const list = el('div', 'saga-scenes');
-  root.append(list);
+  head.append(list);
   let current = 'tout', world = 'tout';
   const worlds = el('div', 'saga-filters');
   for (const [k, label] of [['tout', 'Les deux mondes'], ...Object.entries(WORLDS)]) {
