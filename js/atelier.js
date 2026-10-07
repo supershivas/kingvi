@@ -12,13 +12,13 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.63.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.63.0';
-import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.63.0';
-import { mountMap } from './atelier-map.js?v=1.63.0';
-import { mountTuning } from './atelier-tuning.js?v=1.63.0';
-import { mountTexts } from './atelier-texts.js?v=1.63.0';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.63.0';
+} from './designs.js?v=1.63.1';
+import { openPixelEditor } from './pixel-editor.js?v=1.63.1';
+import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.63.1';
+import { mountMap } from './atelier-map.js?v=1.63.1';
+import { mountTuning } from './atelier-tuning.js?v=1.63.1';
+import { mountTexts } from './atelier-texts.js?v=1.63.1';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.63.1';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -352,7 +352,24 @@ function showMain() {
   const custom = customOf(d.name);
   main.innerHTML = `
     <div class="dz-head"><h3></h3><span class="dz-meta"></span></div>
-    <div class="dz-stage"><canvas></canvas></div>
+    <div class="dz-row"><div class="dz-stage"><canvas></canvas></div>
+    <section class="dz-play" hidden>
+      <h4>Dans le jeu</h4>
+      <label class="dz-check"><input type="checkbox" data-p="light"> Il éclaire</label>
+      <div class="dz-inline" data-light-opt>
+        <button type="button" class="design-btn" data-arm="light"><i class="ti ti-flame" aria-hidden="true"></i> Placer la flamme</button>
+        <label class="dz-inline">Portée <select class="design-input" data-p="big"><option value="">petite (une torche)</option><option value="1">grande (un feu)</option></select></label>
+      </div>
+      <p class="design-note" data-light-opt>« Placer la flamme », puis clique sur le dessin, là où est la lumière (la croix rouge).</p>
+      <label class="dz-check"><input type="checkbox" data-p="block"> Bloque le passage</label>
+      <div class="dz-inline" data-block-opt><button type="button" class="design-btn" data-arm="box"><i class="ti ti-square-dashed" aria-hidden="true"></i> Tracer la zone</button></div>
+      <p class="design-note" data-block-opt>« Tracer la zone », puis glisse sur le dessin (en rouge pâle) : son pied, pas toute sa hauteur.</p>
+      <label class="dz-check"><input type="checkbox" data-p="shadow"> Porte une ombre à la torche</label>
+      <label class="dz-block">Ce qu'on en voit (clic droit)<input class="design-input" type="text" maxlength="160" data-p="desc" placeholder="Quelqu'un l'a posé là, il y a longtemps."></label>
+      <p class="design-note" data-custom-note>Pour le poser sur l'île : onglet Carte, « Poser un objet ». Le jeu le prend à son lancement.</p>
+      <p class="design-note" data-game-note>Vaut pour ce dessin là où le jeu le pose (le jeu ouvert le prend aussitôt).</p>
+    </section>
+    </div>
     <div class="design-actions">
       <button type="button" class="design-btn primary" data-draw><i class="ti ti-pencil" aria-hidden="true"></i> Dessiner</button>
       <button type="button" class="design-btn" data-dl>Télécharger PNG</button>
@@ -361,17 +378,7 @@ function showMain() {
       <button type="button" class="design-btn quiet" data-remove hidden>Supprimer l'asset</button>
     </div>
     <div class="dz-anim" hidden><canvas></canvas><span class="dz-meta"></span></div>
-    <section class="dz-play" hidden>
-      <h4>Dans le jeu</h4>
-      <label class="dz-check"><input type="checkbox" data-p="light"> Il éclaire</label>
-      <label class="dz-inline" data-light-opt>Portée <select class="design-input" data-p="big"><option value="">petite (une torche)</option><option value="1">grande (un feu)</option></select></label>
-      <p class="design-note" data-light-opt>Clique sur le dessin pour placer la flamme (la croix rouge).</p>
-      <label class="dz-check"><input type="checkbox" data-p="block"> Bloque le passage</label>
-      <p class="design-note" data-block-opt>Glisse sur le dessin pour tracer la zone qui bloque (en rouge pâle) : son pied, pas toute sa hauteur.</p>
-      <label class="dz-check"><input type="checkbox" data-p="shadow"> Porte une ombre à la torche</label>
-      <label class="dz-block">Ce qu'on en voit (clic droit)<input class="design-input" type="text" maxlength="160" data-p="desc" placeholder="Quelqu'un l'a posé là, il y a longtemps."></label>
-      <p class="design-note">Pour le poser sur l'île : onglet Carte, « Poser un objet ». Le jeu le prend à son lancement.</p>
-    </section>`;
+`;
   main.querySelector('h3').textContent = seq ? `${seq.label} · ${new Set(seq.names).size} images` : d.label;
   main.querySelector('[data-remove]').hidden = !custom;
   if (seq) {
@@ -382,18 +389,21 @@ function showMain() {
   }
   main.querySelector('[data-draw]').addEventListener('click', () => openEditor(d.name));
   main.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(rowsOf(d.name))));
-  main.querySelector('input').addEventListener('change', async e => {
+  main.querySelector('input[type=file]').addEventListener('change', async e => {
     const f = e.target.files[0];
     e.target.value = '';
     if (f) say(await take(d.name, await f.arrayBuffer()));
   });
   restOfMain(d, custom);
-  if (custom) playPanel(custom);
+  // (les poses du viking, du loup, des cerfs, les reliques, le titre : pas de « Dans le jeu »)
+  const base = d.name.replace(/--\d+$/, '');
+  if (custom) playPanel(`custom-${custom.id}`, custom.w, custom.h);
+  else if (!fixedFrames(base) && !/^(viking|cape|loup|cerf|biche|relique|titre|ceinture|room|decor-roi)/.test(base)) playPanel(base, d.w, d.h);
 }
 // Ce que fait un asset créé ici, une fois posé sur l'île : la lumière, le pied
 // qui bloque, l'ombre, ce qu'on en dit (`props` des extras, sous `custom-<id>`)
-function playPanel(custom) {
-  const box = main.querySelector('.dz-play'), key = `custom-${custom.id}`;
+function playPanel(key, W, H) {
+  const box = main.querySelector('.dz-play'), custom = { w: W, h: H };
   box.hidden = false;
   const get = () => ({ ...(propsOf(key) || {}) });
   const save = p => { const clean = Object.fromEntries(Object.entries(p).filter(([, v]) => v !== undefined && v !== '' && v !== false && v !== 0 && v !== null)); setExtra('props', key, Object.keys(clean).length ? clean : null); status(); paintMain(); sync(); };
@@ -407,24 +417,34 @@ function playPanel(custom) {
     f('shadow').checked = !!p.shadow;
     if (document.activeElement !== f('desc')) f('desc').value = p.desc || '';
   };
-  f('light').addEventListener('change', () => { const p = get(); p.light = f('light').checked ? (p.light || { x: Math.floor(custom.w / 2), y: Math.floor(custom.h / 2) }) : undefined; save(p); });
+  f('light').addEventListener('change', () => { const p = get(); p.light = f('light').checked ? (p.light || { x: Math.floor(custom.w / 2), y: Math.floor(custom.h / 2) }) : undefined; save(p); if (p.light) setArm('light'); });
   f('big').addEventListener('change', () => { const p = get(); if (p.light) p.light = { ...p.light, big: f('big').value ? 1 : undefined }; save(p); });
-  f('block').addEventListener('change', () => { const p = get(); p.box = f('block').checked ? (p.box || { x0: Math.floor(custom.w / 2) - 2, y0: custom.h - 3, x1: Math.floor(custom.w / 2) + 2, y1: custom.h - 1 }) : undefined; save(p); });
+  f('block').addEventListener('change', () => { const p = get(); p.box = f('block').checked ? (p.box || { x0: Math.floor(custom.w / 2) - 2, y0: custom.h - 3, x1: Math.floor(custom.w / 2) + 2, y1: custom.h - 1 }) : undefined; save(p); if (p.box) setArm('box'); });
   f('shadow').addEventListener('change', () => { const p = get(); p.shadow = f('shadow').checked || undefined; save(p); });
   let t = 0;
   f('desc').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { const p = get(); p.desc = f('desc').value.trim() || undefined; save(p); }, 400); });
-  // Sur le dessin : glisser trace la zone qui bloque ; un simple clic pose la flamme
+  box.querySelector('[data-custom-note]').hidden = !key.startsWith('custom-');
+  box.querySelector('[data-game-note]').hidden = key.startsWith('custom-');
+  // Sur le dessin : « Placer la flamme » puis un clic ; « Tracer la zone » puis glisser
   const cv = main.querySelector('.dz-stage canvas');
+  let arm = null;
+  const setArm = a => {
+    arm = arm === a ? null : a;
+    for (const b of box.querySelectorAll('[data-arm]')) b.classList.toggle('on', b.dataset.arm === arm);
+    main.querySelector('.dz-stage').classList.toggle('armed', !!arm);
+    if (arm) say(arm === 'light' ? 'Clique sur le dessin, là où est la flamme.' : 'Glisse sur le dessin pour tracer la zone qui bloque.');
+  };
+  for (const b of box.querySelectorAll('[data-arm]')) b.addEventListener('click', () => setArm(b.dataset.arm));
   const at = e => { const r = cv.getBoundingClientRect(); return { x: Math.max(0, Math.min(custom.w - 1, Math.floor((e.clientX - r.left) / r.width * custom.w))), y: Math.max(0, Math.min(custom.h - 1, Math.floor((e.clientY - r.top) / r.height * custom.h))) }; };
   let from = null;
   cv.addEventListener('pointerdown', e => { from = at(e); cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointerup', e => {
     if (!from) return;
-    const to = at(e), p = get(), moved = Math.abs(to.x - from.x) + Math.abs(to.y - from.y) > 1;
-    if (moved && p.box) p.box = { x0: Math.min(from.x, to.x), y0: Math.min(from.y, to.y), x1: Math.max(from.x, to.x), y1: Math.max(from.y, to.y) };
-    else if (!moved && p.light) p.light = { ...p.light, x: to.x, y: to.y };
+    const to = at(e), p = get();
+    if (arm === 'box' && p.box) p.box = { x0: Math.min(from.x, to.x), y0: Math.min(from.y, to.y), x1: Math.max(from.x, to.x), y1: Math.max(from.y, to.y) };
+    else if (arm === 'light' && p.light) p.light = { ...p.light, x: to.x, y: to.y };
     else { from = null; return; }
-    from = null; save(p);
+    from = null; save(p); setArm(null); say('Enregistré. Publie pour tout le monde.');
   });
   sync();
 }
@@ -509,7 +529,7 @@ function paintMain() {
   const k = Math.max(1, Math.min(12, Math.floor(340 / d.w), Math.floor(300 / d.h)));
   drawTo(cv, d, rows, k);
   // Ce qu'il fait dans le jeu, par-dessus : la flamme (croix rouge), le pied qui bloque (rouge pâle)
-  const custom = customOf(d.name), props = custom && propsOf(`custom-${custom.id}`);
+  const custom = customOf(d.name), props = propsOf(custom ? `custom-${custom.id}` : d.name.replace(/--\d+$/, ''));
   if (props) {
     const ctx = cv.getContext('2d');
     if (props.box) {

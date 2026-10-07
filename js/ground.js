@@ -12,7 +12,7 @@
 
    Le module ne connaît Phaser que par `onUpload(tuile)` : la toile a changé,
    la texture doit être renvoyée à la carte graphique. */
-import { CHUNK, paintChunkSteps } from './world.js?v=1.63.0';
+import { CHUNK, paintChunkSteps } from './world.js?v=1.63.1';
 
 const LEVELS = 12;               // paliers de l'effacement d'une marque
 const MAX_MARKS = 2000;          // au-delà, les plus anciennes disparaissent

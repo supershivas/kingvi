@@ -82,3 +82,10 @@
 .tu-row.changed .tu-val { color: var(--accent); font-weight: 600; }
 .tu-head [data-reset] { margin-left: auto; }
 .tu-row input[type=range] { width: 100%; min-height: 32px; accent-color: var(--accent); }
+
+.dz-play .design-btn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dz-stage.armed { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* L'aperçu et « Dans le jeu », côte à côte */
+.dz-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.dz-row .dz-play { margin-top: 0; flex: 1; min-width: 260px; }

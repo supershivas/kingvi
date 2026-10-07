@@ -3,8 +3,8 @@
    ouvert dans un autre onglet le prend aussitôt, et « Publier pour tous »
    l'envoie dans `assets/design/texts.json`. Les textes vivent dans leurs
    données (texts.js : `textEntries`, `applyTexts`). */
-import { readTexts, writeTexts, textsDepot, textOverrides, designsReady } from './design-store.js?v=1.63.0';
-import { textEntries, TEXT_GROUPS, whoName } from './texts.js?v=1.63.0';
+import { readTexts, writeTexts, textsDepot, textOverrides, designsReady } from './design-store.js?v=1.63.1';
+import { textEntries, TEXT_GROUPS, whoName } from './texts.js?v=1.63.1';
 
 export async function mountTexts(host, { onChange = () => {}, onPublish = null } = {}) {
   await designsReady;

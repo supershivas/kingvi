@@ -1,8 +1,8 @@
 {
-  "version": "1.63.0",
+  "version": "1.63.1",
   "date": "2026-10-07",
   "changes": [
-    "Atelier, onglet Nombres : régler la vitesse de Kári, les points de vie, les loups, l'autre viking, l'incendie, les éclairs…",
-    "Le jeu ouvert prend le nouveau réglage aussitôt ; « Publier pour tous » l'envoie à tout le monde"
+    "Atelier : « Dans le jeu » (lumière, zone qui bloque, ombre, description) vaut aussi pour les dessins du jeu : la maison, les barques, les cubes, le coffre…",
+    "Le panneau est à côté de l'aperçu, avec « Placer la flamme » et « Tracer la zone » ; les points de vie de Kári se règlent en cours de partie"
   ]
 }

@@ -1,11 +1,11 @@
 /* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
-import { T as TUNE } from './tuning.js?v=1.63.0';
+import { T as TUNE } from './tuning.js?v=1.63.1';
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.63.0';
+} from './viking.js?v=1.63.1';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
@@ -13,13 +13,13 @@ import {
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT, monsBlocked,
   PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER,
-} from './world.js?v=1.63.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.63.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.63.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.63.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.63.0';
-import { createGround } from './ground.js?v=1.63.0';
-import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.63.0';
+} from './world.js?v=1.63.1';
+import { ICE_FRAMES } from './sigrun.js?v=1.63.1';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.63.1';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.63.1';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.63.1';
+import { createGround } from './ground.js?v=1.63.1';
+import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.63.1';
 
 // Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
 // (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
@@ -42,28 +42,28 @@ const GROWN = new Map();
     return base.call(this, x, y);
   };
 }
-import { chapterById } from './chapters.js?v=1.63.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.63.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.63.0';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.63.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.63.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.63.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.63.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.63.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.63.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.63.0';
-import { createFoe, drawPips } from './foe.js?v=1.63.0';
-import { createFauna } from './fauna.js?v=1.63.0';
-import { createWeather } from './weather.js?v=1.63.0';
-import { createTalk } from './dialogue.js?v=1.63.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.63.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.63.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.63.0';
-import { describe } from './describe.js?v=1.63.0';
-import { personSprite } from './people.js?v=1.63.0';
-import { createSea } from './sea.js?v=1.63.0';
-import { audio } from './audio.js?v=1.63.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.63.0';
+import { chapterById } from './chapters.js?v=1.63.1';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.63.1';
+import { BUNDLE, WATCHER } from './grove.js?v=1.63.1';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.63.1';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.63.1';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.63.1';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.63.1';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.63.1';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.63.1';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.63.1';
+import { createFoe, drawPips } from './foe.js?v=1.63.1';
+import { createFauna } from './fauna.js?v=1.63.1';
+import { createWeather } from './weather.js?v=1.63.1';
+import { createTalk } from './dialogue.js?v=1.63.1';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.63.1';
+import { NECRO_W, NECRO_H } from './props.js?v=1.63.1';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.63.1';
+import { describe } from './describe.js?v=1.63.1';
+import { personSprite } from './people.js?v=1.63.1';
+import { createSea } from './sea.js?v=1.63.1';
+import { audio } from './audio.js?v=1.63.1';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.63.1';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -688,11 +688,13 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // Les images qui s'animent (des images ajoutées dans l'atelier) : la
       // texture est repeinte sur place à chaque image (`animateArt`)
       this.artAnims = new Map();
+      this.artRows = new Map();            // (le dessin de chaque image, pour son ombre)
       const art = this.art = (key, rows) => {
         // (un dessin du décor redessiné à la main remplace celui du code : designs.js ;
         // agrandi dans l'atelier, il garde son point d'ancrage : `GROWN`)
         originals.set(key, rows);
         const frames = designFrames(key, rows);
+        this.artRows.set(key, frames[0]);
         rows = frames[0];
         const p = padOf(key);
         const orig = originals.get(key);
@@ -790,6 +792,13 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       }
       this.objStamp = this.make.image({ key: 'torchlight-0-0' }, false).setOrigin(0.5);
       this.walkable = walkable;                    // (le debug, le harnais)
+      // Les dessins du jeu posés tels quels (maison, barques, cubes, coffre…) qui
+      // ont reçu, dans l'atelier, une lumière, une zone qui bloque, une ombre ou
+      // une description : recensés une fois la scène montée, et de nouveau quand
+      // l'atelier les change (événement « storage »)
+      this.artProps = [];
+      this.time.delayedCall(0, () => this.registerArtProps());
+      window.addEventListener('storage', e => { if (e.key === EXTRAS_STORAGE_KEY || e.key === null) this.registerArtProps(); });
       // ── Le mons (v1.60.0) : au creux du sud, loin des traces. Son animation est
       // celle de l'atelier (« Un mons », custom-un-mons-0…) ; s'il n'y en a pas,
       // une masse de nuit. Il apparaît quand on le découvre ; il a perdu son œil
@@ -1729,6 +1738,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.swayClock = (this.swayClock || 0) - dt * 1000;
       if (this.swayClock <= 0 && !this.inside) { this.swayClock = 45; this.swayTrees(time); }
       this.updateGrove(time);
+      // (les points de vie réglés dans l'atelier : pris en cours de partie)
+      { const want = TUNE.kariPv + (this.given?.has('freya') ? 1 : 0); if (this.maxHp !== want) { this.maxHp = want; this.hp = Math.min(this.hp, want); } }
       this.updateHvit(dt);
       this.updateMons(dt);
       this.animateArt();
@@ -2007,9 +2018,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       }
       // Les objets posés qui éclairent (une lanterne…) : la nuit s'ouvre autour
       if (rt.visible && !this.inside) {
-        for (const o of this.placed) {
+        for (const o of [...this.placed, ...this.artProps]) {
           const L = o.props.light;
-          if (!L) continue;
+          if (!L || !o.img.visible) continue;
           const fx = o.x0 + L.x, fy = o.top + L.y, kind = L.big ? 'firelight' : 'torchlight', src = this.textures.get(`${kind}-0-0`).source[0];
           if (fx < v.x - src.width || fx > v.right + src.width || fy < v.y - src.height || fy > v.bottom + src.height) continue;
           const ox = ((Math.round(fx - src.width / 2) % 4) + 4) % 4, oy = ((Math.round(fy - src.height / 2) % 4) + 4) % 4;
@@ -2083,8 +2094,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         }
       }
       // Les objets posés dans l'atelier qui portent une ombre
-      for (const o of this.placed) {
-        if (!o.props.shadow || Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
+      for (const o of [...this.placed, ...this.artProps]) {
+        if (!o.props.shadow || !o.img.visible || Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
         const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly)), b = artBase({ rows: o.rows, ax: 0 });
         castShadowBase(put, o.x0 + b.x0, o.x0 + b.x1, o.y + 1 - b.dy, lx, ly, Math.max(4, Math.min(14, o.h * 9 / d)), R);
       }
@@ -2453,9 +2464,14 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         if (im.flipX) px = w - 1 - px;
         if (!(this.textures.getPixelAlpha(px, py, key, im.frame.name) > 0)) continue;
         const what = this.whatIs(im);
-        if (what) best = { depth: im.depth, ...what };
+        if (what) best = { depth: im.depth, img: im, ...what };
       }
-      if (best) return best.title ? { title: best.title, text: best.text } : describe(best.kind, best.seed ?? seedOf(wx, wy));
+      if (best) {
+        const d = best.title ? { title: best.title, text: best.text } : describe(best.kind, best.seed ?? seedOf(wx, wy));
+        // (une description écrite dans l'atelier, « Dans le jeu », passe devant)
+        const a = this.artProps.find(p => p.img === best.img && p.props.desc);
+        return a && d ? { title: d.title, text: a.props.desc } : d;
+      }
       if (!ground) return null;
       // Le sol
       if (this.inside) return describe(`room-${this.inside}`, 0);
@@ -2619,6 +2635,23 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const head = () => ({ x: h.x, y: h.y - 10 });
       this.speak('hvit-libre', [['hvit', 'Tu m\'as déliée, petit d\'homme.', head], ['hvit', 'Là-haut, sur la roche, mes petits ont faim.', head], ['hvit', 'Ils te laisseront passer. Ne lève pas la lame sur eux.', head]], { interrupt: true });
       this.persist();
+    }
+    registerArtProps() {
+      for (const o of this.artProps) { const i = PLACED.indexOf(o); if (i >= 0) PLACED.splice(i, 1); }
+      this.artProps = [];
+      for (const img of this.children.list) {
+        const key = img.texture?.key;
+        if (!key || key.startsWith('obj-') || !img.frame || !this.artRows.has(key)) continue;
+        const props = propsOf(key);
+        if (!props) continue;
+        const rows = this.artRows.get(key);
+        // (la place de l'image se relit à chaque fois : une barque bouge)
+        const o = { img, key, props, rows, w: rows[0].length, h: rows.length,
+          get x0() { return Math.round(img.x - img.displayOriginX); }, get top() { return Math.round(img.y - img.displayOriginY); },
+          get x() { return img.x; }, get y() { return img.y; } };
+        this.artProps.push(o);
+        if (props.box) PLACED.push(o);
+      }
     }
     // Les dessins du décor animés dans l'atelier : la texture change d'image
     animateArt() {

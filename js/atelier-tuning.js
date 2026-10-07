@@ -2,8 +2,8 @@
    Chaque valeur s'enregistre en bougeant le curseur (`kingvi:tuning`) ; le jeu
    ouvert dans un autre onglet la prend aussitôt ; « Publier pour tous »
    l'envoie dans `assets/design/tuning.json`. */
-import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.63.0';
-import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.63.0';
+import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.63.1';
+import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.63.1';
 
 const fmt = (v, step) => (step < 1 ? v.toFixed(String(step).split('.')[1].length) : String(Math.round(v))).replace('.', ',');
 
@@ -12,7 +12,7 @@ export async function mountTuning(host, { onChange = () => {}, onPublish = null 
   host.innerHTML = `
     <div class="at">
       <div class="at-bar">
-        <p class="design-note">Chaque nombre s'enregistre en bougeant le curseur ; le jeu ouvert dans un autre onglet le prend aussitôt (sauf le nombre de loups et les points de vie de Kári : au prochain lancement).</p>
+        <p class="design-note">Chaque nombre s'enregistre en bougeant le curseur ; le jeu ouvert dans un autre onglet le prend aussitôt (sauf le nombre de loups : au prochain lancement).</p>
         <span class="dz-spacer"></span>
         <button type="button" class="design-btn primary" data-publish-tuning><i class="ti ti-cloud-upload" aria-hidden="true"></i> Publier pour tous</button>
       </div>

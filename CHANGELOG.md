@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.63.1 — 2026-10-07
+- Atelier : le panneau « Dans le jeu » (une lumière, une zone qui bloque, une ombre, ce qu'on en voit au clic droit) vaut maintenant aussi pour les dessins du jeu posés tels quels : la maison, les barques, les cubes, le coffre, le clou, la dalle… ; le jeu ouvert les prend aussitôt
+- Le panneau est à côté de l'aperçu, avec deux boutons clairs : « Placer la flamme » (puis un clic sur le dessin) et « Tracer la zone » (puis glisser)
+- Les points de vie de Kári réglés dans l'onglet Nombres s'appliquent en cours de partie
+- Corrige « Importer PNG », qui réagissait à la case « Il éclaire »
+
 ## 1.63.0 — 2026-10-07
 - Atelier, nouvel onglet Nombres : 23 réglages en curseurs, rangés par Kári (vitesse, course, points de vie, guérison, coup tourbillonnant), l'autre viking, les loups (nombre, points de vie, grognement avant le bond, temps entre deux bonds, vitesse), l'incendie (les temps du feu, la fumée) et le monde (éclairs, pierres qui tombent sur la sente)
 - Chaque réglage montre sa valeur par défaut et y revient d'un clic ; le jeu ouvert dans un autre onglet le prend aussitôt ; « Publier pour tous » l'envoie à tout le monde

@@ -190,9 +190,12 @@ et `setOrigin` reporté), `anims` (un dessin seul à qui l'on ajoute des images 
 `<nom>--1`… ; `designFrames`, `setDesignFrames` ; le jeu repeint la texture,
 `artAnims`, `animateArt` ; les animations figées par le code — marche, loup,
 flamme — gardent leur nombre d'images : `fixedFrames`), `props` (ce qu'un asset
-créé dans l'atelier fait une fois posé : `light` { x, y, big } la nuit s'ouvre
-autour, `box` la zone qui bloque, `shadow` l'ombre à la torche, `desc` le clic
-droit ; panneau « Dans le jeu » de l'atelier). **Objets posés** : onglet Carte,
+créé dans l'atelier fait une fois posé, et (v1.63.1) tout dessin du jeu posé tel
+quel par `art()` (maison, barques, cubes, coffre, clou, dalle…) : `light` { x, y,
+big } la nuit s'ouvre autour, `box` la zone qui bloque, `shadow` l'ombre à la
+torche, `desc` le clic droit ; panneau « Dans le jeu » à côté de l'aperçu,
+boutons « Placer la flamme », « Tracer la zone » ; le jeu les recense
+(`registerArtProps`, `artProps`, `artRows`) et les reprend en direct). **Objets posés** : onglet Carte,
 « Poser un objet » (`obj:<id>:<n>` dans les placements) ; le jeu les crée
 (`this.placed`, `PLACED`, `placedBlocked`). La lanterne (`une-lanterne`) est
 posée près des traces, après la grève, et éclaire. La barque échouée n'a plus
