@@ -5,10 +5,10 @@
    pixels du jeu. */
 import {
   BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName, WORLDS, worldOf,
-} from './saga.js?v=1.49.0';
-import { personSprite } from './people.js?v=1.49.0';
-import { brokenBox } from './dialogue.js?v=1.49.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT } from './sno4.js?v=1.49.0';
+} from './saga.js?v=1.50.0';
+import { personSprite } from './people.js?v=1.50.0';
+import { brokenBox } from './dialogue.js?v=1.50.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.50.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {
@@ -465,7 +465,7 @@ function sno4Map(list) {
 // L'île telle qu'on la joue (sno4.js) : le sol et ce qui est debout, à l'échelle du jeu
 function sno4Scene() {
   const card = el('article', 'demo wide');
-  card.append(el('h3', null, 'SNO 4 dans le jeu'), el('p', null, 'L\'île où Kári arrive en barque (la barque, à l\'ouest, près de la Barrière). Le sol, les mâts, le poto mitan, les cases, la forge, les croix du cimetière, le mapou, la maison aux bouteilles ; les personnages sont posés par le jeu.'));
+  card.append(el('h3', null, 'SNO 4 dans le jeu'), el('p', null, 'L\'île où Kári arrive en barque (la barque, à l\'ouest, près de la Barrière). Le sol, les mâts, le poto mitan, les cases, la forge, les croix du cimetière, le mapou, la maison aux bouteilles ; les personnages sont posés par le jeu. En rouge : la barque, et les trois vèvè qu\'on marche (Legba près de la Barrière, Damballah sous le mapou, le Baron au sud du cimetière).'));
   const c = el('canvas', 'saga-map');
   c.width = SNO4_W; c.height = SNO4_H;
   c.style.maxWidth = '100%';
@@ -473,6 +473,15 @@ function sno4Scene() {
   paintSno4(g, COL);
   for (const p of SNO4_PROPS) drawRows(g, p.rows, p.at.x - p.ax, p.at.y - p.h + 1);
   g.fillStyle = COL.r; g.fillRect(SNO4_BOAT.x, SNO4_BOAT.y, 30, 10);
+  // Les vèvè à marcher : leurs points et leurs traits, en rouge pour les voir
+  g.fillStyle = COL.r;
+  for (const v of VEVE) {
+    for (const [a, b] of v.links) {
+      const [ax, ay] = v.nodes[a], [bx, by] = v.nodes[b], n = Math.max(Math.abs(bx - ax), Math.abs(by - ay));
+      for (let k = 0; k <= n; k += 2) g.fillRect(Math.round(v.at.x + ax + (bx - ax) * k / n), Math.round(v.at.y + ay + (by - ay) * k / n), 1, 1);
+    }
+    for (const [dx, dy] of v.nodes) g.fillRect(v.at.x + dx - 1, v.at.y + dy - 1, 3, 3);
+  }
   card.append(c);
   return card;
 }

@@ -8,7 +8,7 @@
 
 import {
   WORLD, coast, deepForest, forestDensity, trail, landing, HOUSE, STATUE_BASE, STATUE2_BASE, ARCH, CLIFF, CAVE, LAKE, NECRO, WOLF_DEN, GROVE_TREE,
-} from './world.js?v=1.49.0';
+} from './world.js?v=1.50.0';
 
 const S = 12;                   // pixels du monde par pixel de carte
 const N = Math.ceil(WORLD / S);
@@ -131,4 +131,93 @@ export function seenBounds({ seen, cell, n }) {
   if (c1 < 0) return null;
   const m = 6;
   return { x0: Math.max(0, (c0 - m) * cell / S), y0: Math.max(0, (r0 - m) * cell / S), x1: Math.min(N, (c1 + 1 + m) * cell / S), y1: Math.min(N, (r1 + 1 + m) * cell / S) };
+}
+
+// ── La carte de SNO 4 (on y est) : la scène de l'île vue d'en haut, réduite
+// au quart (sno4.js : le sol et ce qui est debout), ce qu'on n'a pas vu dans
+// le noir, les vèvè marchés, les lieux vus nommés, la croix rouge ──
+const S4 = 4;
+let sno4Base = null;
+async function sno4Terrain(palette) {
+  if (sno4Base) return sno4Base;
+  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.50.0');
+  const full = document.createElement('canvas');
+  full.width = SNO4_W; full.height = SNO4_H;
+  const g = full.getContext('2d');
+  paintSno4(g, palette);
+  for (const p of SNO4_PROPS) p.rows.forEach((row, y) => [...row].forEach((ch, x) => {
+    if (ch === '.' || !palette[ch]) return;
+    g.fillStyle = palette[ch]; g.fillRect(p.at.x - p.ax + x, p.at.y - p.h + 1 + y, 1, 1);
+  }));
+  // Réduite au quart, au plus proche (des pixels nets)
+  const small = document.createElement('canvas');
+  small.width = Math.ceil(SNO4_W / S4); small.height = Math.ceil(SNO4_H / S4);
+  const sg = small.getContext('2d');
+  sg.imageSmoothingEnabled = false;
+  sg.drawImage(full, 0, 0, small.width, small.height);
+  sno4Base = small;
+  return small;
+}
+
+export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) {
+  const base = await sno4Terrain(palette);
+  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.50.0');
+  const { VEVE } = await import('./sno4.js?v=1.50.0');
+  const { seen, cell, cols, rows, pos } = data;
+  const W = base.width, H = base.height;
+  const seenAt = (lx, ly) => { const c = Math.floor(lx / cell), r = Math.floor(ly / cell); return c >= 0 && r >= 0 && c < cols && r < rows && seen[r * cols + c]; };
+  // Le cadrage : ce qu'on a vu, avec une marge
+  let c0 = cols, c1 = -1, r0 = rows, r1 = -1;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (seen[r * cols + c]) { c0 = Math.min(c0, c); c1 = Math.max(c1, c); r0 = Math.min(r0, r); r1 = Math.max(r1, r); }
+  if (c1 < 0) { c0 = 0; c1 = cols - 1; r0 = 0; r1 = rows - 1; }
+  const m = 4;
+  const bx0 = Math.max(0, (c0 - m) * cell / S4), by0 = Math.max(0, (r0 - m) * cell / S4);
+  const bx1 = Math.min(W, (c1 + 1 + m) * cell / S4), by1 = Math.min(H, (r1 + 1 + m) * cell / S4);
+  const w = bx1 - bx0, h = by1 - by0;
+  const k = Math.max(1, Math.floor(Math.min(maxW / w, maxH / h)));
+  const dpr = window.devicePixelRatio || 1;
+  view.width = Math.round(w * k * dpr); view.height = Math.round(h * k * dpr);
+  view.style.width = `${w * k}px`; view.style.height = `${h * k}px`;
+  const ctx = view.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(base, bx0, by0, w, h, 0, 0, view.width, view.height);
+  const z = k * dpr, X = x => (x / S4 - bx0) * z, Y = y => (y / S4 - by0) * z;
+  // Le noir sur ce qu'on n'a pas vu, tramé au bord
+  ctx.fillStyle = palette.b;
+  for (let y = Math.floor(by0); y < by1; y++) for (let x = Math.floor(bx0); x < bx1; x++) {
+    const lx = x * S4 + S4 / 2, ly = y * S4 + S4 / 2;
+    if (seenAt(lx, ly)) continue;
+    const hcell = cell * 0.5;
+    const edge = seenAt(lx + hcell, ly) || seenAt(lx - hcell, ly) || seenAt(lx, ly + hcell) || seenAt(lx, ly - hcell);
+    if (edge && BAYER[(y & 3) * 4 + (x & 3)] < 0.45) continue;
+    ctx.fillRect(Math.floor((x - bx0) * z), Math.floor((y - by0) * z), Math.ceil(z), Math.ceil(z));
+  }
+  const u = Math.max(2, Math.round(z));
+  // Les vèvè marchés (une croix de cendre)
+  for (const v of VEVE) {
+    if (!data.veve?.includes(v.id) || !seenAt(v.at.x, v.at.y)) continue;
+    const mx = Math.round(X(v.at.x)), my = Math.round(Y(v.at.y));
+    ctx.fillStyle = palette.b;
+    ctx.fillRect(mx - u * 2, my - u / 2, u * 4, u); ctx.fillRect(mx - u / 2, my - u * 2, u, u * 4);
+  }
+  // Les lieux vus, et leur nom
+  ctx.font = `500 ${Math.round(15 * dpr)}px "Grenze Gotisch", serif`;
+  ctx.textBaseline = 'middle';
+  for (const p of PLACES_SNO4) {
+    const lx = p.x * 960, ly = p.y * 600;
+    if (!seenAt(lx, ly)) continue;
+    const mx = Math.round(X(lx)), my = Math.round(Y(ly));
+    ctx.fillStyle = palette.b; ctx.fillRect(mx - u * 1.5, my - u * 1.5, u * 3, u * 3);
+    ctx.fillStyle = palette.s; ctx.fillRect(mx - u / 2, my - u / 2, u, u);
+    const tw = ctx.measureText(p.nom).width, lx2 = Math.max(2, Math.min(view.width - tw - 4, mx + u * 2.5));
+    ctx.lineWidth = 4 * dpr; ctx.strokeStyle = palette.s; ctx.lineJoin = 'round'; ctx.strokeText(p.nom, lx2, my);
+    ctx.fillStyle = palette.b; ctx.fillText(p.nom, lx2, my);
+  }
+  if (pos) {
+    const mx = Math.round(X(pos.x)), my = Math.round(Y(pos.y)), a = (Math.floor(t * 2) % 2 ? 4 : 3) * u / 2;
+    ctx.fillStyle = palette.s;
+    ctx.fillRect(mx - a - u, my - u, 2 * a + 2 * u, 2 * u); ctx.fillRect(mx - u, my - a - u, 2 * u, 2 * a + 2 * u);
+    ctx.fillStyle = palette.r;
+    ctx.fillRect(mx - a, my - u / 2, 2 * a, u); ctx.fillRect(mx - u / 2, my - a, u, 2 * a);
+  }
 }

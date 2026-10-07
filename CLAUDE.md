@@ -222,7 +222,7 @@ est cachée et ne sort que pendant l'attaque.
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `fire` (l'incendie),
   `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
-  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `salt`, `clotildeFree` (SNO 4), `chips` (coups déjà portés
+  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `salt`, `clotildeFree`, `seen4`, `veve` (SNO 4), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
@@ -272,7 +272,15 @@ est cachée et ne sort que pendant l'attaque.
   `personImage` d'après `PERSON`), les âmes du carrefour, Clotilde qui marche
   (`updateSno4`) ; scènes `kari-*` de `saga-sno4.js` ; le sel de Ti-Jo
   (`salt`) réveille Clotilde (`clotildeFree`). Mourir ou se sauvegarder sur
-  SNO 4 ramène à la grève de SNO 7. La carte (M) reste celle de SNO 7.
+  SNO 4 ramène à la grève de SNO 7. **Vèvè** (v1.50.0) : `VEVE` dans `sno4.js`
+  (points `nodes` et traits `links` autour de `at`) ; on les marche : chaque
+  point foulé à moins de `VEVE_NODE` px compte, tous en moins de `VEVE_TIME` s
+  referment le dessin (`checkVeve`, `drawVeve` : graphique au ras du sol,
+  `veveClosed`) ; Legba ouvre toute la carte de SNO 4, Damballah met le vent au
+  calme une minute, le Baron monte Kári 16 s (`ridden` : il tangue). Faits
+  gardés dans `veve`. **Carte de SNO 4** : cases de 24 px (`seen4`, `SEEN4_*`),
+  `mapData()` rend `world: 'sno4'`, `renderSno4Map` dans `map.js` (la scène
+  réduite au quart, le noir sur le non-vu).
 - `js/dialogue.js` — la parole (bulle B), partagée jeu/labo ; `js/map.js` — la
   carte qui se construit (voir la Description).
 - `js/debug.js` — le mode debug du playtest, chargé seulement avec

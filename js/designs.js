@@ -10,22 +10,22 @@
    positions, les portes, les obstacles en dépendent). Les couleurs sont
    ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
    viking (bleu nuit translucide) est permise pour ses poses. */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.49.0';
-import { HOUSE_ART, FALLING_STONE } from './world.js?v=1.49.0';
-import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.49.0';
-import { ROOM, CORPSE } from './interior.js?v=1.49.0';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.49.0';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.49.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.49.0';
-import { RUIN_ART } from './ruins-art.js?v=1.49.0';
-import { vikingFrames, capeFrames } from './viking.js?v=1.49.0';
-import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.49.0';
-import { STAG_RAW, DOE_RAW } from './deer.js?v=1.49.0';
-import { RELICS, BELT } from './relics.js?v=1.49.0';
-import { TITLE_ART } from './title-art.js?v=1.49.0';
-import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.49.0';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.50.0';
+import { HOUSE_ART, FALLING_STONE } from './world.js?v=1.50.0';
+import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.50.0';
+import { ROOM, CORPSE } from './interior.js?v=1.50.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.50.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.50.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.50.0';
+import { RUIN_ART } from './ruins-art.js?v=1.50.0';
+import { vikingFrames, capeFrames } from './viking.js?v=1.50.0';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.50.0';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.50.0';
+import { RELICS, BELT } from './relics.js?v=1.50.0';
+import { TITLE_ART } from './title-art.js?v=1.50.0';
+import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.50.0';
 
-export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot } from './design-store.js?v=1.49.0';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot } from './design-store.js?v=1.50.0';
 
 export const GROUPS = [
   { id: 'titre', title: 'Le titre', about: 'Le nom du jeu sur l\'écran d\'accueil : la gothique sous la neige. Neige et bleu nuit ; la taille reste celle de l\'original.' },

@@ -4,37 +4,37 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.49.0';
+} from './viking.js?v=1.50.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE,
-} from './world.js?v=1.49.0';
-import { createPack } from './pack.js?v=1.49.0';
-import { createGround } from './ground.js?v=1.49.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.49.0';
-import { chapterById } from './chapters.js?v=1.49.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.49.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.49.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.49.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.49.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.49.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.49.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.49.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.49.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.49.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.49.0';
-import { createFauna } from './fauna.js?v=1.49.0';
-import { createWeather } from './weather.js?v=1.49.0';
-import { createTalk } from './dialogue.js?v=1.49.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat } from './sno4.js?v=1.49.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.49.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.49.0';
-import { personSprite } from './people.js?v=1.49.0';
-import { createSea } from './sea.js?v=1.49.0';
-import { audio } from './audio.js?v=1.49.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.49.0';
+} from './world.js?v=1.50.0';
+import { createPack } from './pack.js?v=1.50.0';
+import { createGround } from './ground.js?v=1.50.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.50.0';
+import { chapterById } from './chapters.js?v=1.50.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.50.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.50.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.50.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.50.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.50.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.50.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.50.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.50.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.50.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.50.0';
+import { createFauna } from './fauna.js?v=1.50.0';
+import { createWeather } from './weather.js?v=1.50.0';
+import { createTalk } from './dialogue.js?v=1.50.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.50.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.50.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.50.0';
+import { personSprite } from './people.js?v=1.50.0';
+import { createSea } from './sea.js?v=1.50.0';
+import { audio } from './audio.js?v=1.50.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.50.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -71,8 +71,10 @@ const SIGHT = { rx: 0.73, ry: 0.60, fade: 0.76 };
 // La carte qui se construit : l'île en cases de SEEN_CELL pixels ; on voit
 // à SEEN_R pixels autour de soi. Gardé en bits, en base64, dans la sauvegarde.
 const SEEN_CELL = 48, SEEN_N = Math.ceil(WORLD / SEEN_CELL), SEEN_R = 110;
-function decodeSeen(text) {
-  const out = new Uint8Array(SEEN_N * SEEN_N);
+// (SNO 4 a sa propre carte : des cases de 24 px sur sa scène)
+const SEEN4_CELL = 24, SEEN4_COLS = Math.ceil(SNO4_W / SEEN4_CELL), SEEN4_ROWS = Math.ceil(SNO4_H / SEEN4_CELL);
+function decodeSeen(text, len = SEEN_N * SEEN_N) {
+  const out = new Uint8Array(len);
   if (typeof text !== 'string') return out;
   try {
     const bin = atob(text);
@@ -461,6 +463,8 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
 
       // ── La carte qui se construit : ce que le viking a vu, par cases ──
       this.seen = decodeSeen(save.seen);
+      this.seen4 = decodeSeen(save.seen4, SEEN4_COLS * SEEN4_ROWS);
+      this.veveDone = new Set(save.veve || []);
 
       // ── La parole : des scènes de la saga, chacune une fois par partie ──
       this.said = new Set(save.said || []);
@@ -1324,6 +1328,14 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       mx += this.pad.x; my += this.pad.y;
       if (!isPaused()) this.checkVoyage(mx, my, dt);
+      if (!isPaused()) this.checkVeve(dt);
+      if (this.ridden > 0 && !isPaused()) {
+        this.ridden -= dt;
+        const k = this.clock / 1000;
+        // (le pas du Gede : il tangue, s'arrête, repart)
+        if (mx || my) mx += Math.sin(k * 7) * 0.9;
+        else if (Math.sin(k * 1.3) > 0.4) mx = Math.sin(k * 5) * 0.5;
+      }
       // À bout de souffle, on ne court plus, même Maj tenue, tant que
       // l'endurance n'est pas un peu revenue (elle revient au pas)
       if (this.stamina <= 0.02 && !this.winded) { this.winded = true; this.staminaFlash = 0.6; }
@@ -1955,7 +1967,14 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
     // Il met le feu au corps : la torche, la paille, le plancher
     // La carte : les cases autour du viking (dans un intérieur, sa porte)
     markSeen() {
-      if (this.inside === 'sno4') return;          // (la carte est celle de SNO 7)
+      if (this.inside === 'sno4') {
+        // (SNO 4 a sa propre carte, en coordonnées de sa scène)
+        const A = INTERIORS.sno4.at, lx = this.pos.x - A.x, ly = this.pos.y - A.y, R = SEEN_R * (1 - 0.35 * weather.fog);
+        for (let r = 0; r < SEEN4_ROWS; r++) for (let c = 0; c < SEEN4_COLS; c++) {
+          if (Math.hypot((c + 0.5) * SEEN4_CELL - lx, (r + 0.5) * SEEN4_CELL - ly) < R) this.seen4[r * SEEN4_COLS + c] = 1;
+        }
+        return;
+      }
       const at = this.inside ? INTERIORS[this.inside].door : this.pos;
       const R = this.inside ? 40 : SEEN_R * (1 - 0.35 * weather.fog);
       const c0 = Math.floor((at.x - R) / SEEN_CELL), c1 = Math.floor((at.x + R) / SEEN_CELL);
@@ -2042,10 +2061,90 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
       this.clotilde = { img: this.personImage('clotilde', A.x + c0.x, A.y + c0.y), t: 0, x: A.x + c0.x, y: A.y + c0.y };
       objs.push(this.clotilde.img);
       if (this.clotildeFree) this.clotilde.img.setVisible(false);
+      // Les vèvè : des points de cendre reliés par des traits pâles, au ras du sol
+      this.veves = VEVE.map(v => {
+        const g = this.add.graphics().setDepth(D);
+        objs.push(g);
+        const st = { v, g, seen: new Set(), t0: 0 };
+        this.drawVeve(st);
+        return st;
+      });
       this.sno4 = { objs };
       objs.forEach(o => o.setVisible(false));
       return this.sno4;
     }
+    // Un vèvè : pâle et pointillé tant qu'il n'est pas marché ; les points
+    // marchés se noircissent, les traits entre deux points marchés deviennent pleins
+    drawVeve(st) {
+      const { v, g } = st, A = INTERIORS.sno4.at, done = this.veveDone.has(v.id);
+      const P = i => ({ x: A.x + v.at.x + v.nodes[i][0], y: A.y + v.at.y + v.nodes[i][1] });
+      const on = i => done || st.seen.has(i);
+      g.clear();
+      for (const [a, b] of v.links) {
+        const p = P(a), q = P(b), n = Math.max(Math.abs(q.x - p.x), Math.abs(q.y - p.y)), full = on(a) && on(b);
+        g.fillStyle(hex(palette.b), full ? 0.9 : 0.35);
+        for (let k = 0; k <= n; k++) {
+          if (!full && k % 3) continue;
+          // (le trait tremble d'un pixel : rien de géométrique)
+          const wob = Math.round(Math.sin((k + a * 7) * 0.9) * 0.6);
+          g.fillRect(Math.round(p.x + (q.x - p.x) * k / n), Math.round(p.y + (q.y - p.y) * k / n) + wob, 1, 1);
+        }
+      }
+      for (let i = 0; i < v.nodes.length; i++) {
+        const p = P(i);
+        g.fillStyle(hex(palette.b), on(i) ? 1 : 0.55);
+        if (on(i)) g.fillRect(p.x - 1, p.y - 1, 3, 3);
+        else { g.fillRect(p.x - 1, p.y - 2, 3, 1); g.fillRect(p.x - 2, p.y - 1, 1, 3); g.fillRect(p.x + 2, p.y - 1, 1, 3); g.fillRect(p.x - 1, p.y + 2, 3, 1); }
+      }
+    }
+    // Marcher les vèvè (sur SNO 4) : chaque point foulé compte ; tous en moins
+    // de VEVE_TIME secondes, le dessin se referme et le lwa vient
+    checkVeve(dt) {
+      if (this.inside !== 'sno4' || !this.veves || this.dead) return;
+      const A = INTERIORS.sno4.at, t = this.clock / 1000;
+      for (const st of this.veves) {
+        const { v } = st;
+        if (this.veveDone.has(v.id)) continue;
+        if (st.seen.size && t - st.t0 > VEVE_TIME) { st.seen.clear(); this.drawVeve(st); }
+        v.nodes.forEach(([dx, dy], i) => {
+          if (st.seen.has(i) || Math.hypot(this.pos.x - (A.x + v.at.x + dx), this.pos.y - (A.y + v.at.y + dy)) > VEVE_NODE) return;
+          if (!st.seen.size) st.t0 = t;
+          st.seen.add(i);
+          audio.play('snow');
+          this.drawVeve(st);
+          const guide = this.said.has('kari-lakou') ? 'anaise' : 'legba';
+          if (!this.said.has('kari-veve-aide')) this.speak('kari-veve-aide', this.sceneLines('kari-veve-aide', null, () => () => ({ x: this.pos.x + 26, y: this.pos.y - 16 })).map(([, text, at]) => [guide, text, at]));
+        });
+        if (st.seen.size === v.nodes.length) this.veveClosed(st);
+      }
+    }
+    veveClosed(st) {
+      const { v } = st, W = this.sno4People;
+      this.veveDone.add(v.id);
+      this.drawVeve(st);
+      audio.play('presence');
+      audio.hush(4);
+      this.jolt(0.0015);
+      const hero = () => this.heroHead();
+      const head = (k, up = 11) => () => ({ x: W[k].x, y: W[k].y - up });
+      if (v.id === 'legba') {
+        this.seen4.fill(1);                                    // Legba ouvre les chemins : toute la carte
+        this.speak('kari-veve-legba', this.sceneLines('kari-veve-legba', null, w => w === 'kari' ? hero : head('legba')), { interrupt: true });
+      } else if (v.id === 'damballah') {
+        // Le vent tombe une minute sur toute l'île ; le serpent blanc descend
+        const before = weather.preset;
+        weather.setPreset('calme');
+        this.time.delayedCall(60000, () => { if (weather.preset === 'calme') weather.setPreset(before); });
+        this.tweens.add({ targets: W.damballah.img, y: W.damballah.img.y + 8, duration: 2600, ease: 'Sine.easeInOut' });
+        this.speak('kari-veve-damballah', this.sceneLines('kari-veve-damballah', null, w => w === 'kari' ? hero : head('damballah', 4)), { interrupt: true });
+      } else if (v.id === 'baron') {
+        // Baron monte Kári : il se déhanche, rit, salue les morts, puis le rend
+        this.ridden = 16;
+        this.speak('kari-veve-baron', this.sceneLines('kari-veve-baron', null, w => w === 'baron' ? head('baron', 14) : hero), { interrupt: true });
+      }
+      this.persist();
+    }
+
     showSno4(on) {
       const I = INTERIORS.sno4;
       if (!this.sno4) return;
@@ -2820,7 +2919,8 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
-        said: [...this.said], deaths: this.deaths, salt: this.salt, clotildeFree: this.clotildeFree, seen: encodeSeen(this.seen),
+        said: [...this.said], deaths: this.deaths, salt: this.salt, clotildeFree: this.clotildeFree,
+        seen4: encodeSeen(this.seen4), veve: [...this.veveDone], seen: encodeSeen(this.seen),
         chapters: [...this.chapters],
         kingBowed: this.kingBowed,
         relics: [...this.relics], relicDrops: this.relicDrops, belt: this.belt,
@@ -3078,8 +3178,12 @@ export function createGame({ onVoyage = (to, done) => done(), parent, palette, s
     mapData() {
       const sc = game.scene.getScene('island');
       if (!sc?.seen) return null;
+      if (sc.inside === 'sno4') {
+        const A = INTERIORS.sno4.at;
+        return { world: 'sno4', veve: [...sc.veveDone], seen: sc.seen4, cell: SEEN4_CELL, cols: SEEN4_COLS, rows: SEEN4_ROWS, pos: { x: sc.pos.x - A.x, y: sc.pos.y - A.y } };
+      }
       const inside = sc.inside && INTERIORS[sc.inside];
-      return { seen: sc.seen, cell: SEEN_CELL, n: SEEN_N, pos: inside ? inside.door : { ...sc.pos } };
+      return { world: 'sno7', seen: sc.seen, cell: SEEN_CELL, n: SEEN_N, pos: inside ? inside.door : { ...sc.pos } };
     },
     // La qualité de l'image (Réglages) : les flocons (CRT et flou : main.js)
     setQuality(q) { quality = q; weather.density = q <= 1 ? 0.5 : 1; },

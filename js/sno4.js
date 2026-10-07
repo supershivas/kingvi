@@ -9,8 +9,8 @@
    Rien de géométrique : tout est tordu par le bruit.
    Couleurs : s neige, b bleu nuit, r le rouge (la forge). */
 
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.49.0';
-import { makeGroveTree } from './grove.js?v=1.49.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.50.0';
+import { makeGroveTree } from './grove.js?v=1.50.0';
 
 export const SNO4_W = 960;
 export const SNO4_H = 600;
@@ -229,3 +229,31 @@ export function paintSno4(ctx, palette) {
   }
   ctx.putImageData(img, 0, 0);
 }
+
+// ── Les vèvè qu'on marche : des points de cendre dans la neige. Passer sur
+// chacun (dans n'importe quel ordre, sans trop traîner) referme le dessin, et
+// le lwa vient (game.js : `checkVeve`). Dessins inspirés des vrais vèvè,
+// simplifiés (à faire relire). `at` : le milieu ; `nodes` : les points ;
+// `links` : les traits entre eux (rangs dans `nodes`).
+export const VEVE = [
+  {
+    id: 'legba', lwa: 'legba', at: { x: SNO4_AT.barriere.x + 46, y: SNO4_AT.barriere.y + 26 },
+    // une croix, et la canne de Legba accrochée aux deux bras
+    nodes: [[0, -18], [0, 0], [0, 18], [-24, 0], [24, 0], [24, -12], [-24, -12]],
+    links: [[0, 1], [1, 2], [3, 1], [1, 4], [4, 5], [3, 6]],
+  },
+  {
+    id: 'damballah', lwa: 'damballah', at: { x: SNO4_AT.mapou.x - 6, y: SNO4_AT.mapou.y + 46 },
+    // le serpent qui ondule, et l'œuf
+    nodes: [[-30, 0], [-19, -8], [-8, 0], [3, 8], [14, 0], [25, -8], [33, 4]],
+    links: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]],
+  },
+  {
+    id: 'baron', lwa: 'baron', at: { x: SNO4_AT.cimetiere.x - 4, y: SNO4_AT.cimetiere.y + 86 },
+    // la croix du Baron sur son tombeau à degrés
+    nodes: [[0, -20], [0, -6], [-12, -12], [12, -12], [0, 8], [-16, 14], [16, 14]],
+    links: [[0, 1], [2, 3], [1, 4], [4, 5], [4, 6], [5, 6]],
+  },
+];
+export const VEVE_NODE = 6;      // on passe sur un point à moins de tant de pixels
+export const VEVE_TIME = 45;     // secondes pour le refermer

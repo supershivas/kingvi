@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.50.0 — 2026-10-07
+- SNO 4 : trois vèvè de cendre attendent dans la neige, près de la Barrière, sous le mapou et au sud du cimetière. Marcher sur chacun de leurs points, sans traîner, referme le dessin et appelle le lwa : Legba ouvre les chemins de l'île, Damballah fait tomber le vent une minute, et le Baron monte Kári un moment
+- SNO 4 a sa propre carte (touche M) : l'île vue d'en haut, qui se découvre à mesure qu'on avance, les lieux vus nommés et les vèvè marchés
+
 ## 1.49.0 — 2026-10-07
 - SNO 4, l'île Carrefour, devient jouable : on y part en barque depuis la grève de SNO 7 (s'éloigner de la barque, revenir, et pousser vers elle un instant). La traversée se fait sur la mer de nuit, et le retour de même
 - Sur l'île, la nuit, la neige et le vent : Papa Legba à la Barrière, le lakou Jean-Louis (Anaïse, Ti-Jo et son sel), le grand carrefour où attendent les âmes (on y retrouve quelqu'un), Mèt Kalfou, le cimetière de Baron Samedi et de Maman Brigitte, la maison aux bouteilles du bokor, le mapou et son serpent blanc, la forge d'Ogou qui éclaire la nuit ; une femme zonbi marche sur la banquise

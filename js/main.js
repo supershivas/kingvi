@@ -1,12 +1,12 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.49.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.49.0';
-import { TITLE_ART } from './title-art.js?v=1.49.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.49.0';
-import { showChapter } from './chapters.js?v=1.49.0';
-import { createTitleSea } from './titlesea.js?v=1.49.0';
-import { audio } from './audio.js?v=1.49.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.49.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.49.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.50.0';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.50.0';
+import { TITLE_ART } from './title-art.js?v=1.50.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.50.0';
+import { showChapter } from './chapters.js?v=1.50.0';
+import { createTitleSea } from './titlesea.js?v=1.50.0';
+import { audio } from './audio.js?v=1.50.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.50.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.50.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -14,8 +14,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.49.0');
-const debug = DEBUG ? await import('./debug.js?v=1.49.0') : null;
+const { createGame } = await import('./game.js?v=1.50.0');
+const debug = DEBUG ? await import('./debug.js?v=1.50.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -218,13 +218,17 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.49.0');
+  mapModule = mapModule || await import('./map.js?v=1.50.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
-  const paint = (fresh = false) => mapModule.renderMap($('map-canvas'), game.mapData(), palette, {
-    maxW: Math.min(620, view.clientWidth || 560), maxH: Math.min(window.innerHeight * 0.62, 620), t: (performance.now() - t0) / 1000, fresh,
-  });
+  // (sur SNO 4, la carte de SNO 4)
+  const sno4 = data.world === 'sno4';
+  $('map-title').textContent = sno4 ? 'Carte de SNO 4' : 'Carte';
+  const paint = (fresh = false) => {
+    const d = game.mapData(), opts = { maxW: Math.min(620, view.clientWidth || 560), maxH: Math.min(window.innerHeight * 0.62, 620), t: (performance.now() - t0) / 1000, fresh };
+    return d?.world === 'sno4' ? mapModule.renderSno4Map($('map-canvas'), d, palette, opts) : mapModule.renderMap($('map-canvas'), d, palette, opts);
+  };
   paint(true);
   // (la croix bat : on repeint deux fois par seconde)
   clearInterval(mapTimer);

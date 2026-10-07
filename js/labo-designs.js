@@ -10,9 +10,9 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
-} from './designs.js?v=1.49.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.49.0';
-import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.49.0';
+} from './designs.js?v=1.50.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.50.0';
+import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.50.0';
 
 const host = document.querySelector('#dessins .demos');
 const rowsOf = name => designRows(name, originalRows(name));

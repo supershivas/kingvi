@@ -1,9 +1,8 @@
 {
-  "version": "1.49.0",
+  "version": "1.50.0",
   "date": "2026-10-07",
   "changes": [
-    "SNO 4, l'île Carrefour, est jouable : Kári y part en barque depuis la grève (s'éloigner, revenir, pousser vers la barque), et en revient de même",
-    "Sur l'île : Legba à la Barrière, le lakou et Anaïse, le carrefour des âmes et Mèt Kalfou, le cimetière du Baron, la maison aux bouteilles, le mapou ; une femme zonbi qu'on peut réveiller",
-    "Le titre de l'accueil se redessine dans l'atelier du labo"
+    "SNO 4 : des vèvè à tracer en marchant dans la neige (Legba, Damballah, le Baron) ; chacun appelle son lwa",
+    "SNO 4 a sa propre carte (touche M) : elle se dessine à mesure qu'on explore, et Legba peut l'ouvrir en entier"
   ]
 }

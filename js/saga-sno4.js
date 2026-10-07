@@ -691,8 +691,34 @@ export const SCENARIOS_SNO4 = [
     recit: `Sous l'arbre qui ne devrait pas pousser ici, un serpent blanc descend d'une branche. Il ne dit rien qu'on comprenne.`,
     lignes: [['damballah', 'Ssssss…'], ['damballah', 'Ssss… sss… ssss.'], ['kari', '…'], ['damballah', 'Sss.']],
   },
+  // ── Les vèvè que Kári marche (dans le jeu, v1.50.0) ──
+  {
+    id: 'kari-veve-aide', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Un vèvè dans la neige', lieu: 'barriere', mythe: 'Vodou',
+    quand: 'Quand Kári pose le pied sur un point de cendre pour la première fois.',
+    recit: `Des points de cendre dans la neige, reliés par des traits pâles : un vèvè à moitié effacé. Quelqu'un explique à Kári comment on l'écrit : en marchant.`,
+    lignes: [['anaise', 'Un vèvè. Ça s\'écrit en marchant.'], ['anaise', 'Passe sur chaque point de cendre, sans traîner. Le lwa viendra.']],
+  },
+  {
+    id: 'kari-veve-legba', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le vèvè de Legba', lieu: 'barriere', mythe: 'Vodou',
+    quand: 'Quand Kári a marché le vèvè de Legba, près de la Barrière.',
+    recit: `La croix et la canne se referment. Le vieil homme se lève de son tonneau pour la première fois, appuyé sur sa canne. Il ouvre les chemins : la carte de l'île se dessine d'un coup.`,
+    lignes: [['legba', 'Ayibobo ! Tu marches droit, pour un viking.'], ['legba', 'Je t\'ouvre les chemins de l\'île. Regarde ta carte.'], ['kari', 'Merci.'], ['legba', 'Ha. Il dit merci, maintenant.']],
+  },
+  {
+    id: 'kari-veve-damballah', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le vèvè de Damballah', lieu: 'mapou', mythe: 'Vodou',
+    quand: 'Quand Kári a marché le serpent, sous le mapou.',
+    recit: `Le serpent de cendre se referme sur son œuf. Le serpent blanc descend d'une branche, et sur toute l'île le vent tombe, une minute.`,
+    lignes: [['damballah', 'Ssssss…'], ['damballah', 'Ssss… sss.'], ['kari', 'Le vent s\'est tu.']],
+  },
+  {
+    id: 'kari-veve-baron', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le vèvè du Baron', lieu: 'cimetiere', mythe: 'Vodou',
+    quand: 'Quand Kári a marché la croix du Baron, au sud du cimetière.',
+    recit: `La croix sur son tombeau se referme. Baron Samedi monte Kári : le viking se déhanche, rit d'une voix nasillarde, fait le tour des tombes en saluant les morts. Puis le Baron le rend.`,
+    lignes: [['kari-monte', 'Ha ! Ha ! Qui c\'est, ce petit viking tout noir ? C\'est moi !'], ['kari-monte', 'Il fait froid dans ce corps-là. Mettez-lui un chapeau !'], ['kari-monte', 'Bon. Je te le rends. Il est bien, ton viking. Un peu sérieux.'], ['baron', 'Tu vois ? La mort, ça rit.']],
+  },
 ];
 
 export const VOICES_SNO4 = {
   chwal: { nom: 'Le chwal', role: 'Celui ou celle qu\'un lwa monte, et qui traduit.' },
+  'kari-monte': { nom: 'Kári, monté par le Baron', role: 'Le viking quand Baron Samedi le monte.' },
 };
