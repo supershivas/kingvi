@@ -29,8 +29,10 @@ arc parfaits. Tout est tordu par du bruit, cassé, effrité, asymétrique
 
 Au lancement, un écran d'accueil, sans sous-titre : le nom en gothique
 étrange (Grenze Gotisch), tracé petit puis pixelisé et texturé (croûte de
-neige, ombre tramée, éclats, glaçons ; `drawTitle` dans `main.js`, agrandi
-d'un facteur entier), sur la mer de nuit où vogue la barque, le viking debout
+neige, ombre tramée, éclats, glaçons), figé en dessin (`js/title-art.js`,
+`TITLE_ART`) qu'on redessine dans l'atelier (dessin `titre`, groupe « Le
+titre » ; `drawTitle` dans `main.js` le peint depuis `designRows`, agrandi
+d'un facteur entier, repeint si on le retouche dans un autre onglet), sur la mer de nuit où vogue la barque, le viking debout
 dedans (houle qui roule vers nous en crêtes tramées, roulis, sillage, moutons,
 icebergs au loin, neige, bords vignettés : `js/titlesea.js`, arrêté quand
 l'accueil est caché), avec sa propre musique
@@ -220,7 +222,7 @@ est cachée et ne sort que pendant l'attaque.
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `fire` (l'incendie),
   `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
-  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `chips` (coups déjà portés
+  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `salt`, `clotildeFree` (SNO 4), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
   décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
@@ -257,7 +259,20 @@ est cachée et ne sort que pendant l'attaque.
   Gede, les lwa du péristyle (Rada et Petwo), le lakou Jean-Louis (héroïne :
   Anaïse). `WORLDS`, `worldOf` rangent le labo par monde. Respect du vodou :
   page « Ce que ce monde refuse » (pas de poupée à épingles, zonbi victimes, les
-  lwa ne se combattent pas ; vèvè à faire relire). Pas encore jouable.
+  lwa ne se combattent pas ; vèvè à faire relire). **Jouable avec Kári**
+  (v1.49.0) : `js/sno4.js` (scène de 960 × 600 posée loin en mer comme la
+  grotte, `INTERIORS.sno4` à `{ x: 80, y: 5400 }` (zone sans terre, vérifiée), en
+  plein air : `outdoor`, `roofed(key)` décide neige, vent, cape, éclair ;
+  `paintSno4` le sol, `SNO4_PROPS` ce qui est debout trié à son pied et bloque,
+  `sno4Walkable`, préparée au premier voyage par `ensureSno4`). La traversée :
+  s'éloigner de la barque de la grève (`leftShore`), revenir et pousser vers
+  elle 1,4 s (`checkVoyage`, `voyage`, `arrive`) ; `onVoyage` → `voyage` dans
+  `main.js` (l'iris se ferme, la mer de l'accueil `#voyage`, un chapitre, puis
+  l'île). Retour de même depuis la barque de SNO 4. Les gens (`sno4People`,
+  `personImage` d'après `PERSON`), les âmes du carrefour, Clotilde qui marche
+  (`updateSno4`) ; scènes `kari-*` de `saga-sno4.js` ; le sel de Ti-Jo
+  (`salt`) réveille Clotilde (`clotildeFree`). Mourir ou se sauvegarder sur
+  SNO 4 ramène à la grève de SNO 7. La carte (M) reste celle de SNO 7.
 - `js/dialogue.js` — la parole (bulle B), partagée jeu/labo ; `js/map.js` — la
   carte qui se construit (voir la Description).
 - `js/debug.js` — le mode debug du playtest, chargé seulement avec

@@ -642,6 +642,55 @@ export const SCENARIOS_SNO4 = [
     recit: `Kalfou rouvre son carrefour pour Anisse seule. Anaïse a payé une nuit de sa vie sans savoir laquelle. Elle devient la mambo du carrefour : c'est elle, désormais, qui guide les morts de tout l'archipel jusqu'à la barrière. Dans les parties suivantes, sur SNO 7, une femme au foulard attend au bout de la piste des morts.`,
     lignes: [['kalfou', 'Payé.'], ['anaise', 'Quelle nuit ?'], ['kalfou', 'Tu le sauras ce soir-là.'], ['legba', 'Assieds-toi sur mon tonneau, ma fille. Il est à toi, maintenant, la moitié du temps.']],
   },
+  // ── La visite de Kári (dans le jeu, v1.49.0 : il vient en barque depuis SNO 7) ──
+  {
+    id: 'kari-barriere', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Un viking à la Barrière', lieu: 'barriere', mythe: 'Vodou, Nord',
+    quand: 'Kári débarque sur SNO 4 et passe la Barrière.',
+    recit: `Un vieil homme au chapeau de paille, assis sur un tonneau entre deux mâts givrés, regarde arriver la barque. Il sourit. Il faut le saluer d'abord ; Kári ne le sait pas, et Legba le lui apprend.`,
+    lignes: [['legba', 'Ayibobo, étranger. Un vivant, par la mer. Ça faisait longtemps.'], ['legba', 'Ici, on salue Legba d\'abord. Toujours.'], ['kari', 'Salut.'], ['legba', 'C\'est un début. La barrière est ouverte pour toi.'], ['legba', 'Celle d\'en dessous, non. Va voir le carrefour.']],
+  },
+  {
+    id: 'kari-lakou', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le lakou', lieu: 'lakou', mythe: 'Vodou',
+    quand: 'Dans la cour du lakou Jean-Louis.',
+    recit: `Une jeune femme au foulard, une machette à la ceinture, trace un vèvè à la cendre. Un garçon court autour. Elle sait d'où vient Kári avant qu'il parle. Le garçon lui donne du sel.`,
+    lignes: [['anaise', 'Tu viens de l\'île du roi ? Celle où personne ne meurt ?'], ['kari', 'Oui.'], ['anaise', 'Ma sœur attend au carrefour à cause de chez toi.'], ['kari', 'Je cherche un clou.'], ['anaise', 'Et moi ma sœur. Va voir le carrefour. Il fait toujours nuit, ici, c\'est commode.'], ['tijo', 'C\'est un viking ! Il est tout petit !'], ['tijo', 'Tiens, du sel. Pour maman. Si tu la vois.']],
+  },
+  {
+    id: 'kari-carrefour', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le carrefour des morts', lieu: 'kalfou', mythe: 'Vodou, Nord',
+    quand: 'Au grand carrefour, parmi les âmes.',
+    recit: `Des centaines d'âmes pâles, debout dans la neige. Au milieu, une grande silhouette à l'œil rouge. Parmi les âmes, un homme aux dents de loup : Eyvind. Et une jeune fille qui ressemble à Anaïse.`,
+    lignes: [['kalfou', 'Le fils du roi. Enfin.'], ['kalfou', 'Les morts attendent chez moi. Trente viennent de ton île.'], ['eyvind', 'Kári ! Tu as mis le temps, frère.'], ['eyvind', 'On attend tous, ici. Ton père nous bouche la route.'], ['anisse', 'Il est gentil, ton frère. Il nous raconte des histoires de loups.'], ['kari', 'Je vais arracher le clou.'], ['kalfou', 'Alors je rouvrirai. Pas avant.']],
+  },
+  {
+    id: 'kari-cimetiere', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le Baron et le viking', lieu: 'cimetiere', mythe: 'Vodou',
+    quand: 'Au cimetière du Baron.',
+    recit: `Baron Samedi, assis sur sa croix, une jambe croisée, la pelle rangée. Il rit très fort en voyant le viking. Maman Brigitte, sur la tombe de Célimène, le regarde plus longtemps.`,
+    lignes: [['baron', 'Ha ! Un viking ! Du nord, en plus ! Tu viens creuser ?'], ['baron', 'Pas un mort à enterrer depuis dix-neuf hivers. À cause de ton papa.'], ['kari', 'Je vais arracher le clou.'], ['baron', 'Ha ! Il va arracher le clou ! Brigitte, sors ma pelle !'], ['brigitte', 'Laisse-le. Il a les yeux d\'un qui a déjà brûlé quelqu\'un.'], ['baron', 'Bon. Reviens me voir après. Je te ferai un prix.']],
+  },
+  {
+    id: 'kari-bouteilles', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Ce que le roi et le bokor ont en commun', lieu: 'bouteilles', mythe: 'Vodou, Gilgamesh',
+    quand: 'À la maison aux bouteilles.',
+    recit: `Les bouteilles tintent sous l'avant-toit. Lucien Deux-Mains ouvre avant qu'on frappe, et il connaît déjà le nom du père de Kári.`,
+    lignes: [['lucien', 'Un fils de roi. Entre, entre.'], ['lucien', 'Tu sais ce que ton père et moi avons en commun ?'], ['lucien', 'La peur. Lui a cloué le temps. Moi, je le mets en bouteille.'], ['lucien', 'Si tu arraches ce clou, je perds mes clients. Réfléchis.'], ['kari', 'Non.'], ['lucien', 'Ils disent tous non. Au début.']],
+  },
+  {
+    id: 'kari-zonbi', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Une femme qui ne voit personne', lieu: 'delivrance', mythe: 'Vodou',
+    quand: 'Quand Clotilde croise Kári, sans sel.',
+    recit: `Une femme passe, un fagot sur le dos, les yeux baissés, et répète un mot. Elle ne voit pas Kári.`,
+    lignes: [['clotilde', '… bwa … bwa … (… bois … bois …)']],
+  },
+  {
+    id: 'kari-clotilde', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le sel de Ti-Jo', lieu: 'delivrance', mythe: 'Vodou',
+    quand: 'Quand Kári croise Clotilde avec le sel de Ti-Jo.',
+    recit: `Kári lui met le sel dans la main ; elle le porte à sa bouche sans savoir pourquoi. Elle tombe à genoux, puis parle trop vite.`,
+    lignes: [['clotilde', '… bwa …'], ['clotilde', '(réveillée) Qui es-tu ? Où est Ti-Jo ? Quelle année ?'], ['clotilde', 'Non, ne me dis pas. Il a grandi. Je le sens.'], ['clotilde', 'Merci, l\'étranger. Je rentre au lakou. À pied. Moi-même.']],
+  },
+  {
+    id: 'kari-mapou', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le serpent du mapou', lieu: 'mapou', mythe: 'Vodou',
+    quand: 'Sous le mapou gelé.',
+    recit: `Sous l'arbre qui ne devrait pas pousser ici, un serpent blanc descend d'une branche. Il ne dit rien qu'on comprenne.`,
+    lignes: [['damballah', 'Ssssss…'], ['damballah', 'Ssss… sss… ssss.'], ['kari', '…'], ['damballah', 'Sss.']],
+  },
 ];
 
 export const VOICES_SNO4 = {

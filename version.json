@@ -1,9 +1,9 @@
 {
-  "version": "1.48.0",
+  "version": "1.49.0",
   "date": "2026-10-07",
   "changes": [
-    "Labo, La saga : un second monde, SNO 4, l'île Carrefour, bâti sur le vodou haïtien, toujours dans le froid",
-    "Trois nouvelles familles : les Gede (Baron Samedi, Maman Brigitte…), les lwa du péristyle (Legba, Mèt Kalfou, Damballah, Erzulie…), le lakou Jean-Louis et son héroïne, Anaïse",
-    "Ses lieux (avec une carte), ses scénarios et leurs dialogues, qui croisent ceux de Kári"
+    "SNO 4, l'île Carrefour, est jouable : Kári y part en barque depuis la grève (s'éloigner, revenir, pousser vers la barque), et en revient de même",
+    "Sur l'île : Legba à la Barrière, le lakou et Anaïse, le carrefour des âmes et Mèt Kalfou, le cimetière du Baron, la maison aux bouteilles, le mapou ; une femme zonbi qu'on peut réveiller",
+    "Le titre de l'accueil se redessine dans l'atelier du labo"
   ]
 }

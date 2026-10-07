@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.49.0 — 2026-10-07
+- SNO 4, l'île Carrefour, devient jouable : on y part en barque depuis la grève de SNO 7 (s'éloigner de la barque, revenir, et pousser vers elle un instant). La traversée se fait sur la mer de nuit, et le retour de même
+- Sur l'île, la nuit, la neige et le vent : Papa Legba à la Barrière, le lakou Jean-Louis (Anaïse, Ti-Jo et son sel), le grand carrefour où attendent les âmes (on y retrouve quelqu'un), Mèt Kalfou, le cimetière de Baron Samedi et de Maman Brigitte, la maison aux bouteilles du bokor, le mapou et son serpent blanc, la forge d'Ogou qui éclaire la nuit ; une femme zonbi marche sur la banquise
+- Le titre de l'écran d'accueil est maintenant un dessin de l'atelier (groupe « Le titre ») : on peut le redessiner ; il ne dépend plus de la police du navigateur
+
 ## 1.48.0 — 2026-10-07
 - Labo, La saga : un second monde, SNO 4, l'île Carrefour. Un trois-mâts venu d'Haïti s'y est pris dans la glace il y a cent dix hivers, avec ses lwa ; les morts de l'archipel s'y entassent au grand carrefour depuis que le temps s'est arrêté sur SNO 7
 - Trois nouvelles familles, avec leurs arbres et leurs histoires : les Gede (Baron Samedi, Maman Brigitte, les Barons La Croix et Cimetière, Gede Nibo, Masaka, Zaranyen, et Gede Frèt, né sur l'île), les lwa du péristyle (Papa Legba, Mèt Kalfou, Damballah, Ayida Wedo, Erzulie Freda et Dantor, Agwe, La Sirène, Ogou, Simbi, Loko, Ayizan, Gran Bwa, les Marasa), et le lakou Jean-Louis, quatre générations, avec Anaïse, l'héroïne, et Lucien Deux-Mains, le bokor

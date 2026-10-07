@@ -8,7 +8,7 @@
 
 import {
   WORLD, coast, deepForest, forestDensity, trail, landing, HOUSE, STATUE_BASE, STATUE2_BASE, ARCH, CLIFF, CAVE, LAKE, NECRO, WOLF_DEN, GROVE_TREE,
-} from './world.js?v=1.48.0';
+} from './world.js?v=1.49.0';
 
 const S = 12;                   // pixels du monde par pixel de carte
 const N = Math.ceil(WORLD / S);

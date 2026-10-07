@@ -4,36 +4,37 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.48.0';
+} from './viking.js?v=1.49.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE,
-} from './world.js?v=1.48.0';
-import { createPack } from './pack.js?v=1.48.0';
-import { createGround } from './ground.js?v=1.48.0';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.48.0';
-import { chapterById } from './chapters.js?v=1.48.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.48.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.48.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.48.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.48.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.48.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.48.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.48.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.48.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.48.0';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.48.0';
-import { createFauna } from './fauna.js?v=1.48.0';
-import { createWeather } from './weather.js?v=1.48.0';
-import { createTalk } from './dialogue.js?v=1.48.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.48.0';
-import { SCENARIOS, speakerName } from './saga.js?v=1.48.0';
-import { personSprite } from './people.js?v=1.48.0';
-import { createSea } from './sea.js?v=1.48.0';
-import { audio } from './audio.js?v=1.48.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.48.0';
+} from './world.js?v=1.49.0';
+import { createPack } from './pack.js?v=1.49.0';
+import { createGround } from './ground.js?v=1.49.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.49.0';
+import { chapterById } from './chapters.js?v=1.49.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.49.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.49.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.49.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.49.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.49.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.49.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.49.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.49.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.49.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.49.0';
+import { createFauna } from './fauna.js?v=1.49.0';
+import { createWeather } from './weather.js?v=1.49.0';
+import { createTalk } from './dialogue.js?v=1.49.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat } from './sno4.js?v=1.49.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.49.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.49.0';
+import { personSprite } from './people.js?v=1.49.0';
+import { createSea } from './sea.js?v=1.49.0';
+import { audio } from './audio.js?v=1.49.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.49.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -149,7 +150,16 @@ const INTERIORS = {
     walk: caveWalkable, atDoor: atCaveDoor, door: CAVE_DOOR_OUT, radius: 5, dark: true,
     exit: { x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 6 }, enterFacing: 'back',
   },
+  // SNO 4, l'île Carrefour (sno4.js) : on y vient en barque depuis la grève,
+  // pas par une porte (`voyage`) ; en plein air : la neige, le vent, la nuit
+  sno4: {
+    at: { x: 80, y: 5400 }, key: 'sno4', w: SNO4_W, h: SNO4_H, entry: SNO4_ENTRY,
+    walk: sno4Walkable, atDoor: () => false, door: { x: -9999, y: -9999 }, radius: 0, outdoor: true, byBoat: true,
+    exit: { x: 0, y: 0 }, enterFacing: 'side',
+  },
 };
+// Sous un toit (la maison, la crypte, la grotte) : ni neige, ni vent, ni cape
+const roofed = key => !!key && !INTERIORS[key].outdoor;
 // La barque du lac flotte là où l'eau est assez profonde pour sa coque
 const afloat = (x, y) => inLake(x, y) && coast(x, y) > 0.0035 && inLake(x - 7, y) && inLake(x + 7, y) && !deckLift(x, y);
 
@@ -166,7 +176,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
+export function createGame({ onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -268,6 +278,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       }).setDepth(DEPTH_SKY - 2);
       if (this.fire != null && this.fire >= FIRE.collapse) this.meltSnow();
       for (const I of Object.values(INTERIORS)) {
+        if (I.byBoat) continue;     // (SNO 4 : préparée au premier voyage, `ensureSno4`)
         I.black = this.add.rectangle(I.at.x - 700, I.at.y - 500, I.w + 1400, I.h + 1000, hex(palette.k))
           .setOrigin(0, 0).setDepth(DEPTH_ROOM - 2).setVisible(false);
         I.image = this.add.image(I.at.x, I.at.y, I.key).setOrigin(0, 0).setDepth(DEPTH_ROOM - 1).setVisible(false);
@@ -441,6 +452,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         onDie: at => { this.mothDead = at; audio.play('snow'); this.persist(); },
         onFlap: d => { if (d < 150) audio.play('flap', { v: 1 - d / 150 }); },
       });
+
+      // ── SNO 4 : on revient à côté de la barque ; on y a déjà réveillé Clotilde ? ──
+      INTERIORS.sno4.exit = { ...this.spawn };
+      this.salt = !!save.salt;
+      this.clotildeFree = !!save.clotildeFree;
+      this.leftShore = false;
 
       // ── La carte qui se construit : ce que le viking a vu, par cases ──
       this.seen = decodeSeen(save.seen);
@@ -660,7 +677,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     updateCape(delta) {
       // Plus le vent est fort, plus la cape se couche et bat vite ; à
       // l'intérieur, pas de vent : elle pend, immobile
-      if (this.inside) { this.cape.setFrame('cape-0-0'); return; }
+      if (roofed(this.inside)) { this.cape.setFrame('cape-0-0'); return; }
       const force = Math.min(1, weather.wind / 140 + (this.running ? 0.45 : 0));
       const level = force < 0.22 ? 0 : force < 0.6 ? 1 : 2;
       this.capeClock += delta / 1000 * (3 + force * 14);
@@ -840,7 +857,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         gravityY: 40, alpha: { start: 0.9, end: 0 }, emitting: false,
       });
       this.dust.explode(48, x, y);
-      if (!this.inside) weather.blast(x, y - 3, 70, 260);
+      if (!roofed(this.inside)) weather.blast(x, y - 3, 70, 260);
       this.jolt(0.004);
       // Les points de la lame tout autour : chacun ne prend qu'un coup
       const hits = new Set();
@@ -1251,6 +1268,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.moth.reset();
       this.climb = null; this.torchOut = 0;
       // (tombé dans une pièce : la maison en feu)
+      if (this.inside === 'sno4') this.showSno4(false);
       if (this.inside) {
         const I = INTERIORS[this.inside];
         I.image.setVisible(false); I.black.setVisible(false); I.armed = false;
@@ -1305,6 +1323,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       let mx = 0, my = 0;
       for (const code of this.keys) if (MOVE_CODES[code]) { mx += MOVE_CODES[code][0]; my += MOVE_CODES[code][1]; }
       mx += this.pad.x; my += this.pad.y;
+      if (!isPaused()) this.checkVoyage(mx, my, dt);
       // À bout de souffle, on ne court plus, même Maj tenue, tant que
       // l'endurance n'est pas un peu revenue (elle revient au pas)
       if (this.stamina <= 0.02 && !this.winded) { this.winded = true; this.staminaFlash = 0.6; }
@@ -1364,11 +1383,12 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       this.settle = Math.max(0, (this.settle || 0) - 1);
       this.updateBoat(dt, time);
       this.updateWaves(dt, time);
+      this.updateSno4(dt, time);
       // Le vent qu'on entend suit celui qu'on voit ; à l'abri, il s'étouffe
       this.windSound = (this.windSound || 0) - dt * 1000;
       if (this.windSound <= 0) {
         this.windSound = 200;
-        audio.wind(weather.wind, weather.gust, this.inside ? 1 : deepForest(this.pos.x, this.pos.y) * 0.7);
+        audio.wind(weather.wind, weather.gust, roofed(this.inside) ? 1 : this.inside ? 0 : deepForest(this.pos.x, this.pos.y) * 0.7);
         audio.fire(this.fireHeard());
         audio.setMood(this.musicMood());
       }
@@ -1439,7 +1459,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         // La dérive : trois ondes lentes qui ne se répètent pas
         const drift = 1 + 0.05 * Math.sin(a * 2 + t * 0.21 + 1.3) + 0.04 * Math.sin(a * 3 - t * 0.17 + 4.1) + 0.03 * Math.sin(a * 5 + t * 0.33 + 0.7);
         // (le brouillard referme la vue ; l'éclair la rouvre un instant)
-        const fog = this.inside ? 0 : weather.fog * 0.42;
+        const fog = roofed(this.inside) ? 0 : weather.fog * 0.42;
         const want = Math.max(0.3, Math.min(1, this.sightTarget[i] * drift * (1 - fog)));
         f[i] += (want - f[i]) * ease;
       }
@@ -1525,7 +1545,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       else if (deep > 0.3) energy = 0.2 + 0.1 * (1 - deep);                 // la forêt noire : sourde
       else energy = 0.4 + (this.running ? 0.12 : 0) + (this.rowing ? -0.15 : 0);
       energy *= 1 - 0.25 * night;
-      return { energy, dark: Math.min(1, deep + 0.4 * night), muffled: this.inside ? 1 : 0 };
+      return { energy, dark: Math.min(1, deep + 0.4 * night + (this.inside === 'sno4' ? 0.3 : 0)), muffled: roofed(this.inside) ? 1 : 0 };
     }
 
     // Les chapitres : aux grands moments, un titre à l'écran (une fois chacun)
@@ -1535,6 +1555,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const seen = id => this.chapters.has(id);
       let id = null;
       if (this.inside === 'cave') id = 'roi';
+      else if (this.inside === 'sno4') id = 'carrefour';
       else if (this.inside) id = null;
       else if (!seen('greve') && this.calm > 2.5) id = 'greve';
       else if (this.pack.engaged) id = 'loups';
@@ -1626,7 +1647,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       const v = this.cameras.main.worldView;
       let rt = this.shade;
       // L'éclair ouvre la nuit un instant (dehors)
-      const veil = night * (dark ? 0.72 : 0.62) * (this.inside ? 1 : 1 - 0.85 * weather.flash);
+      const veil = night * (dark ? 0.72 : 0.62) * (roofed(this.inside) ? 1 : 1 - 0.85 * weather.flash);
       // En plein jour, le voile est vide : on ne le touche pas (il coûte cher)
       rt.setVisible(veil > 0.005);
       if (veil > 0.005) {
@@ -1667,6 +1688,16 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
               .setAlpha(Math.min(1, fl * (0.88 + 0.12 * flick)));
             rt.erase(this.fireStamp);
           }
+        }
+      }
+      // Sur SNO 4, la forge d'Ogou ouvre la nuit autour d'elle
+      if (this.inside === 'sno4' && rt.visible) {
+        const A = INTERIORS.sno4.at, F = SNO4_AT.forge, src = this.textures.get('firelight-0-0').source[0];
+        const fx = A.x + F.x, fy = A.y + F.y - 4;
+        if (fx > v.x - src.width && fx < v.right + src.width && fy > v.y - src.height && fy < v.bottom + src.height) {
+          const ox = ((Math.round(fx - src.width / 2) % 4) + 4) % 4, oy = ((Math.round(fy - src.height / 2) % 4) + 4) % 4;
+          this.fireStamp.setTexture(`firelight-${ox}-${oy}`).setPosition(Math.round(fx) - rt.x, Math.round(fy) - rt.y).setAlpha(0.75 + 0.2 * flick);
+          rt.erase(this.fireStamp);
         }
       }
       this.glow.setPosition(tp.x, tp.y + 3).setScale(0.55, 0.38).setAlpha(0.1 * lit * flick);
@@ -1730,6 +1761,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
       if (this.moving) return;
       if (!this.inside) {
         for (const [key, I] of Object.entries(INTERIORS)) {
+          if (I.byBoat) continue;
           // (la maison brûle, ou n'est plus qu'une ruine : on n'y entre plus)
           if (key === 'house' && this.fire != null) continue;
           const d = Math.hypot(this.pos.x - I.door.x, this.pos.y - I.door.y);
@@ -1923,6 +1955,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     // Il met le feu au corps : la torche, la paille, le plancher
     // La carte : les cases autour du viking (dans un intérieur, sa porte)
     markSeen() {
+      if (this.inside === 'sno4') return;          // (la carte est celle de SNO 7)
       const at = this.inside ? INTERIORS[this.inside].door : this.pos;
       const R = this.inside ? 40 : SEEN_R * (1 - 0.35 * weather.fog);
       const c0 = Math.floor((at.x - R) / SEEN_CELL), c1 = Math.floor((at.x + R) / SEEN_CELL);
@@ -1935,9 +1968,11 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
     // ── La parole ──
     // Un personnage de la saga, dessiné d'après le héros, posé dans le monde
-    personImage(id, x, y, { alpha = 1 } = {}) {
-      const key = `person-${id}`;
-      const s = personSprite({ tages: { corps: 'enfant', tete: 'bonnet' }, hjalti: { corps: 'enfant', tete: 'nue' } }[id]);
+    personImage(id, x, y, { alpha = 1, soul = false, flip = false } = {}) {
+      const key = `person-${id}${soul ? '-ame' : ''}`;
+      const spec = { ...({ tages: { corps: 'enfant', tete: 'bonnet' }, hjalti: { corps: 'enfant', tete: 'nue' } }[id] || PERSON[id]?.sprite || { corps: id }) };
+      if (soul) spec.blanc = true;
+      const s = personSprite(spec);
       if (!this.textures.exists(key)) {
         const c = document.createElement('canvas');
         c.width = s.w; c.height = s.h;
@@ -1950,7 +1985,146 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         }));
         this.textures.addCanvas(key, c);
       }
-      return this.add.image(Math.round(x) - s.cx, Math.round(y) - s.ground, key).setOrigin(0, 0).setDepth(y).setAlpha(alpha);
+      return this.add.image(Math.round(x) - s.cx, Math.round(y) - s.ground, key).setOrigin(0, 0).setDepth(y).setAlpha(alpha).setFlipX(flip);
+    }
+
+    // ── SNO 4, l'île Carrefour : préparée au premier voyage ──
+    ensureSno4() {
+      if (this.sno4) return this.sno4;
+      const I = INTERIORS.sno4, A = I.at, D = DEPTH_ROOM;
+      const c = document.createElement('canvas');
+      c.width = SNO4_W; c.height = SNO4_H;
+      paintSno4(c.getContext('2d'), palette);
+      this.textures.addCanvas('sno4', c);
+      I.black = this.add.rectangle(A.x - 700, A.y - 500, I.w + 1400, I.h + 1000, hex(palette.k)).setOrigin(0, 0).setDepth(D - 2).setVisible(false);
+      I.image = this.add.image(A.x, A.y, 'sno4').setOrigin(0, 0).setDepth(D - 1).setVisible(false);
+      const objs = [];
+      const at = (p, img) => { img.setDepth(D + A.y + p.y); objs.push(img); return img; };
+      // Ce qui est debout, trié à son pied
+      for (const p of SNO4_PROPS) {
+        this.art(p.key, p.rows);
+        at(p.at, this.add.image(A.x + p.at.x - p.ax, A.y + p.at.y - p.h + 1, p.key).setOrigin(0, 0));
+      }
+      // La barque de Kári, tirée sur la glace
+      at({ y: SNO4_BOAT.y + BOAT_H }, this.add.image(A.x + SNO4_BOAT.x, A.y + SNO4_BOAT.y, 'boat-still').setOrigin(0, 0));
+      // Le feu de la forge
+      const F = SNO4_AT.forge;
+      this.forgeFlame = at({ y: F.y + 1 }, this.add.image(A.x + F.x + 0.5, A.y + F.y - 1, 'feu-0').setOrigin(0.5, 1));
+      // Les gens et les lwa
+      const who = (id, dx, dy, place, o = {}) => {
+        const P = SNO4_AT[place], x = A.x + P.x + dx, y = A.y + P.y + dy;
+        const img = this.personImage(id, x, y, o);
+        img.setDepth(D + y);
+        objs.push(img);
+        return { img, x, y };
+      };
+      this.sno4People = {
+        legba: who('legba', 6, 4, 'barriere'),
+        anaise: who('anaise', 6, 12, 'lakou', { flip: true }),
+        tijo: who('tijo', -10, 16, 'lakou'),
+        kalfou: who('kalfou', 0, 0, 'kalfou'),
+        eyvind: who('eyvind', -18, 8, 'kalfou', { soul: true, alpha: 0.6 }),
+        anisse: who('anisse', 16, 10, 'kalfou', { soul: true, alpha: 0.6, flip: true }),
+        baron: who('baron', -4, 3, 'cimetiere'),
+        brigitte: who('brigitte', 22, 9, 'cimetiere', { flip: true }),
+        lucien: who('lucien', -6, 4, 'bouteilles'),
+        damballah: who('damballah', -18, -4, 'mapou'),
+      };
+      // Les âmes qui attendent au carrefour
+      this.souls = SNO4_SOULS.map((p, i) => {
+        const img = this.personImage(p.k ? 'hjalti' : 'ame', A.x + p.x, A.y + p.y, { soul: true, alpha: 0.4, flip: p.f });
+        img.setDepth(D + A.y + p.y);
+        objs.push(img);
+        return { img, y0: img.y, ph: i * 0.7 };
+      });
+      // Clotilde, qui marche de l'épave à la maison aux bouteilles
+      const c0 = CLOTILDE_PATH[0];
+      this.clotilde = { img: this.personImage('clotilde', A.x + c0.x, A.y + c0.y), t: 0, x: A.x + c0.x, y: A.y + c0.y };
+      objs.push(this.clotilde.img);
+      if (this.clotildeFree) this.clotilde.img.setVisible(false);
+      this.sno4 = { objs };
+      objs.forEach(o => o.setVisible(false));
+      return this.sno4;
+    }
+    showSno4(on) {
+      const I = INTERIORS.sno4;
+      if (!this.sno4) return;
+      I.image.setVisible(on); I.black.setVisible(on);
+      for (const o of this.sno4.objs) o.setVisible(on);
+      if (on && this.clotildeFree) this.clotilde.img.setVisible(false);
+    }
+    // Ce qui bouge sur SNO 4 : les âmes respirent, Clotilde marche, le feu brûle
+    updateSno4(dt, time) {
+      if (this.inside !== 'sno4' || !this.sno4) return;
+      const t = time / 1000;
+      for (const s of this.souls) s.img.y = s.y0 - (Math.sin(t * 0.8 + s.ph) > 0.6 ? 1 : 0);
+      this.forgeFlame.setTexture(`feu-${Math.floor(t * 8) % FIRE_FRAMES.length}`);
+      const C = this.clotilde, A = INTERIORS.sno4.at;
+      if (!this.clotildeFree) {
+        // aller et retour, lentement, sur son chemin
+        const n = CLOTILDE_PATH.length - 1;
+        C.t = (C.t + dt * 0.012) % (2 * n);
+        const u = C.t < n ? C.t : 2 * n - C.t, i = Math.min(n - 1, Math.floor(u)), f = u - i;
+        const a = CLOTILDE_PATH[i], b = CLOTILDE_PATH[i + 1];
+        C.x = A.x + a.x + (b.x - a.x) * f; C.y = A.y + a.y + (b.y - a.y) * f;
+        const s = personSprite(PERSON.clotilde.sprite);
+        C.img.setPosition(Math.round(C.x) - s.cx, Math.round(C.y) - s.ground).setDepth(DEPTH_ROOM + C.y).setFlipX((C.t < n) === (b.x < a.x));
+      }
+    }
+
+    // ── La traversée : on part de la grève de SNO 7 vers SNO 4, et retour, en
+    // poussant vers sa barque (après s'en être éloigné une fois) ──
+    checkVoyage(mx, my, dt) {
+      if (this.moving || this.dead || this.rowing || this.voyaging || (this.inside && this.inside !== 'sno4')) { this.voyageHold = 0; return; }
+      let near, toward;
+      if (this.inside === 'sno4') {
+        const A = INTERIORS.sno4.at, lx = this.pos.x - A.x, ly = this.pos.y - A.y;
+        near = nearSno4Boat(lx, ly);
+        toward = mx * (SNO4_BOAT.x + 10 - lx) + my * (SNO4_BOAT.y + 8 - ly) > 0;
+      } else {
+        const b = { x: this.boatRest.x + BOAT_W / 2, y: this.boatRest.y + BOAT_H - 4 };
+        const d = Math.hypot(this.pos.x - b.x, this.pos.y - b.y);
+        if (d > 140) this.leftShore = true;
+        near = this.leftShore && d < 30;
+        toward = mx * (b.x - this.pos.x) + my * (b.y - this.pos.y) > 0;
+      }
+      if (!near || !toward) { this.voyageHold = 0; this.voyageAsked = near && this.voyageAsked; return; }
+      if (!this.voyageAsked) {
+        this.voyageAsked = true;
+        this.talk.say([{ who: 'kari', name: speakerName('kari'), text: this.inside === 'sno4' ? 'Rentrer. Vers le nord.' : 'Au sud, l\'île Carrefour…', at: () => this.heroHead() }], { interrupt: true });
+      }
+      this.voyageHold = (this.voyageHold || 0) + dt;
+      if (this.voyageHold > 1.4) this.voyage(this.inside === 'sno4' ? 'sno7' : 'sno4');
+    }
+    voyage(to) {
+      this.voyaging = true;
+      this.voyageHold = 0; this.voyageAsked = false;
+      this.talk.clear();
+      this.keys.clear();
+      onVoyage(to, () => this.arrive(to));
+    }
+    arrive(to) {
+      const I = INTERIORS.sno4;
+      if (to === 'sno4') {
+        this.ensureSno4();
+        this.pos = { x: I.at.x + I.entry.x, y: I.at.y + I.entry.y };
+        this.inside = 'sno4';
+        this.showSno4(true);
+      } else {
+        this.inside = null;
+        this.showSno4(false);
+        this.pos = { ...this.spawn };
+        this.leftShore = false;
+      }
+      this.prevPos = { ...this.pos };
+      this.climb = null;
+      this.facing = 'side'; this.flip = to !== 'sno4'; this.player.setFlipX(this.flip);
+      this.player.setFrame('side-idle');
+      this.placePlayer();
+      this.cameras.main.centerOn(this.pos.x, this.pos.y);
+      this.updateChunks(true);
+      this.voyaging = false;
+      this.persist();
     }
 
     // Les lignes d'une scène de la saga (`picks` : leurs rangs), ancrées :
@@ -2009,6 +2183,28 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
           this.speak('meute', this.sceneLines('meute', null, who => who === 'kari' ? hero : fixed(w.x + 40, w.y - 30)));
         }
         this.wolvesDown = this.pack.deadList.length;
+      }
+      // SNO 4 : la visite de Kári, lieu par lieu
+      if (this.inside === 'sno4' && this.sno4) {
+        const A = INTERIORS.sno4.at, W = this.sno4People;
+        const headOf = (k, up = 11) => () => ({ x: W[k].x, y: W[k].y - up });
+        const nearPlace = (id, r) => near({ x: A.x + SNO4_AT[id].x, y: A.y + SNO4_AT[id].y }, r);
+        const cast = map => w => w === 'kari' ? hero : map[w] || hero;
+        if (nearPlace('barriere', 64)) this.speak('kari-barriere', this.sceneLines('kari-barriere', null, cast({ legba: headOf('legba') })));
+        if (nearPlace('lakou', 64) && this.speak('kari-lakou', this.sceneLines('kari-lakou', null, cast({ anaise: headOf('anaise'), tijo: headOf('tijo', 8) })))) this.salt = true;
+        if (nearPlace('kalfou', 76)) this.speak('kari-carrefour', this.sceneLines('kari-carrefour', null, cast({ kalfou: headOf('kalfou', 24), eyvind: headOf('eyvind'), anisse: headOf('anisse') })));
+        if (nearPlace('cimetiere', 76)) this.speak('kari-cimetiere', this.sceneLines('kari-cimetiere', null, cast({ baron: headOf('baron', 14), brigitte: headOf('brigitte') })));
+        if (nearPlace('bouteilles', 70)) this.speak('kari-bouteilles', this.sceneLines('kari-bouteilles', null, cast({ lucien: headOf('lucien') })));
+        if (nearPlace('mapou', 70)) this.speak('kari-mapou', this.sceneLines('kari-mapou', null, cast({ damballah: headOf('damballah', 6) })));
+        // Clotilde : sans sel, elle passe ; avec le sel de Ti-Jo, elle se réveille
+        const C = this.clotilde;
+        if (!this.clotildeFree && Math.hypot(P.x - C.x, P.y - C.y) < 24) {
+          const head = () => ({ x: C.x, y: C.y - 11 });
+          if (this.salt && this.speak('kari-clotilde', this.sceneLines('kari-clotilde', null, cast({ clotilde: head })))) {
+            this.clotildeFree = true;
+            this.time.delayedCall(9000, () => this.tweens.add({ targets: C.img, alpha: 0, duration: 1800, onComplete: () => C.img.setVisible(false) }));
+          } else if (!this.salt) this.speak('kari-zonbi', this.sceneLines('kari-zonbi', null, cast({ clotilde: head })));
+        }
       }
       // La maison : la fylgja d'Eyvind, au-dessus du corps
       if (this.inside === 'house' && this.fire == null) {
@@ -2373,8 +2569,8 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
 
     drawSky(dt) {
       // L'éclair : le noir autour de la vue s'efface un instant
-      if (sightCanvas) sightCanvas.style.opacity = this.inside || weather.flash < 0.01 ? '' : (1 - 0.8 * weather.flash).toFixed(2);
-      if (this.inside) {
+      if (sightCanvas) sightCanvas.style.opacity = roofed(this.inside) || weather.flash < 0.01 ? '' : (1 - 0.8 * weather.flash).toFixed(2);
+      if (roofed(this.inside)) {
         // Pas de neige qui tombe sous un toit
         skyCtx.setTransform(1, 0, 0, 1, 0, 0);
         skyCtx.clearRect(0, 0, sky.width, sky.height);
@@ -2624,7 +2820,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
         rowboat: { x: Math.round(this.rowboat.x), y: Math.round(this.rowboat.y) },
         chestOpen: this.chestOpen,
         watcherGone: this.watcherGone,
-        said: [...this.said], deaths: this.deaths, seen: encodeSeen(this.seen),
+        said: [...this.said], deaths: this.deaths, salt: this.salt, clotildeFree: this.clotildeFree, seen: encodeSeen(this.seen),
         chapters: [...this.chapters],
         kingBowed: this.kingBowed,
         relics: [...this.relics], relicDrops: this.relicDrops, belt: this.belt,
@@ -2643,6 +2839,7 @@ export function createGame({ parent, palette, save, onSave, isPaused, quality = 
     backToShore() {
       this.climb = null;
       if (this.rowing) { this.rowing = false; this.rowboatSprite.setTexture('rowboat-empty'); this.player.setVisible(true); this.cape.setVisible(true); }
+      if (this.inside === 'sno4') this.showSno4(false);
       if (this.inside) {
         const I = INTERIORS[this.inside];
         I.image.setVisible(false); I.black.setVisible(false); this.chest.setVisible(false);

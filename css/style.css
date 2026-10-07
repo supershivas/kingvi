@@ -466,3 +466,7 @@ body {
 .prologue p.in { opacity: 1; }
 .prologue.out { opacity: 0; transition: opacity 1.2s ease; }
 .prologue-skip { position: absolute; bottom: 22px; font-family: var(--font-mono); font-size: .72rem; letter-spacing: .2em; text-transform: uppercase; opacity: .45; }
+
+/* ── La traversée vers SNO 4 (main.js, `voyage`) : la mer de l'accueil ── */
+.voyage { position: absolute; inset: 0; z-index: 5; background: var(--game-black); overflow: hidden; cursor: pointer; }
+.voyage[hidden] { display: none; }
