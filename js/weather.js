@@ -26,7 +26,17 @@ export const WEATHER_PRESETS = {
   tempete: {
     label: 'Tempête',
     about: 'Blizzard continu : neige couchée à l\'horizontale, poudrerie épaisse.',
-    base: 95, max: 210, sharp: 1.5, flakes: 2400, turb: 16, fall: 16, vortexRate: 0.2, drifts: 150,
+    base: 95, max: 210, sharp: 1.5, flakes: 2400, turb: 16, fall: 16, vortexRate: 0.2, drifts: 150, lightning: 1 / 150,
+  },
+  orage: {
+    label: 'Orage de neige',
+    about: 'Tempête traversée d\'éclairs : un flash ouvre la nuit un instant, puis le tonnerre roule.',
+    base: 70, max: 190, sharp: 2, flakes: 2100, turb: 14, fall: 15, vortexRate: 0.15, drifts: 120, lightning: 1 / 11,
+  },
+  brouillard: {
+    label: 'Brouillard',
+    about: 'Plus un souffle ; la neige flotte et la vue se referme autour du viking.',
+    base: 2, max: 7, sharp: 2, flakes: 420, turb: 2, fall: 4, vortexRate: 0, drifts: 0, fog: 1,
   },
   tourbillons: {
     label: 'Tourbillons',
@@ -43,17 +53,19 @@ const REF_AREA = 800 * 440;  // surface de référence pour le nombre de flocons
 // BLEND secondes. Le cycle suit l'horloge réelle : il continue d'une session
 // à l'autre, sans recommencer au calme à chaque ouverture.
 export const WEATHER_CYCLE = [
-  ['calme', 70],
+  ['calme', 50],
+  ['brouillard', 60],
   ['bise', 80],
   ['rafales', 75],
-  ['tempete', 70],
+  ['tempete', 50],
+  ['orage', 50],
   ['rafales', 40],
   ['tourbillons', 50],
   ['bise', 60],
 ];
 const BLEND = 18;
 const CYCLE_LENGTH = WEATHER_CYCLE.reduce((n, [, d]) => n + d, 0);
-const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate', 'drifts'];
+const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate', 'drifts', 'lightning', 'fog'];
 
 // État du cycle à l'instant `seconds` : paramètres mêlés, phase en cours, suivante.
 export function cycleAt(seconds) {
@@ -66,13 +78,13 @@ export function cycleAt(seconds) {
   const ease = k * k * (3 - 2 * k);
   const a = WEATHER_PRESETS[key], b = WEATHER_PRESETS[next];
   const params = {};
-  for (const n of NUMERIC) params[n] = a[n] + (b[n] - a[n]) * ease;
+  for (const n of NUMERIC) params[n] = (a[n] || 0) + ((b[n] || 0) - (a[n] || 0)) * ease;
   return { params, phase: ease > 0.5 ? next : key, from: key, to: next, blend: ease, t, index: i };
 }
 
 export const CYCLE_LABEL = 'Cycle naturel';
-export const CYCLE_ABOUT = 'Le temps change de lui-même : calme, bise, rafales, tempête, tourbillons, '
-  + 'puis l\'accalmie. Un cycle dure environ 8 minutes.';
+export const CYCLE_ABOUT = 'Le temps change de lui-même : calme, brouillard, bise, rafales, tempête, orage, '
+  + 'tourbillons, puis l\'accalmie. Un cycle dure environ 9 minutes.';
 
 // presetName : une ambiance fixe, ou 'cycle'. `speed` accélère le cycle (labo).
 export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
@@ -84,6 +96,11 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
 
   const w = {
     gust: 0, wind: P.base, preset: presetName, density: 1, phase: fixed(presetName) ? presetName : null,
+    // L'éclair : `flash` (1 → 0, la nuit s'ouvre), `bolt` (le trait, un
+    // instant), `fog` (0 → 1, la vue se referme). onStrike(near) : le jeu
+    // fait gronder le tonnerre.
+    flash: 0, bolt: null, fog: 0, onStrike: null,
+    strike(near = Math.random()) { strike(near); },
     setPreset(name) { w.preset = name; if (fixed(name)) { P = fixed(name); w.phase = name; } },
     update, draw,
     // Un souffle en (x, y) : les flocons proches sont chassés vers l'extérieur
@@ -134,8 +151,30 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     return Math.pow(Math.max(0, Math.min(1, s)), P.sharp);
   }
 
+  // Un éclair : deux flashs rapprochés, et parfois le trait de la foudre qui
+  // tombe dans la vue (`near` : 1 tout près, 0 au loin)
+  function strike(near) {
+    w.flash = 0.55 + 0.45 * near;
+    w.reflash = 0.09 + Math.random() * 0.08;
+    if (near > 0.55) {
+      const v = view, x = v.x + v.width * (0.15 + Math.random() * 0.7), y = v.y + v.height * (0.35 + Math.random() * 0.5);
+      const pts = [];
+      let px = x + (Math.random() - 0.5) * 60, py = v.y - 4;
+      while (py < y) { pts.push([Math.round(px), Math.round(py)]); py += 2 + Math.random() * 5; px += (x - px) * 0.12 + (Math.random() - 0.5) * 9; }
+      pts.push([Math.round(x), Math.round(y)]);
+      w.bolt = { pts, life: 0.22, x: Math.round(x), y: Math.round(y) };
+    }
+    w.onStrike?.(near, w.bolt);
+  }
+
   function update(dt, v) {
     dt = Math.min(dt, 0.05);
+    // L'éclair s'éteint, se rallume une fois, s'éteint
+    if (w.reflash > 0) { w.reflash -= dt; if (w.reflash <= 0) w.flash = Math.max(w.flash, 0.7); }
+    w.flash = Math.max(0, w.flash - dt * 2.6);
+    if (w.bolt && (w.bolt.life -= dt) <= 0) w.bolt = null;
+    w.fog += ((P.fog || 0) - w.fog) * Math.min(1, dt * 0.5);
+    if (P.lightning && Math.random() < P.lightning * dt) strike(Math.random());
     // La vue a sauté (arrivée, réveil, téléportation) : la neige se répand
     // partout dans la nouvelle vue, au lieu de revenir par les bords
     if (Math.abs(v.x - view.x) > v.width / 2 || Math.abs(v.y - view.y) > v.height / 2) {
@@ -207,6 +246,20 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
   }
 
   function draw(rect) {
+    // La foudre : un trait de neige cerné de nuit, qui se ramifie un peu
+    if (w.bolt) {
+      const pts = w.bolt.pts;
+      for (let i = 1; i < pts.length; i++) {
+        const [x0, y0] = pts[i - 1], [x1, y1] = pts[i];
+        const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        for (let k = 0; k <= n; k++) {
+          const x = Math.round(x0 + (x1 - x0) * k / (n || 1)), y = Math.round(y0 + (y1 - y0) * k / (n || 1));
+          rect(x + 1, y, 1, 1, 'b', 0.8);
+          rect(x, y, 1, 1, 's', 1);
+        }
+        if (i % 7 === 3) rect(x1 + (i % 2 ? 2 : -2), y1 + 1, 1, 2, 's', 0.8);
+      }
+    }
     // Poudrerie : serpents de neige soufflée au ras du sol
     const strength = 0.2 + 1.4 * w.gust + (P.base > 60 ? 0.6 : 0);
     for (const d of drifts) {

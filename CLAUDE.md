@@ -90,11 +90,9 @@ monte en marchant vers la roche au pied (`LEDGE.bottom`) ou vers le bord en
 haut (`LEDGE.top`) ; dessus, on ne fait qu'avancer ou reculer (`climb`,
 `climbStep`, `CLIMB`), dessiné devant toute la falaise (`baseDepth`) ; des
 pierres tombent du rebord, annoncées par un filet de neige (`updateRockfall`).
-En haut, le plateau du **megamoth** (`js/moth.js`, `MOTH_LAIR`) : un papillon
-de nuit géant posé (une bosse de neige), qui s'éveille à l'approche, tourne
-autour de la torche, plonge et la souffle (`snuffTorch`, `torchOut` : 7 s de
-noir) ; on ne l'atteint que quand il plonge ; `MOTH_HP` (4) coups l'abattent
-(`mothDead`, l'écaille). Et l'entrée d'une grotte : on y entre (il y fait toujours
+En haut, un plateau (le **megamoth**, `js/moth.js`, est retiré pour le moment :
+`MOTH_ENABLED = false` dans `game.js`, une bête absente `NO_MOTH` à sa place ;
+code gardé, comme les cerfs). Et l'entrée d'une grotte : on y entre (il y fait toujours
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
 ossements, et au fond, dans une grande salle, un roi squelette immense sur son
 trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et sa
@@ -114,9 +112,31 @@ des morts, III La forêt, IV La forêt noire, V Les loups (la meute attaque),
 VI La maison, VII L'autre (il vient au contact),
 VIII L'incendie (le feu pris, près de la maison), IX La falaise (sur la
 sente, ou près de la falaise après lui), X Le roi sous la roche (dans la
-grotte), XI Le megamoth (il s'éveille) ; Interlude, Le lac (en barque).
+grotte) ; Interlude, Le lac (en barque).
 Hors des combats, la musique se tait un instant (`checkChapters` dans
 `game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
+**La parole** (les personnages parlent, Jérôme, v1.46.0 ; phylactère B
+retenu, v1.47.0) : `js/dialogue.js` (`createTalk` : bulle de neige aux bords
+cassés en pixels du jeu, `brokenBox`, texte HTML par-dessus, une ligne après
+l'autre au rythme de la lecture, `readTime` ; on se tait si celui qui parle
+est loin, et en entrant ou sortant d'un intérieur). Le jeu choisit les scènes
+de la saga (`checkTalk`, `speak`, `sceneLines` dans `game.js` ; les lignes
+viennent de `SCENARIOS` dans `saga.js`), chacune une fois par partie (`said`
+dans la sauvegarde) ; Vanth dit une ligne à chaque mort (`deaths`). Tages et
+Hjalti sont posés dans le monde d'après `people.js` (`personImage`).
+**Prologue** : au début d'une partie neuve, trois lignes sur le noir disent
+l'état du monde avant que l'iris s'ouvre (`PROLOGUE`, `playPrologue` dans
+`main.js` ; un clic ou une touche le passe). **Tutoriel** : des consignes une
+à une dans `#hint` (`TUTO` : marcher, suivre les traces, courir, frapper, le
+tourbillon, M et I), chacune jusqu'à ce qu'on l'ait faite ou qu'elle ait
+assez duré ; une fois par navigateur (`prefs.tuto`). Rien des deux en debug.
+**La carte qui se construit** (touche M, bouton carte de l'en-tête, `#map`) :
+le jeu note les cases de 48 px vues autour du viking (`markSeen`, `seen` en
+bits base64 dans la sauvegarde, `game.mapData()`) ; `js/map.js` dessine l'île
+vue, le reste dans le noir, bord tramé, les lieux vus nommés, une croix
+rouge là où l'on est (terrain calculé une fois, `drawMap` ; `renderMap` :
+cadré sur ce qui est vu, agrandi d'un facteur entier). Pause pendant qu'elle
+est ouverte.
 L'endurance est retirée pour le moment (`STAMINA_ON = false` dans `game.js` :
 courir et frapper ne coûtent rien, pas de barre ; le code reste) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
 `.hurt`). Les secousses d'écran sont minimes (`jolt` : rien pour la neige, le bois ou la pierre ; un pixel du jeu tout au plus, un instant, pour un vrai coup). À l'intérieur, la cape
@@ -199,9 +219,10 @@ est cachée et ne sort que pendant l'attaque.
   nombre de pas, `foeDead`, `rowboat` (position de la barque du lac),
   `chestOpen`, `watcherGone`, `kingBowed`, `chapters` (chapitres déjà vus), `wrecked` (arbres abattus, rochers brisés),
   `wolvesDead` (loups tués, là où ils sont tombés), `fire` (l'incendie),
-  `mothDead` (le megamoth abattu, là où il est tombé), `belt` (la ceinture), `chips` (coups déjà portés
+  `mothDead` (ancien, le megamoth est retiré), `belt` (la ceinture), `said` (scènes déjà dites),
+  `deaths` (morts, pour Vanth), `seen` (la carte : cases vues), `chips` (coups déjà portés
   aux arbres et rochers encore debout), `tally` (le compteur) ; `kingvi:prefs` : qualité de l'image `quality` (1 → 3), météo, `musicVol`, `sfxVol`, `windVol` (0 → 100),
-  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
+  décalage de l'heure du jeu `dayOffset` en secondes, 0 pour suivre l'heure, `tuto` : consignes déjà vues) ; côté labo : `kingvi:designs` (dessins retouchés) et `kingvi:gh-token` (jeton de publication, jamais exporté). Récupérables via l'export JSON (la partie et les réglages ; ni les dessins, publiés dans le dépôt, ni le jeton).
   Pas de Supabase.
 
 ## Structure
@@ -227,7 +248,10 @@ est cachée et ne sort que pendant l'attaque.
   héros (tête, corps, objet, taille ; `personSprite(spec)` → face et 4 temps de
   marche ; placeholders). Phylactères : propositions A à G sur une scène de
   192 × 84 pixels du jeu, texte en HTML posé au pixel près (`placeText`),
-  bulles en pixels (`brokenBox`) ; aucune n'est encore retenue ni dans le jeu.
+  bulles en pixels (`brokenBox`, de `dialogue.js`) ; **B est retenue** et dans le jeu.
+  Sigrún n'est plus le megamoth : figée dans la glace sur le plateau (pas encore en jeu).
+- `js/dialogue.js` — la parole (bulle B), partagée jeu/labo ; `js/map.js` — la
+  carte qui se construit (voir la Description).
 - `js/debug.js` — le mode debug du playtest, chargé seulement avec
   `?debug=1` (voir « Playtest et agents »). Il regarde le jeu sans le changer.
 - `js/main.js` — interface : écran d'accueil, nouveau jeu (efface
@@ -412,7 +436,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   maison (visible seulement dedans), le sceau qui jaillit du coffre de la crypte,
   l'anneau de l'autre viking et la dent du premier loup abattu (`checkBodyRelics` :
   aussi pour ce qui était déjà fait avant le chargement, sans chute), la boucle dans les cendres
-  de la maison, l'écaille du megamoth. Sauvegarde : `relics`, `relicDrops`
+  de la maison. Sauvegarde : `relics`, `relicDrops`
   (tombées, pas ramassées), `belt`. **Les reliques pendent à la ceinture du
   viking** (invisible en jeu) : `BELT_SLOTS` (10) crochets, un id ou null
   chacun (`normalBelt`, une trouvaille au premier crochet libre). Inventaire :
@@ -446,7 +470,11 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule) ; `torchLight`,
   le halo tramé de la torche (partagé jeu/labo).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
-  Rafales, Tempête, Tourbillons ; par défaut la tempête, figée (les
+  Rafales, Tempête, Orage de neige, Brouillard, Tourbillons ; **éclairs** (`lightning`, par seconde :
+  rares dans la tempête, fréquents dans l'orage ; `strike(near)`, `flash` 1 → 0 qui
+  ouvre la nuit et le noir de la vue, `bolt` le trait de la foudre, tonnerre
+  `audio.play('thunder', { near })` après un délai) ; **brouillard** (`fog` :
+  la portée de la vue se referme, `updateSight`) ; debug `eclair()`. Par défaut la tempête, figée (les
   Réglages proposent aussi un cycle logique, `WEATHER_CYCLE`, ~8 min,
   fondus de 18 s, calé sur l'horloge réelle). Jour et nuit : par défaut,
   « Toujours la nuit » (`dayNight` : l'heure du jeu reste au milieu de la

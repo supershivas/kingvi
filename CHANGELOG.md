@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.47.0 — 2026-10-07
+- Les personnages parlent : quelques rencontres de la saga sont dans le jeu, dans le phylactère retenu (B, le lambeau de neige)
+- Au début d'une partie neuve, trois lignes sur le noir disent l'état du monde ; puis des consignes, une à la fois, guident les premiers pas
+- Une carte qui se dessine à mesure qu'on explore : touche M, ou la carte de l'en-tête. Ce qu'on n'a pas vu reste dans le noir
+- Nouvelles ambiances : orage de neige (des éclairs ouvrent la nuit un instant, puis le tonnerre roule) et brouillard (la vue se referme). La tempête a parfois un éclair
+- Le megamoth est retiré (et son chapitre, et son écaille)
+
 ## 1.46.0 — 2026-10-06
 - Labo, nouvel onglet « La saga » : la bible du récit (l'Archipel des Neuf, le clou de Nortia, la nuit qui dure depuis dix-neuf hivers, la magie, les mythes nordiques, étrusques et de Gilgamesh)
 - Six arbres généalogiques sur quatre générations et plus : la maison de Kingvi, les Rasna, les Gunnar, le Survivant, les jötnar, les puissances. Un clic sur un personnage ouvre son histoire

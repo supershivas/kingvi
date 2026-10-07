@@ -1,36 +1,35 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.46.0';
+import { startUpdateCheck } from '../app-update.js?v=1.47.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.46.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.46.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.46.0';
+} from './viking.js?v=1.47.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.47.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.47.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.46.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.46.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.46.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.46.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.46.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.46.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.46.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.46.0';
-import { createSea } from './sea.js?v=1.46.0';
-import { buildStatueDoor } from './statue.js?v=1.46.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.46.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.46.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR } from './world.js?v=1.46.0';
-import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.46.0';
-import { MOTH_FRAMES } from './moth.js?v=1.46.0';
-import * as PROPS from './props.js?v=1.46.0';
-import { audio } from './audio.js?v=1.46.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.46.0';
-import { RUIN_ART } from './ruins-art.js?v=1.46.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.46.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.46.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.46.0';
+} from './world.js?v=1.47.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.47.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.47.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.47.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.47.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.47.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.47.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.47.0';
+import { createSea } from './sea.js?v=1.47.0';
+import { buildStatueDoor } from './statue.js?v=1.47.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.47.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.47.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR } from './world.js?v=1.47.0';
+import { FIRE, FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN, ROOF_FLAMES, RUIN_FLAMES } from './fire.js?v=1.47.0';
+import * as PROPS from './props.js?v=1.47.0';
+import { audio } from './audio.js?v=1.47.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.47.0';
+import { RUIN_ART } from './ruins-art.js?v=1.47.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.47.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.47.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.47.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -490,14 +489,29 @@ card('vent', {
 
 Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
   card('vent', {
-    title: p.label, tag: 'ABCDE'[k], about: p.about, wide: true, w: 240, h: 70,
-    setup(s) { s.weather = createWeather(key); },
+    title: p.label, tag: 'ABCDEFG'[k], about: p.about, wide: true, w: 240, h: 70,
+    // (l'orage se joue de nuit, pour voir l'éclair ouvrir le noir ; le tonnerre au clic)
+    setup(s) { s.weather = createWeather(key); s.strikeNow = p.lightning > 0.05; s.weather.onStrike = near => setTimeout(() => audio.play('thunder', { near }), (1 - near) * 2600 + 120); },
     draw(ctx, pal, t, dt, s, v) {
       s.weather.update(dt, { x: 0, y: 0, width: v.w, height: v.h });
+      if (s.strikeNow) { s.strikeNow = false; s.weather.strike(1); }
       drawViking(ctx, pal, 'side-idle', 50, 50, { wind: Math.min(1, s.weather.wind / 140), clock: t });
       s.weather.draw((x, y, w, h, c, a) => { ctx.globalAlpha = a; ctx.fillStyle = pal[c]; ctx.fillRect(x, y, w, h); });
+      if (p.lightning > 0.05) {
+        ctx.globalAlpha = 0.75 * (1 - s.weather.flash);
+        ctx.fillStyle = pal.b;
+        ctx.fillRect(0, 0, v.w, v.h);
+      }
+      if (p.fog) {
+        // Le brouillard : la vue se referme, tramée
+        for (let y = 0; y < v.h; y++) for (let x = 0; x < v.w; x++) {
+          const d = Math.hypot((x - 50) / 1.6, y - 44) / 40;
+          if (d > 0.6 && Math.min(1, (d - 0.6) * 1.6) > ((x * 7 + y * 13) % 16) / 16) { ctx.globalAlpha = 1; ctx.fillStyle = pal.b; ctx.fillRect(x, y, 1, 1); }
+        }
+      }
       ctx.globalAlpha = 1;
     },
+    button: p.lightning > 0.05 ? 'Un éclair tout près' : undefined,
   });
 });
 
@@ -942,7 +956,7 @@ card('falaise', {
 });
 
 card('falaise', {
-  title: 'La sente (chapitre IX)', about: 'Un chemin taillé en lacets dans la face, du pied au rebord : on y monte en marchant vers la roche (haut monte toujours, bas descend), plus lentement. La paroi au-dessus est plâtrée de neige : le viking s\'y découpe. Des pierres se détachent du rebord : un filet de neige d\'abord, puis la pierre ; sur la sente, elle blesse. En haut, le plateau du megamoth.',
+  title: 'La sente (chapitre IX)', about: 'Un chemin taillé en lacets dans la face, du pied au rebord : on y monte en marchant vers la roche (haut monte toujours, bas descend), plus lentement. La paroi au-dessus est plâtrée de neige : le viking s\'y découpe. Des pierres se détachent du rebord : un filet de neige d\'abord, puis la pierre ; sur la sente, elle blesse. En haut, un plateau.',
   wide: true, w: 200, h: 150,
   setup(s, v) {
     s.x0 = LEDGE.bottom.x - 90;
@@ -1021,39 +1035,6 @@ card('incendie', {
     }
     s.smoke = s.smoke.filter(p => p.age < p.life);
     drawViking(ctx, pal, 'side-idle', 40, v.h - 6, { clock: t, wind: 0.4 });
-  },
-});
-
-// ══ Le megamoth ══
-card('megamoth', {
-  title: 'Le megamoth (chapitre XI)', about: 'En haut de la falaise, un papillon de nuit géant posé dans la neige, ailes repliées : une bosse de neige. Il s\'éveille quand on approche et vient à la torche : il tourne autour, en vol erratique, puis plonge sur la flamme et l\'éteint (le noir, quelques secondes). On ne l\'atteint que quand il plonge ; quatre coups l\'abattent, il tombe en tournoyant et reste à terre, ailes ouvertes ; une écaille de son aile reste dans la neige. Si l\'on s\'éloigne, il retourne se poser. Dessins (placeholders) : dossier « Le megamoth » de l\'atelier.',
-  wide: true, w: 200, h: 110,
-  setup(s, v) { s.img = Object.fromEntries(Object.entries(MOTH_FRAMES).map(([k, r]) => [k, prerender(r, v.pal)])); },
-  draw(ctx, pal, t, dt, s, v) {
-    const T = 14, k = t % T, hx = 100, hy = v.h - 22;
-    const torch = k < 9 || k > 12;
-    drawViking(ctx, pal, 'side-idle', hx, hy, { clock: t, wind: 0.3 });
-    if (torch) { ctx.fillStyle = pal.r; ctx.fillRect(hx + 3, hy - 9 - (Math.floor(t * 12) % 2), 1, 1); ctx.fillStyle = pal.s; ctx.fillRect(hx + 3, hy - 8, 1, 1); }
-    let x, y, alt, img;
-    if (k < 1.5) { x = 160; y = hy - 18; alt = 0; img = 'repos'; }
-    else if (k < 8) {
-      const a = (k - 1.5) * 1.6, R = 24 + 5 * Math.sin(k);
-      x = hx + Math.cos(a) * R + Math.sin(k * 7) * 2; y = hy + Math.sin(a) * R * 0.55; alt = 18 + 4 * Math.sin(k * 1.3);
-      if (k < 3) { const q = (k - 1.5) / 1.5; x = 160 + (x - 160) * q; y = hy - 18 + (y - hy + 18) * q; alt *= q; }
-      img = `vol-${Math.floor(t * 20) % 4}`;
-    } else if (k < 9) { const q = k - 8; x = hx + 30 * (1 - q) + 3 * q; y = hy + 1; alt = 22 - 14 * q; img = `vol-${Math.floor(t * 20) % 4}`; }
-    else if (k < 10.5) { const q = (k - 9) / 1.5; x = hx + 3 + 20 * q; y = hy - 6 * q; alt = 8 + 10 * q; img = `vol-${Math.floor(t * 20) % 4}`; }
-    else { x = 140; y = hy + 4; alt = Math.max(0, 14 - (k - 10.5) * 10); img = alt ? `vol-2` : 'mort'; }
-    const im = s.img[img];
-    if (img === 'repos' || img === 'mort') ctx.drawImage(im, Math.round(x - im.width / 2), Math.round(y - im.height + 1));
-    else {
-      // L'ombre sur la neige, tramée ; le papillon au-dessus
-      ctx.fillStyle = pal.b; ctx.globalAlpha = 0.45;
-      const rx = Math.max(3, 9 - alt / 4);
-      for (let py = -2; py <= 2; py++) for (let px = -Math.ceil(rx); px <= rx; px++) if ((px / rx) ** 2 + (py / 2.4) ** 2 <= 1 && !((px + py + Math.round(x) + Math.round(y)) & 1)) ctx.fillRect(Math.round(x) + px, Math.round(y) + py, 1, 1);
-      ctx.globalAlpha = 1;
-      ctx.drawImage(im, Math.round(x - im.width / 2), Math.round(y - alt - im.height * 0.62) - 3);
-    }
   },
 });
 
@@ -1156,6 +1137,8 @@ card('corbeaux', {
     ['Humeur : à l\'intérieur', 'home', { energy: 0.15, dark: 0.3, muffled: 1 }],
   ]) add(label, icon, () => { if (!music) { music = true; audio.setMusic(true); } audio.setMood(m); });
   add('Corbeaux', 'feather', () => audio.play('caw', { n: 3 }));
+  add('Tonnerre, tout près', 'bolt', () => audio.play('thunder', { near: 1 }));
+  add('Tonnerre, au loin', 'cloud-storm', () => audio.play('thunder', { near: 0.1 }));
   add('Coup d\'épée', 'sword', () => audio.play('swing'));
   add('Dans la neige', 'snowflake', () => audio.play('snow'));
   add('Dans la chair', 'droplet', () => audio.play('flesh'));
@@ -1167,7 +1150,6 @@ card('corbeaux', {
   add('Le feu prend', 'flame', () => audio.play('ignite'));
   add('L\'incendie (5 s)', 'flame', () => { let k = 0; const id = setInterval(() => { audio.fire(++k < 25 ? 1 : 0); if (k >= 26) clearInterval(id); }, 200); });
   add('Le toit s\'effondre', 'home-off', () => audio.play('collapse'));
-  add('Les ailes du megamoth', 'butterfly', () => { for (let k = 0; k < 8; k++) setTimeout(() => audio.play('flap', { v: 1 }), k * 200); });
   add('La torche soufflée', 'flame-off', () => audio.play('snuff'));
   add('Froissement d\'ailes', 'feather', () => audio.play('rustle'));
   document.querySelector('#son .demos').append(el);
@@ -1186,7 +1168,7 @@ card('corbeaux', {
   el.append(canvas);
   const legend = document.createElement('p');
   legend.className = 'map-legend';
-  legend.textContent = 'Traces · D barque · C corbeaux · A arche · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · S sente · P plateau du megamoth · L lac et îlot';
+  legend.textContent = 'Traces · D barque · C corbeaux · A arche · c colonne couchée · s socle en ruine · r arche en ruine · 1 statue brisée · forêt noire · 2 grande statue · M maison · F falaise et grotte · S sente · P plateau · L lac et îlot';
   el.append(legend);
   section.append(el);
 

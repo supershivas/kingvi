@@ -5,8 +5,9 @@
    pixels du jeu. */
 import {
   BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName,
-} from './saga.js?v=1.46.0';
-import { personSprite } from './people.js?v=1.46.0';
+} from './saga.js?v=1.47.0';
+import { personSprite } from './people.js?v=1.47.0';
+import { brokenBox } from './dialogue.js?v=1.47.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {
@@ -468,39 +469,9 @@ const RUNES = {
 };
 const toRune = ch => RUNES[ch.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()] || (/\s/.test(ch) ? ' ' : '᛫');
 
-// Bord cassé, accroché aux pixels : un rectangle dont chaque pixel du bord
-// recule de 0 ou 1 au hasard (graine fixe par ligne)
-function brokenBox(ctx, x0, y0, w, h, fill, edge, seed, { tail = null, chunky = false } = {}) {
-  let r = seed * 9301 + 49297;
-  const rnd = () => ((r = (r * 9301 + 49297) % 233280) / 233280);
-  const inset = (i, n) => (i === 0 || i === n - 1) ? 1 : (rnd() < (chunky ? 0.35 : 0.22) ? 1 : 0) + (chunky && rnd() < 0.12 ? 1 : 0);
-  const top = Array.from({ length: w }, (_, i) => inset(i, w));
-  const bot = Array.from({ length: w }, (_, i) => inset(i, w));
-  const left = Array.from({ length: h }, (_, i) => inset(i, h));
-  const right = Array.from({ length: h }, (_, i) => inset(i, h));
-  const inside = (x, y) => y >= top[x] && y < h - bot[x] && x >= left[y] && x < w - right[y];
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    if (!inside(x, y)) continue;
-    const border = !inside(x - 1, y) || !inside(x + 1, y) || !inside(x, y - 1) || !inside(x, y + 1);
-    ctx.fillStyle = border ? edge : fill;
-    ctx.fillRect(x0 + x, y0 + y, 1, 1);
-  }
-  if (tail) {
-    // La pointe : quelques pixels qui descendent vers la bouche, en zigzag
-    let { x, y } = tail;
-    const dir = tail.dir;
-    for (let i = 0; i < tail.len; i++) {
-      ctx.fillStyle = edge;
-      ctx.fillRect(x, y, 1, 1);
-      if (i < tail.len - 1) { ctx.fillStyle = fill; ctx.fillRect(x - dir, y, 1, 1); }
-      y++; if (i % 2) x += dir;
-    }
-  }
-}
-
 const PH_STYLES = [
   { key: 'A', titre: 'Sobre', about: 'Comme les chapitres : rien que le texte clair, cerné d\'une ombre bleu nuit, au-dessus de celui qui parle. Apparaît et s\'efface en fondu. Aucun fond.' },
-  { key: 'B', titre: 'Lambeau de neige', about: 'Une bulle de neige aux bords cassés, cernée d\'un pixel bleu nuit, avec une pointe en zigzag vers la bouche. Le nom en gothique, en petit. Comme les boutons de l\'accueil.' },
+  { key: 'B', titre: 'Lambeau de neige (retenue, dans le jeu)', about: 'Une bulle de neige aux bords cassés, cernée d\'un pixel bleu nuit, avec une pointe en zigzag vers la bouche. Le nom en gothique, en petit. Comme les boutons de l\'accueil.' },
   { key: 'C', titre: 'Pierre levée', about: 'Une dalle bleu nuit, bords éclatés, posée au-dessus de la tête comme une stèle ; le texte en neige, des encoches runiques en haut et en bas.' },
   { key: 'D', titre: 'Souffle', about: 'La parole est une buée tramée qui sort de la bouche et file au vent ; les lettres s\'y inscrivent une à une, puis la buée se défait.' },
   { key: 'E', titre: 'Bandeau du bas', about: 'Comme au cinéma : une bande de nuit en bas de l\'écran, le personnage en grand à gauche, son nom en gothique, la ligne qui s\'écrit.' },

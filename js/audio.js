@@ -258,6 +258,28 @@ const SOUNDS = {
     const t = ctx.currentTime, pitch = 520 + Math.random() * 160;
     for (let k = 0; k < n; k++) caw(t + k * (0.32 + Math.random() * 0.12), pitch * (1 + (Math.random() - 0.5) * 0.08), pan);
   },
+  // Le tonnerre : un craquement si la foudre tombe près (`near` 0 → 1), puis
+  // un grondement grave qui roule, enfle et s'éteint en quelques secondes
+  thunder: ({ near = 0.5 } = {}) => {
+    const t = ctx.currentTime, d = 3 + (1 - near) * 2.5;
+    if (near > 0.45) { whoosh(t, 0.12, 5000, 900, 0.5 * near); thud(t, 48, 0.7 * near, 0.4); }
+    const s = ctx.createBufferSource(); s.buffer = noise; s.loop = true;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass';
+    lp.frequency.setValueAtTime(400 + near * 500, t); lp.frequency.exponentialRampToValueAtTime(90, t + d);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    let at = t + 0.05;
+    // trois ou quatre roulements, de plus en plus sourds
+    for (let k = 0; k < 4; k++) {
+      const peak = (0.55 + 0.35 * near) * (1 - k * 0.2) * (0.7 + Math.random() * 0.3);
+      g.gain.linearRampToValueAtTime(peak, at + 0.15 + Math.random() * 0.2);
+      at += d / 4;
+      g.gain.linearRampToValueAtTime(peak * 0.35, at);
+    }
+    g.gain.exponentialRampToValueAtTime(0.0001, t + d + 0.6);
+    s.connect(lp).connect(g); g.connect(sfxBus); g.connect(reverb);
+    s.start(t, Math.random()); s.stop(t + d + 0.8);
+  },
   // Une présence qui s'efface : un souffle, et deux notes graves qui battent
   presence: () => {
     const t = ctx.currentTime;

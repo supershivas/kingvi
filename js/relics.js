@@ -12,8 +12,7 @@
    - le sceau : dans le coffre de la crypte ;
    - l'anneau : il tombe de la main de l'autre viking quand il meurt ;
    - la dent : elle tombe du premier loup abattu ;
-   - la boucle : dans les cendres de la maison, quand le toit s'effondre ;
-   - l'écaille : elle tombe du megamoth abattu, en haut de la falaise.
+   - la boucle : dans les cendres de la maison, quand le toit s'effondre.
 
    Ce qu'on a trouvé pend à la ceinture du viking (invisible en jeu) : dans
    l'inventaire, on les y déplace d'un crochet à l'autre (`belt` dans la
@@ -190,27 +189,6 @@ export const RELICS = [
       'bbbb',
       'b.sb',
       'bbbb',
-      '....',
-    ],
-  },
-  {
-    id: 'ecaille', name: 'L\'écaille du megamoth', about: 'Tombée de l\'aile du papillon géant, en haut de la falaise. Elle poudroie encore.',
-    rows: [
-      '....bb....',
-      '...bssb...',
-      '..bssssb..',
-      '.bssbbssb.',
-      '.bsb..bsb.',
-      '.bssbbssb.',
-      '..bssssb..',
-      '...bssb...',
-      '....bb....',
-      '..........',
-    ],
-    ground: [
-      '.s..',
-      'sbs.',
-      '.s..',
       '....',
     ],
   },

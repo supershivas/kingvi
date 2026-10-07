@@ -1,9 +1,9 @@
 {
-  "version": "1.46.0",
-  "date": "2026-10-06",
+  "version": "1.47.0",
+  "date": "2026-10-07",
   "changes": [
-    "Labo, nouvel onglet « La saga » : la bible du récit, six arbres généalogiques (un clic sur un personnage ouvre son histoire), une cinquantaine de personnages dessinés d'après le héros",
-    "39 scénarios avec leurs dialogues : les personnages parlent désormais",
-    "Sept propositions de phylactères à choisir, jouées sur une scène aux pixels du jeu"
+    "Les personnages parlent, dans des bulles de neige ; un prologue ouvre la partie, et des consignes guident les premiers pas",
+    "Une carte qui se dessine à mesure qu'on explore (touche M)",
+    "Orages de neige (éclairs, tonnerre) et brouillard ; le megamoth est retiré"
   ]
 }

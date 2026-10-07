@@ -1,11 +1,11 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.46.0';
-import { loadDesigns, designRows } from './design-store.js?v=1.46.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.46.0';
-import { showChapter } from './chapters.js?v=1.46.0';
-import { createTitleSea } from './titlesea.js?v=1.46.0';
-import { audio } from './audio.js?v=1.46.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.46.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.46.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.47.0';
+import { loadDesigns, designRows } from './design-store.js?v=1.47.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.47.0';
+import { showChapter } from './chapters.js?v=1.47.0';
+import { createTitleSea } from './titlesea.js?v=1.47.0';
+import { audio } from './audio.js?v=1.47.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.47.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.47.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -13,8 +13,8 @@ const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.46.0');
-const debug = DEBUG ? await import('./debug.js?v=1.46.0') : null;
+const { createGame } = await import('./game.js?v=1.47.0');
+const debug = DEBUG ? await import('./debug.js?v=1.47.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -69,14 +69,14 @@ function toast(text) {
 
 // ── Jeu ──
 let irisBusy = false, irisRun = 0;     // (l'iris, plus bas)
-const settings = $('settings'), inventory = $('inventory');
+const settings = $('settings'), inventory = $('inventory'), mapDialog = $('map');
 const game = createGame({
   parent: $('stage'),
   palette,
   save,
   onSave: s => { save = s; write(SAVE_KEY, s); },
   // (et tant que le noir de l'iris n'est pas ouvert : rien ne se passe dans le noir)
-  isPaused: () => settings.open || inventory.open || !$('title').hidden || irisBusy,
+  isPaused: () => settings.open || inventory.open || mapDialog.open || !$('title').hidden || irisBusy,
   quality: prefs.quality,
   // À l'accueil, la musique a sa propre ambiance (sourde, sombre)
   isTitle: () => !$('title').hidden,
@@ -207,6 +207,31 @@ $('close-inventory').addEventListener('click', () => inventory.close());
 inventory.addEventListener('click', e => { if (e.target === inventory) inventory.close(); });
 window.addEventListener('keydown', e => { if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleInventory(); } });
 
+// ── La carte qui se construit (touche M) : ce qu'on a vu de l'île ──
+let mapModule = null, mapTimer = 0;
+async function toggleMap(force) {
+  const open = force ?? !mapDialog.open;
+  if (open === mapDialog.open) return;
+  if (!open) { mapDialog.close(); return; }
+  if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
+  mapDialog.showModal();
+  mapModule = mapModule || await import('./map.js?v=1.47.0');
+  const data = game.mapData();
+  if (!data || !mapDialog.open) return;
+  const view = $('map-view'), t0 = performance.now();
+  const paint = (fresh = false) => mapModule.renderMap($('map-canvas'), game.mapData(), palette, {
+    maxW: Math.min(620, view.clientWidth || 560), maxH: Math.min(window.innerHeight * 0.62, 620), t: (performance.now() - t0) / 1000, fresh,
+  });
+  paint(true);
+  // (la croix bat : on repeint deux fois par seconde)
+  clearInterval(mapTimer);
+  mapTimer = setInterval(() => mapDialog.open ? paint() : clearInterval(mapTimer), 500);
+}
+$('open-map').addEventListener('click', () => toggleMap());
+$('close-map').addEventListener('click', () => mapDialog.close());
+mapDialog.addEventListener('click', e => { if (e.target === mapDialog) mapDialog.close(); });
+window.addEventListener('keydown', e => { if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) { e.preventDefault(); toggleMap(); } });
+
 // ── Croix directionnelle, sur écran tactile ──
 // Huit directions selon l'angle du pouce ; tout au bord de la croix, on court
 const touchScreen = matchMedia('(hover: none), (pointer: coarse)').matches;
@@ -233,18 +258,79 @@ const dpad = $('dpad');
 })();
 window.addEventListener('pagehide', () => { if (!resetting) game.save(); });
 
-// La consigne apparaît quand on entre dans le jeu, puis s'efface d'elle-même
-// (ou dès le premier pas)
+// ── Le tutoriel : des consignes, une à la fois, chacune jusqu'à ce qu'on
+// l'ait faite (ou qu'elle ait assez duré) ; une seule fois par navigateur
+// (`prefs.tuto` : combien sont faites). Rien en debug. ──
 const hint = $('hint');
 const hideHint = () => hint.classList.add('gone');
-let hintShown = false;
-function showHint() {
-  if (hintShown) return;
-  hintShown = true;
-  if (touchScreen) hint.textContent = 'Croix pour marcher, au bord pour courir · touchez pour frapper';
+const MOVE_KEYS = new Set(['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+const TUTO = [
+  { text: () => touchScreen ? 'La croix, en bas, pour marcher' : 'ZQSD ou les flèches pour marcher', done: e => e.type === 'keydown' && MOVE_KEYS.has(e.code) || e.type === 'pad', wait: 30 },
+  { text: () => 'Suis les traces dans la neige', wait: 7 },
+  { text: () => touchScreen ? 'Tout au bord de la croix, on court' : 'Maj pour courir', done: e => e.type === 'keydown' && e.key === 'Shift', wait: touchScreen ? 7 : 25 },
+  { text: () => touchScreen ? 'Touche l\'écran pour frapper' : 'Clic pour frapper, vers le pointeur', done: e => e.type === 'pointerdown', wait: 25 },
+  { text: () => touchScreen ? 'Doigt tenu deux secondes : le coup tourbillonnant' : 'Bouton tenu deux secondes : le coup tourbillonnant', wait: 8 },
+  { text: () => 'M : la carte · I : l\'inventaire', done: e => e.type === 'keydown' && (e.code === 'KeyM' || e.code === 'KeyI'), wait: 12 },
+];
+let tutoStep = -1, tutoTimer = 0;
+function tutoShow(i) {
+  clearTimeout(tutoTimer);
+  if (i >= TUTO.length) { hideHint(); return; }
+  tutoStep = i;
+  hint.textContent = TUTO[i].text();
   hint.classList.remove('gone');
-  setTimeout(hideHint, 9000);
-  window.addEventListener('keydown', hideHint, { once: true });
+  tutoTimer = setTimeout(() => tutoDone(i), TUTO[i].wait * 1000);
+}
+function tutoDone(i) {
+  if (i !== tutoStep) return;
+  tutoStep = -1;
+  hideHint();
+  prefs.tuto = i + 1;
+  write(PREFS_KEY, prefs);
+  tutoTimer = setTimeout(() => tutoShow(i + 1), 2600);
+}
+function tutoEvent(e) {
+  const step = TUTO[tutoStep];
+  if (step?.done?.(e)) setTimeout(() => tutoDone(tutoStep), 900);
+}
+window.addEventListener('keydown', tutoEvent);
+$('stage').addEventListener('pointerdown', tutoEvent);
+$('dpad').addEventListener('pointerdown', () => tutoEvent({ type: 'pad' }));
+function showHint() {
+  if (DEBUG || tutoStep >= 0 || (prefs.tuto || 0) >= TUTO.length) return;
+  tutoShow(prefs.tuto || 0);
+}
+
+// ── Le prologue : l'état du monde, en trois lignes sur le noir, au début
+// d'une partie neuve (un clic ou une touche le passe) ──
+const PROLOGUE = [
+  'Sur SNO 7, septième île de l\'Archipel des Neuf, il fait nuit depuis dix-neuf hivers.',
+  'Un rêve t\'a rappelé sur l\'île où tu es né. Eyvind, ton frère de lait, est parti avant toi.',
+  'Sur la grève, deux pistes s\'en vont dans la neige.',
+];
+let freshGame = !DEBUG && save.x == null;
+function playPrologue() {
+  const el = $('prologue'), lines = [...el.querySelectorAll('p')];
+  lines.forEach((p, i) => { p.textContent = PROLOGUE[i]; p.classList.remove('in'); });
+  el.classList.remove('out');
+  el.hidden = false;
+  return new Promise(resolve => {
+    const timers = [];
+    let ended = false;
+    const end = () => {
+      if (ended) return;
+      ended = true;
+      timers.forEach(clearTimeout);
+      lines.forEach(p => p.classList.add('in'));
+      el.classList.add('out');
+      window.removeEventListener('keydown', end);
+      setTimeout(() => { el.hidden = true; resolve(); }, 1200);
+    };
+    lines.forEach((p, i) => timers.push(setTimeout(() => p.classList.add('in'), 600 + i * 3400)));
+    timers.push(setTimeout(end, 600 + PROLOGUE.length * 3400 + 2200));
+    el.addEventListener('click', end, { once: true });
+    window.addEventListener('keydown', end);
+  });
 }
 
 // ── Le titre, en pixels : la gothique tracée petit, seuillée en un seul ton,
@@ -397,10 +483,12 @@ function closeTitle() {
   // La caméra d'abord sur le viking, l'île chargée autour de lui ; puis l'iris
   closeIris();
   game.focus();
-  whenReady().then(openIris);
+  // Une partie neuve : le prologue d'abord, sur le noir
+  const prologue = freshGame ? playPrologue() : Promise.resolve();
+  freshGame = false;
+  Promise.all([whenReady(), prologue]).then(openIris).then(showHint);
   dpad.hidden = !touchScreen;
   $('stage').querySelector('canvas')?.focus();
-  showHint();
 }
 // Nouveau jeu : s'il y a une partie, un second clic confirme (elle est effacée)
 function armNewGame(button) {

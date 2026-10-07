@@ -15,7 +15,6 @@ export const CHAPTERS = [
   { id: 'incendie', label: 'Chapitre VIII', title: 'L\'incendie' },
   { id: 'falaise', label: 'Chapitre IX', title: 'La falaise' },
   { id: 'roi', label: 'Chapitre X', title: 'Le roi sous la roche' },
-  { id: 'megamoth', label: 'Chapitre XI', title: 'Le megamoth' },
   { id: 'lac', label: 'Interlude', title: 'Le lac' },
 ];
 export const chapterById = id => CHAPTERS.find(c => c.id === id);

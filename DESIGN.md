@@ -47,7 +47,7 @@ clou de Nortia et la nuit qui dure depuis dix-neuf hivers ; l'Archipel des
 Neuf ; la magie ; les mythes nordiques, étrusques et de Gilgamesh), les
 arbres généalogiques, les lieux à venir et les scénarios avec leurs lignes de
 dialogue sont dans `js/saga.js`, lisibles dans l'onglet « La saga » du labo.
-Ce n'est pas encore dans le jeu : chaque scénario est une proposition.
+Une partie des scénarios est dans le jeu (v1.47.0, phylactère B) ; les autres restent des propositions. Le megamoth est retiré : Sigrún est figée dans la glace.
 
 ## Le voyage, chapitre par chapitre
 
@@ -69,7 +69,6 @@ souffle (sauf aux combats).
 | VIII | L'incendie | L'autre mort, on revient à la maison et on met le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; une ruine qui fume, la boucle du compagnon dans les cendres | Le bûcher, le deuil |
 | IX | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte ; une sente en lacets dans la face, des pierres qui tombent (un filet de neige les annonce) | L'ascension, au-delà du récit des traces |
 | X | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
-| XI | Le megamoth | En haut de la falaise, un papillon de nuit géant posé comme une bosse de neige ; il s'éveille, tourne autour de la torche, plonge et la souffle. On ne l'atteint que quand il plonge | Ce qui vit dans le noir et cherche la lumière |
 | Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Freya plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
@@ -156,9 +155,11 @@ signalées, pas tranchées.
 
 - **Pas d'objectif affiché.** Ni quête, ni flèche, ni marqueur : seules les
   traces guident. `[À VALIDER]`
-- **Pas de carte en jeu.** La carte n'existe que dans le labo. `[À VALIDER]`
-- **Pas de tutoriel bavard.** Une seule consigne de commandes, qui s'efface
-  seule. Pas de bulle, pas de « appuyez sur… » contextuel. `[À VALIDER]`
+- **Pas de carte toute faite.** Décision de Jérôme (v1.47.0) : une carte en jeu
+  (touche M), mais elle ne montre que ce que le viking a vu ; le reste est noir.
+- **Pas de tutoriel bavard.** Décision de Jérôme (v1.47.0) : un prologue de trois
+  lignes sur le noir (l'état du monde), puis des consignes courtes, une à la
+  fois, qui s'effacent dès qu'on les a faites, une seule fois par navigateur.
 - **Pas de bavardage.** Décision de Jérôme (v1.46.0) : les personnages
   parlent, mais peu (trois à huit lignes par rencontre, douze mots par ligne
   au plus), sans jamais raconter l'histoire à la place du paysage ; pas de
