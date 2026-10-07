@@ -256,8 +256,8 @@ Audio, `startTrack`) : le suivant monte pendant que l'autre s'éteint
 (`XFADE`, 8 s, trois au premier) ; la forêt noire, les loups et l'aube ont
 leur morceau (`lieu` : `musicMood` rend `place`, stable 3 s : fondu vers
 lui ; on le laisse finir en partant) ; `audio.setTrack('playlist' | id)`,
-Réglages « Morceau », `prefs.track`. « The wolves.mp3 » (2 octets) est vide :
-`loups` lit « The wolves II.mp3 ». Les bruitages restent synthétisés (aucun
+Réglages « Morceau », `prefs.track` ; deux morceaux pour un lieu (The wolves
+I et II) : l'un ou l'autre au hasard. Les bruitages restent synthétisés (aucun
 fichier) : le vent qui suit la météo (étouffé à l'intérieur ; v1.53.4 : plus
 léger et vivant, `windLayers` : un souffle grave qui respire et se déplace
 d'une oreille à l'autre, un air aigu, deux sifflements qui naissent et
@@ -773,6 +773,12 @@ n'est jamais implémenté automatiquement.
   l'ancien code, le labo avec le nouveau). Tous les imports et les pages
   portent la version (`?v=1.28.0`) : après chaque changement de
   `version.json`, lancer `node scripts/stamp-version.mjs` avant de pousser.
+  Et `app-update.js` prend la première lecture de version.json pour
+  référence : une page servie en retard ne se savait pas périmée (Jérôme
+  entendait encore l'ancienne musique). `main.js` compare donc, au lancement,
+  son propre `?v=` (`import.meta.url`) à version.json et recharge une fois
+  avec `?v=<version>` dans l'adresse (`kingvi:fresh` en sessionStorage évite
+  la boucle).
 - Redimensionner le canevas (Phaser 3.90, `Scale.NONE`) : `game.scale.resize`
   d'abord, puis `setZoom` (c'est lui qui pose la taille affichée ; dans
   l'autre ordre, le canevas gardait l'ancienne taille affichée : le jeu

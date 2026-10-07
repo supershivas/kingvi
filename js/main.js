@@ -1,21 +1,38 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.56.0';
-import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.56.0';
-import { TITLE_ART } from './title-art.js?v=1.56.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.56.0';
-import { showChapter } from './chapters.js?v=1.56.0';
-import { createTitleSea } from './titlesea.js?v=1.56.0';
-import { audio, TRACKS } from './audio.js?v=1.56.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.56.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.56.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.56.1';
+import { loadDesigns, designRows, refreshLocal, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.56.1';
+import { TITLE_ART } from './title-art.js?v=1.56.1';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.56.1';
+import { showChapter } from './chapters.js?v=1.56.1';
+import { createTitleSea } from './titlesea.js?v=1.56.1';
+import { audio, TRACKS } from './audio.js?v=1.56.1';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.56.1';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.56.1';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
 const DEBUG = new URLSearchParams(location.search).get('debug') === '1';
+// Une page servie en retard (GitHub Pages garde index.html dix minutes) charge
+// l'ancien code, et la mise à jour automatique prend la version du jour pour
+// référence : elle ne voit rien. Le code connaît sa version (`?v=` de ce
+// module) : si version.json en dit une autre, on recharge une fois, l'adresse
+// changée pour que la page vienne fraîche
+{
+  const mine = new URL(import.meta.url).searchParams.get('v');
+  try {
+    const live = (await (await fetch('version.json', { cache: 'no-store' })).json()).version;
+    if (mine && live && live !== mine && sessionStorage.getItem('kingvi:fresh') !== live) {
+      sessionStorage.setItem('kingvi:fresh', live);
+      const url = new URL(location.href); url.searchParams.set('v', live);
+      location.replace(url);
+      await new Promise(() => {});
+    }
+  } catch { /* hors ligne : on joue avec ce qu'on a */ }
+}
 // Les dessins redessinés à la main (assets/design, ou retouchés dans le labo) se
 // chargent AVANT le monde, la meute et le viking, qui se construisent à leur chargement
 await loadDesigns();
-const { createGame } = await import('./game.js?v=1.56.0');
-const debug = DEBUG ? await import('./debug.js?v=1.56.0') : null;
+const { createGame } = await import('./game.js?v=1.56.1');
+const debug = DEBUG ? await import('./debug.js?v=1.56.1') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -61,7 +78,7 @@ let save = read(SAVE_KEY, {});
 // ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
 // de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
 async function snowBox(el, seed) {
-  const { brokenBox } = await import('./dialogue.js?v=1.56.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.56.1');
   const canvas = el.querySelector('.snow-bg');
   if (!canvas || el.hidden) return;
   const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3;
@@ -83,7 +100,7 @@ window.addEventListener('resize', () => setTimeout(() => {
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.56.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.56.1');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -308,7 +325,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.56.0');
+  mapModule = mapModule || await import('./map.js?v=1.56.1');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();

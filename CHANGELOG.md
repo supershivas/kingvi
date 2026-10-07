@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.56.1 — 2026-10-07
+- Ajoute The wolves : quand la meute sort, c'est l'un des deux morceaux des loups (I ou II), au hasard
+- Si le navigateur ouvre une ancienne page gardée en cache (l'ancienne musique, par exemple), le jeu le voit au lancement et se recharge tout seul avec la dernière version
+
 ## 1.56.0 — 2026-10-07
 - La musique, ce sont maintenant les morceaux déposés dans assets/music (Spring Reverb, La Forêt Noire, Abstract Breaks I et II, L'aube, The wolves) ; la musique synthétisée est retirée
 - Les morceaux s'enchaînent en fondu : le suivant monte pendant huit secondes pendant que l'autre s'éteint

@@ -14,7 +14,8 @@ export const TRACKS = {
   'breaks': { nom: 'Abstract Breaks', file: 'Abstract Breaks.mp3', about: 'Des cassures de rythme, au loin.' },
   'aube': { nom: 'L\'aube', file: 'L\'aube.mp3', about: 'Le plus lumineux ; il vient à la fin, quand la nuit pâlit.', lieu: 'aube' },
   'breaks-2': { nom: 'Abstract Breaks II', file: 'Abstract Breaks II.mp3', about: 'La suite, plus nue.' },
-  'loups': { nom: 'The wolves', file: 'The wolves II.mp3', about: 'Tendu ; il vient quand la meute est là.', lieu: 'loups' },
+  'loups': { nom: 'The wolves', file: 'The wolves.mp3', about: 'Tendu ; il vient quand la meute est là (ou le II).', lieu: 'loups' },
+  'loups-2': { nom: 'The wolves II', file: 'The wolves II.mp3', about: 'Tendu ; il vient quand la meute est là (ou le premier).', lieu: 'loups' },
 };
 const TRACK_ORDER = Object.keys(TRACKS);
 const XFADE = 8;                                    // le fondu enchaîné, en secondes
@@ -166,7 +167,8 @@ function scheduler() {
   const place = mood.place || null;
   if (place !== placeWanted) { placeWanted = place; placeSince = t; }
   if (choice === 'playlist' && place && t - placeSince > 3 && TRACKS[current]?.lieu !== place && t - deck.started > XFADE + 2) {
-    const id = TRACK_ORDER.find(k => TRACKS[k].lieu === place);
+    // (plusieurs pour un lieu : l'un ou l'autre, au hasard)
+    const ids = TRACK_ORDER.filter(k => TRACKS[k].lieu === place), id = ids[Math.floor(Math.random() * ids.length)];
     if (id) { startTrack(id); return; }
   }
   // La fin approche : le suivant monte pendant que celui-ci s'éteint

@@ -1,8 +1,8 @@
 {
-  "version": "1.56.0",
+  "version": "1.56.1",
   "date": "2026-10-07",
   "changes": [
-    "La musique : tes morceaux (assets/music) remplacent la musique synthétisée, enchaînés en fondu",
-    "La forêt noire, les loups et l'aube ont leur morceau, qui vient de lui-même en fondu"
+    "Ajoute The wolves : quand la meute sort, l'un des deux morceaux des loups, au hasard",
+    "Une page restée en cache se recharge d'elle-même avec la dernière version"
   ]
 }
