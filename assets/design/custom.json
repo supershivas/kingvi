@@ -1,1 +1,11 @@
-[]
+[
+  {
+    "id": "un-mons",
+    "label": "Un mons",
+    "kind": "animation",
+    "w": 32,
+    "h": 32,
+    "frames": 3,
+    "fps": 6
+  }
+]
