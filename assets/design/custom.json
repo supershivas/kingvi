@@ -9,6 +9,15 @@
     "fps": 6
   },
   {
+    "id": "une-grande-flamme",
+    "label": "Une grande flamme",
+    "kind": "animation",
+    "w": 16,
+    "h": 16,
+    "frames": 4,
+    "fps": 6
+  },
+  {
     "id": "une-lanterne",
     "label": "Une lanterne",
     "kind": "decor",
