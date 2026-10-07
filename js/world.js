@@ -1,8 +1,10 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.58.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.58.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.58.0';
-import { makeGroveTree } from './grove.js?v=1.58.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.58.0';
+import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.59.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.59.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.59.0';
+import { makeGroveTree } from './grove.js?v=1.59.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.59.0';
+// (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
+import { placed } from './design-store.js?v=1.59.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -218,7 +220,7 @@ const off = (p, d) => ({ x: Math.round(p.x + Math.sin(p.heading) * d), y: Math.r
 
 // ── La statue brisée : dans la forêt, au bord nord de la piste ──
 const STATUE_AT = trail.find(p => p.x > LANDING.shore + 1830) || trail[Math.floor(trail.length / 2)];
-export const STATUE_BASE = off(STATUE_AT, 26);
+export const STATUE_BASE = placed('statue-ensevelie', off(STATUE_AT, 26));
 const STATUE_PARTS = buildStatue(STATUE_BASE, SEED);
 
 // ── La grande statue droite : au sortir de la forêt, au bord sud de la piste ──
@@ -232,7 +234,7 @@ function forestExit() {
   return trail[Math.floor(trail.length * 0.8)];
 }
 const EXIT = forestExit();
-export const STATUE2_BASE = off(EXIT, -40);
+export const STATUE2_BASE = placed('statue-debout', off(EXIT, -40));
 const STATUE2_PARTS = buildStatueUpright(STATUE2_BASE, SEED);
 
 // ── Les corbeaux : posés près de la piste, avant la forêt ──
@@ -415,7 +417,7 @@ export const NECRO = { x: Math.round(NECRO_AT.x - NECRO_W / 2), y: Math.round(NE
 // Le pas des morts (v1.54.1) : au creux du grand navire de pierres, la main
 // posée sur l'étrave, on reçoit le pouvoir d'aller d'un lieu vu à l'autre
 // (la carte, M). Rien d'aléatoire ici : l'île ne bouge pas.
-export const PASSAGE_AT = { x: NECRO.x + 145, y: NECRO.y + 43 };
+export const PASSAGE_AT = placed('pas-des-morts', { x: NECRO.x + 145, y: NECRO.y + 43 });
 const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
   type: 'stone', x: NECRO.x + x, y: NECRO.y + y, art: stoneArt(h, SEED * 31 + i), foot: 1,
 }));
@@ -426,9 +428,9 @@ const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
 // et la falaise). Les dessins viennent de assets/ (ruins.js) ; chaque point
 // est le milieu du pied du monument ──
 const ARCH_AT = trail.find(p => p.x > LANDING.shore + 1250) || trail[Math.floor(trail.length * 0.3)];
-export const ARCH = off(ARCH_AT, 58);
+export const ARCH = placed('arche', off(ARCH_AT, 58));
 const ruinAt = (dx, d) => off(trail.find(p => p.x > LANDING.shore + dx) || trail.at(-1), d);
-export const RUINS = { colonne: ruinAt(450, -90), socle: ruinAt(3300, 90), arche: ruinAt(4100, -90) };
+export const RUINS = { colonne: placed('colonne', ruinAt(450, -90)), socle: placed('socle', ruinAt(3300, 90)), arche: placed('ruine', ruinAt(4100, -90)) };
 // Le ponton du lac : il part de la rive nord (le bout côté terre sur la
 // grève) et file en biais dans l'eau, sans toucher l'îlot ; on marche dessus
 export const PIER = { x: LAKE.x + 3, y: LAKE.y - 36 };
@@ -468,15 +470,15 @@ const deepAt = t => DEEP[Math.floor((DEEP.length - 1) * t)] || trail[Math.floor(
 const EMPTY_AT = deepAt(0.25);
 const GROVE_AT = deepAt(0.58);
 const GROVE_ART = makeGroveTree(SEED);
-export const GROVE_TREE = off(GROVE_AT, 26);
+export const GROVE_TREE = placed('bosquet', off(GROVE_AT, 26));
 export const GROVE_HOOKS = GROVE_ART.hooks.map(h => ({ x: GROVE_TREE.x - GROVE_ART.ax + h.x, y: GROVE_TREE.y - GROVE_ART.rows.length + 1 + h.y }));
-export const WATCHER_AT = off(trail[Math.min(trail.length - 1, GROVE_AT.i + 4)], -34);
+export const WATCHER_AT = placed('guetteur', off(trail[Math.min(trail.length - 1, GROVE_AT.i + 4)], -34));
 const GROVE_PARTS = [{ type: 'grove', x: GROVE_TREE.x, y: GROVE_TREE.y, art: GROVE_ART, foot: 4 }];
 // À la sortie du noir, la grande clairière, ouverte vers l'est sur la forêt
 // claire puis la plaine : la louve blanche y est prise dans un collet
 const DEN_AT = trail[Math.min(trail.length - 1, (DEEP.at(-1)?.i ?? GROVE_AT.i + 60) + 2)];
 export const GLADE = { ...off(DEN_AT, 4), r: 100 };
-export const HVIT_AT = off(trail[Math.min(trail.length - 1, DEN_AT.i + 3)], 24);
+export const HVIT_AT = placed('louve', off(trail[Math.min(trail.length - 1, DEN_AT.i + 3)], 24));
 const DEN_MOUTH = trail[Math.min(trail.length - 1, DEN_AT.i + 12)];
 CLEARINGS.push(
   { x: EMPTY_AT.x, y: EMPTY_AT.y - 6, r: 34, seed: 7 },
@@ -489,11 +491,11 @@ CLEARINGS.push(
 // La meute : sur le plateau, au-dessus de la falaise (v1.52.0 : plus dans la
 // forêt, ce n'est plus le premier combat). Ils sortent du côté de la mer et
 // du glacier, jamais du bord de la falaise (`DEN_OPEN` : le sud)
-export const WOLF_DEN = { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 12, r: 90 };
+export const WOLF_DEN = placed('meute', { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 12, r: 90 });
 export const DEN_OPEN = Math.PI / 2;
 // Le cube blanc et le cube noir (cubes.js) : au nord du champ des morts, et
 // loin à l'est de la maison, vers la mer
-export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }];
+export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }].map(c => placed(`cube-${c.kind}`, c));
 // (leur pied bloque le passage : le losange du sol, sous le cube ; vu de
 // trois quarts, il va de la pointe basse, en c.y, à la pointe haute, 29 plus haut)
 export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => {
@@ -501,7 +503,7 @@ export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => {
   return d <= 29 && y <= c.y + 1 - d * 0.5 && y >= c.y - 29 + d * 0.5;
 });
 // Sigrún dans la glace : sur le plateau, à l'est de la meute, vers la mer
-export const SIGRUN_AT = { x: LEDGE.top.x + 78, y: LEDGE.top.y - 46 };
+export const SIGRUN_AT = placed('sigrun', { x: LEDGE.top.x + 78, y: LEDGE.top.y - 46 });
 // Le temple de Sorne : des marches sous l'arche, entre ses piliers
 export const TEMPLE_DOOR_OUT = { x: ARCH.x + 7, y: ARCH.y - 5 };
 

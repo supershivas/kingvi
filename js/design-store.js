@@ -192,6 +192,26 @@ export function applyLocal(name, rows) {
 // Au lancement : les fichiers du dépôt (ceux de `assets/design/index.json`),
 // puis ce qui est retouché ici par-dessus. Rien n'est demandé au réseau pour
 // les dessins qui n'existent pas.
+// ── Où sont posées les choses (v1.59.0) : l'atelier déplace les lieux de l'île
+// sur la carte. `assets/design/placements.json` (publié) puis ce navigateur
+// (`kingvi:placements` ; null : revenir au code). world.js les lit en se
+// construisant (`placed`), après `loadDesigns` ──
+export const PLACEMENTS_KEY = 'kingvi:placements';
+let placeDepot = {};
+export function readPlacements() { try { return JSON.parse(localStorage.getItem(PLACEMENTS_KEY)) || {}; } catch { return {}; } }
+export function writePlacements(o) { try { Object.keys(o).length ? localStorage.setItem(PLACEMENTS_KEY, JSON.stringify(o)) : localStorage.removeItem(PLACEMENTS_KEY); } catch { /* rien */ } }
+export const placementsDepot = () => placeDepot;
+export const setPlacementsDepot = o => { placeDepot = o || {}; };
+export const placements = () => {
+  const all = { ...placeDepot, ...readPlacements() };
+  for (const k of Object.keys(all)) if (!all[k]) delete all[k];
+  return all;
+};
+export function placed(id, def) {
+  const p = placements()[id];
+  return p && Number.isFinite(p.x) && Number.isFinite(p.y) ? { ...def, x: Math.round(p.x), y: Math.round(p.y) } : def;
+}
+
 // (résolue au premier chargement des dessins : le labo peut attendre la maison publiée)
 let readyResolve;
 export const designsReady = new Promise(r => { readyResolve = r; });
@@ -212,6 +232,16 @@ export async function loadDesigns() {
     const list = res.ok ? await res.json() : [];
     customDepot = Array.isArray(list) ? list.filter(d => d && /^[a-z0-9-]+$/.test(d.id) && d.w > 0 && d.h > 0) : [];
   } catch { /* hors ligne */ }
+  try {
+    const res = await fetch('assets/design/placements.json', { cache: 'no-cache' });
+    placeDepot = res.ok ? await res.json() : {};
+  } catch { placeDepot = {}; }
+  {
+    // (un placement d'ici que le dépôt publie à l'identique : ce navigateur suit le dépôt)
+    const mine = readPlacements();
+    for (const [k, v] of Object.entries(mine)) if (JSON.stringify(placeDepot[k] ?? null) === JSON.stringify(v)) delete mine[k];
+    writePlacements(mine);
+  }
   // (les suppressions que le dépôt a prises en compte n'ont plus à être retenues)
   const cu = readCustom();
   if (cu.deleted.some(id => !customDepot.some(d => d.id === id))) writeCustom({ ...cu, deleted: cu.deleted.filter(id => customDepot.some(d => d.id === id)) });

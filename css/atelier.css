@@ -8,3 +8,35 @@
 .atelier-badge { color: #fff; border: 1px solid rgba(255,255,255,.8); border-radius: 3px; padding: 2px 8px; font-family: var(--font-mono); font-size: .75rem; letter-spacing: .3em; }
 .atelier-body { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 20px 40px; background: var(--bg, #f2f0eb); }
 @media (max-width: 768px) { .atelier-body { padding: 12px 12px 32px; } }
+
+/* Les onglets des outils */
+.atelier-tabs { flex: none; display: flex; gap: 4px; padding: 0 16px; background: #2a2a2d; }
+.atelier-tabs a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; color: rgba(255,255,255,.7); text-decoration: none; font-size: .9rem; border-bottom: 2px solid transparent; }
+.atelier-tabs a.on { color: #fff; border-bottom-color: var(--accent); }
+@media (hover: hover) { .atelier-tabs a:hover { color: #fff; } }
+.atelier-body[hidden] { display: none; }
+
+/* La carte : placer les lieux */
+.am { display: flex; gap: 16px; align-items: flex-start; }
+.am-map { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.am-bar { display: flex; gap: 8px; align-items: center; }
+.am-scroll { overflow: auto; max-height: calc(100dvh - 210px); border-radius: var(--radius-md); background: #1f2a44; }
+.am-board { position: relative; }
+.am-board canvas { display: block; image-rendering: pixelated; }
+.am-marker { position: absolute; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 4px; min-width: 22px; min-height: 22px; padding: 0; background: none; border: 0; cursor: grab; touch-action: none; white-space: nowrap; }
+.am-marker i { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; box-shadow: 0 0 0 1px #1f2a44; flex: none; }
+.am-marker span { font-size: .72rem; color: #1f2a44; background: rgba(223,230,238,.9); padding: 1px 4px; border-radius: 3px; }
+.am-marker.on i { width: 16px; height: 16px; }
+.am-marker span { display: none; }
+.am-marker.on span { display: inline; background: #fff; font-weight: 600; }
+@media (hover: hover) { .am-marker:hover span { display: inline; } .am-marker:hover { z-index: 2; } }
+.am-marker.on { z-index: 3; }
+.am-marker.bad i { background: #888; }
+.am-marker:active { cursor: grabbing; }
+.am-list { width: 290px; flex: none; }
+.am-list h3 { margin: 0 0 6px; font-size: 1rem; }
+.am-list ul { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.am-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 4px 6px; border-radius: 6px; }
+.am-list li.on { background: rgba(192,57,43,.08); }
+.am-name { background: none; border: 0; padding: 6px 0; font: inherit; font-weight: 500; cursor: pointer; text-align: left; min-height: 32px; }
+@media (max-width: 900px) { .am { flex-direction: column; } .am-list { width: 100%; } }

@@ -1,8 +1,9 @@
 {
-  "version": "1.58.0",
+  "version": "1.59.0",
   "date": "2026-10-07",
   "changes": [
-    "L'atelier de dessin devient une page à part (atelier.html), hors du labo, et « Nouvel asset » ne fige plus rien",
-    "Liens vers l'atelier depuis les Réglages du jeu et l'en-tête du labo"
+    "Atelier : un onglet Carte pour déplacer les lieux de l'île (cubes, statues, ruines, louve, Sigrún…), publiés comme les dessins",
+    "Éditeur : la lecture joue sur la grande image ; on copie, déplace et retire les images d'une animation",
+    "Le roulis de la barque suit vraiment la barque redessinée"
   ]
 }

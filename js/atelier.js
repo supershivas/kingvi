@@ -11,9 +11,11 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
-} from './designs.js?v=1.58.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.58.0';
-import { publish, pending, customChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.58.0';
+  setCustomFrames, customNames,
+} from './designs.js?v=1.59.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.59.0';
+import { publish, pending, customChanged, placementsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.59.0';
+import { mountMap } from './atelier-map.js?v=1.59.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -135,7 +137,7 @@ host.innerHTML = `
 for (const d of host.querySelectorAll('dialog')) document.body.append(d);
 const $ = sel => host.querySelector(sel) || document.body.querySelector(sel);
 const note = $('.design-note'), chip = $('[data-chip]');
-const say = t => { note.textContent = t; };
+const say = t => { note.textContent = t; if (host.hidden) toastSay(t); };
 
 // ── Aide, clé, publication ──
 const helpDialog = $('[data-help-dialog]'), keyDialog = $('[data-key-dialog]'), newDialog = $('[data-new-dialog]');
@@ -149,7 +151,7 @@ $('[data-key-help]').addEventListener('click', () => { keyDialog.close(); helpDi
 
 const syncKey = () => { $('[data-forget]').hidden = !getToken(); status(); };
 function status() {
-  const unpub = pending().length + (customChanged() ? 1 : 0);
+  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0);
   chip.textContent = unpub ? `${unpub} à publier` : 'Tout est publié';
   chip.classList.toggle('warn', unpub > 0);
   chip.title = unpub ? 'Invisible sur les autres appareils tant que vous n\'avez pas publié.' : '';
@@ -273,10 +275,28 @@ function buildTree() {
     el.querySelector('.dz-count').textContent = DESIGNS.filter(d => d.group === g.id).length;
     el.querySelector('summary').title = g.about;
     const items = el.querySelector('.dz-items');
-    for (const d of list) items.append(item(d));
+    // (une animation = une seule entrée, avec toutes ses images ; les dessins
+    // qui n'appartiennent à aucune animation restent seuls)
+    const seqs = (SEQUENCES[g.id] || []).filter(sq => !filter || `${sq.label} ${sq.names.join(' ')}`.toLowerCase().includes(filter));
+    const inSeq = new Set((SEQUENCES[g.id] || []).flatMap(sq => sq.names));
+    for (const sq of seqs) items.append(seqItem(sq));
+    for (const d of list) if (!inSeq.has(d.name)) items.append(item(d));
     foldersEl.append(el);
   }
   if (!foldersEl.children.length) foldersEl.textContent = 'Aucun résultat.';
+}
+function seqItem(sq) {
+  const d = byName(sq.names[0]), key = `seq:${sq.label}`;
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'dz-item dz-seq'; b.dataset.name = key;
+  b.innerHTML = '<span class="dz-thumb"><canvas></canvas></span><span class="dz-name"></span><span class="dz-dot" aria-hidden="true"></span>';
+  b.querySelector('.dz-name').textContent = `${sq.label} · ${new Set(sq.names).size} images`;
+  b.addEventListener('click', () => { selectedSeq = sq; select(sq.names[0]); });
+  thumbs.set(key, b); b.seq = sq;
+  drawTo(b.querySelector('canvas'), d, rowsOf(d.name), thumbK(d));
+  b.classList.toggle('on', selectedSeq === sq && sq.names.includes(selected));
+  b.classList.toggle('mine', sq.names.some(nm => designSource(nm) === 'local'));
+  return b;
 }
 function item(d) {
   const b = document.createElement('button');
@@ -306,9 +326,16 @@ $('.dz-search').addEventListener('input', e => { filter = e.target.value.trim().
 // ── L'asset choisi ──
 const main = $('.dz-main');
 let anim = null;
+let selectedSeq = null;            // (l'animation choisie, quand une image en a plusieurs)
+function seqOf(d) {
+  const all = SEQUENCES[d.group] || [];
+  return all.find(sq => sq === selectedSeq && sq.names.includes(d.name)) || all.find(sq => sq.names.includes(d.name));
+}
 function select(name) {
   selected = name;
-  for (const [n, b] of thumbs) b.classList.toggle('on', n === name);
+  const d = byName(name), sq = d && seqOf(d);
+  if (sq) selectedSeq = sq;
+  for (const [n, b] of thumbs) b.classList.toggle('on', sq ? n === `seq:${sq.label}` : n === name);
   const g = byName(name)?.group, folder = foldersEl.querySelector(`details[data-group="${g}"]`);
   if (folder) folder.open = true;
   showMain();
@@ -317,7 +344,7 @@ function showMain() {
   anim?.stop(); anim = null;
   const d = byName(selected);
   if (!d) { main.textContent = ''; return; }
-  const seq = (SEQUENCES[d.group] || []).find(sq => sq.names.includes(d.name));
+  const seq = seqOf(d);
   const custom = customOf(d.name);
   main.innerHTML = `
     <div class="dz-head"><h3></h3><span class="dz-meta"></span></div>
@@ -330,7 +357,7 @@ function showMain() {
       <button type="button" class="design-btn quiet" data-remove hidden>Supprimer l'asset</button>
     </div>
     <div class="dz-anim" hidden><canvas></canvas><span class="dz-meta"></span></div>`;
-  main.querySelector('h3').textContent = d.label;
+  main.querySelector('h3').textContent = seq ? `${seq.label} · ${new Set(seq.names).size} images` : d.label;
   main.querySelector('[data-remove]').hidden = !custom;
   if (seq) {
     const box = main.querySelector('.dz-anim');
@@ -338,11 +365,43 @@ function showMain() {
     box.querySelector('.dz-meta').textContent = `${seq.label} · ${seq.fps} images/s`;
     anim = playSeq(box.querySelector('canvas'), seq);
   }
-  main.querySelector('[data-draw]').addEventListener('click', () => {
+  main.querySelector('[data-draw]').addEventListener('click', () => openEditor(d.name));
+  main.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(rowsOf(d.name))));
+  main.querySelector('input').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    e.target.value = '';
+    if (f) say(await take(d.name, await f.arrayBuffer()));
+  });
+  restOfMain(d, custom);
+}
+// L'éditeur, sur ce dessin (et toute son animation)
+function openEditor(name) {
+    const d = byName(name);
+    const seq = seqOf(d);
+    const custom = customOf(d.name);
     const names = seq ? [...new Set(seq.names)] : [d.name];
+    // Une animation créée ici : on peut y ajouter des images, ou en retirer
+    const reshape = (delta) => (at, rows, move = 0) => {
+      const all = custom ? customNames(custom) : [];
+      const cur = all.map(nm => rowsOf(nm));
+      cur[at] = rows;
+      if (move) { [cur[at], cur[at + move]] = [cur[at + move], cur[at]]; }
+      else if (delta > 0) cur.splice(at + 1, 0, rows.slice()); else cur.splice(at, 1);
+      setCustomFrames(custom.id, cur.length);
+      const next = customNames(customOf(`custom-${custom.id}-0`));
+      next.forEach((nm, i) => { setLocalDesign(nm, cur[i]); applyLocal(nm, cur[i]); });
+      for (const nm of all.slice(next.length)) { setLocalDesign(nm, null); applyLocal(nm, null); }
+      const show = next[Math.min(next.length - 1, move ? at + move : delta > 0 ? at + 1 : Math.max(0, at - 1))];
+      selected = show; buildTree(); select(show); status();
+      say(move ? 'Image déplacée.' : delta > 0 ? `Image copiée (${next.length} images).` : `Image retirée (${next.length} images).`);
+      openEditor(show);
+    };
     openPixelEditor({
       frames: names.map(nm => ({ name: nm, label: byName(nm).label, original: originalRows(nm), rows: rowsOf(nm) })),
       index: names.indexOf(d.name),
+      onAddFrame: custom && custom.frames > 1 ? reshape(1) : null,
+      onRemoveFrame: custom && custom.frames > 2 ? reshape(-1) : null,
+      onMoveFrame: custom && custom.frames > 1 ? (at, dir, rows) => reshape(0)(at, rows, dir) : null,
       order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,
       fps: seq?.fps || 8,
       // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
@@ -350,13 +409,8 @@ function showMain() {
       onReset: async nm => { setLocalDesign(nm, null); applyLocal(nm, null); await loadDesigns(); syncCustom(); refresh(nm); },
       onClose: afterEditing,
     });
-  });
-  main.querySelector('[data-dl]').addEventListener('click', async () => download(d.name, await rowsToPng(rowsOf(d.name))));
-  main.querySelector('input').addEventListener('change', async e => {
-    const f = e.target.files[0];
-    e.target.value = '';
-    if (f) say(await take(d.name, await f.arrayBuffer()));
-  });
+}
+function restOfMain(d, custom) {
   main.querySelector('[data-reset]').addEventListener('click', async () => {
     setLocalDesign(d.name, null); applyLocal(d.name, null);
     await loadDesigns(); syncCustom();            // (le fichier du dépôt, s'il y en a un, revient)
@@ -399,7 +453,14 @@ function refresh(name) {
     drawTo(b.querySelector('canvas'), d, rowsOf(name), thumbK(d));
     b.classList.toggle('mine', designSource(name) === 'local');
   }
-  if (name === selected) paintMain();
+  // (les animations où paraît cette image : leur vignette, leur pastille)
+  for (const sb of thumbs.values()) {
+    if (!sb.seq?.names.includes(name)) continue;
+    const f = byName(sb.seq.names[0]);
+    drawTo(sb.querySelector('canvas'), f, rowsOf(f.name), thumbK(f));
+    sb.classList.toggle('mine', sb.seq.names.some(nm => designSource(nm) === 'local'));
+  }
+  if (name === selected || seqOf(byName(selected) || {})?.names.includes(name)) paintMain();
   status();
 }
 
@@ -419,3 +480,22 @@ loadDesigns().then(() => {
   if (!byName(selected)) selected = 'relique-poupee';
   buildTree(); select(selected); status();
 });
+
+// ── Les onglets de l'atelier : les dessins, la carte (placer les lieux) ──
+let mapMounted = false;
+function showTool() {
+  const tool = location.hash === '#carte' ? 'carte' : 'dessins';
+  for (const a of document.querySelectorAll('.atelier-tabs a')) a.classList.toggle('on', a.dataset.tool === tool);
+  for (const p of document.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tool;
+  if (tool === 'carte' && !mapMounted) {
+    mapMounted = true;
+    mountMap(document.getElementById('atelier-map'), { say: t => toastSay(t), onChange: status, onPublish: () => $('[data-publish]').click() });
+  }
+}
+function toastSay(t) {
+  const el = document.getElementById('toast');
+  el.textContent = t; el.hidden = false;
+  clearTimeout(toastSay.t); toastSay.t = setTimeout(() => { el.hidden = true; }, 3200);
+}
+window.addEventListener('hashchange', showTool);
+showTool();

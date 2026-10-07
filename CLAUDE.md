@@ -462,7 +462,17 @@ est cachée et ne sort que pendant l'attaque.
   `#1C1C1E`, « ATELIER » encadré, favicon au pinceau `favicon-atelier.svg`/`.png` ;
   liens depuis les Réglages du jeu et l'en-tête du labo ; le labo montre et
   compare, l'atelier modifie ; ses boîtes de dialogue vont au `body` : rangées
-  dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page) (10 groupes, 159 images, dont les placeholders de
+  dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page ;
+  deux onglets : **Dessins** et **Carte** (v1.59.0, `js/atelier-map.js`,
+  `mountMap` : on fait glisser les lieux sur l'île, jamais dans l'eau ;
+  `placed(id, défaut)` dans `world.js` pour les cubes, les statues, l'arche,
+  les ruines, le bosquet, le guetteur, la louve, la tanière, Sigrún, le pas des
+  morts ; gardés dans `kingvi:placements` (null : revenir au code), publiés
+  dans `assets/design/placements.json`, lus par `loadDesigns` avant que
+  `world.js` se construise ; le jeu les prend au lancement) ; dans l'éditeur,
+  une animation créée dans l'atelier se copie image par image (« Copier »),
+  se réordonne (flèches), perd une image ; la lecture joue sur la grande image ; dans les dossiers, une
+  animation (`SEQUENCES`) n'est qu'une entrée, `seqItem`, `selectedSeq`) (10 groupes, 159 images, dont les placeholders de
 l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques : éléments du
   décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
   cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
@@ -765,6 +775,13 @@ n'est jamais implémenté automatiquement.
   secondaire).
 
 ## Pièges connus
+
+- Un module chargé avant `loadDesigns` (le graphe statique de `main.js` :
+  `boat.js`, `viking.js`, `titlesea.js`…) ne lit pas les dessins publiés à
+  son chargement : ce qui en dépend se calcule à la demande (le roulis de la
+  barque : accesseurs de `BOAT_FRAMES`). `world.js` n'est pas dans ce graphe
+  (il vient avec `game.js`) : c'est ce qui permet `placed()`. Dans le labo et
+  l'atelier, il se construit avant : l'atelier remet les placements par-dessus.
 
 - Une boîte de dialogue (`<dialog>`) ne se range jamais dans les `.demos` du
   labo : la navigation en fait une variante cachée (`.lab-off`), elle s'ouvre

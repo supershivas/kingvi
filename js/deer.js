@@ -2,7 +2,7 @@
    « loups », qui ressemblaient à des cerfs. Pattes fines, queue courte ; le cerf
    porte des bois. Chaque image fait DEER_W × DEER_H ; les sabots touchent DEER_GROUND. */
 
-import { designGrid } from './design-store.js?v=1.58.0';
+import { designGrid } from './design-store.js?v=1.59.0';
 
 export const DEER_W = 18;
 export const DEER_H = 14;

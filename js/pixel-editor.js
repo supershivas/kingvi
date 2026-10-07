@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.58.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.58.0';
+import { gamePalette } from './design-store.js?v=1.59.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.59.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -135,7 +135,7 @@ function build() {
   return d;
 }
 
-export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {} }) {
+export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null }) {
   dlg?.remove();
   dlg = build();
   const pal = gamePalette();
@@ -186,6 +186,9 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
         <button type="button" data-toggle="onion" title="Pelure d'oignon : les images voisines (N)"><i class="ti ti-layers-subtract"></i> Pelure d'oignon</button>
         <button type="button" data-toggle="all" title="Chaque trait sur toutes les images (A)"><i class="ti ti-link"></i> Toutes les images</button>
         <button type="button" data-act="play" title="Lecture (P)"><i class="ti ti-player-play"></i> Lecture</button>
+        ${onMoveFrame ? '<button type="button" data-act="move-left" title="Déplacer cette image vers la gauche"><i class="ti ti-arrow-left"></i></button><button type="button" data-act="move-right" title="Déplacer cette image vers la droite"><i class="ti ti-arrow-right"></i></button>' : ''}
+        ${onAddFrame ? '<button type="button" data-act="add-frame" title="Copier cette image : la copie vient juste après"><i class="ti ti-copy"></i> Copier</button>' : ''}
+        ${onRemoveFrame && n > 2 ? '<button type="button" data-act="remove-frame" title="Retirer cette image"><i class="ti ti-minus"></i> Image</button>' : ''}
       </div>`;
   }
   const thumbK = Math.max(1, Math.min(8, Math.floor(110 / w), Math.floor(80 / h)));
@@ -197,7 +200,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
       c.fillStyle = '#7f8aa3'; c.fillRect(0, 0, w, h);
       const g = grids[i];
       for (let k = 0; k < w * h; k++) if (g[k]) { c.fillStyle = hex(g[k] === SHADE ? rgb[4] : rgb[g[k]]); c.fillRect(k % w, (k / w) | 0, 1, 1); }
-      b.classList.toggle('on', i === fi);
+      b.classList.toggle('on', playing ? i === playOrder[pf % playOrder.length] : i === fi);
     });
   }
 
@@ -227,8 +230,10 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const bgColor = () => ({ snow: hex(pal.s), night: hex(pal.b), mid: '#7f8aa3' })[st.bg];
   function render() {
     const d = fimg.data;
+    // (en lecture, la grande image joue l'animation, sans pelure d'oignon)
+    const shown = playing ? grids[playOrder[pf % playOrder.length]] : grid;
     for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const c = grid[y * w + x], o = (y * w + x) * 4;
+      const c = shown[y * w + x], o = (y * w + x) * 4;
       // (le vide : un damier, pour le voir)
       const v = c ? rgb[c] : (x + y) & 1 ? [154, 166, 189] : [138, 150, 176];
       d[o] = v[0]; d[o + 1] = v[1]; d[o + 2] = v[2]; d[o + 3] = 255;
@@ -242,7 +247,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
       for (let x = 1; x < w; x++) vctx.fillRect(x * st.z, 0, 1, view.height);
       for (let y = 1; y < h; y++) vctx.fillRect(0, y * st.z, view.width, 1);
     }
-    if (st.onion && n > 1) {
+    if (st.onion && n > 1 && !playing) {
       // Les images voisines : là où le dessin en cours est vide, leur case est colorée ;
       // là où il est plein, un point (on voit ainsi ce qui bouge, partout)
       const dot = Math.max(2, Math.round(st.z / 3));
@@ -284,7 +289,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   function play(on) {
     clearInterval(timer);
     playing = on; pf = Math.max(0, playOrder.indexOf(fi));
-    if (on) timer = setInterval(() => { pf = (pf + 1) % playOrder.length; renderPreview(); }, 1000 / pfps);
+    if (on) timer = setInterval(() => { pf = (pf + 1) % playOrder.length; render(); }, 1000 / pfps);
     render();
   }
   function goto(i) { fi = ((i % n) + n) % n; grid = grids[fi]; if (playing) play(false); else render(); }
@@ -491,6 +496,15 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     else if (b.dataset.act === 'prevf') return goto(fi - 1);
     else if (b.dataset.act === 'nextf') return goto(fi + 1);
     else if (b.dataset.act === 'play') return play(!playing);
+    // (une image de plus ou de moins : on enregistre, puis l'atelier rouvre l'éditeur)
+    else if (['add-frame', 'remove-frame', 'move-left', 'move-right'].includes(b.dataset.act)) {
+      const act = b.dataset.act, at = fi, rows = toRows(grid);
+      if (act === 'move-left' && at === 0) return;
+      if (act === 'move-right' && at === n - 1) return;
+      changed = true; dirty.add(fi);
+      dlg.addEventListener('close', () => act === 'add-frame' ? onAddFrame(at, rows) : act === 'remove-frame' ? onRemoveFrame(at, rows) : onMoveFrame(at, act === 'move-left' ? -1 : 1, rows), { once: true });
+      return dlg.close();
+    }
     else if (b.dataset.act === 'slower') return setFps(-1);
     else if (b.dataset.act === 'faster') return setFps(1);
     else if (b.dataset.act === 'smaller') st.size = Math.max(1, st.size - 1);

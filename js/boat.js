@@ -3,7 +3,7 @@
    s bancs, bordés clairs et neige posée. Dessinée à 46 × 18 pixels, elle est
    réduite (BOAT_SCALE) : la barque ne doit pas écraser le viking. */
 
-import { designRows } from './design-store.js?v=1.58.0';
+import { designRows } from './design-store.js?v=1.59.0';
 
 const BOAT_RAW = [
   '................ssssssss..s....................',
@@ -94,7 +94,10 @@ function roll(dir, base = designRows('boat-still', BOAT)) {
     return shift > 0 ? '.' + row.slice(0, -1) : row.slice(1) + '.';
   });
 }
-export const BOAT_FRAMES = { still: BOAT, left: roll(-1), right: roll(1) };
+// (le roulis se calcule à la demande : ce module se charge avant les dessins,
+// et la barque de l'atelier n'est connue qu'après `loadDesigns`)
+export const BOAT_FRAMES = { still: BOAT };
+for (const [k, dir] of [['left', -1], ['right', 1]]) Object.defineProperty(BOAT_FRAMES, k, { get: () => roll(dir), enumerable: true });
 export { roll as rollBoat };
 
 // La seconde barque : la même, vue sous un angle un peu différent (cisaillée,

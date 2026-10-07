@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.59.0 — 2026-10-07
+- Atelier, nouvel onglet Carte : on fait glisser les lieux de l'île (les deux cubes, les statues, l'arche, les ruines, l'arbre aux offrandes, le guetteur, la louve blanche, la tanière des loups, Sigrún, le pas des morts) ; jamais dans l'eau ; « Publier pour tous » les envoie avec les dessins, et le jeu les prend à son lancement
+- Éditeur de pixels : la lecture joue maintenant l'animation sur la grande image
+- Une animation créée dans l'atelier : copier une image (la copie vient juste après), la déplacer avec les flèches, ou la retirer
+- Dans l'atelier, une animation n'est plus qu'une seule entrée (« Galop · 3 images ») qui ouvre toutes ses images dans l'éditeur
+- Le roulis de la barque échouée suit vraiment la barque redessinée (il gardait encore l'ancienne)
+
 ## 1.58.0 — 2026-10-07
 - L'atelier de dessin quitte le labo : c'est maintenant une page à part (atelier.html), avec son en-tête « ATELIER » et son icône au pinceau ; on y va depuis les Réglages du jeu ou l'en-tête du labo
 - « Nouvel asset » marche de nouveau : la fenêtre de création s'ouvrait cachée et figeait la page
