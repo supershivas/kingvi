@@ -1,8 +1,8 @@
 {
-  "version": "1.56.1",
+  "version": "1.57.0",
   "date": "2026-10-07",
   "changes": [
-    "Ajoute The wolves : quand la meute sort, l'un des deux morceaux des loups, au hasard",
-    "Une page restée en cache se recharge d'elle-même avec la dernière version"
+    "Un clic droit sur n'importe quoi (ou un clic sur une chose trop loin pour l'épée) la décrit",
+    "Le roulis de la barque échouée suit la barque redessinée dans l'atelier"
   ]
 }

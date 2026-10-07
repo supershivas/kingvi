@@ -8,7 +8,7 @@
 
 import {
   WORLD, coast, deepForest, forestDensity, trail, landing, HOUSE, STATUE_BASE, STATUE2_BASE, ARCH, CLIFF, CAVE, LAKE, NECRO, WOLF_DEN, GROVE_TREE, HVIT_AT,
-} from './world.js?v=1.56.1';
+} from './world.js?v=1.57.0';
 
 const S = 12;                   // pixels du monde par pixel de carte
 const N = Math.ceil(WORLD / S);
@@ -150,7 +150,7 @@ const S4 = 4;
 let sno4Base = null;
 async function sno4Terrain(palette) {
   if (sno4Base) return sno4Base;
-  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.56.1');
+  const { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS } = await import('./sno4.js?v=1.57.0');
   const full = document.createElement('canvas');
   full.width = SNO4_W; full.height = SNO4_H;
   const g = full.getContext('2d');
@@ -171,8 +171,8 @@ async function sno4Terrain(palette) {
 
 export async function renderSno4Map(view, data, palette, { maxW, maxH, t = 0 }) {
   const base = await sno4Terrain(palette);
-  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.56.1');
-  const { VEVE } = await import('./sno4.js?v=1.56.1');
+  const { PLACES_SNO4 } = await import('./saga-sno4.js?v=1.57.0');
+  const { VEVE } = await import('./sno4.js?v=1.57.0');
   const { seen, cell, cols, rows, pos } = data;
   const W = base.width, H = base.height;
   const seenAt = (lx, ly) => { const c = Math.floor(lx / cell), r = Math.floor(ly / cell); return c >= 0 && r >= 0 && c < cols && r < rows && seen[r * cols + c]; };

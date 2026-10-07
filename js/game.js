@@ -4,42 +4,43 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.56.1';
+} from './viking.js?v=1.57.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked,
-  PASSAGE_AT,
-} from './world.js?v=1.56.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.56.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.56.1';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.56.1';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.56.1';
-import { createGround } from './ground.js?v=1.56.1';
-import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.56.1';
-import { chapterById } from './chapters.js?v=1.56.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.56.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.56.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.56.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.56.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.56.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.56.1';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.56.1';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.56.1';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.56.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.56.1';
-import { createFauna } from './fauna.js?v=1.56.1';
-import { createWeather } from './weather.js?v=1.56.1';
-import { createTalk } from './dialogue.js?v=1.56.1';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.56.1';
-import { NECRO_W, NECRO_H } from './props.js?v=1.56.1';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.56.1';
-import { personSprite } from './people.js?v=1.56.1';
-import { createSea } from './sea.js?v=1.56.1';
-import { audio } from './audio.js?v=1.56.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.56.1';
+  PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER,
+} from './world.js?v=1.57.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.57.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.57.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.57.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.57.0';
+import { createGround } from './ground.js?v=1.57.0';
+import { designRows, refreshLocal, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.57.0';
+import { chapterById } from './chapters.js?v=1.57.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.57.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.57.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.57.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.57.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.57.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.57.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.57.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.57.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.57.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.57.0';
+import { createFauna } from './fauna.js?v=1.57.0';
+import { createWeather } from './weather.js?v=1.57.0';
+import { createTalk } from './dialogue.js?v=1.57.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.57.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.57.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.57.0';
+import { describe } from './describe.js?v=1.57.0';
+import { personSprite } from './people.js?v=1.57.0';
+import { createSea } from './sea.js?v=1.57.0';
+import { audio } from './audio.js?v=1.57.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.57.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -205,7 +206,7 @@ function nearestWalkable(x, y) {
   return null;
 }
 
-export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {}, zoom = 0, onZoom = () => {} }) {
+export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage = (to, done) => done(), parent, palette, save, onSave, isPaused, quality = QUALITY.initial, wind = 'cycle', dayClock = () => Date.now() / 1000, onHealth = () => {}, onChapter = () => {}, onDeath = respawn => respawn(), isTitle = () => false, onTally = () => {}, onRelic = () => {}, zoom = 0, onZoom = () => {}, onDescribe = () => {} }) {
   const hex = c => parseInt(c.slice(1), 16);
   const rect = parent.getBoundingClientRect();
   const fit = fitScreen(rect.width, rect.height);
@@ -442,8 +443,19 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       window.addEventListener('keyup', e => this.keys.delete(e.code));
       window.addEventListener('blur', () => this.keys.clear());
 
+      // (le clic droit décrit ; pas de menu du navigateur sur le jeu)
+      this.input.mouse?.disableContextMenu();
       this.input.on('pointerdown', p => {
-        if (isPaused() || this.dead || this.rowing || p.button !== 0) return;
+        if (isPaused() || this.dead) return;
+        // Ce qu'on voit (v1.57.0) : un clic droit sur n'importe quoi, ou un clic
+        // sur une chose hors de portée de la lame, hors combat, la décrit
+        if (p.button === 2) { const d = this.describeAt(p.worldX, p.worldY, true); if (d) onDescribe(d); return; }
+        if (this.rowing || p.button !== 0) return;
+        const far = Math.hypot(p.worldX - this.pos.x, p.worldY - (this.pos.y - 5)) > 28;
+        if (far && !this.fighting()) {
+          const d = this.describeAt(p.worldX, p.worldY, false);
+          if (d) { onDescribe(d); this.charge = { t: 0 }; return; }
+        }
         // Dans la crypte, un clic près du coffre l'ouvre
         if (this.inside === 'crypt' && !this.chestOpen && this.nearChest()) { this.openChest(); return; }
         // Dans la maison, l'autre mort, un clic près du corps : le bûcher
@@ -683,6 +695,11 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           const b = burnHouse(designRows('house', HOUSE_ART));
           originals.set('house-burning', b.burning); originals.set('house-ruin', b.ruin);
           names.push('house-burning', 'house-ruin');
+        }
+        // (la barque échouée retouchée : son roulis s'en tire de nouveau)
+        if (names.includes('boat-still')) {
+          originals.set('boat-left', rollBoat(-1)); originals.set('boat-right', rollBoat(1));
+          names.push('boat-left', 'boat-right');
         }
         for (const name of names) this.redrawArt(name);
         // Les poses du viking, de sa cape, du loup : les planches sont repeintes sur place
@@ -2298,6 +2315,70 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
 
     // ── Les cubes : le blanc est tiède et referme les blessures ; le noir ne
     // renvoie aucun reflet, et qui le touche voit l'île d'en haut ──
+    // ── Ce qu'on voit, sous le pointeur ──
+    fighting() { return !!(this.pack.engaged || (this.foe.alive && this.foe.engaged)); }
+    // `ground` : le sol aussi (clic droit) ; sinon, seulement les choses posées
+    describeAt(wx, wy, ground) {
+      const seedOf = (x, y) => ((Math.round(x) * 73856093) ^ (Math.round(y) * 19349663)) >>> 0;
+      let best = null;
+      for (const im of this.children.list) {
+        if (!im.visible || im.alpha < 0.1 || !im.frame || im.rotation || (best && im.depth <= best.depth)) continue;
+        const key = im.texture.key;
+        if (/^(chunk-|feu-|torchglow|cape|dust|blood|__)/.test(key)) continue;
+        const w = im.frame.width, h = im.frame.height;
+        const left = im.x - im.originX * w * im.scaleX, top = im.y - im.originY * h * im.scaleY;
+        let px = Math.floor((wx - left) / im.scaleX), py = Math.floor((wy - top) / im.scaleY);
+        if (px < 0 || py < 0 || px >= w || py >= h) continue;
+        if (im.flipX) px = w - 1 - px;
+        if (!(this.textures.getPixelAlpha(px, py, key, im.frame.name) > 0)) continue;
+        const what = this.whatIs(im);
+        if (what) best = { depth: im.depth, ...what };
+      }
+      if (best) return best.title ? { title: best.title, text: best.text } : describe(best.kind, best.seed ?? seedOf(wx, wy));
+      if (!ground) return null;
+      // Le sol
+      if (this.inside) return describe(`room-${this.inside}`, 0);
+      const kind = coast(wx, wy) > 0 ? (inLake(wx, wy) ? 'lake' : 'sea')
+        : deepForest(wx, wy) > 0.5 ? 'forest'
+        : trail.some(t => Math.abs(t.x - wx) < 6 && Math.abs(t.y - wy) < 6) ? 'trail'
+        : ['snow', 'snow-calf', 'snow-waist'][snowDepth(wx, wy)] || 'snow';
+      return describe(kind, seedOf(wx, wy));
+    }
+    // Une image du jeu → ce que c'est ({ kind, seed } ou { title, text })
+    whatIs(im) {
+      const key = im.texture.key, o = im.obj, seed = o ? ((o.x * 31 + o.y * 17) >>> 0) : undefined;
+      if (o) {
+        const near = (list) => list.reduce((a, b) => Math.hypot(o.x - a[1].x, o.y - a[1].y) <= Math.hypot(o.x - b[1].x, o.y - b[1].y) ? a : b)[0];
+        if (o.type === 'tree') return { kind: o.fallen ? 'tree-fallen' : deepForest(o.x, o.y) > 0.5 ? 'tree-dark' : o.big ? 'tree' : 'tree-small', seed };
+        if (o.type === 'statue') return { kind: near([['statue-ensevelie', STATUE_BASE], ['statue-debout', STATUE2_BASE], ['statue-ilot', STATUE3_BASE]]), seed };
+        if (o.type === 'ruin' || o.type === 'arch-vault') return { kind: near([['arche', ARCH], ['colonne', RUINS.colonne], ['socle', RUINS.socle], ['ruine', RUINS.arche], ['pont', PIER]]), seed };
+        if (o.type === 'stone') return { kind: o.x >= NECRO.x - 4 && o.x <= NECRO.x + NECRO_W + 4 && o.y >= NECRO.y - 4 && o.y <= NECRO.y + NECRO_H + 8 ? 'necro' : 'stone', seed };
+        return { kind: o.type, seed };
+      }
+      if (im === this.player) return { kind: 'kari', seed: Math.floor(this.clock / 4000) };
+      for (const [k, I] of Object.entries(INTERIORS)) if (I.image === im) return { kind: `room-${k}`, seed: 0 };
+      if (key === 'viking') return { kind: 'foe', seed: Math.floor(this.clock / 4000) };
+      if (key === 'fallen') return { kind: 'foe-dead', seed: 0 };
+      if (key === 'wolf') { const w = this.pack.wolves?.find(v => v.sprite === im); return { kind: w && w.hp <= 0 ? 'wolf-dead' : 'wolf', seed: 0 }; }
+      if (key === 'hvit') return { kind: this.hvitFree ? 'hvit-free' : 'hvit', seed: 0 };
+      if (key.startsWith('house')) return { kind: key, seed: 0 };
+      if (key.startsWith('boat-')) return { kind: 'boat', seed: Math.floor(this.clock / 4000) };
+      if (key.startsWith('rowboat-')) return { kind: 'rowboat', seed: 0 };
+      if (key.startsWith('cube-')) return { kind: key, seed: Math.floor(this.clock / 4000) };
+      if (key.startsWith('rockpiece')) return { kind: 'chip', seed: 0 };
+      const map = { boat2: 'boat2', watcher: 'watcher', crow: 'crow', bundle: 'bundle', deer: 'deer', nail: 'nail', 'temple-slab': 'temple-slab', 'temple-stairs': 'temple-stairs',
+        'glace-whole': 'ice', 'glace-gone': 'ice-gone', 'throne-seated': 'throne', 'throne-bowed': 'throne-bowed', 'chest-closed': 'chest', 'chest-open': 'chest-open', 'pierre-chute': 'falling-stone' };
+      if (map[key]) return { kind: map[key], seed: Math.floor(this.clock / 4000) };
+      const person = key.match(/^person-(.+?)(-ame)?$/);
+      if (person) {
+        const P = PERSON[person[1]];
+        return { title: P ? `${P.nom}${P.surnom ? `, ${P.surnom}` : ''}` : speakerName(person[1]), text: P?.role || 'Quelqu\'un, ici, dans le froid.' };
+      }
+      const drop = this.drops?.find(d => d.img === im && !d.taken);
+      if (drop) { const r = relicById(drop.id); return r && { title: r.name, text: 'À terre. Marche dessus pour la prendre.' }; }
+      return null;
+    }
+
     // La plaine des morts prête son pas : désormais, la carte (M) mène d'un
     // lieu vu à l'autre (main.js : un clic sur un nom)
     takePassage() {
@@ -3323,7 +3404,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           const im = this.add.image(o.x - o.art.ax - (tree ? LEAN_PAD : 0), o.y + 1, objKey, `${i}-${rest}`)
             .setOrigin(0, 1).setDepth(o.depthY ?? o.y);
           images.push(im);
-          o.img = im;
+          o.img = im; im.obj = o;
           // Abattu ou brisé lors d'une partie précédente : on le montre tel quel
           const k = `${o.x},${o.y}`;
           if (this.wrecked.has(k)) {

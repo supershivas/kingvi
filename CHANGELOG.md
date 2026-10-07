@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.57.0 — 2026-10-07
+- Ce qu'on voit : un clic droit sur n'importe quoi (un rocher, un arbre, une statue, la maison, la mer, la neige, les traces, un loup, quelqu'un…) affiche une courte description ; un clic sur une chose trop loin pour l'épée, hors combat, la décrit aussi au lieu de frapper dans le vide
+- Le roulis de la barque échouée se tire de la barque redessinée dans l'atelier
+
 ## 1.56.1 — 2026-10-07
 - Ajoute The wolves : quand la meute sort, c'est l'un des deux morceaux des loups (I ou II), au hasard
 - Si le navigateur ouvre une ancienne page gardée en cache (l'ancienne musique, par exemple), le jeu le voit au lancement et se recharge tout seul avec la dernière version

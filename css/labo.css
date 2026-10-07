@@ -273,3 +273,8 @@ html.pxe-open { overflow: hidden; }
   .lab-letters .lab-letter { min-width: 36px; height: 36px; }
   .lab-bar-title { flex: 1; min-width: 0; font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-secondary); }
 }
+
+/* Les descriptions au clic */
+.desc-list { margin: 8px 0 0; font-size: .86rem; }
+.desc-list dt { margin-top: 10px; font-weight: 600; }
+.desc-list dd { margin: 2px 0 0 14px; opacity: .85; }

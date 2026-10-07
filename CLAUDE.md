@@ -182,6 +182,13 @@ sur la carte, un clic sur un lieu vu (ou son nom) y mène (`renderMap` rend
 `places`, `game.canTravel()`, `game.travel(x, y)` : point praticable le plus
 proche, fondu de `teleport`) ; ni en combat, ni dedans, ni en barque, ni sur
 la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ».
+**Ce qu'on voit** (v1.57.0, `js/describe.js` : `DESCRIPTIONS`, `describe`) :
+un clic droit sur n'importe quoi (le sol aussi), ou un clic sur une chose à
+plus de 28 px du viking hors combat (`fighting`), la décrit dans la bulle des
+messages (`onDescribe` → `note`) au lieu de frapper ; le pixel sous le
+pointeur est testé sur chaque image (`describeAt`, `whatIs` : les objets des
+morceaux portent `im.obj`) ; une phrase tirée par objet, toujours la même ;
+les gens disent leur `role`. Section du labo « Ce qu'on voit ».
 L'endurance est retirée pour le moment (`STAMINA_ON = false` dans `game.js` :
 courir et frapper ne coûtent rien, pas de barre ; le code reste) ; à un point de vie, l'écran se teinte de rouge (`onHealth` →
 `.hurt`). Les secousses d'écran sont minimes (`jolt` : rien pour la neige, le bois ou la pierre ; un pixel du jeu tout au plus, un instant, pour un vrai coup). À l'intérieur, la cape
@@ -516,7 +523,8 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `diagup` / `diagdown`, `ATTACK_VIEWS`), la cape (3 forces × 6
   temps) et la traînée du coup.
 - `js/boat.js` — la barque (pixels tirés de l'image de référence, réduite par
-  `BOAT_SCALE`, coque noire `k` sans liseré), la seconde (`BOAT2` : cisaillée,
+  `BOAT_SCALE`, coque noire `k` sans liseré), le roulis (`roll`, `rollBoat`) tiré de la barque de
+  l'atelier (`designRows('boat-still')`, refait aussitôt si on la retouche), la seconde (`BOAT2` : cisaillée,
   un mât), ligne de flottaison, bords, roulis (`BOAT_FRAMES`) ; la
   petite barque du lac, vide ou avec le rameur (`ROWBOAT_FRAMES`).
 - `js/props.js` — décor à choisir dans le labo : nécropole (navire de

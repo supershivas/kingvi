@@ -1,43 +1,44 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.56.1';
+import { startUpdateCheck } from '../app-update.js?v=1.57.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.56.1';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.56.1';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.56.1';
+} from './viking.js?v=1.57.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.57.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.57.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.56.1';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.56.1';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.56.1';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.56.1';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.56.1';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.56.1';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.56.1';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.56.1';
-import { createSea } from './sea.js?v=1.56.1';
-import { createTitleSea } from './titlesea.js?v=1.56.1';
-import { buildStatueDoor } from './statue.js?v=1.56.1';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.56.1';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.56.1';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.56.1';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.56.1';
-import { designRows, designsReady } from './design-store.js?v=1.56.1';
-import * as PROPS from './props.js?v=1.56.1';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.56.1';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.56.1';
-import { audio, TRACKS } from './audio.js?v=1.56.1';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.56.1';
-import { RUIN_ART } from './ruins-art.js?v=1.56.1';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.56.1';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.56.1';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.56.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.56.1';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.56.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.56.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.56.1';
+} from './world.js?v=1.57.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.57.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.57.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.57.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.57.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.57.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.57.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.57.0';
+import { createSea } from './sea.js?v=1.57.0';
+import { createTitleSea } from './titlesea.js?v=1.57.0';
+import { buildStatueDoor } from './statue.js?v=1.57.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.57.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.57.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.57.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.57.0';
+import { designRows, designsReady } from './design-store.js?v=1.57.0';
+import * as PROPS from './props.js?v=1.57.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.57.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.57.0';
+import { audio, TRACKS } from './audio.js?v=1.57.0';
+import { DESCRIPTIONS } from './describe.js?v=1.57.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.57.0';
+import { RUIN_ART } from './ruins-art.js?v=1.57.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.57.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.57.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.57.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.57.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.57.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.57.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.57.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1249,6 +1250,20 @@ card('corbeaux', {
   },
 });
 
+// ══ Ce qu'on voit : les descriptions au clic ══
+(function descriptions() {
+  const el = document.createElement('article');
+  el.className = 'demo wide';
+  el.innerHTML = '<h3><span>Les descriptions</span></h3><p>Un clic droit sur n\'importe quoi (le sol aussi), ou un clic sur une chose hors de portée de la lame et hors combat, la décrit dans la bulle de neige des messages : un titre, une phrase tirée au sort mais accrochée à l\'objet (le même rocher dit toujours la même chose). Les personnages disent leur rôle (saga), les reliques à terre leur nom. Le jeu teste le pixel sous le pointeur (`describeAt`, `whatIs` dans game.js) ; les textes sont dans `js/describe.js`.</p><dl class="desc-list"></dl>';
+  const list = el.querySelector('.desc-list');
+  for (const [kind, d] of Object.entries(DESCRIPTIONS)) {
+    const dt = document.createElement('dt'); dt.textContent = `${d.title}  ·  ${kind}`;
+    list.append(dt);
+    for (const line of d.lines) { const dd = document.createElement('dd'); dd.textContent = line; list.append(dd); }
+  }
+  document.querySelector('#descriptions .demos').append(el);
+})();
+
 // ══ Son : la musique (des fichiers) et les bruitages (synthétisés) ══
 (function sounds() {
   const el = document.createElement('article');
@@ -1810,7 +1825,7 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
     'saga-bible': 'book', 'saga-arbres': 'hierarchy-2', 'saga-personnages': 'users', 'saga-lieux': 'map-pin', 'saga-scenarios': 'messages',
     'saga-phylacteres': 'message-circle', carte: 'map', chapitres: 'bookmark', son: 'volume', barque: 'sailboat', accostage: 'anchor',
     nuit: 'moon', viking: 'walk', cape: 'wind', attaques: 'sword', vent: 'snowflake', arbres: 'tree', rochers: 'mountain', maison: 'home',
-    interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave', 'pas-des-morts': 'route',
+    interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave', 'pas-des-morts': 'route', descriptions: 'eye',
     bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', cerfs: 'deer', dessins: 'brush',
     'ui-boutons': 'click', 'ui-reglages': 'adjustments', cubes: 'cube',
   };

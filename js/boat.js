@@ -3,6 +3,8 @@
    s bancs, bordés clairs et neige posée. Dessinée à 46 × 18 pixels, elle est
    réduite (BOAT_SCALE) : la barque ne doit pas écraser le viking. */
 
+import { designRows } from './design-store.js?v=1.57.0';
+
 const BOAT_RAW = [
   '................ssssssss..s....................',
   '..........bbb..sssssssss...s...................',
@@ -82,8 +84,10 @@ export const BOAT_EDGE = (() => {
 
 // Roulis : le haut de la coque (au-dessus de la flottaison) glisse d'un pixel
 // d'un bord à l'autre. Trois images : droite, penchée à gauche, penchée à droite.
-function roll(dir) {
-  return BOAT.map((row, y) => {
+// (v1.57.0 : d'après la barque de l'atelier, `boat-still`, redessinée à la
+// main ; le jeu charge les dessins avant ce module)
+function roll(dir, base = designRows('boat-still', BOAT)) {
+  return base.map((row, y) => {
     if (y >= BOAT_WATERLINE - 3) return row;
     const shift = y < Math.round(6 * BOAT_SCALE) ? dir : 0;
     if (!shift) return row;
@@ -91,6 +95,7 @@ function roll(dir) {
   });
 }
 export const BOAT_FRAMES = { still: BOAT, left: roll(-1), right: roll(1) };
+export { roll as rollBoat };
 
 // La seconde barque : la même, vue sous un angle un peu différent (cisaillée,
 // la proue relevée), un mât sans voile, tirée sur la grève
