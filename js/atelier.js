@@ -11,13 +11,13 @@
 import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
-  setCustomFrames, customNames,
-} from './designs.js?v=1.61.1';
-import { openPixelEditor } from './pixel-editor.js?v=1.61.1';
-import { publish, pending, customChanged, placementsChanged, textsChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.61.1';
-import { mountMap } from './atelier-map.js?v=1.61.1';
-import { mountTexts } from './atelier-texts.js?v=1.61.1';
-import { readOld, restoreOld } from './design-store.js?v=1.61.1';
+  setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
+} from './designs.js?v=1.62.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.62.0';
+import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.62.0';
+import { mountMap } from './atelier-map.js?v=1.62.0';
+import { mountTexts } from './atelier-texts.js?v=1.62.0';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.62.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -154,7 +154,7 @@ $('[data-key-help]').addEventListener('click', () => { keyDialog.close(); helpDi
 
 const syncKey = () => { $('[data-forget]').hidden = !getToken(); status(); };
 function status() {
-  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0);
+  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0) + (extrasChanged() ? 1 : 0);
   chip.textContent = unpub ? `${unpub} à publier` : 'Tout est publié';
   chip.classList.toggle('warn', unpub > 0);
   chip.title = unpub ? 'Invisible sur les autres appareils tant que vous n\'avez pas publié.' : '';
@@ -359,7 +359,18 @@ function showMain() {
       <button type="button" class="design-btn quiet" data-reset hidden>Retirer mes retouches</button>
       <button type="button" class="design-btn quiet" data-remove hidden>Supprimer l'asset</button>
     </div>
-    <div class="dz-anim" hidden><canvas></canvas><span class="dz-meta"></span></div>`;
+    <div class="dz-anim" hidden><canvas></canvas><span class="dz-meta"></span></div>
+    <section class="dz-play" hidden>
+      <h4>Dans le jeu</h4>
+      <label class="dz-check"><input type="checkbox" data-p="light"> Il éclaire</label>
+      <label class="dz-inline" data-light-opt>Portée <select class="design-input" data-p="big"><option value="">petite (une torche)</option><option value="1">grande (un feu)</option></select></label>
+      <p class="design-note" data-light-opt>Clique sur le dessin pour placer la flamme (la croix rouge).</p>
+      <label class="dz-check"><input type="checkbox" data-p="block"> Bloque le passage</label>
+      <p class="design-note" data-block-opt>Glisse sur le dessin pour tracer la zone qui bloque (en rouge pâle) : son pied, pas toute sa hauteur.</p>
+      <label class="dz-check"><input type="checkbox" data-p="shadow"> Porte une ombre à la torche</label>
+      <label class="dz-block">Ce qu'on en voit (clic droit)<input class="design-input" type="text" maxlength="160" data-p="desc" placeholder="Quelqu'un l'a posé là, il y a longtemps."></label>
+      <p class="design-note">Pour le poser sur l'île : onglet Carte, « Poser un objet ». Le jeu le prend à son lancement.</p>
+    </section>`;
   main.querySelector('h3').textContent = seq ? `${seq.label} · ${new Set(seq.names).size} images` : d.label;
   main.querySelector('[data-remove]').hidden = !custom;
   if (seq) {
@@ -376,46 +387,107 @@ function showMain() {
     if (f) say(await take(d.name, await f.arrayBuffer()));
   });
   restOfMain(d, custom);
+  if (custom) playPanel(custom);
+}
+// Ce que fait un asset créé ici, une fois posé sur l'île : la lumière, le pied
+// qui bloque, l'ombre, ce qu'on en dit (`props` des extras, sous `custom-<id>`)
+function playPanel(custom) {
+  const box = main.querySelector('.dz-play'), key = `custom-${custom.id}`;
+  box.hidden = false;
+  const get = () => ({ ...(propsOf(key) || {}) });
+  const save = p => { const clean = Object.fromEntries(Object.entries(p).filter(([, v]) => v !== undefined && v !== '' && v !== false && v !== 0 && v !== null)); setExtra('props', key, Object.keys(clean).length ? clean : null); status(); paintMain(); sync(); };
+  const f = sel => box.querySelector(`[data-p="${sel}"]`);
+  const sync = () => {
+    const p = get();
+    f('light').checked = !!p.light; f('big').value = p.light?.big ? '1' : '';
+    for (const el of box.querySelectorAll('[data-light-opt]')) el.hidden = !p.light;
+    f('block').checked = !!p.box;
+    for (const el of box.querySelectorAll('[data-block-opt]')) el.hidden = !p.box;
+    f('shadow').checked = !!p.shadow;
+    if (document.activeElement !== f('desc')) f('desc').value = p.desc || '';
+  };
+  f('light').addEventListener('change', () => { const p = get(); p.light = f('light').checked ? (p.light || { x: Math.floor(custom.w / 2), y: Math.floor(custom.h / 2) }) : undefined; save(p); });
+  f('big').addEventListener('change', () => { const p = get(); if (p.light) p.light = { ...p.light, big: f('big').value ? 1 : undefined }; save(p); });
+  f('block').addEventListener('change', () => { const p = get(); p.box = f('block').checked ? (p.box || { x0: Math.floor(custom.w / 2) - 2, y0: custom.h - 3, x1: Math.floor(custom.w / 2) + 2, y1: custom.h - 1 }) : undefined; save(p); });
+  f('shadow').addEventListener('change', () => { const p = get(); p.shadow = f('shadow').checked || undefined; save(p); });
+  let t = 0;
+  f('desc').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { const p = get(); p.desc = f('desc').value.trim() || undefined; save(p); }, 400); });
+  // Sur le dessin : glisser trace la zone qui bloque ; un simple clic pose la flamme
+  const cv = main.querySelector('.dz-stage canvas');
+  const at = e => { const r = cv.getBoundingClientRect(); return { x: Math.max(0, Math.min(custom.w - 1, Math.floor((e.clientX - r.left) / r.width * custom.w))), y: Math.max(0, Math.min(custom.h - 1, Math.floor((e.clientY - r.top) / r.height * custom.h))) }; };
+  let from = null;
+  cv.addEventListener('pointerdown', e => { from = at(e); cv.setPointerCapture(e.pointerId); });
+  cv.addEventListener('pointerup', e => {
+    if (!from) return;
+    const to = at(e), p = get(), moved = Math.abs(to.x - from.x) + Math.abs(to.y - from.y) > 1;
+    if (moved && p.box) p.box = { x0: Math.min(from.x, to.x), y0: Math.min(from.y, to.y), x1: Math.max(from.x, to.x), y1: Math.max(from.y, to.y) };
+    else if (!moved && p.light) p.light = { ...p.light, x: to.x, y: to.y };
+    else { from = null; return; }
+    from = null; save(p);
+  });
+  sync();
 }
 // L'éditeur, sur ce dessin (et toute son animation)
 function openEditor(name) {
-    const d = byName(name);
-    const seq = seqOf(d);
-    const custom = customOf(d.name);
-    const names = seq ? [...new Set(seq.names)] : [d.name];
-    // Une animation créée ici : on peut y ajouter des images, ou en retirer
-    const reshape = (delta) => (at, rows, move = 0, blank = false) => {
-      const all = custom ? customNames(custom) : [];
-      const cur = all.map(nm => rowsOf(nm));
-      cur[at] = rows;
-      if (move) { [cur[at], cur[at + move]] = [cur[at + move], cur[at]]; }
-      else if (delta > 0) cur.splice(at + 1, 0, blank ? rows.map(r => '.'.repeat(r.length)) : rows.slice()); else cur.splice(at, 1);
-      setCustomFrames(custom.id, cur.length);
-      const next = customNames(customOf(`custom-${custom.id}-0`));
-      next.forEach((nm, i) => { setLocalDesign(nm, cur[i]); applyLocal(nm, cur[i]); });
-      for (const nm of all.slice(next.length)) { setLocalDesign(nm, null); applyLocal(nm, null); }
-      const show = next[Math.min(next.length - 1, move ? at + move : delta > 0 ? at + 1 : Math.max(0, at - 1))];
-      selected = show; buildTree(); select(show); status();
-      say(move ? 'Image déplacée.' : delta > 0 ? `Image ajoutée (${next.length} images).` : `Image retirée (${next.length} images).`);
-      openEditor(show);
-    };
-    openPixelEditor({
-      frames: names.map(nm => ({ name: nm, label: byName(nm).label, original: originalRows(nm), rows: rowsOf(nm) })),
-      index: names.indexOf(d.name),
-      onAddFrame: custom && custom.frames > 1 ? (at, rows, blank) => reshape(1)(at, rows, 0, blank) : null,
-      onRemoveFrame: custom && custom.frames > 2 ? reshape(-1) : null,
-      onMoveFrame: custom && custom.frames > 1 ? (at, dir, rows) => reshape(0)(at, rows, dir) : null,
-      order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,
-      fps: seq?.fps || 8,
-      // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
-      onSave: (nm, rows) => { setLocalDesign(nm, rows); applyLocal(nm, rows); refresh(nm); },
-      onReset: async nm => { setLocalDesign(nm, null); applyLocal(nm, null); await loadDesigns(); syncCustom(); refresh(nm); },
-      onClose: afterEditing,
-    });
+  const d = byName(name);
+  const seq = seqOf(d);
+  const custom = customOf(d.name);
+  const names = seq ? [...new Set(seq.names)] : [d.name];
+  // Ses images, et comment en changer le nombre : une animation créée ici
+  // (`custom-<id>-<n>`), ou n'importe quel dessin seul, du code ou créé ici, à
+  // qui l'on ajoute des images (`<nom>--<n>`) ; les animations figées par le
+  // code (marche, loup, flamme…) gardent leur nombre d'images
+  const multi = custom && custom.frames > 1;
+  const base = multi ? null : (seq?.extra || (!fixedFrames(d.name) ? d.name : null));
+  const editable = multi || !!base;
+  const frameNames = () => multi ? customNames(customOf(`custom-${custom.id}-0`)) : base ? (seqOf(byName(base))?.names || [base]) : names;
+  const setCount = n => multi ? setCustomFrames(custom.id, n) : setDesignFrames(base, n, seq?.fps || 6);
+  const reopen = (show, msg) => { selected = show; buildTree(); select(show); status(); say(msg); openEditor(show); };
+  const reshape = (delta) => (at, rows, move = 0, blank = false) => {
+    const all = frameNames();
+    const cur = all.map(nm => rowsOf(nm));
+    cur[at] = rows;
+    if (move) { [cur[at], cur[at + move]] = [cur[at + move], cur[at]]; }
+    else if (delta > 0) cur.splice(at + 1, 0, blank ? rows.map(r => '.'.repeat(r.length)) : rows.slice()); else cur.splice(at, 1);
+    setCount(cur.length);
+    const next = frameNames();
+    next.forEach((nm, i) => { setLocalDesign(nm, cur[i]); applyLocal(nm, cur[i]); });
+    for (const nm of all.slice(next.length)) { setLocalDesign(nm, null); applyLocal(nm, null); }
+    const show = next[Math.min(next.length - 1, move ? at + move : delta > 0 ? at + 1 : Math.max(0, at - 1))];
+    reopen(show, move ? 'Image déplacée.' : delta > 0 ? `Image ajoutée (${next.length} images).` : next.length > 1 ? `Image retirée (${next.length} images).` : 'Image retirée : ce n\'est plus une animation.');
+  };
+  // Le canevas agrandi d'un côté : toutes les images de ce dessin ensemble
+  const grow = (side, n, at, rows) => {
+    const all = frameNames(), cur = all.map(nm => rowsOf(nm));
+    cur[at] = rows;
+    const owner = multi ? all[0] : base || d.name;
+    if (!growDesign(owner, side, n)) { say('160 pixels au plus.'); openEditor(all[at]); return; }
+    const p = { l: 0, r: 0, t: 0, b: 0, [side]: n };
+    all.forEach((nm, i) => { const r = padRows(cur[i], p); setLocalDesign(nm, r); applyLocal(nm, r); });
+    reopen(all[at], `Canevas agrandi : ${byName(all[0]).w} × ${byName(all[0]).h}.`);
+  };
+  const count = names.length;
+  openPixelEditor({
+    frames: names.map(nm => ({ name: nm, label: byName(nm).label, original: originalRows(nm), rows: rowsOf(nm) })),
+    index: names.indexOf(d.name),
+    onAddFrame: editable ? (at, rows, blank) => reshape(1)(at, rows, 0, blank) : null,
+    onRemoveFrame: editable && count > (multi ? 2 : 1) ? reshape(-1) : null,
+    onMoveFrame: editable && count > 1 ? (at, dir, rows) => reshape(0)(at, rows, dir) : null,
+    onGrow: fixedFrames(d.name) ? null : grow,
+    order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,
+    fps: seq?.fps || 8,
+    // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
+    onSave: (nm, rows) => { setLocalDesign(nm, rows); applyLocal(nm, rows); refresh(nm); },
+    onReset: async nm => { setLocalDesign(nm, null); applyLocal(nm, null); await loadDesigns(); syncCustom(); refresh(nm); },
+    onClose: afterEditing,
+  });
 }
 function restOfMain(d, custom) {
   main.querySelector('[data-reset]').addEventListener('click', async () => {
     setLocalDesign(d.name, null); applyLocal(d.name, null);
+    // (et ce qui s'y ajoutait : les marges, les images de plus)
+    for (const nm of DESIGNS.filter(x => x.name.startsWith(`${d.name}--`)).map(x => x.name)) { setLocalDesign(nm, null); applyLocal(nm, null); }
+    setExtra('pads', d.name, null); setExtra('anims', d.name, null);
     await loadDesigns(); syncCustom();            // (le fichier du dépôt, s'il y en a un, revient)
     refresh(d.name); say('Retouches retirées.');
   });
@@ -435,9 +507,25 @@ function paintMain() {
   const rows = rowsOf(d.name), cv = main.querySelector('.dz-stage canvas');
   const k = Math.max(1, Math.min(12, Math.floor(340 / d.w), Math.floor(300 / d.h)));
   drawTo(cv, d, rows, k);
+  // Ce qu'il fait dans le jeu, par-dessus : la flamme (croix rouge), le pied qui bloque (rouge pâle)
+  const custom = customOf(d.name), props = custom && propsOf(`custom-${custom.id}`);
+  if (props) {
+    const ctx = cv.getContext('2d');
+    if (props.box) {
+      const b = props.box;
+      ctx.fillStyle = 'rgba(192,57,43,.4)';
+      ctx.fillRect(b.x0, b.y0, b.x1 - b.x0 + 1, b.y1 - b.y0 + 1);
+    }
+    if (props.light) {
+      const { x, y } = props.light;
+      ctx.fillStyle = '#c0392b';
+      for (const [dx, dy] of [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0], [0, -2], [0, 2]]) ctx.fillRect(x + dx, y + dy, 1, 1);
+    }
+  }
   const src = designSource(d.name);
   main.querySelector('.dz-meta').textContent = `${d.name} · ${d.w} × ${d.h}${src === 'local' ? ' · retouché ici' : src === 'depot' ? ' · publié' : ''}`;
-  main.querySelector('[data-reset]').hidden = src !== 'local';
+  const ex = readExtras();
+  main.querySelector('[data-reset]').hidden = src !== 'local' && ex.pads[d.name] === undefined && ex.anims[d.name] === undefined;
 }
 function playSeq(cv, seq) {
   const first = byName(seq.names[0]);

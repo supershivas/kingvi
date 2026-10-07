@@ -7,8 +7,8 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.61.1';
-import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot, setPublishedTimes } from './design-store.js?v=1.61.1';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.62.0';
+import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot, setPublishedTimes, readExtras, writeExtras, extrasDepotGet, setExtrasDepot } from './design-store.js?v=1.62.0';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
@@ -58,6 +58,10 @@ const mergePlaces = (remote, mine) => {
 const samePlaces = (a, b) => JSON.stringify(mergePlaces(a, {})) === JSON.stringify(mergePlaces(b, {}));
 // Les textes réécrits : même principe (null : revenir au texte du code)
 export const textsChanged = () => !samePlaces(mergePlaces(textsDepot(), readTexts()), textsDepot());
+// Les marges et les images de plus (extras.json : { pads, anims })
+const mergeExtras = (remote, mine) => ({ pads: mergePlaces(remote.pads || {}, mine.pads || {}), anims: mergePlaces(remote.anims || {}, mine.anims || {}), props: mergePlaces(remote.props || {}, mine.props || {}) });
+const sameExtras = (a, b) => JSON.stringify(mergeExtras(a, {})) === JSON.stringify(mergeExtras(b, {}));
+export const extrasChanged = () => !sameExtras(mergeExtras(extrasDepotGet(), readExtras()), extrasDepotGet());
 export const placementsChanged = () => !samePlaces(mergePlaces(placementsDepot(), readPlacements()), placementsDepot());
 
 // Écrit tout d'un coup : les blobs, un arbre, un commit, puis avance `main`.
@@ -66,7 +70,7 @@ export async function publish(progress = () => {}) {
   const token = getToken();
   if (!token) throw new Error('Pas de jeton GitHub.');
   const items = pending();
-  if (!items.length && !customChanged() && !placementsChanged() && !textsChanged()) throw new Error('Rien à publier : aucun dessin retouché, aucun lieu déplacé, aucun texte réécrit.');
+  if (!items.length && !customChanged() && !placementsChanged() && !textsChanged() && !extrasChanged()) throw new Error('Rien à publier : aucun dessin retouché, aucun lieu déplacé, aucun texte réécrit.');
 
   for (let attempt = 0; ; attempt++) {
     progress('Lecture du dépôt…');
@@ -104,6 +108,16 @@ export async function publish(progress = () => {}) {
     if (placesChanged) {
       const blobP = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(places, null, 2) + '\n', encoding: 'utf-8' } });
       tree.push({ path: 'assets/design/placements.json', mode: '100644', type: 'blob', sha: blobP.sha });
+    }
+    // Les marges et les images de plus
+    const ex = await gh(token, `/contents/assets/design/extras.json?ref=${BRANCH}`);
+    let remoteEx = {};
+    try { remoteEx = ex ? JSON.parse(decodeURIComponent(escape(atob(ex.content.replace(/\n/g, ''))))) : {}; } catch { remoteEx = {}; }
+    const extras = mergeExtras(remoteEx, readExtras());
+    const extrasMoved = !sameExtras(extras, remoteEx);
+    if (extrasMoved) {
+      const blobE = await gh(token, '/git/blobs', { method: 'POST', body: { content: JSON.stringify(extras, null, 2) + '\n', encoding: 'utf-8' } });
+      tree.push({ path: 'assets/design/extras.json', mode: '100644', type: 'blob', sha: blobE.sha });
     }
     // Les textes réécrits
     const tx = await gh(token, `/contents/assets/design/texts.json?ref=${BRANCH}`);
@@ -149,6 +163,7 @@ export async function publish(progress = () => {}) {
       if (defsChanged) setCustomDepot(defs);
       if (placesChanged) { setPlacementsDepot(places); writePlacements({}); }
       if (textsMoved) { setTextsDepot(texts); writeTexts({}); }
+      if (extrasMoved) { setExtrasDepot(extras); writeExtras({ pads: {}, anims: {}, props: {} }); }
       if (items.length) setPublishedTimes(times);
       markSent(Object.fromEntries(items.map(i => [i.name, i.rows])));
       for (const it of items) setLocalDesign(it.name, null);

@@ -1,0 +1,19 @@
+{
+  "pads": {},
+  "anims": {},
+  "props": {
+    "custom-une-lanterne": {
+      "light": {
+        "x": 16,
+        "y": 27
+      },
+      "desc": "Une lanterne au bout d'une perche, plantée près des traces. Quelqu'un l'entretient encore.",
+      "box": {
+        "x0": 27,
+        "y0": 42,
+        "x1": 31,
+        "y1": 45
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.61.1';
+} from './viking.js?v=1.62.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
@@ -12,35 +12,57 @@ import {
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT, monsBlocked,
   PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER,
-} from './world.js?v=1.61.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.61.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.61.1';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.61.1';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.61.1';
-import { createGround } from './ground.js?v=1.61.1';
-import { designRows, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.61.1';
-import { chapterById } from './chapters.js?v=1.61.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.61.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.61.1';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.61.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.61.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.61.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.61.1';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.61.1';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.61.1';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.61.1';
-import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.61.1';
-import { createFauna } from './fauna.js?v=1.61.1';
-import { createWeather } from './weather.js?v=1.61.1';
-import { createTalk } from './dialogue.js?v=1.61.1';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.61.1';
-import { NECRO_W, NECRO_H } from './props.js?v=1.61.1';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.61.1';
-import { describe } from './describe.js?v=1.61.1';
-import { personSprite } from './people.js?v=1.61.1';
-import { createSea } from './sea.js?v=1.61.1';
-import { audio } from './audio.js?v=1.61.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.61.1';
+} from './world.js?v=1.62.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.62.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.62.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.62.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.62.0';
+import { createGround } from './ground.js?v=1.62.0';
+import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.62.0';
+
+// Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
+// (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
+const PLACED = [];
+const placedBlocked = (x, y) => PLACED.some(p => {
+  const b = p.props.box;
+  if (!b) return false;
+  const px = Math.floor(x) - p.x0, py = Math.floor(y) - p.top;
+  return px >= b.x0 && px <= b.x1 && py >= b.y0 && py <= b.y1;
+});
+// Les dessins agrandis dans l'atelier (des marges autour) : une image qui s'en
+// sert garde le même point d'ancrage dans le monde (l'origine demandée par le
+// code, sur le dessin d'origine, est reportée sur le dessin agrandi)
+const GROWN = new Map();
+{
+  const base = window.Phaser.GameObjects.Image.prototype.setOrigin;
+  window.Phaser.GameObjects.Image.prototype.setOrigin = function (x = 0.5, y = x) {
+    const g = this.texture && GROWN.get(this.texture.key);
+    if (g) { x = (x * g.w + g.l) / (g.w + g.l + g.r); y = (y * g.h + g.t) / (g.h + g.t + g.b); }
+    return base.call(this, x, y);
+  };
+}
+import { chapterById } from './chapters.js?v=1.62.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.62.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.62.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.62.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.62.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.62.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.62.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.62.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.62.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.62.0';
+import { createFoe, drawPips, FOE_HP } from './foe.js?v=1.62.0';
+import { createFauna } from './fauna.js?v=1.62.0';
+import { createWeather } from './weather.js?v=1.62.0';
+import { createTalk } from './dialogue.js?v=1.62.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.62.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.62.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.62.0';
+import { describe } from './describe.js?v=1.62.0';
+import { personSprite } from './people.js?v=1.62.0';
+import { createSea } from './sea.js?v=1.62.0';
+import { audio } from './audio.js?v=1.62.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder } from './trees.js?v=1.62.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -151,7 +173,7 @@ const canvasSize = (w, h, factor, dpr) => ({ width: Math.max(1, Math.ceil(w * dp
 const boatRects = [];
 const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
 // (sur le ponton, on marche au-dessus de l'eau)
-const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y) && !cubeBlocked(x, y) && !monsBlocked(x, y);
+const walkable = (x, y) => (isLand(x, y) || deckLift(x, y) > 0) && !houseBlocked(x, y) && !blocked(x, y) && !inBoat(x, y) && !cubeBlocked(x, y) && !monsBlocked(x, y) && !placedBlocked(x, y);
 
 // Les intérieurs (la maison, la crypte de la statue du lac) sont posés loin en
 // mer, hors de l'île : quand on y entre, on y est téléporté ; tout autour, un
@@ -663,14 +685,26 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       capes.forEach(f => ctex.add(f.name, 0, f.x, 0, CAPE_W, CAPE_H));
 
       const originals = new Map();                  // les dessins d'origine, pour revenir en arrière
+      // Les images qui s'animent (des images ajoutées dans l'atelier) : la
+      // texture est repeinte sur place à chaque image (`animateArt`)
+      this.artAnims = new Map();
       const art = this.art = (key, rows) => {
-        // (un dessin du décor redessiné à la main remplace celui du code : designs.js)
+        // (un dessin du décor redessiné à la main remplace celui du code : designs.js ;
+        // agrandi dans l'atelier, il garde son point d'ancrage : `GROWN`)
         originals.set(key, rows);
-        rows = designRows(key, rows);
+        const frames = designFrames(key, rows);
+        rows = frames[0];
+        const p = padOf(key);
+        const orig = originals.get(key);
+        if (p && (rows.length !== orig.length || rows[0].length !== orig[0].length)) GROWN.set(key, { ...p, w: orig[0].length, h: orig.length });
+        else GROWN.delete(key);
         const c = document.createElement('canvas');
         c.width = rows[0].length; c.height = rows.length;
         paintRows(c.getContext('2d'), rows);
+        if (this.textures.exists(key)) this.textures.remove(key);
         this.textures.addCanvas(key, c);
+        if (frames.length > 1) this.artAnims.set(key, { frames, fps: animOf(key)?.fps || 6, shown: 0 });
+        else this.artAnims.delete(key);
       };
       const paintRows = (ctx, rows) => rows.forEach((row, y) => [...row].forEach((ch, x) => {
         if (ch === '.') return;
@@ -680,8 +714,13 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       // la texture est repeinte sur place (même taille), sans recharger
       this.redrawArt = name => {
         const tex = this.textures.exists(name) && this.textures.get(name);
-        const rows = originals.has(name) && designRows(name, originals.get(name));
+        const frames = originals.has(name) && designFrames(name, originals.get(name));
+        const rows = frames && frames[0];
         if (!tex || !rows) return;
+        // (de taille changée : l'image se refait au prochain lancement)
+        if (rows.length !== tex.getSourceImage().height || rows[0].length !== tex.getSourceImage().width) return;
+        if (frames.length > 1) this.artAnims.set(name, { frames, fps: animOf(name)?.fps || 6, shown: 0 });
+        else this.artAnims.delete(name);
         const c = tex.getSourceImage(), ctx = c.getContext('2d');
         ctx.clearRect(0, 0, c.width, c.height);
         paintRows(ctx, rows);
@@ -698,7 +737,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         }
         // (la barque échouée retouchée : son roulis s'en tire de nouveau)
         if (names.includes('boat-still')) {
-          originals.set('boat-left', rollBoat(-1)); originals.set('boat-right', rollBoat(1));
+          const still = designFrames('boat-still', BOAT_FRAMES.still)[0];
+          originals.set('boat-left', rollBoat(-1, still)); originals.set('boat-right', rollBoat(1, still));
           names.push('boat-left', 'boat-right');
         }
         for (const name of names) this.redrawArt(name);
@@ -707,12 +747,49 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         if (names.some(n => n.startsWith('cape-'))) { paintFrames(capeSheet, capeFrames(), CAPE_W, CAPE_H, palette); ctex.refresh(); }
         if (names.some(n => n.startsWith('loup-'))) this.pack?.repaint();
       });
-      for (const [k, rows] of Object.entries(BOAT_FRAMES)) art(`boat-${k}`, rows);
+      // La barque échouée : un seul dessin (l'atelier) ; son roulis s'en tire ici
+      art('boat-still', BOAT_FRAMES.still);
+      {
+        const still = designFrames('boat-still', BOAT_FRAMES.still)[0];
+        for (const [k, dir] of [['left', -1], ['right', 1]]) {
+          originals.set(`boat-${k}`, rollBoat(dir, still));
+          const c = document.createElement('canvas');
+          c.width = still[0].length; c.height = still.length;
+          paintRows(c.getContext('2d'), rollBoat(dir, still));
+          this.textures.addCanvas(`boat-${k}`, c);
+          if (GROWN.has('boat-still')) GROWN.set(`boat-${k}`, GROWN.get('boat-still'));
+        }
+      }
       art('boat2', BOAT2);
       art('house', HOUSE_ART);
       art('house-burning', HOUSE_BURNING);
       art('house-ruin', HOUSE_RUIN);
       FIRE_FRAMES.forEach((rows, i) => art(`feu-${i}`, rows));
+      // ── Les objets posés dans l'atelier (v1.62.0, onglet Carte : « obj:<id>:<n> »),
+      // un asset créé dans l'atelier ; ce qu'il fait dans le jeu : `propsOf`
+      // (une lumière, un pied qui bloque, une ombre, ce qu'on en dit) ──
+      PLACED.length = 0;
+      this.placed = [];
+      for (const [k, at] of Object.entries(placements())) {
+        const m = k.match(/^obj:([a-z0-9-]+):\d+$/), def = m && customDefs().find(c => c.id === m[1]);
+        if (!def) continue;
+        const blank = Array.from({ length: def.h }, () => '.'.repeat(def.w)), name = `custom-${def.id}`;
+        const frames = def.frames > 1 ? customNames(def).map(nm => designRows(nm, blank)) : designFrames(name, blank, { grow: false });
+        const key = `obj-${def.id}`;
+        if (!this.textures.exists(key)) {
+          const c = document.createElement('canvas');
+          c.width = def.w; c.height = def.h;
+          paintRows(c.getContext('2d'), frames[0]);
+          this.textures.addCanvas(key, c);
+          if (frames.length > 1) this.artAnims.set(key, { frames, fps: def.frames > 1 ? def.fps || 6 : animOf(name)?.fps || 6, shown: 0 });
+        }
+        const props = propsOf(name) || {};
+        const o = { id: def.id, label: def.label, x: at.x, y: at.y, w: def.w, h: def.h, x0: at.x - Math.floor(def.w / 2), top: at.y - def.h + 1, rows: frames[0], props };
+        o.img = this.add.image(at.x + 0.5, at.y + 1, key).setOrigin(0.5, 1).setDepth(at.y);
+        this.placed.push(o); PLACED.push(o);
+      }
+      this.objStamp = this.make.image({ key: 'torchlight-0-0' }, false).setOrigin(0.5);
+      this.walkable = walkable;                    // (le debug, le harnais)
       // ── Le mons (v1.60.0) : au creux du sud, loin des traces. Son animation est
       // celle de l'atelier (« Un mons », custom-un-mons-0…) ; s'il n'y en a pas,
       // une masse de nuit. Il apparaît quand on le découvre ; il a perdu son œil
@@ -1654,6 +1731,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.updateGrove(time);
       this.updateHvit(dt);
       this.updateMons(dt);
+      this.animateArt();
       this.updateFire(dt, time);
       this.updateRelics();
       this.chapterClock = (this.chapterClock || 0) - dt * 1000;
@@ -1927,6 +2005,19 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
           }
         }
       }
+      // Les objets posés qui éclairent (une lanterne…) : la nuit s'ouvre autour
+      if (rt.visible && !this.inside) {
+        for (const o of this.placed) {
+          const L = o.props.light;
+          if (!L) continue;
+          const fx = o.x0 + L.x, fy = o.top + L.y, kind = L.big ? 'firelight' : 'torchlight', src = this.textures.get(`${kind}-0-0`).source[0];
+          if (fx < v.x - src.width || fx > v.right + src.width || fy < v.y - src.height || fy > v.bottom + src.height) continue;
+          const ox = ((Math.round(fx - src.width / 2) % 4) + 4) % 4, oy = ((Math.round(fy - src.height / 2) % 4) + 4) % 4;
+          this.objStamp.setTexture(`${kind}-${ox}-${oy}`).setPosition(Math.round(fx) - rt.x, Math.round(fy) - rt.y)
+            .setAlpha(Math.min(1, 0.85 + 0.15 * flick * (0.9 + 0.1 * Math.sin(t * 3 + o.x))));
+          rt.erase(this.objStamp);
+        }
+      }
       // Sur SNO 4, la forge de Ferraud ouvre la nuit autour d'elle
       if (this.inside === 'sno4' && rt.visible) {
         const A = INTERIORS.sno4.at, F = SNO4_AT.forge, src = this.textures.get('firelight-0-0').source[0];
@@ -1990,6 +2081,12 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
             castShadowBase(put, left + b.x0, left + b.x1, o.y + 1 - b.dy, lx, ly, Math.max(4, Math.min(14, (o.h || 8) * 9 / d)), R);
           }
         }
+      }
+      // Les objets posés dans l'atelier qui portent une ombre
+      for (const o of this.placed) {
+        if (!o.props.shadow || Math.abs(o.x - lx) > R || Math.abs(o.y - ly) > R) continue;
+        const d = Math.max(4, Math.hypot(o.x - lx, o.y - ly)), b = artBase({ rows: o.rows, ax: 0 });
+        castShadowBase(put, o.x0 + b.x0, o.x0 + b.x1, o.y + 1 - b.dy, lx, ly, Math.max(4, Math.min(14, o.h * 9 / d)), R);
       }
     }
 
@@ -2384,6 +2481,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (key === 'viking') return { kind: 'foe', seed: Math.floor(this.clock / 4000) };
       if (key === 'fallen') return { kind: 'foe-dead', seed: 0 };
       if (key === 'wolf') { const w = this.pack.wolves?.find(v => v.sprite === im); return { kind: w && w.hp <= 0 ? 'wolf-dead' : 'wolf', seed: 0 }; }
+      if (key.startsWith('obj-')) { const o = this.placed.find(p => p.img === im); if (o) return { title: o.label, text: o.props.desc || 'Quelqu\'un l\'a posé là, il y a longtemps.' }; }
       if (key.startsWith('mons-')) return { kind: this.given.has('mons') ? 'mons-seeing' : 'mons', seed: Math.floor(this.clock / 4000) };
       if (key === 'hvit') return { kind: this.hvitFree ? 'hvit-free' : 'hvit', seed: 0 };
       if (key.startsWith('house')) return { kind: key, seed: 0 };
@@ -2521,6 +2619,18 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const head = () => ({ x: h.x, y: h.y - 10 });
       this.speak('hvit-libre', [['hvit', 'Tu m\'as déliée, petit d\'homme.', head], ['hvit', 'Là-haut, sur la roche, mes petits ont faim.', head], ['hvit', 'Ils te laisseront passer. Ne lève pas la lame sur eux.', head]], { interrupt: true });
       this.persist();
+    }
+    // Les dessins du décor animés dans l'atelier : la texture change d'image
+    animateArt() {
+      for (const [key, a] of this.artAnims) {
+        const i = Math.floor(this.clock / 1000 * a.fps) % a.frames.length;
+        if (i === a.shown || !this.textures.exists(key)) continue;
+        a.shown = i;
+        const tex = this.textures.get(key), c = tex.getSourceImage(), ctx = c.getContext('2d');
+        ctx.clearRect(0, 0, c.width, c.height);
+        a.frames[i].forEach((row, y) => [...row].forEach((ch, x) => { if (ch !== '.' && palette[ch]) { ctx.fillStyle = palette[ch]; ctx.fillRect(x, y, 1, 1); } }));
+        tex.refresh();
+      }
     }
     // Le mons : il remue (l'animation de l'atelier) ; découvert, il apparaît
     // dans un souffle et parle le premier

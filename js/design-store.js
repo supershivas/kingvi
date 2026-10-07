@@ -19,12 +19,55 @@ const pick = name => (local.has(name) ? { rows: local.get(name), from: 'local' }
 
 export const designSource = name => pick(name)?.from || null;
 
-// Le dessin à utiliser : celui qu'on a refait (de la même taille), ou l'original
-export function designRows(name, original) {
+// ── Ce qui s'ajoute à un dessin (v1.62.0) : des marges (le canevas agrandi
+// par l'atelier : `pads` { l, r, t, b }) et des images de plus (un élément
+// du décor qui s'anime : `anims` { frames, fps }, images `<nom>--1`, `--2`…).
+// `assets/design/extras.json` (publié) puis ce navigateur
+// (`kingvi:design-extras` ; null : revenir au code) ──
+export const EXTRAS_KEY = 'kingvi:design-extras';
+let extrasDepot = { pads: {}, anims: {}, props: {} };
+export function readExtras() { try { const o = JSON.parse(localStorage.getItem(EXTRAS_KEY)) || {}; return { pads: o.pads || {}, anims: o.anims || {}, props: o.props || {} }; } catch { return { pads: {}, anims: {}, props: {} }; } }
+export function writeExtras(o) { try { Object.keys(o.pads || {}).length || Object.keys(o.anims || {}).length || Object.keys(o.props || {}).length ? localStorage.setItem(EXTRAS_KEY, JSON.stringify(o)) : localStorage.removeItem(EXTRAS_KEY); } catch { /* rien */ } }
+export const extrasDepotGet = () => extrasDepot;
+export const setExtrasDepot = o => { extrasDepot = { pads: o?.pads || {}, anims: o?.anims || {}, props: o?.props || {} }; };
+const mergeOne = (a, b) => { const out = { ...a, ...b }; for (const k of Object.keys(out)) if (!out[k]) delete out[k]; return out; };
+export const designExtras = () => { const m = readExtras(); return { pads: mergeOne(extrasDepot.pads, m.pads), anims: mergeOne(extrasDepot.anims, m.anims), props: mergeOne(extrasDepot.props, m.props) }; };
+// Ce que le dessin fait dans le jeu (v1.62.0, atelier : « Dans le jeu ») :
+// { light: { x, y, r } (une lumière, en pixels du dessin ; r : sa portée),
+//   box: { x0, y0, x1, y1 } (la zone qui bloque le passage, tracée sur le dessin),
+//   shadow: true (il porte une ombre à la torche) }
+export const propsOf = name => designExtras().props[name] || null;
+export const padOf = name => designExtras().pads[name] || null;
+export const animOf = name => designExtras().anims[name] || null;
+export function setExtra(kind, name, value) {
+  const m = readExtras(), inDepot = extrasDepot[kind][name] != null;
+  if (value) m[kind][name] = value; else if (inDepot) m[kind][name] = null; else delete m[kind][name];
+  writeExtras(m);
+}
+// Un original agrandi des marges de l'atelier (vide autour)
+export function padRows(rows, p) {
+  if (!p) return rows;
+  const w = rows[0].length + p.l + p.r, empty = '.'.repeat(w);
+  return [...Array(p.t).fill(empty), ...rows.map(r => '.'.repeat(p.l) + r + '.'.repeat(p.r)), ...Array(p.b).fill(empty)];
+}
+
+// Le dessin à utiliser : celui qu'on a refait (de la même taille), ou l'original.
+// `grow` : ce qui le dessine accepte un canevas agrandi dans l'atelier (le jeu,
+// pour les images posées telles quelles, `art()`), à la taille de ses marges
+export function designRows(name, original, { grow = false } = {}) {
   const o = pick(name);
   if (!o) return original;
-  if (o.rows.length !== original.length || o.rows[0].length !== original[0].length) return original;
-  return o.rows;
+  if (o.rows.length === original.length && o.rows[0].length === original[0].length) return o.rows;
+  const p = grow && padOf(name);
+  if (p && o.rows.length === original.length + p.t + p.b && o.rows[0].length === original[0].length + p.l + p.r) return o.rows;
+  return original;
+}
+// Toutes les images d'un dessin : lui, puis celles ajoutées dans l'atelier
+export function designFrames(name, original, opts = { grow: true }) {
+  const a = animOf(name), first = designRows(name, original, opts);
+  if (!a || a.frames < 2) return [first];
+  const blank = first.map(r => '.'.repeat(r.length));
+  return [first, ...Array.from({ length: a.frames - 1 }, (_, i) => designRows(`${name}--${i + 1}`, blank, opts))];
 }
 // Pareil pour une grille de caractères (null : vide) : les poses du viking, du loup, des cerfs
 export function designGrid(name, grid) {
@@ -274,6 +317,10 @@ export async function loadDesigns() {
     const res = await fetch('assets/design/placements.json', { cache: 'no-cache' });
     placeDepot = res.ok ? await res.json() : {};
   } catch { placeDepot = {}; }
+  try {
+    const res = await fetch('assets/design/extras.json', { cache: 'no-cache' });
+    setExtrasDepot(res.ok ? await res.json() : {});
+  } catch { setExtrasDepot({}); }
   try {
     const res = await fetch('assets/design/texts.json', { cache: 'no-cache' });
     textDepot = res.ok ? await res.json() : {};

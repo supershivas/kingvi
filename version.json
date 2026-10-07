@@ -1,8 +1,9 @@
 {
-  "version": "1.61.1",
+  "version": "1.62.0",
   "date": "2026-10-07",
   "changes": [
-    "Un dessin publié passe maintenant devant une vieille retouche gardée dans ce navigateur (le titre restait l'ancien)",
-    "Les retouches ainsi mises de côté se retrouvent dans l'atelier"
+    "Atelier : agrandir le canevas d'un dessin (+ sur les 4 bords), ajouter des images à un dessin pour l'animer dans le jeu",
+    "Les objets créés dans l'atelier se posent sur l'île, avec une lumière, une zone qui bloque, une ombre ; la lanterne éclaire près des traces",
+    "La barque échouée n'a plus qu'un dessin : le roulis s'en tire"
   ]
 }

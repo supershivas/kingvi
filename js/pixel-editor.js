@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.61.1';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.61.1';
+import { gamePalette } from './design-store.js?v=1.62.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.62.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -75,7 +75,13 @@ function build() {
     <div class="pxe-body">
       <div class="pxe-tools"></div>
       <div class="pxe-center">
-        <div class="pxe-stage"><canvas class="pxe-canvas"></canvas></div>
+        <div class="pxe-stagewrap">
+          <div class="pxe-stage"><canvas class="pxe-canvas"></canvas></div>
+          <button type="button" class="pxe-grow" data-grow="t" hidden title="Agrandir le canevas en haut (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="b" hidden title="Agrandir le canevas en bas (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="l" hidden title="Agrandir le canevas à gauche (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="r" hidden title="Agrandir le canevas à droite (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
+        </div>
         <div class="pxe-frames" hidden></div>
       </div>
       <aside class="pxe-side">
@@ -135,7 +141,7 @@ function build() {
   return d;
 }
 
-export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null }) {
+export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null, onGrow = null }) {
   dlg?.remove();
   dlg = build();
   const pal = gamePalette();
@@ -151,6 +157,17 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const $ = s => dlg.querySelector(s);
 
   const view = $('.pxe-canvas'), vctx = view.getContext('2d'), stage = $('.pxe-stage');
+  // Agrandir le canevas d'un côté (d'un pixel ; Maj : de huit) : l'atelier
+  // enregistre, agrandit toutes les images ensemble et rouvre l'éditeur
+  for (const b of dlg.querySelectorAll('[data-grow]')) {
+    b.hidden = !onGrow;
+    b.addEventListener('click', e => {
+      const side = b.dataset.grow, n = e.shiftKey ? 8 : 1, at = fi, rows = toRows(grid);
+      changed = true; dirty.add(fi);
+      dlg.addEventListener('close', () => onGrow(side, n, at, rows), { once: true });
+      dlg.close();
+    });
+  }
   const prevCv = $('.pxe-preview canvas'), pctx = prevCv.getContext('2d');
   const flat = document.createElement('canvas'); flat.width = w; flat.height = h;
   const fctx = flat.getContext('2d'), fimg = fctx.createImageData(w, h);
@@ -179,13 +196,15 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
 
   // ── La bande des images (animations) ──
   const strip = $('.pxe-frames');
-  if (n > 1) {
-    strip.hidden = false; $('.pxe-anim').hidden = false; $('.pxe-nav').hidden = false;
-    strip.innerHTML = frames.map((f, i) => `<button type="button" data-frame="${i}" title="${f.label}"><canvas></canvas><span>${i + 1}</span></button>`).join('') + `
+  // (un dessin seul qu'on peut animer : la bande, pour lui ajouter des images)
+  if (n > 1 || onAddFrame) {
+    strip.hidden = false;
+    if (n > 1) { $('.pxe-anim').hidden = false; $('.pxe-nav').hidden = false; }
+    strip.innerHTML = (n > 1 ? frames.map((f, i) => `<button type="button" data-frame="${i}" title="${f.label}"><canvas></canvas><span>${i + 1}</span></button>`).join('') : '') + `
       <div class="pxe-strip-tools">
-        <button type="button" data-toggle="onion" title="Pelure d'oignon : les images voisines (N)"><i class="ti ti-layers-subtract"></i> Pelure d'oignon</button>
+        ${n > 1 ? `<button type="button" data-toggle="onion" title="Pelure d'oignon : les images voisines (N)"><i class="ti ti-layers-subtract"></i> Pelure d'oignon</button>
         <button type="button" data-toggle="all" title="Chaque trait sur toutes les images (A)"><i class="ti ti-link"></i> Toutes les images</button>
-        <button type="button" data-act="play" title="Lecture (P)"><i class="ti ti-player-play"></i> Lecture</button>
+        <button type="button" data-act="play" title="Lecture (P)"><i class="ti ti-player-play"></i> Lecture</button>` : '<span class="pxe-strip-note">Un dessin seul : ajoute une image pour l\'animer.</span>'}
         ${onMoveFrame ? '<button type="button" data-act="move-left" title="Déplacer cette image vers la gauche"><i class="ti ti-arrow-left"></i></button><button type="button" data-act="move-right" title="Déplacer cette image vers la droite"><i class="ti ti-arrow-right"></i></button>' : ''}
         ${onAddFrame ? '<button type="button" data-act="add-blank" title="Ajouter une image vide, juste après celle-ci"><i class="ti ti-plus"></i> Ajouter</button><button type="button" data-act="add-frame" title="Copier cette image : la copie vient juste après"><i class="ti ti-copy"></i> Copier</button>' : ''}
         ${onRemoveFrame && n > 2 ? '<button type="button" data-act="remove-frame" title="Retirer cette image"><i class="ti ti-minus"></i> Image</button>' : ''}

@@ -182,6 +182,21 @@ sur la carte, un clic sur un lieu vu (ou son nom) y mène (`renderMap` rend
 `places`, `game.canTravel()`, `game.travel(x, y)` : point praticable le plus
 proche, fondu de `teleport`) ; ni en combat, ni dedans, ni en barque, ni sur
 la sente ; pas sur SNO 4. Carte du labo « Le pas des morts ».
+**Ce qui s'ajoute aux dessins** (v1.62.0, `assets/design/extras.json` puis
+`kingvi:design-extras`) : `pads` (le canevas agrandi par les « + » des quatre
+bords de l'éditeur, Maj : 8 pixels ; `growDesign` ; le jeu accepte la taille
+agrandie dans `art()` (`designRows(…, { grow })`) et garde l'ancrage : `GROWN`
+et `setOrigin` reporté), `anims` (un dessin seul à qui l'on ajoute des images :
+`<nom>--1`… ; `designFrames`, `setDesignFrames` ; le jeu repeint la texture,
+`artAnims`, `animateArt` ; les animations figées par le code — marche, loup,
+flamme — gardent leur nombre d'images : `fixedFrames`), `props` (ce qu'un asset
+créé dans l'atelier fait une fois posé : `light` { x, y, big } la nuit s'ouvre
+autour, `box` la zone qui bloque, `shadow` l'ombre à la torche, `desc` le clic
+droit ; panneau « Dans le jeu » de l'atelier). **Objets posés** : onglet Carte,
+« Poser un objet » (`obj:<id>:<n>` dans les placements) ; le jeu les crée
+(`this.placed`, `PLACED`, `placedBlocked`). La lanterne (`une-lanterne`) est
+posée près des traces, après la grève, et éclaire. La barque échouée n'a plus
+qu'un dessin, `boat-still` : son roulis s'en tire dans le jeu (`rollBoat`).
 **Le mons** (v1.60.0) : une bête qui n'est pas une bête (`mons` dans `saga.js`,
 famille des géants du froid), animée par l'asset de l'atelier « Un mons »
 (`custom-un-mons-*`, `customDefs`) ; au creux des landes du sud, loin des

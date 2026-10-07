@@ -10,25 +10,25 @@
    positions, les portes, les obstacles en dépendent). Les couleurs sont
    ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
    viking (bleu nuit translucide) est permise pour ses poses. */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.61.1';
-import { HOUSE_ART, FALLING_STONE } from './world.js?v=1.61.1';
-import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.61.1';
-import { ROOM, CORPSE } from './interior.js?v=1.61.1';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.61.1';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.61.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.61.1';
-import { RUIN_ART } from './ruins-art.js?v=1.61.1';
-import { vikingFrames, capeFrames } from './viking.js?v=1.61.1';
-import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.61.1';
-import { STAG_RAW, DOE_RAW } from './deer.js?v=1.61.1';
-import { RELICS, BELT } from './relics.js?v=1.61.1';
-import { TITLE_ART } from './title-art.js?v=1.61.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.61.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.61.1';
-import { TEMPLE, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.61.1';
-import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs } from './design-store.js?v=1.61.1';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.62.0';
+import { HOUSE_ART, FALLING_STONE } from './world.js?v=1.62.0';
+import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.62.0';
+import { ROOM, CORPSE } from './interior.js?v=1.62.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.62.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.62.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.62.0';
+import { RUIN_ART } from './ruins-art.js?v=1.62.0';
+import { vikingFrames, capeFrames } from './viking.js?v=1.62.0';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.62.0';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.62.0';
+import { RELICS, BELT } from './relics.js?v=1.62.0';
+import { TITLE_ART } from './title-art.js?v=1.62.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.62.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.62.0';
+import { TEMPLE, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.62.0';
+import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs, designExtras, padRows, setExtra } from './design-store.js?v=1.62.0';
 
-export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot, customNames } from './design-store.js?v=1.61.1';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot, customNames } from './design-store.js?v=1.62.0';
 
 export const GROUPS = [
   { id: 'titre', title: 'Le titre et la ceinture', about: 'Le nom du jeu sur l\'écran d\'accueil (la gothique sous la neige), et la ceinture où pendent les reliques dans l\'inventaire. Neige et bleu nuit ; la taille reste celle de l\'original.' },
@@ -75,9 +75,8 @@ export const DESIGNS = [
     ['house', 'La maison, vue de dehors', HOUSE_ART],
     ['room', 'La pièce de la maison', ROOM],
     ['fallen', 'Un corps à terre', CORPSE],
-    ['boat-still', 'La barque échouée (calme)', BOAT_FRAMES.still],
-    ['boat-left', 'La barque échouée (roule à gauche)', BOAT_FRAMES.left],
-    ['boat-right', 'La barque échouée (roule à droite)', BOAT_FRAMES.right],
+    // (le roulis se tire d'elle dans le jeu : boat.js, `rollBoat`)
+    ['boat-still', 'La barque échouée', BOAT_FRAMES.still],
     ['boat2', 'La seconde barque, halée sur la grève', BOAT2],
     ['rowboat-empty', 'La barque du lac, vide', ROWBOAT_FRAMES.empty],
     ['rowboat-row0', 'La barque du lac, rame 1', ROWBOAT_FRAMES.row0],
@@ -135,13 +134,32 @@ export const SEQUENCES = {
 
 // ── Les assets créés dans l'atelier : ajoutés au catalogue (même tableaux, mis à jour sur place) ──
 const blank = (w, h) => Array.from({ length: h }, () => '.'.repeat(w));
+// Les animations figées par le code (le jeu attend ce nombre d'images)
+const FIXED = new Set(Object.values(SEQUENCES).flat().flatMap(sq => sq.names));
+export const fixedFrames = name => FIXED.has(name);
 export function syncCustom() {
   DESIGNS.length = BUILTIN;
   for (const g of Object.values(CUSTOM_KINDS)) delete SEQUENCES[g];
+  for (const g of Object.keys(SEQUENCES)) { SEQUENCES[g] = SEQUENCES[g].filter(sq => !sq.extra); if (!SEQUENCES[g].length) delete SEQUENCES[g]; }
+  // Les dessins du code agrandis dans l'atelier : leur original, avec les marges
+  const { pads, anims } = designExtras();
+  for (const d of DESIGNS) {
+    d.code = d.code || d.rows;
+    d.rows = padRows(d.code, pads[d.name]);
+    d.w = d.rows[0].length; d.h = d.rows.length;
+  }
   for (const def of customDefs()) {
     const group = CUSTOM_KINDS[def.kind] || 'mes-autres', names = customNames(def);
     names.forEach((n, i) => DESIGNS.push(entry(n, def.frames > 1 ? `${def.label} ${i + 1}` : def.label, blank(def.w, def.h), group)));
     if (def.frames > 1) (SEQUENCES[group] = SEQUENCES[group] || []).push({ label: def.label, names, fps: def.fps || 6 });
+  }
+  // Un dessin seul à qui l'atelier a ajouté des images : une animation (`<nom>--1`…)
+  for (const d of [...DESIGNS]) {
+    const a = anims[d.name];
+    if (!a || a.frames < 2 || FIXED.has(d.name) || d.name.includes('--')) continue;
+    const names = [d.name, ...Array.from({ length: a.frames - 1 }, (_, i) => `${d.name}--${i + 1}`)];
+    names.slice(1).forEach((n, i) => DESIGNS.push(entry(n, `${d.label} · image ${i + 2}`, blank(d.w, d.h), d.group)));
+    (SEQUENCES[d.group] = SEQUENCES[d.group] || []).push({ label: d.label, names, fps: a.fps || 6, extra: d.name });
   }
   BY_NAME.clear();
   for (const d of DESIGNS) BY_NAME.set(d.name, d);
@@ -171,6 +189,27 @@ export function setCustomFrames(id, frames) {
   writeCustom({ defs: [...cu.defs.filter(d => d.id !== id), next], deleted: cu.deleted });
   syncCustom();
   return next;
+}
+// Un dessin seul (du code ou créé ici) : son nombre d'images (1 : plus d'animation)
+export function setDesignFrames(name, frames, fps = 6) {
+  setExtra('anims', name, frames > 1 ? { frames: Math.min(24, frames), fps } : null);
+  syncCustom();
+}
+// Le canevas agrandi : un asset créé ici change de taille ; un dessin du code prend des marges
+export function growDesign(name, side, n = 1) {
+  const def = customOf(name);
+  if (def) {
+    const next = { ...def, w: def.w + (side === 'l' || side === 'r' ? n : 0), h: def.h + (side === 't' || side === 'b' ? n : 0) };
+    if (next.w > 160 || next.h > 160) return false;
+    const cu = readCustom();
+    writeCustom({ defs: [...cu.defs.filter(d => d.id !== def.id), next], deleted: cu.deleted });
+  } else {
+    const p = { l: 0, r: 0, t: 0, b: 0, ...(designExtras().pads[name] || {}) };
+    p[side] += n;
+    setExtra('pads', name, p);
+  }
+  syncCustom();
+  return true;
 }
 // Retire un asset créé ici (et ses retouches ; le dépôt l'oubliera à la prochaine publication)
 export function removeCustom(id) {

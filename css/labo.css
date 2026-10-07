@@ -279,3 +279,13 @@ html.pxe-open { overflow: hidden; }
 .desc-list dt { margin-top: 10px; font-weight: 600; }
 .desc-list dd { margin: 2px 0 0 14px; opacity: .85; }
 .pxe-strip-tools .confirm { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* Agrandir le canevas : un petit « + » au milieu de chaque bord */
+.pxe-stagewrap { position: relative; flex: 1; min-width: 0; display: flex; }
+.pxe-grow { position: absolute; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #1f2a44; background: #fff; color: #1f2a44; cursor: pointer; opacity: .75; z-index: 2; }
+.pxe-grow[hidden] { display: none; }
+.pxe-grow[data-grow="t"] { top: 4px; left: 50%; transform: translateX(-50%); }
+.pxe-grow[data-grow="b"] { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.pxe-grow[data-grow="l"] { left: 4px; top: 50%; transform: translateY(-50%); }
+.pxe-grow[data-grow="r"] { right: 4px; top: 50%; transform: translateY(-50%); }
+@media (hover: hover) { .pxe-grow:hover { opacity: 1; background: var(--accent); border-color: var(--accent); color: #fff; } }

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.62.0 — 2026-10-07
+- Éditeur de l'atelier : un « + » sur chaque bord agrandit le canevas d'un pixel (Maj : de huit), pour toutes les images du dessin à la fois ; dans le jeu, l'élément reste ancré au même endroit
+- Un dessin seul (la maison, une barque, un cube, le coffre, le clou…) peut recevoir des images : il s'anime alors dans le jeu
+- Les objets créés dans l'atelier se posent sur l'île (onglet Carte, « Poser un objet ») ; panneau « Dans le jeu » : une lumière (on clique où est la flamme), une zone qui bloque le passage (on la trace sur le dessin), une ombre à la torche, ce qu'on en voit au clic droit
+- La lanterne est posée près des traces, après la grève, et éclaire la nuit
+- La barque échouée n'a plus qu'un dessin dans l'atelier : son roulis s'en tire dans le jeu
+
 ## 1.61.1 — 2026-10-07
 - Un dessin publié passe maintenant devant une retouche plus ancienne gardée dans ce navigateur : le titre restait l'ancien sur l'appareil où il avait été retouché avant
 - Ces retouches ne sont pas perdues : l'atelier propose « Retrouver … retouches mises de côté » (menu « … »)
