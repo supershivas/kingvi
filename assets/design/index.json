@@ -3,6 +3,9 @@
   "ceinture",
   "cube-blanc",
   "cube-noir",
+  "custom-un-mons-0",
+  "custom-un-mons-1",
+  "custom-un-mons-2",
   "decor-arche",
   "decor-colonne",
   "decor-ruine",
@@ -17,5 +20,6 @@
   "relique-poupee",
   "relique-viking",
   "room",
-  "temple"
+  "temple",
+  "titre"
 ]
