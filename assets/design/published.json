@@ -3,9 +3,10 @@
   "ceinture": 1791476689603,
   "cube-blanc": 1791390186148,
   "cube-noir": 1791390186148,
-  "custom-un-mons-0": 1791390186148,
-  "custom-un-mons-1": 1791390186148,
-  "custom-un-mons-2": 1791390186148,
+  "custom-un-mons-0": 1791482134760,
+  "custom-un-mons-1": 1791482134760,
+  "custom-un-mons-2": 1791482134760,
+  "custom-un-mons-3": 1791482134760,
   "custom-une-grande-flamme-0": 1791392022529,
   "custom-une-grande-flamme-1": 1791392022529,
   "custom-une-grande-flamme-2": 1791392022529,
@@ -28,5 +29,7 @@
   "rocher-1": 1791477104140,
   "room": 1791390186148,
   "temple": 1791390186148,
+  "temple-slab": 1791482134760,
+  "temple-stairs": 1791482134760,
   "titre": 1791390186148
 }
