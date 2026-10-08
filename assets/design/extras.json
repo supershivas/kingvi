@@ -15,6 +15,19 @@
   },
   "anims": {},
   "props": {
+    "cube-blanc": {
+      "light": {
+        "x": 29,
+        "y": 30,
+        "big": 1
+      },
+      "box": {
+        "x0": 1,
+        "y0": 46,
+        "x1": 58,
+        "y1": 52
+      }
+    },
     "custom-une-lanterne": {
       "light": {
         "x": 16,
