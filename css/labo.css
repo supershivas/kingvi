@@ -74,7 +74,7 @@ body.labo-page { height: 100%; overflow: hidden; display: block; background: #f0
 .design-paste { width: 100%; min-height: 90px; font: .72rem var(--font-mono); margin-top: 6px; }
 
 /* ── L'éditeur de pixels (pixel-editor.js) ── */
-.pxe { width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: #eef1f6; color: #1f2a44; overflow: hidden; }
+.pxe { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; border-radius: 0; background: #eef1f6; color: #1f2a44; overflow: hidden; }
 .pxe[open] { display: flex; flex-direction: column; }
 /* Plein écran, au doigt : ni sélection, ni menu « copier / chercher », ni loupe, ni zoom de la page */
 html.pxe-open { overflow: hidden; }

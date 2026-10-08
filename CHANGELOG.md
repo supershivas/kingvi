@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.70.1 — 2026-10-08
+- La fenêtre de dessin est calée sur la vraie taille de l'écran visible (`visualViewport`), à l'ouverture, à la rotation et au redimensionnement : elle ne reste plus sur une partie de l'écran
+- « Dans le jeu » : la zone qui bloque est une forme peinte (`props.mask`, une grille de `#` et `.`) : Zone (pinceau, à la taille des outils), Gomme, Rectangle (l'ancien tracé) et Vider ; le jeu bloque pixel pour pixel (`boxHit`), l'éditeur et l'atelier la montrent en rouge pâle. Les anciennes zones rectangulaires continuent de marcher
+
 ## 1.70.0 — 2026-10-08
 - Le sol suit l'altitude : en bas de la terre noire à graviers clairs (tramée), la neige gagne peu à peu, plaques vers 350 m, partout dès 750 m ; la grève n'est plus enneigée
 - Les arbres suivent l'étage : bouleaux nains (landes), bouleaux et sorbiers (bois clair), sapins sans neige puis givrés (forêt noire, dont un sur six est le dessin de l'atelier), pins tordus et mélèzes (haut-pays), plus d'arbres au-dessus de 1 950 m ; des plantes au sol, non bloquantes, par étage (oyats, bruyère, feuilles mortes, herbe jaune, lichens…). Ce sont les placeholders de la v1.69.0 : tout ce qu'on redessine dans l'atelier apparaît dans le jeu

@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.70.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.70.0';
+import { gamePalette } from './design-store.js?v=1.70.1';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.70.1';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -99,7 +99,10 @@ function build() {
           </div>
           <div class="pxe-dock pxe-gamebar" hidden role="toolbar" aria-label="Dans le jeu">
             <button type="button" data-g="light" title="Poser la flamme : touche le dessin"><i class="ti ti-flame"></i><span>Flamme</span></button>
-            <button type="button" data-g="box" title="Tracer la zone qui bloque : glisse sur le pied"><i class="ti ti-square-dashed"></i><span>Zone</span></button>
+            <button type="button" data-g="box" title="Peindre la zone qui bloque, au pinceau"><i class="ti ti-brush"></i><span>Zone</span></button>
+            <button type="button" data-g="boxerase" title="Effacer de la zone qui bloque"><i class="ti ti-eraser"></i><span>Gomme</span></button>
+            <button type="button" data-g="boxrect" title="Tracer un rectangle (remplace la forme)"><i class="ti ti-square-dashed"></i><span>Rectangle</span></button>
+            <button type="button" data-gclear title="Vider la zone"><i class="ti ti-trash"></i><span>Vider</span></button>
             <label class="pxe-gopt"><input type="checkbox" data-gp="lit"> Éclaire</label>
             <label class="pxe-gopt" data-g-lit><input type="checkbox" data-gp="big"> Grande portée</label>
             <label class="pxe-gopt"><input type="checkbox" data-gp="block"> Bloque</label>
@@ -277,7 +280,8 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     const p = game.get() || {};
     for (const b of dlg.querySelectorAll('[data-g]')) { b.classList.toggle('on', b.dataset.g === st.g); }
     dlg.querySelector('[data-g="light"]').disabled = !p.light;
-    dlg.querySelector('[data-g="box"]').disabled = !p.box;
+    for (const g of ['box', 'boxerase', 'boxrect']) dlg.querySelector(`[data-g="${g}"]`).disabled = !p.box;
+    dlg.querySelector('[data-gclear]').disabled = !p.box;
     dlg.querySelector('[data-gp="lit"]').checked = !!p.light;
     dlg.querySelector('[data-gp="big"]').checked = !!p.light?.big;
     dlg.querySelector('[data-g-lit]').hidden = !p.light;
@@ -286,7 +290,8 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     const own = n > 1 && !st.all && p.light?.frames?.[fi];
     $('.pxe-ghint').textContent = !p.light && !p.box ? 'Allume « Éclaire » ou « Bloque », puis pose-les sur le dessin.'
       : st.g === 'light' && p.light ? (n > 1 ? (st.all ? 'Touche le dessin : la flamme, au même endroit sur toutes les images.' : `Touche le dessin : la flamme de l'image ${fi + 1}${own ? '' : ' (pour l\'instant, celle de toutes les images)'}. Change d'image pour la suivre.`) : 'Touche le dessin, là où est la flamme.')
-      : st.g === 'box' && p.box ? 'Glisse sur le dessin pour tracer la zone qui bloque : le pied, pas toute la hauteur.' : '';
+      : st.g === 'box' && p.box ? 'Peins la forme qui bloque au pinceau (la taille des outils compte) : le pied, pas toute la hauteur.'
+      : st.g === 'boxerase' && p.box ? 'Efface ce qui ne doit pas bloquer.' : st.g === 'boxrect' && p.box ? 'Glisse pour tracer un rectangle : il remplace la forme peinte.' : '';
   }
   // La flamme de l'image `i` (sa place propre, ou celle de toutes les images)
   const lightOf = (p, i) => p.light && (p.light.frames?.[i] || p.light);
@@ -339,7 +344,21 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   // image (croix rouge) et, pâles, celles des autres images
   function drawGame() {
     const p = game.get() || {}, z = st.z;
-    if (p.box) {
+    if (p.box && p.mask) {
+      // (la forme peinte : chaque pixel qui bloque, rouge pâle, le contour un peu plus franc)
+      vctx.fillStyle = 'rgba(192,57,43,.38)';
+      const on = (x, y) => p.mask[y]?.[x] === '#';
+      for (let y = 0; y < p.mask.length; y++) for (let x = 0; x < p.mask[y].length; x++) {
+        if (!on(x, y)) continue;
+        vctx.fillRect(x * z, y * z, z, z);
+        vctx.fillStyle = 'rgba(192,57,43,.9)';
+        if (!on(x, y - 1)) vctx.fillRect(x * z, y * z, z, 2);
+        if (!on(x, y + 1)) vctx.fillRect(x * z, (y + 1) * z - 2, z, 2);
+        if (!on(x - 1, y)) vctx.fillRect(x * z, y * z, 2, z);
+        if (!on(x + 1, y)) vctx.fillRect((x + 1) * z - 2, y * z, 2, z);
+        vctx.fillStyle = 'rgba(192,57,43,.38)';
+      }
+    } else if (p.box) {
       const b = p.box;
       vctx.fillStyle = 'rgba(192,57,43,.35)';
       vctx.fillRect(b.x0 * z, b.y0 * z, (b.x1 - b.x0 + 1) * z, (b.y1 - b.y0 + 1) * z);
@@ -356,6 +375,27 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   }
   // Poser la flamme (sur cette image, ou sur toutes), tracer la zone
   function setGame(fn) { const p = { ...(game.get() || {}) }; fn(p); game.set(p); render(); }
+  // La zone qui bloque, peinte (v1.70.1) : une grille de '#' / '.' ; le rectangle d'avant en est le premier état
+  const maskGrid = p => Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) =>
+    p.mask ? (p.mask[y]?.[x] === '#' ? '#' : '.') : p.box && x >= p.box.x0 && x <= p.box.x1 && y >= p.box.y0 && y <= p.box.y1 ? '#' : '.'));
+  const keepMask = (p, g) => {
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    g.forEach((r, y) => r.forEach((c, x) => { if (c === '#') { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); } }));
+    p.mask = g.map(r => r.join(''));
+    p.box = x1 < 0 ? { x0: 0, y0: 0, x1: -1, y1: -1 } : { x0, y0, x1, y1 };
+  };
+  // Un coup de pinceau (ou de gomme) de `a` à `b`, de la taille des outils
+  function paintMask(a, b, erase) {
+    const lo = -Math.floor((st.size - 1) / 2), hi = Math.floor(st.size / 2), steps = Math.max(Math.abs(b.x - a.x), Math.abs(b.y - a.y), 1);
+    setGame(p => {
+      const g = maskGrid(p);
+      for (let i = 0; i <= steps; i++) {
+        const cx = Math.round(a.x + (b.x - a.x) * i / steps), cy = Math.round(a.y + (b.y - a.y) * i / steps);
+        for (let dy = lo; dy <= hi; dy++) for (let dx = lo; dx <= hi; dx++) if (g[cy + dy]?.[cx + dx] != null) g[cy + dy][cx + dx] = erase ? '.' : '#';
+      }
+      keepMask(p, g);
+    });
+  }
   function placeLight(q) {
     setGame(p => {
       if (!p.light) return;
@@ -522,7 +562,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     z = Math.max(1, Math.min(ZMAX, z));
     if (z === st.z) return;
     const r = view.getBoundingClientRect(), px = (cx - r.left) / st.z, py = (cy - r.top) / st.z;
-    st.z = z; render();
+    st.userZoom = true; st.z = z; render();
     const r2 = view.getBoundingClientRect();
     stage.scrollLeft += r2.left + px * z - cx; stage.scrollTop += r2.top + py * z - cy;
   }
@@ -558,11 +598,12 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     if (st.mode === 'game') {
       if (!game) return;
       const g = game.get() || {};
-      if ((st.g === 'light' && !g.light) || (st.g === 'box' && !g.box)) return;
+      if ((st.g === 'light' && !g.light) || (st.g !== 'light' && !g.box)) return;
       stage.setPointerCapture(e.pointerId);
-      drag = { game: st.g, start: inside(p) };
+      drag = { game: st.g, start: inside(p), last: inside(p) };
       if (st.g === 'light') placeLight(inside(p));
-      else setGame(q => { q.box = { x0: drag.start.x, y0: drag.start.y, x1: drag.start.x, y1: drag.start.y }; });
+      else if (st.g === 'boxrect') setGame(q => { q.box = { x0: drag.start.x, y0: drag.start.y, x1: drag.start.x, y1: drag.start.y }; delete q.mask; });
+      else paintMask(drag.last, drag.last, st.g === 'boxerase');
       return;
     }
     const erase = e.button === 2 || st.tool === 'eraser';
@@ -601,7 +642,8 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     if (drag.game) {
       const q = inside(cell(e)), a = drag.start;
       if (drag.game === 'light') placeLight(q);
-      else setGame(g => { g.box = { x0: Math.min(a.x, q.x), y0: Math.min(a.y, q.y), x1: Math.max(a.x, q.x), y1: Math.max(a.y, q.y) }; });
+      else if (drag.game === 'boxrect') setGame(g => { g.box = { x0: Math.min(a.x, q.x), y0: Math.min(a.y, q.y), x1: Math.max(a.x, q.x), y1: Math.max(a.y, q.y) }; delete g.mask; });
+      else { paintMask(drag.last, q, drag.game === 'boxerase'); drag.last = q; }
       return;
     }
     paintAt(cell(e));
@@ -637,9 +679,10 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   // (un grand dessin, la falaise entière : le canevas de la zone de travail
   // reste sous 16 millions de pixels, la limite de Safari sur iPad)
   const ZMAX = Math.max(1, Math.min(32, Math.floor(Math.sqrt(16e6 / (w * h)))));
-  const zoom = d => { st.z = Math.max(1, Math.min(ZMAX, st.z + d)); render(); };
+  const zoom = d => { st.userZoom = true; st.z = Math.max(1, Math.min(ZMAX, st.z + d)); render(); };
   // Le plus grand zoom entier qui montre tout le dessin dans la zone de travail
   const fit = () => {
+    st.userZoom = false;
     st.z = Math.max(1, Math.min(ZMAX, Math.floor(Math.min((stage.clientWidth - 32) / w, (stage.clientHeight - 32) / h))));
     render();
   };
@@ -714,13 +757,14 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
       render();
     });
   }
+  dlg.querySelector('[data-gclear]').addEventListener('click', () => { setGame(p => keepMask(p, maskGrid({}))); });
   // « Dans le jeu » : allumer, éteindre (une flamme au milieu, une zone au pied pour commencer)
   for (const inp of dlg.querySelectorAll('[data-gp]')) inp.addEventListener('change', () => {
     const on = inp.checked, k = inp.dataset.gp;
     setGame(p => {
       if (k === 'lit') p.light = on ? (p.light || { x: Math.floor(w / 2), y: Math.floor(h / 2) }) : undefined;
       if (k === 'big' && p.light) p.light = { ...p.light, big: on ? 1 : undefined };
-      if (k === 'block') p.box = on ? (p.box || { x0: Math.floor(w / 2) - 2, y0: h - 3, x1: Math.floor(w / 2) + 2, y1: h - 1 }) : undefined;
+      if (k === 'block') { p.box = on ? (p.box || { x0: Math.floor(w / 2) - 2, y0: h - 3, x1: Math.floor(w / 2) + 2, y1: h - 1 }) : undefined; if (!on) delete p.mask; }
       if (k === 'shadow') p.shadow = on || undefined;
     });
     if (on && k === 'lit') st.g = 'light';
@@ -754,7 +798,20 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   };
   document.addEventListener('keydown', onKey);
   document.addEventListener('keyup', onKey);
+  // La fenêtre prend toujours tout l'écran visible (v1.70.1) : sur l'iPad, 100dvh
+  // ne suivait pas la barre d'adresse ni la rotation, et la fenêtre restait
+  // sur une partie de l'écran. On la cale sur la vraie taille, à chaque changement.
+  const fitWindow = () => {
+    const v = window.visualViewport;
+    dlg.style.width = `${Math.round(v?.width || window.innerWidth)}px`;
+    dlg.style.height = `${Math.round(v?.height || window.innerHeight)}px`;
+    dlg.style.left = `${Math.round(v?.offsetLeft || 0)}px`; dlg.style.top = `${Math.round(v?.offsetTop || 0)}px`;
+    clearTimeout(fitWindow.t); fitWindow.t = setTimeout(() => { if (dlg.open && !st.userZoom) fit(); }, 120);
+  };
+  for (const [t, ev] of [[window, 'resize'], [window, 'orientationchange'], [window.visualViewport, 'resize']]) t?.addEventListener(ev, fitWindow);
   dlg.addEventListener('close', () => {
+    for (const [t, ev] of [[window, 'resize'], [window, 'orientationchange'], [window.visualViewport, 'resize']]) t?.removeEventListener(ev, fitWindow);
+    clearTimeout(fitWindow.t);
     document.removeEventListener('keydown', onKey); document.removeEventListener('keyup', onKey);
     document.documentElement.classList.remove('pxe-open');
     clearInterval(timer); clearTimeout(saveTimer);
@@ -766,5 +823,6 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   if (window.innerWidth >= 1400) dlg.classList.add('drawer-open');   // (sur un grand écran, les réglages restent ouverts)
   render();
   dlg.showModal();
+  fitWindow();
   fit();                                                    // (la zone de travail n'a sa taille qu'une fois ouverte)
 }

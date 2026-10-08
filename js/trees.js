@@ -2,7 +2,7 @@
    unique, tirée du générateur `r` (fonction qui rend un nombre dans [0, 1[).
    Résultat : { rows, ax } — lignes de pixels (b sombre, k noir, s neige, . vide)
    et colonne d'ancrage ; la dernière ligne touche le sol. */
-import { designRows } from './design-store.js?v=1.70.0';
+import { designRows } from './design-store.js?v=1.70.1';
 
 function blank(w, h) { return Array.from({ length: h }, () => Array(w).fill('.')); }
 const toRows = g => g.map(r => r.join(''));

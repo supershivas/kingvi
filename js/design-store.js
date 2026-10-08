@@ -36,6 +36,14 @@ export const designExtras = () => { const m = readExtras(); return { pads: merge
 // { light: { x, y, r } (une lumière, en pixels du dessin ; r : sa portée),
 //   box: { x0, y0, x1, y1 } (la zone qui bloque le passage, tracée sur le dessin),
 //   shadow: true (il porte une ombre à la torche) }
+// (v1.70.1) `mask` : la zone qui bloque peinte au pinceau, une rangée de caractères
+// par rangée du dessin ('#' bloque, '.' libre) ; `box` en est alors le cadre
+// (vide : x1 < x0). Sans `mask`, la zone est le rectangle `box`.
+export function boxHit(p, px, py) {
+  const b = p?.box;
+  if (!b || px < b.x0 || px > b.x1 || py < b.y0 || py > b.y1) return false;
+  return p.mask ? p.mask[py]?.[px] === '#' : true;
+}
 export const propsOf = name => designExtras().props[name] || null;
 export const padOf = name => designExtras().pads[name] || null;
 export const animOf = name => designExtras().anims[name] || null;

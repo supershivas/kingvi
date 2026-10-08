@@ -12,14 +12,14 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.70.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.70.0';
-import { publish, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.70.0';
-import { mountMap } from './atelier-map.js?v=1.70.0';
-import { mountTuning } from './atelier-tuning.js?v=1.70.0';
-import { mountTexts } from './atelier-texts.js?v=1.70.0';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.70.0';
-import { mountChanges, listChanges } from './atelier-changes.js?v=1.70.0';
+} from './designs.js?v=1.70.1';
+import { openPixelEditor } from './pixel-editor.js?v=1.70.1';
+import { publish, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.70.1';
+import { mountMap } from './atelier-map.js?v=1.70.1';
+import { mountTuning } from './atelier-tuning.js?v=1.70.1';
+import { mountTexts } from './atelier-texts.js?v=1.70.1';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.70.1';
+import { mountChanges, listChanges } from './atelier-changes.js?v=1.70.1';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -478,7 +478,7 @@ function playPanel(key, W, H) {
   };
   f('light').addEventListener('change', () => { const p = get(); p.light = f('light').checked ? (p.light || { x: Math.floor(custom.w / 2), y: Math.floor(custom.h / 2) }) : undefined; save(p); if (p.light) setArm('light'); });
   f('big').addEventListener('change', () => { const p = get(); if (p.light) p.light = { ...p.light, big: f('big').value ? 1 : undefined }; save(p); });
-  f('block').addEventListener('change', () => { const p = get(); p.box = f('block').checked ? (p.box || { x0: Math.floor(custom.w / 2) - 2, y0: custom.h - 3, x1: Math.floor(custom.w / 2) + 2, y1: custom.h - 1 }) : undefined; save(p); if (p.box) setArm('box'); });
+  f('block').addEventListener('change', () => { const p = get(); delete p.mask; p.box = f('block').checked ? (p.box || { x0: Math.floor(custom.w / 2) - 2, y0: custom.h - 3, x1: Math.floor(custom.w / 2) + 2, y1: custom.h - 1 }) : undefined; save(p); if (p.box) setArm('box'); });
   f('shadow').addEventListener('change', () => { const p = get(); p.shadow = f('shadow').checked || undefined; save(p); });
   let t = 0;
   f('desc').addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { const p = get(); p.desc = f('desc').value.trim() || undefined; save(p); }, 400); });
@@ -500,7 +500,7 @@ function playPanel(key, W, H) {
   cv.addEventListener('pointerup', e => {
     if (!from) return;
     const to = at(e), p = get();
-    if (arm === 'box' && p.box) p.box = { x0: Math.min(from.x, to.x), y0: Math.min(from.y, to.y), x1: Math.max(from.x, to.x), y1: Math.max(from.y, to.y) };
+    if (arm === 'box' && p.box) { p.box = { x0: Math.min(from.x, to.x), y0: Math.min(from.y, to.y), x1: Math.max(from.x, to.x), y1: Math.max(from.y, to.y) }; delete p.mask; }
     else if (arm === 'light' && p.light) p.light = { ...p.light, x: to.x, y: to.y };
     else { from = null; return; }
     from = null; save(p); setArm(null); say('Enregistré. Publie pour tout le monde.');
@@ -595,7 +595,8 @@ function paintMain() {
     if (props.box) {
       const b = props.box;
       ctx.fillStyle = 'rgba(192,57,43,.4)';
-      ctx.fillRect(b.x0, b.y0, b.x1 - b.x0 + 1, b.y1 - b.y0 + 1);
+      if (props.mask) props.mask.forEach((row, y) => { for (let x = 0; x < row.length; x++) if (row[x] === '#') ctx.fillRect(x, y, 1, 1); });
+      else ctx.fillRect(b.x0, b.y0, b.x1 - b.x0 + 1, b.y1 - b.y0 + 1);
     }
     if (props.light) {
       const { x, y } = props.light;

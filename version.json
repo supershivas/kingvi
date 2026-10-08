@@ -1,9 +1,8 @@
 {
-  "version": "1.70.0",
+  "version": "1.70.1",
   "date": "2026-10-08",
   "changes": [
-    "La grève n'a plus de neige : le sol est de la terre noire, la neige gagne avec l'altitude (plaques vers 350 m, partout dès 750 m)",
-    "La végétation change d'étage en étage : bouleaux nains puis bouleaux et sorbiers, sapins sans neige puis givrés, pins tordus et mélèzes, plantes au sol (bruyère, feuilles mortes, herbe jaune, lichens…)",
-    "Le temps suit l'altitude : bruine et pluie en bas, grésil puis neige plus haut (Réglages : « Selon l'altitude », choisi par défaut)"
+    "La fenêtre de dessin prend toujours tout l'écran visible, même après une rotation ou un changement de barre d'adresse sur l'iPad",
+    "La zone qui bloque se peint maintenant au pinceau, de la forme qu'on veut (plus seulement un rectangle) : Zone, Gomme, Rectangle, Vider ; le jeu bloque exactement sur ce qu'on a peint"
   ]
 }

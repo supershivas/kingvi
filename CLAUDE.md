@@ -220,7 +220,7 @@ et `setOrigin` reporté), `anims` (un dessin seul à qui l'on ajoute des images 
 flamme — gardent leur nombre d'images : `fixedFrames`), `props` (ce qu'un asset
 créé dans l'atelier fait une fois posé, et (v1.63.1) tout dessin du jeu posé tel
 quel par `art()` (maison, barques, cubes, coffre, clou, dalle…) : `light` { x, y,
-big } la nuit s'ouvre autour, `box` la zone qui bloque, `shadow` l'ombre à la
+big } la nuit s'ouvre autour, `box` la zone qui bloque (`mask` : peinte au pinceau, pas forcément un rectangle), `shadow` l'ombre à la
 torche, `desc` le clic droit ; panneau « Dans le jeu » à côté de l'aperçu,
 boutons « Placer la flamme », « Tracer la zone » ; le jeu les recense
 (`registerArtProps`, `artProps`, `artRows`) et les reprend en direct). **Objets posés** : onglet Carte,
@@ -594,7 +594,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   dès qu'un Pencil s'est montré (`kingvi:pxe-pen`), sauf « Le doigt dessine
   aussi » (`kingvi:pxe-finger`) ; **« Dans le jeu »** (option `game` : { get, set }
   des `props`, `propsKey` / `gameProps` dans `atelier.js`) : la flamme, la zone,
-  l'ombre posées sur le dessin ; pour une animation, la flamme a une place par
+  l'ombre posées sur le dessin (v1.70.1 : la zone qui bloque est une forme peinte, `props.mask`, pinceau / gomme / rectangle / vider, `boxHit` dans `design-store.js` ; `box` en reste le cadre) ; pour une animation, la flamme a une place par
   image (`light.frames[i]`, null : celle de toutes ; « toutes les images
   ensemble » la pose partout), et le jeu la lit sur l'image affichée
   (`artAnims…shown`) ; crayon, gomme, pot, ligne,
@@ -610,7 +610,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   autour de la zone de travail), décalage d'un pixel, lecture avec vitesse ;
   un dessin seul n'a ni bande ni section Animation ; l'historique garde un
   instantané de toutes les images, `onSave(nom, rangées)` n'est appelé que pour
-  les images vraiment changées ; **plein écran** (`100dvh`,
+  les images vraiment changées ; **plein écran** (`100dvh`, recalé sur `visualViewport` par `fitWindow` à l'ouverture, à la rotation et au redimensionnement ;
   page figée derrière) et **tactile** : un doigt ou l'Apple Pencil dessine,
   deux doigts déplacent la vue (le trait commencé est annulé), ni menu de
   sélection / copier, ni loupe, ni zoom de la page : `contextmenu`,
