@@ -1,12 +1,12 @@
-import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.70.1';
-import { altitudeOf, progressOf, etageAt, snowCover } from './altitude.js?v=1.70.1';
-import { VEGETATION } from './vegetation.js?v=1.70.1';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.70.1';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.70.1';
-import { makeGroveTree } from './grove.js?v=1.70.1';
-import { monumentParts, monumentSize } from './ruins.js?v=1.70.1';
+import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.70.2';
+import { altitudeOf, progressOf, etageAt, snowCover } from './altitude.js?v=1.70.2';
+import { VEGETATION } from './vegetation.js?v=1.70.2';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.70.2';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.70.2';
+import { makeGroveTree } from './grove.js?v=1.70.2';
+import { monumentParts, monumentSize } from './ruins.js?v=1.70.2';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed, designRows, padOf } from './design-store.js?v=1.70.1';
+import { placed, designRows, padOf } from './design-store.js?v=1.70.2';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -744,6 +744,9 @@ export function paintChunk(ctx, cx, cy, pal) {
   const it = paintChunkSteps(ctx, cx, cy, pal);
   while (!it.next().done);
 }
+// À quel point la terre nue (sans neige) est sombre, au plus (0 → 1) : assez claire
+// pour que le viking, les arbres et le ravin, tous bleu nuit, s'y lisent
+const BARE_DARK = 0.3;
 export function* paintChunkSteps(ctx, cx, cy, pal) {
   const x0 = cx * CHUNK, y0 = cy * CHUNK;
   const img = ctx.createImageData(CHUNK, CHUNK);
@@ -860,8 +863,11 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
           if (k > 0 && (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < k * 1.15) dark = true;
         }
         if (cover) {
-          const k = cover[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)];
-          if (k < 1 && 0.6 * (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 + 0.4 * hash(wx, wy, 15) < 0.86 * (1 - k)) dark = true;
+          let k = cover[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)];
+          // (le pied du sapin du pont garde sa neige : un rond clair qui le signale de loin)
+          const bd = Math.hypot(wx - BRIDGE_TREE.x, (wy - BRIDGE_TREE.y) * 1.6);
+          if (bd < 26) k = Math.max(k, Math.min(1, (26 - bd) / 10 + (hash(wx, wy, 17) - 0.5) * 0.5));
+          if (k < 1 && 0.6 * (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 + 0.4 * hash(wx, wy, 15) < BARE_DARK * (1 - k)) dark = true;
         }
         set(i, dark ? 'b' : 's');
       } else {
@@ -1103,10 +1109,13 @@ function solidAt(o, col, row, foot) {
 // plus aux mollets). N'appelle pas le générateur `rng` : l'île ne bouge pas.
 export function snowDepth(x, y) {
   if (coast(x, y) > -0.02 || deckLift(x, y) > 0) return 0;
+  // (pas de neige profonde sur la terre nue du bas : on ne s'y enfonce pas)
+  const cover = snowCover(altitudeAt(x, y));
+  if (cover < 0.55) return 0;
   const n = fbm(x / 380, y / 380, 977, 3) + 0.3 * fbm(x / 70, y / 70, 983, 2);
   if (n < 0.1) return 0;
   if (deepForest(x, y) > 0 || forestDensity(x, y) > 0.25) return 0;
   if (Math.hypot(x - WOLF_DEN.x, y - WOLF_DEN.y) < WOLF_DEN.r + 40) return 0;   // (le combat des loups)
   if (nearTrail(x, y, 8) || Math.hypot(x - HOUSE.x, y - HOUSE.y) < 70) return n > 0.16 ? 1 : 0;
-  return n > 0.19 ? 2 : 1;
+  return n > 0.19 && cover > 0.85 ? 2 : 1;
 }

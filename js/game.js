@@ -1,13 +1,13 @@
 /* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
-import { keyIs } from './keys.js?v=1.70.1';
-import { HINTS } from './story.js?v=1.70.1';
-import { T as TUNE } from './tuning.js?v=1.70.1';
+import { keyIs } from './keys.js?v=1.70.2';
+import { HINTS } from './story.js?v=1.70.2';
+import { T as TUNE } from './tuning.js?v=1.70.2';
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.70.1';
+} from './viking.js?v=1.70.2';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
@@ -15,13 +15,13 @@ import {
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT,
   altitudeAt, PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER, inRavine, onBridge, BRIDGE_TREE, BRIDGE_LOG, RAVINE_CROSS, CAVE_RUBBLE,
-} from './world.js?v=1.70.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.70.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.70.1';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.70.1';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.70.1';
-import { createGround } from './ground.js?v=1.70.1';
-import { boxHit, designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.70.1';
+} from './world.js?v=1.70.2';
+import { ICE_FRAMES } from './sigrun.js?v=1.70.2';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.70.2';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.70.2';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.70.2';
+import { createGround } from './ground.js?v=1.70.2';
+import { boxHit, designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.70.2';
 
 // Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
 // (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
@@ -39,29 +39,29 @@ const GROWN = new Map();
     return base.call(this, x, y);
   };
 }
-import { chapterById } from './chapters.js?v=1.70.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.70.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.70.1';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.70.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.70.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.70.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.70.1';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.70.1';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.70.1';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.70.1';
-import { createFoe, drawPips } from './foe.js?v=1.70.1';
-import { createFauna } from './fauna.js?v=1.70.1';
-import { createWeather, WEATHER_PRESETS } from './weather.js?v=1.70.1';
-import { skyAt } from './altitude.js?v=1.70.1';
-import { createTalk } from './dialogue.js?v=1.70.1';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.70.1';
-import { NECRO_W, NECRO_H } from './props.js?v=1.70.1';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.70.1';
-import { describe } from './describe.js?v=1.70.1';
-import { personSprite } from './people.js?v=1.70.1';
-import { createSea } from './sea.js?v=1.70.1';
-import { audio } from './audio.js?v=1.70.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.70.1';
+import { chapterById } from './chapters.js?v=1.70.2';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.70.2';
+import { BUNDLE, WATCHER } from './grove.js?v=1.70.2';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.70.2';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.70.2';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.70.2';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.70.2';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.70.2';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.70.2';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.70.2';
+import { createFoe, drawPips } from './foe.js?v=1.70.2';
+import { createFauna } from './fauna.js?v=1.70.2';
+import { createWeather, WEATHER_PRESETS } from './weather.js?v=1.70.2';
+import { skyAt } from './altitude.js?v=1.70.2';
+import { createTalk } from './dialogue.js?v=1.70.2';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.70.2';
+import { NECRO_W, NECRO_H } from './props.js?v=1.70.2';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.70.2';
+import { describe } from './describe.js?v=1.70.2';
+import { personSprite } from './people.js?v=1.70.2';
+import { createSea } from './sea.js?v=1.70.2';
+import { audio } from './audio.js?v=1.70.2';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.70.2';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -2712,7 +2712,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     // traîne longtemps ; c'est aussi la première ligne du carnet des vœux)
     goal() {
       if (this.inside === 'sno4') return this.aube ? 'Tout est dit, ici. La barque me ramènera à SNO 7.' : 'Le carrefour, les esprits, les signes dans la neige. Et rentrer, la barque attend.';
-      if (!bridgeDown) return this.chapters.has('ravin') ? 'Les traces s\'arrêtent au bord du ravin et reprennent en face. Il me faut un pont.' : 'Deux pistes partent de la grève, vers l\'est. Les suivre.';
+      if (!bridgeDown) return this.chapters.has('ravin') ? 'Les traces s\'arrêtent au bord du ravin et reprennent en face. Le grand sapin, au bord, juste au sud : il peut faire pont.' : 'Deux pistes partent de la grève, vers l\'est. Les suivre.';
       if (!this.chapters.has('maison') && this.fire == null) return 'Les traces s\'enfoncent dans la forêt noire. Ne pas les perdre.';
       if (this.fire == null && this.foe.alive) return 'Eyvind est mort dans la maison. Le brûler (E, près de lui), puis suivre la piste de sang.';
       if (this.foe.alive) return 'La piste de sang longe le lac et traverse la plaine des morts. Celui qui l\'a faite attend au bout.';

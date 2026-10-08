@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.70.2 — 2026-10-08
+- Éditeur : le mode « Agrandir » reste actif d'un « + » au suivant (l'éditeur se rouvre agrandi, `keepGrowing`) ; il ne s'éteint qu'en recliquant sur « Agrandir »
+- La terre nue du bas (grève, landes) est nettement plus claire (`BARE_DARK` 0,3 au lieu de 0,86) : le viking, bleu nuit, s'y lit ; la neige profonde (`snowDepth`) ne vient plus que là où la neige tient (le viking ne s'enfonce plus sur la grève)
+- Le grand sapin du pont garde un rond de neige à son pied, visible de loin ; la phrase de Kári au bord du ravin le désigne
+
 ## 1.70.1 — 2026-10-08
 - La fenêtre de dessin est calée sur la vraie taille de l'écran visible (`visualViewport`), à l'ouverture, à la rotation et au redimensionnement : elle ne reste plus sur une partie de l'écran
 - « Dans le jeu » : la zone qui bloque est une forme peinte (`props.mask`, une grille de `#` et `.`) : Zone (pinceau, à la taille des outils), Gomme, Rectangle (l'ancien tracé) et Vider ; le jeu bloque pixel pour pixel (`boxHit`), l'éditeur et l'atelier la montrent en rouge pâle. Les anciennes zones rectangulaires continuent de marcher

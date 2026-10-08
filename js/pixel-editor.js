@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.70.1';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.70.1';
+import { gamePalette } from './design-store.js?v=1.70.2';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.70.2';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -160,6 +160,8 @@ function build() {
 // `game` : ce que le dessin fait dans le jeu (la lumière, la zone qui bloque,
 // l'ombre), réglé sur le dessin : { get() → props, set(props) } ; la flamme
 // peut avoir une place par image (`light.frames`), pour une lanterne qui se balance
+// Le mode « Agrandir » reste d'un agrandissement à l'autre (l'éditeur se referme et se rouvre)
+let keepGrowing = false;
 export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null, onGrow = null, game = null }) {
   dlg?.remove();
   dlg = build();
@@ -184,6 +186,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     b.addEventListener('click', e => {
       const side = b.dataset.grow, n = e.shiftKey ? 8 : 1, at = fi, rows = toRows(grid);
       changed = true; dirty.add(fi);
+      keepGrowing = true;                // (l'éditeur se rouvre agrandi : le mode reste, pour enchaîner les clics)
       dlg.addEventListener('close', () => onGrow(side, n, at, rows), { once: true });
       dlg.close();
     });
@@ -208,7 +211,8 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const keep = (k, v) => { try { localStorage.setItem(k, v); } catch { /* rien */ } };
   const fingerChoice = pref('kingvi:pxe-finger');
   const st = { tool: 'pencil', color: SNOW, size: 1, dens: 1, fill: false, mirrorH: false, mirrorV: false, grid: true, bg: 'mid', z: 4, all: false, onion: n > 1, onionN: 1,
-    finger: fingerChoice != null ? fingerChoice === '1' : pref('kingvi:pxe-pen') !== '1', mode: 'draw', g: 'light', growing: false };
+    finger: fingerChoice != null ? fingerChoice === '1' : pref('kingvi:pxe-pen') !== '1', mode: 'draw', g: 'light', growing: keepGrowing };
+  keepGrowing = false;
   let drag = null, saveTimer = 0, changed = false, spaceDown = false;
   let playing = false, pf = 0, pfps = fps, timer = 0;
 

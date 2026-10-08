@@ -1,8 +1,9 @@
 {
-  "version": "1.70.1",
+  "version": "1.70.2",
   "date": "2026-10-08",
   "changes": [
-    "La fenêtre de dessin prend toujours tout l'écran visible, même après une rotation ou un changement de barre d'adresse sur l'iPad",
-    "La zone qui bloque se peint maintenant au pinceau, de la forme qu'on veut (plus seulement un rectangle) : Zone, Gomme, Rectangle, Vider ; le jeu bloque exactement sur ce qu'on a peint"
+    "Agrandir le canevas : le mode reste actif après chaque « + », pour enchaîner plusieurs agrandissements sans le réactiver",
+    "La terre nue du bas est plus claire : on voit le viking et les arbres ; on ne s'y enfonce plus comme dans la neige (la neige profonde ne vient qu'avec la neige)",
+    "Le ravin : un rond de neige clair marque le pied du grand sapin qui fait pont, et Kári le nomme"
   ]
 }

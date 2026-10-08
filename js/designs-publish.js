@@ -7,8 +7,8 @@
    droit d'écrire son contenu), collé une fois dans le labo : il reste dans ce
    navigateur et ne part que vers api.github.com. Demandé et accepté par
    Jérôme : il ne veut pas passer par Claude pour publier. */
-import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.70.1';
-import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot, setPublishedTimes, readTuning, writeTuning, tuningDepotGet, setTuningDepot, readExtras, writeExtras, extrasDepotGet, setExtrasDepot } from './design-store.js?v=1.70.1';
+import { DESIGNS, rowsToPng, readLocal, setLocalDesign, markSent, readCustom, customDepotDefs, customDefs, setCustomDepot } from './designs.js?v=1.70.2';
+import { readPlacements, writePlacements, placementsDepot, setPlacementsDepot, readTexts, writeTexts, textsDepot, setTextsDepot, setPublishedTimes, readTuning, writeTuning, tuningDepotGet, setTuningDepot, readExtras, writeExtras, extrasDepotGet, setExtrasDepot } from './design-store.js?v=1.70.2';
 
 export const REPO = 'supershivas/kingvi', BRANCH = 'main';
 export const TOKEN_KEY = 'kingvi:gh-token';
