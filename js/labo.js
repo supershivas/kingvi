@@ -1,46 +1,46 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.64.0';
+import { startUpdateCheck } from '../app-update.js?v=1.65.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.64.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.64.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.64.0';
+} from './viking.js?v=1.65.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.65.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.65.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.64.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.64.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.64.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.64.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.64.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.64.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.64.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.64.0';
-import { createSea } from './sea.js?v=1.64.0';
-import { createTitleSea } from './titlesea.js?v=1.64.0';
-import { buildStatueDoor } from './statue.js?v=1.64.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.64.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.64.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.64.0';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.64.0';
-import { designRows, designsReady, loadDesigns, customDefs, customNames } from './design-store.js?v=1.64.0';
+} from './world.js?v=1.65.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.65.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.65.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.65.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.65.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.65.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.65.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.65.0';
+import { createSea } from './sea.js?v=1.65.0';
+import { createTitleSea } from './titlesea.js?v=1.65.0';
+import { buildStatueDoor } from './statue.js?v=1.65.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.65.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.65.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.65.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.65.0';
+import { designRows, designsReady, loadDesigns, customDefs, customNames } from './design-store.js?v=1.65.0';
 // (les dessins publiés et retouchés : le labo les montre ; on les modifie dans l'atelier)
 loadDesigns();
-import * as PROPS from './props.js?v=1.64.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.64.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.64.0';
-import { audio, TRACKS } from './audio.js?v=1.64.0';
-import { DESCRIPTIONS } from './describe.js?v=1.64.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.64.0';
-import { RUIN_ART } from './ruins-art.js?v=1.64.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.64.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.64.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.64.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.64.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.64.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.64.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.64.0';
+import * as PROPS from './props.js?v=1.65.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.65.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.65.0';
+import { audio, TRACKS } from './audio.js?v=1.65.0';
+import { DESCRIPTIONS } from './describe.js?v=1.65.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.65.0';
+import { RUIN_ART } from './ruins-art.js?v=1.65.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.65.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.65.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.65.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.65.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.65.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.65.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.65.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -1034,7 +1034,7 @@ card('pas-des-morts', {
 // ══ Le mons (v1.60.0) ══
 card('mons', {
   title: 'Le mons, au creux du sud', tag: 'une quête',
-  about: 'Une bête qui n\'est pas une bête, dessinée dans l\'atelier (« Un mons », ses images s\'enchaînent). Il attend au creux des landes du sud, loin des traces, là où aucun lieu ne mène (`MONS_AT`, déplaçable dans l\'atelier). Invisible tant qu\'on ne l\'a pas découvert : à 110 pixels, il apparaît dans un souffle et parle le premier. Le roi sous la roche lui a pris son œil, une pierre rouge : le rubis du roi. Rendu (E « Donner le rubis du roi »), il voit de nouveau, s\'arrache une griffe et la jette aux pieds de Kári : une nouvelle relique, la griffe du mons.',
+  about: 'Une bête qui n\'est pas une bête, dessinée dans l\'atelier (« Un mons », ses images s\'enchaînent). Il attend près de la lanterne, juste après la grève (`MONS_AT`, déplaçable dans l\'atelier). Invisible tant qu\'on ne l\'a pas découvert : à 110 pixels, il apparaît dans un souffle et parle le premier. Puis il guide : il marche devant Kári le long des traces, l\'attend, enjambe le ravin et montre l\'arbre à abattre, s\'arrête avant l\'autre viking, puis attend au pied de la falaise. Le roi sous la roche lui a pris son œil, une pierre rouge : le rubis du roi. Rendu (E « Donner le rubis du roi »), il voit de nouveau, s\'arrache une griffe, la jette aux pieds de Kári, et s\'en va voir la mer.',
   wide: true, w: 160, h: 60,
   setup(s, v) {
     const build = () => {

@@ -1,0 +1,133 @@
+{
+  "runId": "20261008-0637-parcours2",
+  "version": "1.65.0",
+  "date": "2026-10-08T06:39:59.813Z",
+  "dureeReelle": 149,
+  "options": {
+    "clavier": "azerty",
+    "qualite": 3,
+    "navigateur": "chromium",
+    "taille": "1280x800",
+    "dpr": 1,
+    "graine": 7,
+    "capture": 6,
+    "vitesse": 3,
+    "heure": null,
+    "meteo": null,
+    "from": null,
+    "to": null,
+    "lac": true,
+    "reel": false,
+    "etiquette": "parcours2",
+    "visible": false
+  },
+  "navigateur": "chromium 141.0.7390.37",
+  "fps": {
+    "moyen": 19,
+    "min": 14,
+    "max": 60
+  },
+  "erreurs": [],
+  "derniereErreurDuJeu": null,
+  "etatFinal": {
+    "pret": true,
+    "accueil": false,
+    "x": 400.6,
+    "y": 1083.5,
+    "zone": "interieur:grotte",
+    "dedans": "grotte",
+    "enBarque": false,
+    "pv": 2,
+    "pvMax": 3,
+    "endurance": 1,
+    "sente": null,
+    "incendie": null,
+    "megamoth": {
+      "etat": "absent",
+      "pv": 0,
+      "haut": 0,
+      "x": 0,
+      "y": 0
+    },
+    "ceinture": [
+      "sceau",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "mort": false,
+    "attaque": false,
+    "court": false,
+    "ennemi": {
+      "pv": 0,
+      "etat": "dead",
+      "vivant": false,
+      "engage": true,
+      "x": 4614,
+      "y": 2710,
+      "distance": 4516
+    },
+    "meute": {
+      "etat": "idle",
+      "engagee": false,
+      "vivants": 3,
+      "morts": 0,
+      "loups": [
+        {
+          "etat": "hidden",
+          "x": 4802,
+          "y": 2304
+        },
+        {
+          "etat": "hidden",
+          "x": 4930,
+          "y": 2236
+        },
+        {
+          "etat": "hidden",
+          "x": 5031,
+          "y": 2315
+        }
+      ]
+    },
+    "vent": "tempete",
+    "jour": "nuit",
+    "nuit": 1,
+    "heureCycle": 1020,
+    "torche": true,
+    "torcheSoufflee": false,
+    "chapitres": [
+      "greve",
+      "autre",
+      "falaise",
+      "roi"
+    ],
+    "compteur": {
+      "trees": 1,
+      "rocks": 1
+    },
+    "drapeaux": {
+      "foeDead": true,
+      "chestOpen": true,
+      "watcherGone": true,
+      "kingBowed": true,
+      "pont": true,
+      "eboulis": false
+    },
+    "distance": 3673,
+    "tempsJeu": 458.1,
+    "fps": 14.8,
+    "vitesse": 3,
+    "graine": 7,
+    "zoom": 1,
+    "morceauxEnAttente": 0,
+    "derniereErreur": null
+  },
+  "captures": 91
+}

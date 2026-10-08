@@ -7,18 +7,19 @@
    setTime(phase), setWeather(ambiance), eclair(près), timeScale(n), setSeed(n), enter(),
    reset(). Si la page a une fonction window.__kingviEvent (le harnais
    l'expose), chaque événement lui est passé aussitôt. */
-import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.64.0';
-import { WEATHER_PRESETS } from './weather.js?v=1.64.0';
-import { chapterById } from './chapters.js?v=1.64.0';
-import { audio } from './audio.js?v=1.64.0';
-import { THRONE, caveWalkable } from './cave.js?v=1.64.0';
-import { CHEST } from './crypt.js?v=1.64.0';
-import { ROOM_ENTRY } from './interior.js?v=1.64.0';
+import { DAY_CYCLE, DAY_LENGTH, daylightAt } from './daylight.js?v=1.65.0';
+import { WEATHER_PRESETS } from './weather.js?v=1.65.0';
+import { chapterById } from './chapters.js?v=1.65.0';
+import { audio } from './audio.js?v=1.65.0';
+import { THRONE, caveWalkable } from './cave.js?v=1.65.0';
+import { CHEST } from './crypt.js?v=1.65.0';
+import { ROOM_ENTRY } from './interior.js?v=1.65.0';
 import {
   trail, isLand, blocked, houseBlocked, inLake, deepForest, forestDensity,
   HOUSE, HOUSE_DOOR_OUT, NECRO, CLIFF, CAVE_DOOR_OUT, STATUE_BASE, STATUE2_BASE,
   STATUE3_DOOR_OUT, WATCHER_AT, WOLF_DEN, GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, GROVE_TREE, CROWS, LAKE, ARCH, RUINS, PIER, LEDGE, MOTH_LAIR,
-} from './world.js?v=1.64.0';
+  RAVINE_CROSS, BRIDGE_TREE, CAVE_RUBBLE, inRavine, MONS_AT,
+} from './world.js?v=1.65.0';
 
 export const DEBUG_SAVE_KEY = 'kingvi:debug:save';
 const params = new URLSearchParams(location.search);
@@ -68,6 +69,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
     const { x, y } = sc.pos, end = trail.at(-1);
     if (x > CLIFF.x0 - 60 && x < CLIFF.x1 + 60 && y > CLIFF.y - 40 && y < CLIFF.y + 110) return 'falaise';
     if (Math.hypot(x - end.x, y - end.y) < 160) return 'autre';
+    if (Math.hypot(x - RAVINE_CROSS.x, y - RAVINE_CROSS.y) < 90) return 'ravin';
     if (Math.hypot(x - HOUSE.x, y - HOUSE.y) < 90) return 'maison';
     if (Math.hypot(x - GLADE.x, y - GLADE.y) < GLADE.r + 20) return 'clairiere';
     if (((x - LAKE.x) / (LAKE.rx + 50)) ** 2 + ((y - LAKE.y) / (LAKE.ry + 50)) ** 2 < 1) return 'lac';
@@ -112,7 +114,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
   const nearestTrail = p => trail.reduce((best, q) => (Math.hypot(q.x - p.x, q.y - p.y) < Math.hypot(best.x - p.x, best.y - p.y) ? q : best), trail[0]);
   const before = (p, d) => { let i = nearestTrail(p).i; while (i > 0 && Math.hypot(trail[i].x - p.x, trail[i].y - p.y) < d) i--; return trail[i]; };
   const firstOnTrail = test => trail.find(p => test(p.x, p.y)) || trail[0];
-  const free = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y);
+  const free = (x, y) => isLand(x, y) && !houseBlocked(x, y) && !blocked(x, y) && !inRavine(x, y);
   const nearFree = ({ x, y }) => {
     for (let r = 0; r <= 60; r += 2) for (let k = 0; k < (r ? 16 : 1); k++) {
       const a = k / 16 * Math.PI * 2, px = Math.round(x + Math.cos(a) * r), py = Math.round(y + Math.sin(a) * r);
@@ -127,6 +129,10 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
   };
   const PLACES = {
     barque: () => sc.spawn,
+    lanterne: () => before(MONS_AT, 90),
+    // Au bord ouest du ravin, à côté de l'arbre du pont ; et sur l'autre bord
+    ravin: () => nearFree({ x: BRIDGE_TREE.x - 6, y: BRIDGE_TREE.y + 1 }),
+    'apres-ravin': () => trail[Math.min(trail.length - 1, RAVINE_CROSS.i + 6)],
     morts: () => firstOnTrail((x, y) => x > NECRO.x - 30 && y > NECRO.y - 30 && y < NECRO.y + 200),
     // Au sud de l'arche, face à son ouverture (on passe dessous en montant)
     arche: () => nearFree({ x: ARCH.x, y: ARCH.y + 30 }),
@@ -259,7 +265,7 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
       jour: d.phase, nuit: Math.round(d.night * 100) / 100, heureCycle: Math.round(((dayClock() % DAY_LENGTH) + DAY_LENGTH) % DAY_LENGTH),
       torche: (sc.torchOn || 0) > 0.5, torcheSoufflee: (sc.torchOut || 0) > 0,
       chapitres: [...sc.chapters], compteur: { ...sc.tally },
-      drapeaux: { foeDead: !f.alive, chestOpen: !!sc.chestOpen, watcherGone: !!sc.watcherGone, kingBowed: !!sc.kingBowed },
+      drapeaux: { foeDead: !f.alive, chestOpen: !!sc.chestOpen, watcherGone: !!sc.watcherGone, kingBowed: !!sc.kingBowed, pont: sc.wrecked.has(`${BRIDGE_TREE.x},${BRIDGE_TREE.y}`), eboulis: !sc.wrecked.has(`${CAVE_RUBBLE.x},${CAVE_RUBBLE.y}`) },
       distance: Math.round(sc.distance), tempsJeu: Math.round(gameTime * 10) / 10,
       fps: Math.round(game.game.loop.actualFps * 10) / 10, vitesse: speed, graine: seed,
       zoom: Math.round(sc.cameras.main.zoom * 100) / 100, morceauxEnAttente: sc.jobs?.size || 0,
@@ -386,6 +392,8 @@ export function attachDebug({ game, dayClock, enter, freeTime = () => {} }) {
         entreeMaison: { x: ROOMS.house.x + ROOM_ENTRY.x, y: ROOMS.house.y + ROOM_ENTRY.y },
         coffre: { x: ROOMS.crypt.x + CHEST.x, y: ROOMS.crypt.y + CHEST.y }, trone: { x: ROOMS.cave.x + THRONE.x, y: ROOMS.cave.y + THRONE.y },
         tanière: { x: WOLF_DEN.x, y: WOLF_DEN.y }, guetteur: WATCHER_AT,
+        arbrePont: { x: BRIDGE_TREE.x, y: BRIDGE_TREE.y }, eboulis: { x: CAVE_RUBBLE.x, y: CAVE_RUBBLE.y },
+        mons: sc.mons ? { x: Math.round(sc.mons.x), y: Math.round(sc.mons.y), vu: sc.mons.shown, ti: sc.mons.ti } : null,
       };
     },
     // Un point du monde → la position du pointeur dans la page

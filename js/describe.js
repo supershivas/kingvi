@@ -12,6 +12,9 @@ export const DESCRIPTIONS = {
   'tree-small': { title: 'Un jeune sapin', lines: ['Pas plus haut que moi. Le vent le couche à chaque rafale.', 'Il tremble au moindre souffle.'] },
   'tree-dark': { title: 'La forêt noire', lines: ['Les arbres sont si serrés qu\'aucune neige ne touche le sol.', 'Pas un oiseau ici. Seulement le bois qui craque.', 'Des troncs, encore des troncs. Je ne vois pas le ciel.'] },
   'tree-fallen': { title: 'Un arbre abattu', lines: ['Je l\'ai couché. La neige le recouvre déjà.', 'Il ne se relèvera pas.'] },
+  stump: { title: 'Une souche', lines: ['La coupe est encore claire. La sève gèle dessus.', 'Ce qui reste d\'un arbre que j\'ai couché.', 'Les cernes : plus qu\'il n\'y a d\'hivers dans ma vie.'] },
+  ravine: { title: 'Le ravin', lines: ['Une fente dans l\'île, du nord au sud. On n\'en voit pas le fond.', 'Le froid monte de là, plus noir que la nuit.', 'Les traces s\'arrêtent au bord et reprennent en face.'] },
+  tombe: { title: 'La tombe d\'Eyvind', lines: ['Trois pierres sur sa boucle, dans les cendres de la maison.', 'Ce qui reste de mon frère de lait. Au chaud, pour une fois.'] },
   grove: { title: 'L\'arbre aux offrandes', lines: ['Un arbre mort immense, chargé de petits paquets noués qui tournent au vent.', 'Quelqu\'un vient encore pendre des choses à ses branches.'] },
   bundle: { title: 'Une offrande', lines: ['Un paquet de chiffons noué de crin. Il tourne, il tourne.', 'Ce qu\'on donne pour ne pas être pris.'] },
 
@@ -80,7 +83,7 @@ export const DESCRIPTIONS = {
   hvit: { title: 'Hvít, la louve blanche', lines: ['Blanche comme la neige, prise dans un collet.', 'Elle me regarde sans peur.'] },
   'hvit-free': { title: 'Hvít', lines: ['Libre. Elle ne m\'oubliera pas.'] },
   watcher: { title: 'Le guetteur', lines: ['Une grande silhouette encapuchonnée. Elle me regarde venir.'] },
-  mons: { title: 'Le mons', lines: ['Une bête qui n\'est pas une bête. Il agite son bras dans le vide.', 'Il a un trou rouge à la place de l\'œil.', 'Il cherche quelque chose de chaud.'] },
+  mons: { title: 'Le mons', lines: ['Une bête qui n\'est pas une bête. Il marche devant moi, sur les traces.', 'Il a un trou rouge à la place de l\'œil.', 'Il ne voit pas. Il sent les pas, dans la neige.'] },
   'mons-seeing': { title: 'Le mons', lines: ['Il me voit, maintenant. Il suit la braise de ma torche.', 'Son œil rouge brille dans le noir.'] },
   crow: { title: 'Un corbeau', lines: ['Noir, patient. Il attend qu\'on meure.'] },
   deer: { title: 'Un cerf', lines: ['Il lève la tête, puis s\'en va.'] },

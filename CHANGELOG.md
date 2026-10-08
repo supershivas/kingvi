@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.65.0 — 2026-10-08
+- L'île est refaite en une seule aventure, d'ouest en est : la grève, un ravin qu'on passe sur un arbre qu'on abat en travers, la forêt noire aussitôt après, la louve blanche, la maison, le lac, la plaine des morts, l'autre au bout des traces, la falaise (sa grotte bouchée par un éboulis à briser), et l'arche sur le plateau, tout au bout
+- Le mons apparaît dès la lanterne, près de la grève, et marche devant Kári le long des traces ; il montre l'arbre à abattre, attend au pied de la falaise, et s'en va voir la mer quand on lui rend son œil
+- Les objets servent là où on les trouve : la poupée se raccroche à l'arbre aux offrandes, le sceau se pose dans la dalle de l'arche, la boucle d'Eyvind s'enterre dans les cendres ; la louve déliée laisse des traces à suivre ; on peut brûler la maison dès qu'on y entre
+- Une seule consigne au début : « Suis les traces dans la neige » ; la barque de la grève ne part plus vers SNO 4
+- L'atelier : la falaise se dessine en entier, les rochers sont faits de huit morceaux qu'on redessine (le jeu les assemble à la volée), et un arbre abattu laisse une souche, elle aussi à redessiner
+
 ## 1.64.0 — 2026-10-07
 - La carte (M), l'inventaire (I), le carnet (J) et l'action (E) suivent la lettre écrite sur la touche : en AZERTY, M ouvre bien la carte
 - Firefox ne lance plus sa recherche dans la page quand on tape une touche sans effet

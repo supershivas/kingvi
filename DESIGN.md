@@ -53,28 +53,30 @@ Un second monde, SNO 4, l'île Carrefour, bâti sur un culte des esprits venu du
 
 ## Le voyage, chapitre par chapitre
 
+v1.65.0 : une seule aventure, d'ouest en est, que la piste traverse dans cet
+ordre (l'île refaite pour qu'on ne reconnaisse pas l'ancienne ; contre les
+« quêtes FedEx » des testeurs, les objets servent là où on les trouve).
+
 Chaque chapitre s'inscrit une fois par vie, en haut de l'écran
 (« Chapitre III » en petit, le nom en gothique), et la musique retient son
 souffle (sauf aux combats).
 
 | # | Chapitre | Ce qu'on y trouve | Ce qu'on y lit |
 |---|---|---|---|
-| I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues | Ils étaient deux |
-| II | La plaine des morts | Navires, cercles et triangles de pierres levées (d'après un champ de pierres levées du Nord), quelques arbres, une volée de corbeaux qui s'envole ; au creux du grand navire, la main sur l'étrave : le pas des morts (on va d'un lieu vu à l'autre par la carte) | Un lieu de sépulture ancien ; les morts prêtent leur pas |
-| — | (l'arche, les ruines) | Une arche de pierre seule au nord de la piste, une douzaine de fois le viking, qu'on peut traverser ; une colonne couchée avant le lac ; un socle à degrés et ses piliers brisés au sortir de la forêt noire (on monte dessus, les piliers bloquent) ; une arche en ruine entre la maison et la falaise | Une civilisation disparue, avant les vikings |
-| III | La forêt | La forêt s'épaissit ; une statue géante de Véla ensevelie, penchée, brisée | Des dieux tombés |
-| IV | La forêt noire | Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes, la grande clairière). Longue à traverser. À mi-chemin, le bosquet sacré : un grand arbre mort chargé d'offrandes | L'oppression, la perte de repères |
-| V | La louve blanche | À la sortie du noir, dans la grande clairière, une louve blanche prise dans un collet. On peut la délier (E) : elle parle de ses petits, sur la roche, et s'en va. Pas de combat dans la forêt (Jérôme, v1.52.0 : les loups étaient trop durs pour un premier combat) | La pitié, une dette |
-| — | (le guetteur) | Plus loin, une grande silhouette encapuchonnée qui s'efface quand on approche ; ses pas s'arrêtent net | Une présence, sans explication |
-| VI | La maison | Une grande Véla debout à la sortie de la forêt, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
-| VII | L'autre | Au bout des traces, un viking attend. Il vient au contact et frappe | La confrontation |
-| VIII | L'incendie | L'autre mort, on revient à la maison et on met le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; une ruine qui fume, la boucle du compagnon dans les cendres | Le bûcher, le deuil |
-| IX | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés, l'entrée d'une grotte ; une sente en lacets dans la face, des pierres qui tombent (un filet de neige les annonce) | L'ascension, au-delà du récit des traces |
-| X | Les loups | Sur le plateau, en haut de la sente : une meute de trois loups (hurlement au loin avant). Ils grondent longtemps avant de bondir ; le premier abattu fait fuir les autres. Si l'on a délié la louve, ils tournent et s'en vont sans mordre | Le danger, ou la dette payée |
-| XI | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule | La fin d'une lignée |
-| XII | Le mur des ans | Tavé, sous l'arche, attend le sceau de la crypte ; donné, la dalle glisse. En bas, le temple de Sorne : un mur hérissé de clous, le dernier à l'envers, rouge. On peut l'arracher (E) | Le choix |
+| I | La grève | La barque échouée qui flotte, une seconde barque mâtée halée sur la grève (le sillon de sa quille), icebergs, vagues ; tout de suite, une lanterne, et le mons qui y attend : il apparaît, parle, puis marche devant Kári le long des traces | Ils étaient deux ; quelqu'un sent les pas |
+| II | Le ravin | Une crevasse qui coupe l'île d'une mer à l'autre. Les traces s'arrêtent au bord et reprennent en face. Le mons l'enjambe et montre le grand sapin du bord : abattu, il tombe en travers, et l'on passe sur le tronc (la souche reste) | L'épreuve, le premier geste |
+| III | La forêt noire | Aussitôt après le ravin. Si dense que le sol est noir ; la sente se resserre, trois clairières seulement (une vide, l'arbre aux offrandes et le guetteur, la grande clairière). Longue à traverser. La poupée tombée de l'arbre s'y raccroche | L'oppression, la perte de repères |
+| IV | La louve blanche | À la sortie du noir, une louve blanche prise dans un collet. Déliée (E), elle parle de ses petits, sur la roche, et laisse des traces qu'on suit jusqu'à la falaise | La pitié, une dette |
+| V | La maison | Une grande Véla debout au sortir du noir, puis la maison (sans fumée ni lumière). Les traces entrent par la porte ; dedans, un corps, du sang. Une seule piste ressort, tachée de sang | Le meurtre |
+| VI | L'incendie | Dès qu'on est entré, on peut mettre le feu au corps (clic près de lui) : la fumée chasse de la pièce, le toit brûle, s'effondre ; dans les cendres, la boucle du compagnon, qu'on y enterre (E) | Le bûcher, le deuil |
+| VII | Le lac | La piste de sang longe sa rive nord : un ponton (on y marche), la barque au bout (on rame), un îlot, une Véla plus petite avec une porte dans sa robe ; une crypte, un coffre, le sceau | Un détour, un secret |
+| VIII | La plaine des morts | Navires, cercles et triangles de pierres levées, une volée de corbeaux, la Véla ensevelie, penchée, brisée ; au creux du grand navire, la main sur l'étrave : le pas des morts | Un lieu de sépulture ancien ; des dieux tombés |
+| IX | L'autre | Au bout des traces, sous la falaise, un viking attend. Il vient au contact et frappe | La confrontation |
+| X | La falaise | Une falaise gigantesque face au sud, des pans avancés et reculés ; une sente en lacets ; au pied, une grotte bouchée par un éboulis qu'on brise. Le mons attend là, privé de son œil | L'ascension |
+| XI | Le roi sous la roche | Dans la grotte (toujours la nuit, la torche s'allume) : galerie, mare gelée, ossements, un roi mort sur son trône ; à l'approche, sa tête tombe et sa couronne roule ; frappé, il lâche le rubis, l'œil du mons. Rendu, le mons s'arrache une griffe et s'en va voir la mer | La fin d'une lignée |
+| XII | Les loups | Sur le plateau, en haut de la sente : une meute de trois loups. Si l'on a délié la louve, ils tournent et s'en vont sans mordre | Le danger, ou la dette payée |
+| XIII | Le mur des ans | Tout au bout, sur le plateau, l'arche ; Tavé y est assis. On pose soi-même le sceau dans la dalle, malgré lui ; elle glisse. En bas, le temple de Sorne : un mur hérissé de clous, le dernier à l'envers, rouge. On peut l'arracher (E) | Le choix |
 | Fin | L'aube | Le clou arraché : trois lignes sur le noir, puis la nuit pâlit et le jour revient, pour toujours, sur l'île ; on continue de marcher dans le jour. Les autres le disent quand on leur parle | Le temps qui reprend |
-| Interlude | Le lac | Au sud de la piste, avant la forêt : un ponton sur pilotis qui part de la rive nord (on y marche), la barque amarrée au bout (on rame), un îlot, une Véla plus petite avec une porte dans sa robe ; une crypte, un coffre à ouvrir | Un détour, un secret |
 
 Mort, le noir se referme sur le corps, « Vous êtes mort », et on se réveille à
 la barque ; les chapitres s'inscrivent de nouveau. Les traces ne disparaissent pas : on peut
@@ -206,9 +208,16 @@ signalées, pas tranchées.
   traces guident. `[À VALIDER]`
 - **Pas de carte toute faite.** Décision de Jérôme (v1.47.0) : une carte en jeu
   (touche M), mais elle ne montre que ce que le viking a vu ; le reste est noir.
-- **Pas de tutoriel bavard.** Décision de Jérôme (v1.47.0) : un prologue de trois
-  lignes sur le noir (l'état du monde), puis des consignes courtes, une à la
-  fois, qui s'effacent dès qu'on les a faites, une seule fois par navigateur.
+- **Pas de tutoriel bavard.** Décision de Jérôme (v1.47.0, resserrée en
+  v1.65.0) : un prologue de trois lignes sur le noir (l'état du monde), puis
+  une seule consigne, « Suis les traces dans la neige », une fois par
+  navigateur. Le reste se découvre.
+- **Pas de quête de livreur.** Décision de Jérôme (v1.65.0, après les
+  playtests) : on ne rapporte pas un objet à quelqu'un d'ailleurs. Un objet
+  sert là où on le trouve (la poupée à son crochet, le sceau dans la dalle, la
+  boucle dans les cendres), une quête est une trace à suivre (la louve, le
+  mons qui marche devant), une épreuve se résout avec ce que le jeu sait
+  déjà faire (abattre un arbre en travers du ravin, briser l'éboulis).
 - **Pas de bavardage.** Décision de Jérôme (v1.46.0) : les personnages
   parlent, mais peu (trois à huit lignes par rencontre, douze mots par ligne
   au plus), sans jamais raconter l'histoire à la place du paysage ; pas de

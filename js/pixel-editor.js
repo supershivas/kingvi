@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.64.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.64.0';
+import { gamePalette } from './design-store.js?v=1.65.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.65.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -489,10 +489,13 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     if (!e.ctrlKey) return;
     e.preventDefault(); zoom(e.deltaY < 0 ? 1 : -1);
   }, { passive: false });
-  const zoom = d => { st.z = Math.max(1, Math.min(32, st.z + d)); render(); };
+  // (un grand dessin, la falaise entière : le canevas de la zone de travail
+  // reste sous 16 millions de pixels, la limite de Safari sur iPad)
+  const ZMAX = Math.max(1, Math.min(32, Math.floor(Math.sqrt(16e6 / (w * h)))));
+  const zoom = d => { st.z = Math.max(1, Math.min(ZMAX, st.z + d)); render(); };
   // Le plus grand zoom entier qui montre tout le dessin dans la zone de travail
   const fit = () => {
-    st.z = Math.max(1, Math.min(32, Math.floor(Math.min((stage.clientWidth - 32) / w, (stage.clientHeight - 32) / h))));
+    st.z = Math.max(1, Math.min(ZMAX, Math.floor(Math.min((stage.clientWidth - 32) / w, (stage.clientHeight - 32) / h))));
     render();
   };
   const setFps = d => { pfps = Math.max(1, Math.min(24, pfps + d)); if (playing) play(true); else render(); };

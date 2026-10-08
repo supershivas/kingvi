@@ -1,24 +1,25 @@
 /* Les chapitres : aux grands moments de l'aventure, un titre s'inscrit à
    l'écran, « Chapitre III » en petit, « La forêt » en grand (la gothique du
-   titre), puis s'efface. Chacun ne paraît qu'une fois par partie. Le lac est
-   un détour : un interlude, sans numéro. Le jeu dit quand (game.js,
+   titre), puis s'efface. Chacun ne paraît qu'une fois par partie. v1.65.0 :
+   une seule aventure, d'ouest en est (le ravin est nouveau, le lac n'est plus
+   un interlude, la forêt claire n'a plus de chapitre). Le jeu dit quand (game.js,
    `checkChapters`) ; ce module dit quoi et comment. */
 
 export const CHAPTERS = [
   { id: 'greve', label: 'Chapitre I', title: 'La grève' },
-  { id: 'morts', label: 'Chapitre II', title: 'La plaine des morts' },
-  { id: 'foret', label: 'Chapitre III', title: 'La forêt' },
-  { id: 'noire', label: 'Chapitre IV', title: 'La forêt noire' },
-  { id: 'louve', label: 'Chapitre V', title: 'La louve blanche' },
-  { id: 'maison', label: 'Chapitre VI', title: 'La maison' },
-  { id: 'autre', label: 'Chapitre VII', title: 'L\'autre' },
-  { id: 'incendie', label: 'Chapitre VIII', title: 'L\'incendie' },
-  { id: 'falaise', label: 'Chapitre IX', title: 'La falaise' },
-  { id: 'loups', label: 'Chapitre X', title: 'Les loups' },
+  { id: 'ravin', label: 'Chapitre II', title: 'Le ravin' },
+  { id: 'noire', label: 'Chapitre III', title: 'La forêt noire' },
+  { id: 'louve', label: 'Chapitre IV', title: 'La louve blanche' },
+  { id: 'maison', label: 'Chapitre V', title: 'La maison' },
+  { id: 'incendie', label: 'Chapitre VI', title: 'L\'incendie' },
+  { id: 'lac', label: 'Chapitre VII', title: 'Le lac' },
+  { id: 'morts', label: 'Chapitre VIII', title: 'La plaine des morts' },
+  { id: 'autre', label: 'Chapitre IX', title: 'L\'autre' },
+  { id: 'falaise', label: 'Chapitre X', title: 'La falaise' },
   { id: 'roi', label: 'Chapitre XI', title: 'Le roi sous la roche' },
-  { id: 'temple', label: 'Chapitre XII', title: 'Le mur des ans' },
+  { id: 'loups', label: 'Chapitre XII', title: 'Les loups' },
+  { id: 'temple', label: 'Chapitre XIII', title: 'Le mur des ans' },
   { id: 'aube', label: 'Fin', title: 'L\'aube' },
-  { id: 'lac', label: 'Interlude', title: 'Le lac' },
   { id: 'carrefour', label: 'Ailleurs', title: 'L\'île Carrefour' },
 ];
 export const chapterById = id => CHAPTERS.find(c => c.id === id);

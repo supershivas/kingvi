@@ -5,10 +5,10 @@
    pixels du jeu. */
 import {
   BIBLE, FAMILIES, PEOPLE, PERSON, PLACES, SCENARIOS, VOICES, RARITY, speakerName, WORLDS, worldOf,
-} from './saga.js?v=1.64.0';
-import { personSprite } from './people.js?v=1.64.0';
-import { brokenBox } from './dialogue.js?v=1.64.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.64.0';
+} from './saga.js?v=1.65.0';
+import { personSprite } from './people.js?v=1.65.0';
+import { brokenBox } from './dialogue.js?v=1.65.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE } from './sno4.js?v=1.65.0';
 
 const css = getComputedStyle(document.documentElement);
 const COL = {

@@ -2,6 +2,7 @@
    unique, tirée du générateur `r` (fonction qui rend un nombre dans [0, 1[).
    Résultat : { rows, ax } — lignes de pixels (b sombre, k noir, s neige, . vide)
    et colonne d'ancrage ; la dernière ligne touche le sol. */
+import { designRows } from './design-store.js?v=1.65.0';
 
 function blank(w, h) { return Array.from({ length: h }, () => Array(w).fill('.')); }
 const toRows = g => g.map(r => r.join(''));
@@ -66,9 +67,7 @@ export function makeTree(r, opts) {
 // sommets tirés autour d'une forme presque carrée : arêtes vives, angles
 // francs, jamais une pyramide). Les pans tournés vers la droite sont un peu
 // moins noirs ; à peine de neige sur les replats ; quelques fissures.
-export function makeBoulder(r) {
-  const w = Math.round(9 + r() * 16);
-  const H = Math.round(w * (0.45 + r() * 0.3));
+function facetRock(r, w, H) {
   const cx = (w - 1) / 2, base = H - 0.5;
   // Le contour : du pied gauche au pied droit, par le haut
   const n = 3 + Math.floor(r() * 3), pts = [[0, base + 0.5]];
@@ -121,6 +120,71 @@ export function makeBoulder(r) {
   while (g.length > 1 && g[0].every(c => c === '.')) g.shift();
   return { rows: toRows(g), ax: Math.floor(w / 2) };
 }
+
+// ── Les rochers, faits de morceaux (v1.65.0) : huit morceaux qu'on redessine
+// dans l'atelier (`rocher-1` … `rocher-8`, groupe « La falaise, les rochers,
+// la souche ») ; le jeu en tire deux à quatre, les adosse ou les empile, et
+// cuit le tout dans la planche du morceau de l'île, à la volée. Les morceaux
+// d'origine sont taillés en facettes par le code (ci-dessus). ──
+const PIECE_SIZES = [[7, 5], [9, 6], [11, 7], [13, 8], [6, 4], [10, 6], [8, 7], [12, 9]];
+const lcg = seed => { let a = seed >>> 0; return () => { a = (a * 1664525 + 1013904223) >>> 0; return a / 4294967296; }; };
+export const ROCK_PIECES = PIECE_SIZES.map(([w, h], i) => {
+  const { rows } = facetRock(lcg(9101 + i * 7919), w, h);
+  // (la taille reste celle annoncée : les rangées vides du haut sont gardées)
+  while (rows.length < h) rows.unshift('.'.repeat(w));
+  return rows;
+});
+export const rockPiece = i => designRows(`rocher-${i + 1}`, ROCK_PIECES[i], { grow: true });
+
+export function makeBoulder(r) {
+  const n = 2 + Math.floor(r() * 3);
+  const placed = [];
+  // Le premier, posé au sol ; les autres adossés à gauche ou à droite (au sol,
+  // à un pixel près), ou posés dessus, en retrait
+  let left = 0, right = 0, top = 0;
+  for (let k = 0; k < n; k++) {
+    // (le premier, le plus gros de trois tirés : le cœur du tas)
+    let pick = Math.floor(r() * PIECE_SIZES.length);
+    if (!k) for (let t = 0; t < 2; t++) { const q = Math.floor(r() * PIECE_SIZES.length); if (PIECE_SIZES[q][0] * PIECE_SIZES[q][1] > PIECE_SIZES[pick][0] * PIECE_SIZES[pick][1]) pick = q; }
+    const rows = rockPiece(pick);
+    const w = rows[0].length, h = rows.length;
+    let x, y, z = 1;
+    if (!k) { x = 0; y = 0; right = w; top = h; }
+    else if (k === n - 1 && n > 2 && w < right - left && r() < 0.6) {
+      // Dessus : le pied dans le tiers haut du tas, derrière lui
+      x = left + Math.floor(r() * (right - left - w + 1));
+      y = top - Math.max(2, Math.floor(h * 0.45));
+      z = 0;
+    } else if (r() < 0.5) {
+      x = left - Math.round(w * (0.3 + r() * 0.25)); y = r() < 0.4 ? 1 : 0;
+    } else {
+      x = right - Math.round(w * (0.45 + r() * 0.25)); y = r() < 0.4 ? 1 : 0;
+    }
+    if (z) { left = Math.min(left, x); right = Math.max(right, x + w); top = Math.max(top, y + h); }
+    placed.push({ rows, x, y, z, w, h });
+    if (right - left > 28) break;
+  }
+  // Le tas : du sol (y = 0) vers le haut ; on peint d'abord ce qui est derrière
+  const x0 = Math.min(...placed.map(p => p.x)), x1 = Math.max(...placed.map(p => p.x + p.w));
+  const yTop = Math.max(...placed.map(p => p.y + p.h)), yLow = Math.min(...placed.map(p => p.y));
+  const W = x1 - x0, H = yTop - yLow;
+  const g = blank(W, H);
+  for (const p of placed.sort((a, b) => a.z - b.z || b.y - a.y)) {
+    p.rows.forEach((row, ry) => [...row].forEach((c, rx) => {
+      if (c === '.') return;
+      const gy = H - 1 - (p.y - yLow) - (p.h - 1 - ry);
+      if (gy >= 0 && gy < H) g[gy][p.x - x0 + rx] = c;
+    }));
+  }
+  while (g.length > 1 && g[0].every(c => c === '.')) g.shift();
+  // (la rangée du sol, pleine sous le tas : il pèse)
+  return { rows: toRows(g), ax: Math.floor(W / 2) };
+}
+
+// La souche : ce qui reste d'un arbre abattu (`souche` dans l'atelier ; la
+// colonne du milieu est le pied du tronc)
+export const STUMP = ['.ss..', '.bbb.', 'bbbbb'];
+export const stumpRows = () => designRows('souche', STUMP);
 
 // Combien de coups pour en venir à bout : les gros résistent longtemps
 export const boulderHits = (w, h) => Math.max(2, Math.round(w * h / 40));

@@ -54,28 +54,39 @@ puis `game.ready()` : morceaux chargés, quelques images posées ; la neige
 se répand d'un coup dans une vue qui a sauté), puis le noir s'ouvre en rond depuis le centre, bord fondu (`openIris`,
 `#iris`). En jeu, les coins de l'écran sont un peu assombris (`.vignette`).
 
-On part de la grève ouest, près de la barque échouée qui flotte (une seconde
-barque, mâtée sans voile, vue sous un autre angle, halée sur la grève : le
-sillon de sa quille court jusqu'à l'eau ; ils étaient deux ; des
-icebergs plats au large, des vagues qui roulent sur la grève), et on suit les traces vers l'est (deux pistes côte à côte jusqu'à la maison,
-une seule en ressort) : le champ des morts (navires, cercles et triangles de
-pierres levées, d'après un champ de pierres levées du Nord), quelques arbres,
-une volée de corbeaux qui s'envole à l'approche, la forêt, une statue géante de Véla ensevelie, penchée et
-brisée, puis la forêt noire, longue à traverser (si dense que le sol est
-noir ; la sente y file sans trop serpenter, se resserre ; trois clairières
-seulement : une vide au premier quart ; au milieu, le bosquet sacré, un grand
-arbre mort (~7 fois le viking) chargé d'offrandes qui tournent au vent, et
-juste après lui le guetteur ; à la sortie du noir, la grande clairière
-(`GLADE`, ouverte vers la plaine) : **la louve blanche**, Hvít, prise dans un
-collet (`HVIT_AT`, `this.hvit`, `updateHvit` ; les poses du loup en blanc
-cerné de bleu nuit, `makeWhiteWolf` dans `pack.js`) ; E « Défaire le
-collet » (`freeHvit`, `hvitFree`) : elle parle, hurle et rentre sous les
-arbres ; le guetteur : grande silhouette
-encapuchonnée qui s'efface quand on approche, jamais pendant un combat, ses pas s'arrêtant net), une grande
-Véla debout à la sortie, la maison (vue de biais, sans fumée ni lumière).
-Les traces entrent par la porte ; on y entre aussi (nouvelle scène : la pièce,
-noire tout autour, un corps, du sang), et elles ressortent tachées de sang
-vers l'est.
+**Une seule aventure, d'ouest en est** (v1.65.0 : l'île refaite pour que les
+testeurs ne la reconnaissent pas ; la piste passe par des points imposés,
+`waypoints` de `buildTrail`, `END_OF_TRAIL`). On part de la grève ouest, près de
+la barque échouée qui flotte (une seconde barque, mâtée sans voile, halée sur la
+grève : le sillon de sa quille court jusqu'à l'eau ; ils étaient deux ; des
+icebergs plats au large, des vagues qui roulent sur la grève), et on suit les
+traces vers l'est (deux pistes côte à côte jusqu'à la maison, une seule en
+ressort). Tout de suite, **la lanterne** (objet posé, `une-lanterne`) et
+**le mons** qui y attend et guide (voir plus bas). Puis **le ravin** (`RAVINE`,
+`ravineMid`, `ravineHalf`, `inRavine` dans `world.js`) : une crevasse qui coupe
+l'île du nord au sud, d'une mer à l'autre ; on ne la passe que sur **l'arbre
+du pont** (`BRIDGE_TREE`, au bord ouest, près des traces : abattu, il tombe
+toujours vers l'est, en travers ; `onBridge`, `bridgeDown` dans `game.js`,
+gardé par `wrecked`). Aussitôt après, **la forêt noire**, longue à traverser
+(si dense que le sol est noir ; la sente y file sans trop serpenter, se
+resserre ; trois clairières seulement : une vide au premier quart ; au milieu,
+le bosquet sacré, un grand arbre mort (~7 fois le viking) chargé d'offrandes
+qui tournent au vent, et juste après lui le guetteur ; à la sortie du noir, la
+grande clairière (`GLADE`) : **la louve blanche**, Hvít, prise dans un collet
+(`HVIT_AT`, `this.hvit`, `updateHvit` ; les poses du loup en blanc cerné de
+bleu nuit, `makeWhiteWolf` dans `pack.js`) ; E « Défaire le collet »
+(`freeHvit`, `hvitFree`) : elle parle, hurle, rentre sous les arbres et laisse
+**des traces qu'on suit** jusqu'au pied de la sente (`layHvitTrack`, refaites
+au chargement) ; le guetteur : grande silhouette encapuchonnée qui s'efface
+quand on approche, jamais pendant un combat, ses pas s'arrêtant net). Une
+grande Véla debout au sortir du noir, puis la maison (vue de biais, sans fumée
+ni lumière, `HOUSE`). Les traces entrent par la porte ; on y entre aussi
+(nouvelle scène : la pièce, noire tout autour, un corps, du sang), et elles
+ressortent tachées de sang vers l'est, longent **le lac** (au sud de la piste),
+traversent **la plaine des morts** (le champ des pierres levées, d'après un
+champ de pierres levées du Nord ; une volée de corbeaux ; la Véla ensevelie,
+penchée et brisée, juste après), un second bois plus clair, jusqu'au bout,
+sous la falaise.
 Au bout des traces, un autre viking attend : il vient au contact et frappe ;
 trois coups de part et d'autre abattent (sang qui gicle, on
 saigne en marchant, les blessures se referment hors du combat). Mort, le
@@ -83,13 +94,15 @@ noir se referme sur le corps (`shutIris`), « Vous êtes mort » s'inscrit, on
 repart de la barque (`onDeath` → `die` dans `main.js`, `respawn`), le noir se
 rouvre quand l'île est prête, et les chapitres s'inscrivent de nouveau.
 Tant que l'iris bouge ou couvre l'écran, le jeu est en pause (`irisBusy`). Quand on s'éloigne d'un cadavre, des corbeaux s'y
-abattent (l'autre viking, et les loups tués). **L'incendie** : l'autre mort, on revient à la maison ; un clic près du corps,
+abattent (l'autre viking, et les loups tués). **L'incendie** : dès qu'on entre dans la maison (v1.65.0 : plus besoin d'avoir tué l'autre), un clic près du corps,
 dans la pièce, met le feu au bûcher (`lightPyre`, `js/fire.js` : `FIRE`, les
 durées) ; la fumée de la pièce blesse au bout de 14 s (il faut sortir) ;
 dehors, les flammes gagnent le toit, fumée tramée qui file au vent
 (`drawSmoke`), escarbilles, la nuit s'ouvre autour (`firelight`), crépitements
 (`audio.fire`) ; le toit s'effondre (`collapseHouse`) : ruine qui fume, neige
-fondue (`meltSnow`), la boucle du compagnon dans les cendres ; on n'entre plus
+fondue (`meltSnow`), la boucle du compagnon dans les cendres ; E « Enterrer la
+boucle dans les cendres » (`buryBuckle`, `drawTomb`, `tomb` dans la
+sauvegarde) : un petit tertre devant la ruine ; on n'entre plus
 (`fire` dans la sauvegarde : secondes de feu, null si jamais).
 Plus loin, une falaise gigantesque face au sud, faite de pans
 avancés ou reculés, une **sente** taillée en lacets dans la face (`LEDGE`,
@@ -114,14 +127,19 @@ l'on s'enfuit en saignant, ils suivent le sang (`pack.scent`). Si la louve a
 nuit, la torche s'allume) ; une galerie qui serpente, une mare gelée, des
 ossements, et au fond, dans une grande salle, un roi squelette immense sur son
 trône (d'après le dessin fourni) : quand on approche, sa tête s'affaisse et sa
-couronne roule au pied de l'estrade (`kingBowed`).
-Au sud de la piste, avant la forêt, un lac : une barque (on y monte en
+couronne roule au pied de l'estrade (`kingBowed`). La bouche de la grotte est
+bouchée par **un éboulis** (`CAVE_RUBBLE`, un rocher fait de morceaux) : on le
+brise à l'épée (5 coups environ) ; tant qu'il tient, on n'entre pas
+(`checkDoor`) ; la lame touche l'éboulis avant la falaise (`struckObject`).
+L'arche (le temple) est tout au bout, sur le plateau (`ARCH`).
+Au sud de la piste, après la maison, un lac : une barque (on y monte en
 marchant dessus, on rame, on descend en abordant une rive), un îlot, une
 Véla plus petite avec une porte dans sa robe ; dedans, une crypte et un
 coffre à ouvrir (clic près de lui).
 **L'Aube** (v1.52.0, la première fin) : sous l'arche, entre ses piliers, une
-dalle (`TEMPLE_DOOR_OUT`, image `temple-slab`) que Tavé fait glisser quand
-on lui donne le sceau de la crypte ; des marches (`temple-stairs`) descendent
+dalle (`TEMPLE_DOOR_OUT`, image `temple-slab`) où l'on pose soi-même le sceau
+de la crypte, devant Tavé qui ne le veut pas (E « Poser le sceau dans la
+dalle ») ; des marches (`temple-stairs`) descendent
 au **temple de Sorne** (`js/temple.js`, intérieur `temple`, toujours la
 nuit) : le mur des ans hérissé de clous, le dernier à l'envers, rouge
 (`NAIL`, image `nail`). E « Arracher le clou » (`pullNail`) : Sorne parle, le
@@ -133,23 +151,28 @@ continue de jouer ; les fins vécues sont gardées dans `kingvi:fins` (et
 l'export). **Donner** (touche E) : `veut.don` dans `saga.js` (relique, lignes,
 effet) ; si elle pend à la ceinture, « Donner … » remplace « Parler »
 (`give`, `given` dans la sauvegarde : la relique quitte la ceinture, `isGiven`).
-Véla ← la poupée : un point de vie de plus (`maxHp`) ; Tavé ← le sceau : le
-temple ; Croisée ← l'anneau de l'autre : l'âme d'Eyvind passe ; Rosine ← la
-boucle : une tombe. `apres` peut être une liste (la dernière vraie : `aube`,
-`don-<id>`, `hvitFree`…).
+**Les objets servent là où on les trouve** (v1.65.0, contre les « quêtes
+FedEx » des testeurs) : la poupée se raccroche à l'arbre aux offrandes (E
+« Raccrocher la poupée à l'arbre » : le don de Véla, un point de vie de plus,
+`maxHp` ; l'offrande pend de nouveau) ; le sceau se pose dans la dalle de
+l'arche (le don de Tavé : le temple) ; le rubis va au mons, qui marche avec
+Kári ; la boucle s'enterre dans les cendres. Ces gestes passent par `give`
+(`actionTarget`). Croisée et Rosine (SNO 4) ne sont plus atteignables.
+`apres` peut être une liste (la dernière vraie : `aube`, `don-<id>`,
+`hvitFree`…).
 Aux grands moments, un chapitre s'inscrit dans le haut de l'écran, une fois
 par vie (`chapters` dans la sauvegarde, vidé à la mort ; La grève 2,5 s de
 jeu après l'ouverture du noir, `calm`) : « Chapitre I » en petit, le nom
 en grand dans la gothique du titre, sobre : rien que le texte clair, cerné
 d'une ombre bleu nuit discrète (lisible sur la neige comme sur la mer), qui
 apparaît et s'efface en fondu, sans fond ni mouvement (`CHAPTER_STYLE`
-`sobre`). I La grève, II La plaine
-des morts, III La forêt, IV La forêt noire, V La louve blanche (près du
-collet), VI La maison, VII L'autre (il vient au contact),
-VIII L'incendie (le feu pris, près de la maison), IX La falaise (sur la
-sente, ou près de la falaise après lui), X Les loups (sur le plateau), XI Le
-roi sous la roche (dans la grotte), XII Le mur des ans (dans le temple) ;
-Fin, L'aube ; Interlude, Le lac (en barque).
+`sobre`). v1.65.0 : I La grève, II Le ravin (près du passage), III La forêt
+noire, IV La louve blanche (près du collet), V La maison, VI L'incendie (le feu
+pris, près de la maison), VII Le lac (près de la rive, ou en barque), VIII La
+plaine des morts, IX L'autre (il vient au contact), X La falaise (sur la
+sente, ou près de la falaise après lui), XI Le roi sous la roche (dans la
+grotte), XII Les loups (sur le plateau), XIII Le mur des ans (dans le
+temple) ; Fin, L'aube. La forêt claire n'a plus de chapitre.
 Hors des combats, la musique se tait un instant (`checkChapters` dans
 `game.js`, `onChapter` → `showChapter` de `js/chapters.js`).
 **La parole** (les personnages parlent, Jérôme, v1.46.0 ; phylactère B
@@ -163,10 +186,10 @@ dans la sauvegarde) ; Vaïne dit une ligne à chaque mort (`deaths`). Tavé et
 Hjalti sont posés dans le monde d'après `people.js` (`personImage`).
 **Prologue** : au début d'une partie neuve, trois lignes sur le noir disent
 l'état du monde avant que l'iris s'ouvre (`PROLOGUE`, `playPrologue` dans
-`main.js` ; un clic ou une touche le passe). **Tutoriel** : des consignes une
-à une dans `#hint` (`TUTO` : marcher, suivre les traces, courir, frapper, le
-tourbillon, M et I), chacune jusqu'à ce qu'on l'ait faite ou qu'elle ait
-assez duré ; une fois par navigateur (`prefs.tuto`). Rien des deux en debug.
+`main.js` ; un clic ou une touche le passe). **Tutoriel** (v1.65.0, Jérôme :
+une seule consigne) : « Suis les traces dans la neige », dans `#hint`
+(`TUTO`), dix secondes ; une fois par navigateur (`prefs.tuto`) ; le reste se
+découvre. Rien des deux en debug.
 **La carte qui se construit** (touche M, bouton carte de l'en-tête, `#map`) :
 le jeu note les cases de 48 px vues autour du viking (`markSeen`, `seen` en
 bits base64 dans la sauvegarde, `game.mapData()`) ; `js/map.js` dessine l'île
@@ -205,12 +228,21 @@ posée près des traces, après la grève, et éclaire. La barque échouée n'a 
 qu'un dessin, `boat-still` : son roulis s'en tire dans le jeu (`rollBoat`).
 **Le mons** (v1.60.0) : une bête qui n'est pas une bête (`mons` dans `saga.js`,
 famille des géants du froid), animée par l'asset de l'atelier « Un mons »
-(`custom-un-mons-*`, `customDefs`) ; au creux des landes du sud, loin des
-traces (`MONS_AT`, `monsBlocked` dans `world.js`, déplaçable dans l'atelier,
-« Le creux du mons » sur la carte) ; invisible jusqu'à ce qu'on l'approche
-(110 px : il apparaît, parle le premier ; `updateMons`). Quête : son œil est
-le rubis du roi ; E « Donner le rubis du roi » (`veut.don`, effet `griffe`) :
-il s'arrache une griffe, nouvelle relique `griffe` (« La griffe du mons »).
+(`custom-un-mons-*`, `customDefs`). v1.65.0 : **il guide**. Il attend près de
+la lanterne, juste après la grève (`MONS_AT`, déplaçable dans l'atelier ;
+« La lanterne » sur la carte) ; invisible jusqu'à ce qu'on l'approche (110 px :
+il apparaît, parle le premier, scène `mons-rencontre`, et attend 12 s). Puis il
+marche devant Kári, à côté des traces (`updateMons`, `monsTarget` : un point de
+la piste, `MONS_LEAD` pas devant le plus proche de Kári, `trailNear`), ne
+recule jamais, n'avance que si on le suit (moins de 150 px), ni en combat ni
+quand on parle ; il enjambe le ravin et attend sur l'autre bord tant qu'il n'y
+a pas de pont, en montrant l'arbre (scène `mons-ravin`) ; il s'arrête avant
+l'autre viking (`monsCap`), puis attend au pied de la falaise, près de la
+grotte (`MONS_POST`) ; parti au loin par le pas des morts, il rejoint
+(`monsCatchUp`). Il ne bloque pas le passage. Quête : son œil est le rubis du
+roi ; E « Donner le rubis du roi » (`veut.don`, effet `griffe`) : il s'arrache
+une griffe, nouvelle relique `griffe` (« La griffe du mons »), puis s'en va
+voir la mer et se perd dans la nuit (`leaving`).
 Carte du labo « Le mons ».
 **Ce qu'on voit** (v1.57.0, `js/describe.js` : `DESCRIPTIONS`, `describe`) :
 un clic droit sur n'importe quoi (le sol aussi), ou un clic sur une chose à
@@ -276,7 +308,9 @@ reste pour l'interface (export, mise à jour). Le cadre de la touche E
 polices soient prêts (`hideLoader`).
 Le viking est tout noir ; sa cape bat au vent ; les arbres ploient sous le vent.
 Frapper un arbre le fait trembler et tomber sa neige (« toc ») ; tous finissent
-par tomber (un coup par 4 pixels de haut, deux au moins). Tous les rochers
+par tomber (un coup par 4 pixels de haut, deux au moins) et laissent **une
+souche** (v1.65.0 : `souche` dans l'atelier, `stumpRows`, posée par `layTree`,
+qui la rend pour qu'on la range dans le morceau ; elle ne bloque pas). Tous les rochers
 finissent par céder : chaque coup en arrache un éclat qui tombe au pied
 (`chipBoulder`, `chipRock`), les gros résistent longtemps (`boulderHits`) ;
 au dernier, ils éclatent en morceaux qui restent au sol (`fellTree`,
@@ -413,7 +447,10 @@ est cachée et ne sort que pendant l'attaque.
   grotte, `INTERIORS.sno4` à `{ x: 80, y: 5400 }` (zone sans terre, vérifiée), en
   plein air : `outdoor`, `roofed(key)` décide neige, vent, cape, éclair ;
   `paintSno4` le sol, `SNO4_PROPS` ce qui est debout trié à son pied et bloque,
-  `sno4Walkable`, préparée au premier voyage par `ensureSno4`). La traversée :
+  `sno4Walkable`, préparée au premier voyage par `ensureSno4`). **v1.65.0 : la
+  barque de la grève ne part plus vers SNO 4** (`VOYAGE_TO_SNO4 = false` dans
+  `game.js` ; le code reste ; on n'y va plus que par la carte du labo, et l'on
+  en revient par sa barque). La traversée, quand elle est ouverte :
   s'éloigner de la barque de la grève (`leftShore`), revenir et pousser vers
   elle 1,4 s (`checkVoyage`, `voyage`, `arrive`) ; `onVoyage` → `voyage` dans
   `main.js` (l'iris se ferme, la mer de l'accueil `#voyage`, un chapitre, puis
@@ -520,8 +557,18 @@ est cachée et ne sort que pendant l'attaque.
   animation (`SEQUENCES`) n'est qu'une entrée, `seqItem`, `selectedSeq`) (10 groupes, 159 images, dont les placeholders de
 l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques : éléments du
   décor, ruines et arches, poses du viking (35, avec ombre au sol `h`), de sa
-  cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; **arbres,
-  rochers et statues restent générés**). Un **éditeur de pixels intégré**
+  cape (18), du loup (9), des cerfs et biches (42, retirés du jeu) ; et
+  (v1.65.0, groupe « La falaise, les rochers, la souche ») **la falaise
+  entière** (`falaise`, 1020 × 208, `CLIFF_ART` : le jeu la découpe en
+  tranches de 20 px triées à leur pied, `buildCliff` ; on peut l'agrandir par
+  les « + », elle déborde alors à gauche et en haut ; la sente et la grotte
+  restent où le code les attend), **huit morceaux de rocher** (`rocher-1` …
+  `rocher-8`, `ROCK_PIECES` : chaque rocher de l'île en adosse ou empile deux à
+  quatre, `makeBoulder`, cuit à la volée dans la planche du morceau) et **la
+  souche** ; **arbres et statues restent générés** ; la falaise et les rochers
+  se reprennent au lancement, cuits dans les morceaux de l'île). L'éditeur borne
+  son zoom pour un si grand dessin (`ZMAX` : le canevas reste sous 16 millions
+  de pixels, la limite de Safari sur iPad). Un **éditeur de pixels intégré**
   (`openPixelEditor`, inspiré de pixel-studio : crayon, gomme, pot, ligne,
   rectangle, ellipse, pipette, **trame** (pinceau tramé, trame de Bayer 4 × 4 comme
   le halo et les ombres du jeu, densité 25 / 50 / 75 %, accrochée aux pixels de
@@ -699,9 +746,11 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   « Toujours la nuit » (`dayNight` : l'heure du jeu reste au milieu de la
   nuit) ; décochée, l'heure suit le cycle. Migration une fois (`nightStorm`). Le nombre de flocons est
   plafonné quand on dézoome, et la neige s'installe en 2 s au lancement.
-- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (blocs
-  noirs `k`, trapus, taillés en facettes, jamais des pyramides ; pans tournés
-  vers la droite en `b` ; `chipBoulder` : le rocher ébréché), cairns,
+- `js/trees.js` — générateurs : sapins, arbres morts, gros rochers (v1.65.0 :
+  un tas de deux à quatre morceaux dessinables, `rockPiece`, `makeBoulder` ;
+  les morceaux d'origine sont des blocs noirs `k`, trapus, taillés en facettes,
+  `facetRock` ; pans tournés vers la droite en `b` ; `chipBoulder` : le rocher
+  ébréché), la souche (`STUMP`, `stumpRows`), cairns,
   icebergs plats ; `leanRows` : un arbre penché de −1 à +2 pixels à la cime
   (`LEANS`). Le jeu met les quatre inclinaisons de chaque arbre dans l'atlas
   du morceau (1024 px de large) et en change ~22 fois par seconde
@@ -739,7 +788,8 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `companion` : la piste du second marcheur, décalée sur la gauche, jusqu'à
   la porte de la maison (peinte avec les traces, sans toucher au tracé).
   `seaCoast` (la mer seule) sert au tracé et à l'accostage, pour que le lac ne
-  les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : des tranches
+  les déplace pas. La falaise (`CLIFF`, `CAVE`, `CLIFF_PARTS`) : un seul dessin
+  (`drawCliff` → `CLIFF_ART`, redessinable : `falaise`), découpé en tranches
   de 20 px, objets triés comme les autres, qui bloquent tout leur pied ; des
   pans (`cliffStep`) avancés ou reculés (`cliffFoot`), plus ou moins hauts ;
   d'un pan à l'autre, le sommet s'effondre en gradins (`cliffJump`).
@@ -821,6 +871,17 @@ n'est jamais implémenté automatiquement.
   secondaire).
 
 ## Pièges connus
+
+- Le mons est créé dans `makeTextures`, avant que la partie soit lue : ce qui
+  dépend de la sauvegarde (rencontré, œil rendu, sa place devant Kári) attend
+  sa première image (`placing` dans `updateMons`) ; sinon `create()` tombait.
+- v1.65.0 : la maison (`HOUSE`, fixe) suit de près la sortie de la forêt noire,
+  dont la lisière ondule (`forestDx`) : toucher à ce bruit ou aux seuils de
+  `deepForest` peut pousser le noir sur la maison ou la Véla debout. Vérifier
+  la carte (labo, Carte de SNO 7) et que la piste ne traverse ni l'eau ni le
+  ravin ailleurs qu'au pont.
+- Un objet frappé devant la falaise (l'éboulis de la grotte) : la lame touche
+  aussi la tranche de falaise derrière ; `struckObject` préfère le rocher.
 
 - `game.js` lit les réglages sous le nom `TUNE` (`import { T as TUNE }`) : des
   variables locales `T` (le temple…) masquaient l'import, et `create()` tombait

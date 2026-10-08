@@ -1,9 +1,9 @@
 {
-  "version": "1.64.0",
-  "date": "2026-10-07",
+  "version": "1.65.0",
+  "date": "2026-10-08",
   "changes": [
-    "La carte, l'inventaire et le carnet s'ouvrent avec la lettre M, I, J, en AZERTY comme en QWERTY",
-    "Firefox ne lance plus sa recherche quand on tape une touche sans effet",
-    "L'inventaire montre aussi les points de vie et les quêtes"
+    "L'île est refaite en une seule aventure : la grève, un ravin à passer sur un arbre abattu, la forêt noire tout de suite, puis la maison, le lac, la plaine des morts, l'autre, la falaise et l'arche sur le plateau",
+    "Le mons apparaît dès la lanterne et marche devant Kári ; les objets servent là où on les trouve ; une seule consigne au début",
+    "L'atelier : la falaise se dessine en entier, les rochers sont faits de huit morceaux à redessiner, et un arbre abattu laisse une souche"
   ]
 }

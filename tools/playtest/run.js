@@ -17,26 +17,27 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SPEED = 18;   // pixels du monde par seconde, à pied (game.js)
 
 // ── Les étapes du parcours ──
+// (v1.65.0 : l'île refaite, une seule aventure d'ouest en est)
 const STEPS = [
-  ['greve', 'La grève'],
-  ['morts', 'La plaine des morts'],
-  ['foret', 'La forêt et Freya ensevelie'],
+  ['greve', 'La grève et le mons'],
+  ['ravin', 'Le ravin : abattre l\'arbre, passer sur le tronc'],
   ['foret-noire', 'La forêt noire'],
-  ['bosquet', 'Le bosquet sacré et la meute'],
-  ['guetteur', 'Le guetteur'],
-  ['freya-debout', 'Freya debout'],
+  ['guetteur', 'Le bosquet et le guetteur'],
+  ['freya-debout', 'Véla debout'],
   ['maison', 'La maison, dehors et dedans'],
+  ['lac', 'Le lac, l\'îlot, la crypte'],
+  ['morts', 'La plaine des morts'],
+  ['foret', 'Véla ensevelie'],
   ['viking', 'L\'autre viking : mort volontaire'],
   ['reveil', 'Le réveil à la barque'],
   ['victoire', 'Retour au bout des traces, et victoire'],
-  ['falaise', 'La falaise et la grotte'],
+  ['falaise', 'La falaise, l\'éboulis et la grotte'],
   ['roi', 'Le roi sous la roche'],
-  ['lac', 'Interlude : le lac, l\'îlot, la crypte'],
 ];
 
 const HELP = `Harnais de playtest — node run.js [options]
   --from <étape> --to <étape>   parcours partiel (${STEPS.map(s => s[0]).join(', ')})
-  --sans-lac                    sans le détour du lac
+  --sans-lac                    sans le lac
   --reel                        tout à pied, de la barque au bout des traces (mesure du rythme)
   --vitesse <n>                 accélère le jeu (1 par défaut ; 2 à 4 pour aller vite)
   --heure <aube|jour|crepuscule|nuit>   --meteo <cycle|calme|bise|rafales|tempete|tourbillons>
@@ -257,6 +258,21 @@ async function main() {
   // ── Le parcours ──
   const ACTIONS = {
     async greve() { await teleport('barque'); await followTrail({ seconds: 25 }); },
+    async ravin() {
+      await teleport('ravin');
+      const c = await page.evaluate(() => window.__kingvi.cibles);
+      // On abat le grand sapin du bord : il tombe en travers, et l'on passe dessus
+      for (let k = 0; k < 16 && !(await state()).drapeaux.pont; k++) {
+        await walkTo({ x: c.arbrePont.x - 10, y: c.arbrePont.y }, { timeout: 4, near: 1 });
+        // (vers l'est, à l'horizontale : le coup de profil)
+        const s = await state();
+        await strikeAt(s.x + 30, s.y - 5);
+        await gameWait(600);
+      }
+      await gameWait(1800);
+      await walkTo({ x: c.arbrePont.x + 34, y: c.arbrePont.y + 0.5 }, { timeout: 20, near: 2 });
+      await followTrail({ seconds: 10 });
+    },
     async morts() { await teleport('morts'); await followTrail({ seconds: 22 }); },
     async foret() { await teleport('freya-ensevelie'); await followTrail({ seconds: 25 }); },
     async 'foret-noire'() { await teleport('foret-noire'); await followTrail({ seconds: 25 }); },
@@ -305,6 +321,12 @@ async function main() {
     async falaise() {
       await teleport('falaise');
       const c = await page.evaluate(() => window.__kingvi.cibles);
+      // L'éboulis qui bouche la grotte : on le brise
+      for (let k = 0; k < 20 && (await state()).drapeaux.eboulis; k++) {
+        await walkTo({ x: c.eboulis.x, y: c.eboulis.y + 12 }, { timeout: 6, near: 2 });
+        await strikeAt(c.eboulis.x, c.eboulis.y - 3);
+        await gameWait(500);
+      }
       await walkTo({ x: c.porteGrotte.x, y: c.porteGrotte.y - 6 }, { timeout: 30, near: 1, until: s => !!s.dedans });
       await waitFor(s => s.dedans === 'grotte', 4);
     },

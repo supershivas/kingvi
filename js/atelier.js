@@ -12,21 +12,29 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.64.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.64.0';
-import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.64.0';
-import { mountMap } from './atelier-map.js?v=1.64.0';
-import { mountTuning } from './atelier-tuning.js?v=1.64.0';
-import { mountTexts } from './atelier-texts.js?v=1.64.0';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.64.0';
+} from './designs.js?v=1.65.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.65.0';
+import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.65.0';
+import { mountMap } from './atelier-map.js?v=1.65.0';
+import { mountTuning } from './atelier-tuning.js?v=1.65.0';
+import { mountTexts } from './atelier-texts.js?v=1.65.0';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.65.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
 const COL = { s: '#dfe6ee', b: '#1f2a44', k: '#1f2a44', r: '#c0392b', h: 'rgba(31,42,68,.3)' };
 const byName = name => DESIGNS.find(d => d.name === name);
 
+// (en une image : la falaise entière fait deux cent mille pixels)
+const RGBA = { s: [223, 230, 238, 255], b: [31, 42, 68, 255], k: [31, 42, 68, 255], r: [192, 57, 43, 255], h: [31, 42, 68, 77] };
 function paint(ctx, rows) {
-  rows.forEach((row, y) => [...row].forEach((ch, x) => { if (COL[ch]) { ctx.fillStyle = COL[ch]; ctx.fillRect(x, y, 1, 1); } }));
+  const w = rows[0]?.length || 0, h = rows.length;
+  if (!w) return;
+  const img = ctx.createImageData(w, h), d = img.data;
+  rows.forEach((row, y) => { for (let x = 0; x < w; x++) { const c = RGBA[row[x]]; if (c) d.set(c, (y * w + x) * 4); } });
+  const tmp = document.createElement('canvas'); tmp.width = w; tmp.height = h;
+  tmp.getContext('2d').putImageData(img, 0, 0);
+  ctx.drawImage(tmp, 0, 0);
 }
 function drawTo(cv, d, rows, k) {
   cv.width = d.w; cv.height = d.h;
@@ -258,7 +266,8 @@ form.addEventListener('submit', e => {
 // ── La colonne de droite : les dossiers ──
 const foldersEl = $('.dz-folders'), thumbs = new Map();
 let selected = 'relique-poupee', filter = '';
-const thumbK = d => { const v = Math.min(32 / d.w, 32 / d.h); return v >= 1 ? Math.floor(v) : Math.max(0.2, v); };
+// (la falaise entière, 1020 pixels de large : réduite elle aussi à la vignette)
+const thumbK = d => { const v = Math.min(32 / d.w, 32 / d.h); return v >= 1 ? Math.floor(v) : v; };
 
 function buildTree() {
   thumbs.clear();

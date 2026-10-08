@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.64.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.65.0';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -629,10 +629,10 @@ export const PEOPLE = [
   {
     id: 'mons', nom: 'Le mons', surnom: 'l\'Œil-Perdu', famille: 'jotnar', gen: 2, sexe: 'm',
     parents: ['fonn'], statut: 'immortel', vie: '—',
-    role: 'Une bête qui n\'est pas une bête, au creux des landes du sud. Le roi sous la roche lui a pris son œil, une pierre rouge.',
-    lieu: 'Le creux du sud, loin des traces', magie: 'Il voit la chaleur. Sans son œil, il ne voit que le froid.',
+    role: 'Une bête qui n\'est pas une bête. Il marche devant toi, sur les traces. Le roi sous la roche lui a pris son œil, une pierre rouge.',
+    lieu: 'Près de la lanterne, après la grève ; puis devant toi, sur les traces', magie: 'Il voit la chaleur. Sans son œil, il ne voit que le froid.',
     voix: 'Un grondement de pierre qui roule, avec des mots dedans.',
-    bio: [`Né d'un iceberg qui n'a jamais atteint la mer, il est resté au fond d'un creux, au sud du lac, là où personne ne marche. Le roi sous la roche, du temps où il régnait, lui a arraché son œil, une pierre rouge, pour la porter sur sa poitrine. Depuis, le mons agite son bras dans le vide, à la recherche de quelque chose de chaud.`],
+    bio: [`Né d'un iceberg qui n'a jamais atteint la mer, il est resté longtemps au fond d'un creux, là où personne ne marche. Le roi sous la roche, du temps où il régnait, lui a arraché son œil, une pierre rouge, pour la porter sur sa poitrine. Aveugle, il sent les pas dans la neige : il attend près de la lanterne de la grève, et marche devant ceux qui suivent les traces. Il voudrait voir la mer.`],
     lignes: ['Rouge… mon œil… il l\'a sur son cœur.'],
   },
   {
@@ -748,9 +748,10 @@ export const PERSON = Object.fromEntries(PEOPLE.map(p => [p.id, p]));
 // qui se dit alors, et ce que ça fait (`effet`, game.js : `give`).
 const VEUT = {
   tages: {
-    voeu: 'Attend le sceau de la crypte, sous l\'eau du lac, pour ouvrir les marches sous l\'arche.', fait: 'don-tages',
-    lignes: ['Je dis ce qui vient. Rien de plus.', 'Sous mes pieds, il y a des marches. Une dalle les ferme, et le sceau d\'Aule la tient.', 'Le sceau dort dans un coffre, sous l\'eau, dans la petite Véla du lac. Apporte-le.'],
-    don: { relique: 'sceau', effet: 'temple', lignes: [['tages', 'Le sceau d\'Aule. Il fermait tout, celui-là.'], ['tages', 'Pousse la dalle. En bas, le mur des ans.'], ['tages', 'Le dernier clou est à l\'envers. Tu sais ce que tu fais ? Moi, oui.']] },
+    // (v1.65.0 : on ne lui donne plus le sceau, on le pose soi-même dans la dalle, devant lui)
+    voeu: 'Ne veut pas qu\'on ouvre les marches sous l\'arche. Le sceau de la crypte s\'emboîte dans la dalle.', fait: 'don-tages',
+    lignes: ['Je dis ce qui vient. Rien de plus.', 'Sous mes pieds, des marches. Une dalle les ferme : le sceau d\'Aule s\'y emboîte.', 'Tu l\'as pris au lac ? Garde-le. Le clou doit rester.'],
+    don: { relique: 'sceau', effet: 'temple', lignes: [['tages', 'Non. Pas dans la dalle…'], ['tages', 'Elle t\'obéit. Elle ne m\'a jamais obéi.'], ['tages', 'En bas, le mur des ans. Laisse le dernier clou, si tu m\'aimes un peu.']] },
     apres: [
       { si: 'don-tages', lignes: ['La dalle est poussée. Descends.', 'Le clou est à l\'envers, à hauteur d\'homme. Tire, si tu veux. Ou laisse.'] },
       { si: 'aube', lignes: ['Tu vois ? Plus jeune.', 'Maintenant, ça va vieillir, ici. Et toi aussi.'] },
@@ -762,18 +763,20 @@ const VEUT = {
     apres: { si: 'aube', lignes: ['Il fait jour, dehors ? Je le sens dans mes os.', 'Ce n\'est pas si terrible. Laisse-moi, maintenant.'] },
   },
   freya: {
-    voeu: 'Voudrait la poupée de paille pendue à l\'arbre du bosquet.', fait: 'don-freya',
-    lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Elle a pendu sa poupée à l\'arbre du bosquet.', 'Rapporte-la-moi, et je te garderai.'],
-    don: { relique: 'poupee', effet: 'garde', lignes: [['freya', 'La poupée de Hallveig. Elle avait tes yeux, enfant.'], ['freya', 'Je te garde, petit roi. Un coup de plus, et tu tiendras debout.']] },
+    // (v1.65.0 : la poupée se raccroche à l'arbre aux offrandes, là où on la trouve)
+    voeu: 'Voudrait que la poupée de paille retourne à son crochet, à l\'arbre aux offrandes.', fait: 'don-freya',
+    lignes: ['Je regarde. C\'est tout ce que je fais depuis des siècles.', 'Ta mère m\'a donné son visage. Sa poupée pendait à l\'arbre aux offrandes.', 'Si elle est tombée, raccroche-la. Je te garderai.'],
+    don: { relique: 'poupee', effet: 'garde', lignes: [['freya', 'La poupée de Hallveig, à son crochet. Elle avait tes yeux, enfant.'], ['freya', 'Je te garde, petit roi. Un coup de plus, et tu tiendras debout.']] },
     apres: { si: 'don-freya', lignes: ['Va. Je regarde pour toi.'] },
   },
   thorgrim: { lignes: ['Viens. Qu\'on en finisse.'] },
-  // Le mons (v1.60.0) : au creux du sud, loin des traces ; le rubis du roi est son œil
+  // Le mons (v1.60.0) : le rubis du roi est son œil. v1.65.0 : il attend près
+  // de la lanterne, après la grève, et marche devant Kári sur les traces
   mons: {
-    voeu: 'Veut son œil : une pierre rouge que le roi sous la roche porte sur la poitrine.', fait: 'don-mons',
-    lignes: ['N\'aie pas peur. Je ne vois pas. Je ne vois plus.', 'Le roi sous la roche m\'a pris mon œil. Une pierre rouge. Il la porte sur son cœur.', 'Va dans la grotte, sous la falaise. Frappe-le, il la lâchera. Rapporte-la.'],
+    voeu: 'Veut son œil : une pierre rouge que le roi sous la roche porte sur la poitrine. Il marche devant, sur les traces.', fait: 'don-mons',
+    lignes: ['N\'aie pas peur. Je ne vois plus. Je sens les pas, dans la neige.', 'Je vais devant. Suis-moi.', 'Le roi sous la roche m\'a pris mon œil. Une pierre rouge, sur son cœur. Quand tu l\'auras, je serai là.'],
     don: { relique: 'rubis', effet: 'griffe', lignes: [['mons', 'Mon œil… Chaud. Je te vois, maintenant. Tu es petit.'], ['mons', 'Prends ça. Je l\'arrache pour toi : une griffe repousse en cent ans.'], ['kari', 'Elle est chaude. Elle bat, comme un cœur.']] },
-    apres: { si: 'don-mons', lignes: ['Je te vois. Va. Je regarde les braises de ta torche, de loin.'] },
+    apres: { si: 'don-mons', lignes: ['Je te vois. Je vais voir la mer, maintenant. Je ne l\'ai jamais vue.'] },
   },
   legba: {
     voeu: 'Veut qu\'on marche son signe, à côté de ses mâts.', fait: 'veve-legba',
@@ -833,7 +836,7 @@ VEUT.sigrun = {
 VEUT.hvit = {
   voeu: 'Veut qu\'on défasse le collet qui lui tient la patte.', fait: 'hvitFree',
   lignes: ['(elle gronde, la patte prise dans un collet)'],
-  apres: { si: 'hvitFree', lignes: ['Mes petits sont là-haut, sur la roche. Ils te laisseront passer.', 'Ne lève pas la lame sur eux.'] },
+  apres: { si: 'hvitFree', lignes: ['Mes petits sont là-haut, sur la roche. Suis mes traces : ils te laisseront passer.', 'Ne lève pas la lame sur eux.'] },
 };
 for (const [id, v] of Object.entries(VEUT)) if (PERSON[id]) PERSON[id].veut = v;
 

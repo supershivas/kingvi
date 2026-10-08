@@ -1,10 +1,10 @@
-import { makeTree, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.64.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.64.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.64.0';
-import { makeGroveTree } from './grove.js?v=1.64.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.64.0';
+import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.65.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.65.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.65.0';
+import { makeGroveTree } from './grove.js?v=1.65.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.65.0';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed } from './design-store.js?v=1.64.0';
+import { placed, designRows, padOf } from './design-store.js?v=1.65.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -12,7 +12,7 @@ import { placed } from './design-store.js?v=1.64.0';
 
 // Version du monde : une sauvegarde faite sur une autre île repart du rivage.
 // À incrémenter quand l'île change (tracé, objets).
-export const WORLD_VERSION = 8;
+export const WORLD_VERSION = 9;
 export const WORLD = 6144;
 export const CHUNK = 256;
 export const CENTER = WORLD / 2;
@@ -21,6 +21,9 @@ const SEED = 7;
 // L'île de la partie : 0 est l'île d'origine ; « Nouveau jeu » en tire une autre
 // (`kingvi:island`, ou `?ile=n` dans l'adresse). Elle varie : le tracé de la
 // piste, la forêt, les arbres, les rochers. Les lieux et leur ordre ne changent pas.
+// (v1.65.0 : l'île est refaite, une seule aventure d'ouest en est : la grève,
+// le ravin, la forêt noire, la louve, la maison, le lac, la plaine des morts,
+// l'autre au bout des traces, la falaise, la grotte, le plateau, l'arche.)
 export const ISLAND = (() => {
   try {
     const q = new URLSearchParams(location.search);
@@ -66,9 +69,9 @@ export function fbm(x, y, s, octaves = 4) {
   return v; // environ [-0.5, 0.5]
 }
 
-// ── Le lac, au sud de la piste, avant la forêt ; un îlot au milieu ──
-export const LAKE = { x: 1450, y: 3290, rx: 150, ry: 90 };
-export const ISLET = { x: 1450, y: 3290, rx: 30, ry: 19 };
+// ── Le lac, au sud de la piste, après la maison ; un îlot au milieu ──
+export const LAKE = { x: 3060, y: 3330, rx: 150, ry: 90 };
+export const ISLET = { x: 3060, y: 3330, rx: 30, ry: 19 };
 const PER_PX = 0.0007;                         // pente de la côte près du bord
 function lakeCoast(x, y) {
   const dx = (x - LAKE.x) / LAKE.rx, dy = (y - LAKE.y) / LAKE.ry;
@@ -105,26 +108,40 @@ const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b
 
 // Distance au rivage d'accostage, déformée par un bruit lent : c'est elle qui
 // dessine les bandes (arbres isolés, forêt, forêt noire) à lisière irrégulière.
+// (v1.65.0 : la lisière ondule moins, pour que la forêt noire vienne tôt,
+// juste après le ravin, et finisse avant la maison)
 export function forestDx(x, y) {
-  return x - LANDING.shore + 2200 * fbm(x / 1500, y / 1500, 81, 3) + 300 * fbm(x / 300, y / 300, 83, 2);
+  return x - LANDING.shore + 500 * fbm(x / 1500, y / 1500, 81, 3) + 520 * fbm(x / 520, y / 520, 85, 3) + 160 * fbm(x / 300, y / 300, 83, 2);
 }
 
 // La forêt profonde, si dense qu'elle est noire : 0 (dehors) → 1 (cœur).
 export function deepForest(x, y) {
   const dx = forestDx(x, y);
-  return smoothstep(1880, 2000, dx) * (1 - smoothstep(2780, 2920, dx));
+  return smoothstep(560, 680, dx) * (1 - smoothstep(1640, 1780, dx));
 }
 
 function rawForest(x, y) {
   const dx = forestDx(x, y);
-  const sparse = dx > 300 ? 0.03 : 0;
-  const core = 0.62 * smoothstep(1150, 1450, dx) * (1 - smoothstep(2850, 3150, dx));
+  const sparse = dx > 220 ? 0.03 : 0;
+  const core = 0.62 * smoothstep(380, 560, dx) * (1 - smoothstep(1800, 1980, dx));
+  // Un second bois, plus clair, avant le bout des traces
+  const wood = 0.45 * smoothstep(3150, 3300, dx) * (1 - smoothstep(3500, 3700, dx));
   const patchy = 0.55 + 1.6 * fbm(x / 260, y / 260, 71 + ISLAND * 5, 3);
-  return Math.max(sparse, core * Math.max(0, patchy), deepForest(x, y));
+  return Math.max(sparse, Math.max(core, wood) * Math.max(0, patchy), deepForest(x, y));
 }
 
-// ── La maison, vers le bout des traces ──
-export const HOUSE = { x: CENTER + 1150, y: CENTER - 120 };
+// ── Le ravin (v1.65.0) : une crevasse qui coupe l'île du nord au sud, entre
+// la grève et la forêt noire. On ne la passe que sur un arbre qu'on abat en
+// travers (`BRIDGE_TREE` ; game.js : `bridgeDown`). Rien n'y est droit : le
+// fil et la largeur ondulent. ──
+export const RAVINE = { x: LANDING.shore + 430 };
+export const ravineMid = y => RAVINE.x + 70 * fbm(y / 500, 0, 301, 3) + 5 * fbm(y / 40, 0, 303, 2);
+export const ravineHalf = y => 5 + 2.5 * fbm(y / 90, 0, 305, 2);
+export const inRavine = (x, y) => Math.abs(x - ravineMid(y)) < ravineHalf(y);
+const nearRavine = (x, y, m) => Math.abs(x - ravineMid(y)) < ravineHalf(y) + m;
+
+// ── La maison, juste après la forêt noire ──
+export const HOUSE = { x: 2640, y: 3000 };
 // La porte, au pied du mur de gauche (voir makeHouse) ; et juste devant elle, dehors
 export const HOUSE_DOOR = { x: HOUSE.x - 6, y: HOUSE.y - 12 };
 export const HOUSE_DOOR_OUT = { x: HOUSE.x - 8, y: HOUSE.y - 8 };
@@ -132,6 +149,8 @@ export const HOUSE_DOOR_OUT = { x: HOUSE.x - 8, y: HOUSE.y - 8 };
 // ── Les traces : une piste de pas qui traverse l'île, passe devant la
 // maison et continue plus loin vers l'est ──
 const STRIDE = 7;
+// Le bout des traces : sous la falaise, à l'ouest de la sente (l'autre y attend)
+const END_OF_TRAIL = { x: 4640, y: 2690 };
 const TRAIL_STEPS = 2400;
 
 function buildTrail(salt) {
@@ -140,14 +159,20 @@ function buildTrail(salt) {
   // Elles partent juste devant le drakkar, là où le viking pose le pied
   let x = shore + 40, y = ly - 4;
   let heading = 0; // vers l'est
-  // Points de passage : devant la maison (sud-ouest, sud, sud-est), puis au loin
-  // Elles vont jusqu'à la porte de la maison, puis en ressortent vers l'est
+  // Points de passage, d'ouest en est : le ravin (on le passe tout droit), la
+  // maison au sortir de la forêt noire (sa porte : elles y entrent et en
+  // ressortent), la rive nord du lac, la plaine des morts, puis le bout,
+  // sous la falaise. `strong` : tiré au plus court (autour de la maison)
   const waypoints = [
+    { x: RAVINE.x + 70, y: ly - 24, reach: 30 },
     { x: HOUSE_DOOR_OUT.x - 28, y: HOUSE_DOOR_OUT.y + 16 },
-    { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y, door: true, reach: 7 },
-    { x: HOUSE.x + 14, y: HOUSE.y + 12 },
-    { x: HOUSE.x + 62, y: HOUSE.y - 2 },
-    { x: HOUSE.x + 950, y: HOUSE.y - 320, last: true },
+    { x: HOUSE_DOOR_OUT.x, y: HOUSE_DOOR_OUT.y, door: true, reach: 7, strong: true },
+    { x: HOUSE.x + 14, y: HOUSE.y + 12, strong: true },
+    { x: HOUSE.x + 62, y: HOUSE.y - 2, strong: true },
+    { x: LAKE.x - 40, y: LAKE.y - 130, reach: 40 },
+    { x: LAKE.x + 330, y: LAKE.y - 220, reach: 40 },
+    { x: LAKE.x + 760, y: LAKE.y - 270, reach: 40 },
+    { x: END_OF_TRAIL.x, y: END_OF_TRAIL.y, last: true },
   ];
   let doorIndex = Infinity;
   let w = 0;
@@ -167,7 +192,7 @@ function buildTrail(salt) {
     // l'attraction l'emporte sur l'errance
     // Dans la forêt noire, la piste hésite un peu (sans trop serpenter)
     const lost = deepForest(x, y);
-    const pull = w > 0 && !target.last ? 0.35 : dist < 400 ? 0.1 : 0.012 * (1 - 0.5 * lost);
+    const pull = target.strong ? 0.35 : dist < 400 ? 0.1 : 0.03 * (1 - 0.4 * lost);
     heading += 0.09 * (1 + 1.0 * lost) * fbm(i / (40 - 8 * lost), 0, 42 + salt * 3, 3) + pull * diff + (r() - 0.5) * (0.03 + 0.02 * lost);
     // Ne jamais marcher vers la mer
     if (seaCoast(x + Math.cos(heading) * 120, y + Math.sin(heading) * 120) > -0.04) {
@@ -198,8 +223,8 @@ const deepCount = t => t.filter(p => deepForest(p.x, p.y) > 0.6).length;
 function chooseTrail() {
   const base = ISLAND ? deepCount(buildTrail(0)) : 0;
   // (la traversée du noir garde à peu près sa longueur, et le bosquet reste loin du rivage)
-  const ok = t => t.length < 1000 && t.length > 650 && !t.some(p => inLake(p.x, p.y) || coast(p.x, p.y) > -0.03) &&
-    Math.abs(deepCount(t) - base) < base * 0.3 && t.filter(p => deepForest(p.x, p.y) > 0.6).every(p => coast(p.x, p.y) < -0.4);
+  const ok = t => t.length < 1100 && t.length > 500 && !t.some(p => inLake(p.x, p.y) || coast(p.x, p.y) > -0.03) &&
+    Math.abs(deepCount(t) - base) < base * 0.3 && t.filter(p => deepForest(p.x, p.y) > 0.6).every(p => coast(p.x, p.y) < -0.25);
   for (let k = 0; k < 40; k++) {
     const t = buildTrail(ISLAND ? ISLAND * 41 + k : 0);
     if (!ISLAND || ok(t)) return t;
@@ -211,6 +236,23 @@ const BLOOD_FROM = trail.findIndex(p => p.blood);
 // Largeur de la sente autour de chaque pas : elle s'élargit et se resserre
 trail.forEach((p, i) => { p.i = i; p.lane = 2 + 3.5 * Math.max(0, 0.5 + 1.6 * fbm(i / 14, 3, 91, 2)); });
 
+// ── L'arbre du pont : un grand sapin seul, au bord ouest du ravin, juste au
+// sud des traces. Abattu, il tombe toujours vers l'est, en travers (game.js) ;
+// son tronc couché fait le pont (`onBridge`). Assez grand pour passer. ──
+export const RAVINE_CROSS = trail.find(p => p.x > ravineMid(p.y)) || trail[30];
+export const BRIDGE_TREE = (() => {
+  const y = RAVINE_CROSS.y + 3, x = Math.round(ravineMid(y) - ravineHalf(y) - 3);
+  const need = 2 * ravineHalf(y) + 12;
+  let seed = 4242, art = null;
+  for (let k = 0; k < 200; k++) {
+    art = makeFir(rng(seed + k), { big: true });
+    if (art.rows.length >= need) { seed += k; break; }
+  }
+  return { type: 'tree', x, y, seed, big: true, bridge: true, art };
+})();
+// Le tronc couché : de son pied jusqu'à sa cime, vers l'est, sur quatre rangées
+export const onBridge = (x, y) => x >= BRIDGE_TREE.x + 1 && x <= BRIDGE_TREE.x + BRIDGE_TREE.art.rows.length - 2 && y >= BRIDGE_TREE.y - 1.5 && y <= BRIDGE_TREE.y + 2.5;
+
 // ── Les clairières de la forêt noire : trois seulement (une vide, celle de
 // l'arbre aux offrandes, celle des loups), posées plus bas avec le bosquet ──
 export const CLEARINGS = [];
@@ -218,14 +260,15 @@ const inClearing = (x, y, margin = 0) => CLEARINGS.some(c => Math.hypot(x - c.x,
 
 const off = (p, d) => ({ x: Math.round(p.x + Math.sin(p.heading) * d), y: Math.round(p.y - Math.cos(p.heading) * d) });
 
-// ── La statue brisée : dans la forêt, au bord nord de la piste ──
-const STATUE_AT = trail.find(p => p.x > LANDING.shore + 1830) || trail[Math.floor(trail.length / 2)];
+// ── La statue brisée : dans la plaine des morts, après le champ de pierres,
+// au bord nord de la piste ──
+const STATUE_AT = trail.find(p => p.x > LAKE.x + 640) || trail[Math.floor(trail.length * 0.7)];
 export const STATUE_BASE = placed('statue-ensevelie', off(STATUE_AT, 26));
 const STATUE_PARTS = buildStatue(STATUE_BASE, SEED);
 
 // ── La grande statue droite : au sortir de la forêt, au bord sud de la piste ──
 function forestExit() {
-  const start = trail.indexOf(STATUE_AT);
+  const start = Math.max(0, trail.findLastIndex(p => deepForest(p.x, p.y) > 0.6));
   let run = 0;
   for (let i = start; i < trail.length; i++) {
     run = rawForest(trail[i].x, trail[i].y) < 0.05 ? run + 1 : 0;
@@ -233,12 +276,15 @@ function forestExit() {
   }
   return trail[Math.floor(trail.length * 0.8)];
 }
-const EXIT = forestExit();
-export const STATUE2_BASE = placed('statue-debout', off(EXIT, -40));
+// (v1.65.0 : la maison suit de près la lisière ; la Véla debout se dresse
+// plus tôt, au sortir du noir, au sud de la sente)
+const EXIT_I = trail.findLastIndex(p => deepForest(p.x, p.y) > 0.6);
+const EXIT = trail[Math.min(trail.length - 1, EXIT_I + 14)] || forestExit();
+export const STATUE2_BASE = placed('statue-debout', off(EXIT, -44));
 const STATUE2_PARTS = buildStatueUpright(STATUE2_BASE, SEED);
 
-// ── Les corbeaux : posés près de la piste, avant la forêt ──
-const CROW_AT = trail.find(p => forestDx(p.x, p.y) > 880) || trail[Math.floor(trail.length * 0.25)];
+// ── Les corbeaux : posés près de la piste, entre le lac et la plaine des morts ──
+const CROW_AT = trail.find(p => p.x > LAKE.x + 180) || trail[Math.floor(trail.length * 0.6)];
 export const CROWS = off(CROW_AT, 14);
 
 // ── L'îlot du lac : une statue de Véla, une porte dans sa robe ──
@@ -309,86 +355,104 @@ const inCliff = (x, y, margin = 0) => {
   const cx = Math.max(CLIFF.x0, Math.min(CLIFF.x1, x)), f = cliffFoot(cx);
   return y < f + margin && y > f - cliffHeight(cx) - 30 - margin;
 };
+// La falaise entière, d'un seul dessin (v1.65.0) : le code la taille (ci-
+// dessous), l'atelier la redessine en entier (`falaise`, groupe « La falaise,
+// les rochers, la souche ») ; le jeu la découpe en tranches de 20 pixels,
+// chacune triée à son pied. La sente et la grotte sont dans le dessin : on
+// monte toujours par les lacets du code (`LEDGE`), on entre par `CAVE`.
+const CLIFF_FOOTS = Array.from({ length: CLIFF.x1 - CLIFF.x0 }, (_, i) => cliffFoot(CLIFF.x0 + i));
+const CLIFF_TOPS = CLIFF_FOOTS.map((f, i) => f - cliffHeight(CLIFF.x0 + i));
+export const CLIFF_TOP = Math.min(...CLIFF_TOPS) - 3;
+function drawCliff() {
+  const W = CLIFF.x1 - CLIFF.x0, bottom = Math.max(...CLIFF_FOOTS), H = bottom - CLIFF_TOP + 1;
+  const fy = CLIFF_FOOTS, ty = CLIFF_TOPS;
+  const rows = [];
+  for (let y = 0; y < H; y++) {
+    let row = '';
+    const wy = CLIFF_TOP + y;
+    for (let i = 0; i < W; i++) {
+      const wx = CLIFF.x0 + i, depth = wy - ty[i];                 // 0 : le rebord
+      if (depth < 0 || wy > fy[i]) { row += '.'; continue; }
+      // La sente : un rebord de neige tassée, deux pixels, l'ombre du roc dessous ;
+      // usée par endroits, et une marche à chaque tournant
+      const lr = ledgeRows(wx);
+      if (lr.some(ly => wy === ly || (wy === ly - 1 && hash(wx, ly, 223) < 0.8))) { row += 's'; continue; }
+      if (lr.some(ly => wy === ly + 1)) { row += 'b'; continue; }
+      if (lr.some(ly => wy === ly + 2 && hash(wx, wy, 225) < 0.3)) { row += 's'; continue; }
+      // Au-dessus, la paroi creusée, plâtrée de neige (tramée, de plus en plus
+      // rare en montant) : le viking, sombre, s'y découpe
+      if (lr.some(ly => wy < ly - 1 && wy >= ly - 11 && hash(wx, wy, 227) < (wy >= ly - 6 ? 0.55 : 0.25) * (0.6 + 0.8 * valueNoise(wx / 5, wy / 3, 229)))) { row += 's'; continue; }
+      // Les extrémités s'effondrent en éboulis
+      const end = Math.min(wx - CLIFF.x0, CLIFF.x1 - wx);
+      if (end < 30 && depth < (30 - end) * 3.5 * (0.7 + 0.6 * hash(wx, 7, 141))) { row += '.'; continue; }
+      // Corniche de neige en haut, qui déborde en festons
+      const cornice = 2 + Math.round(2 * valueNoise(wx / 4, 0, 143));
+      if (depth < cornice) { row += 's'; continue; }
+      // L'arête d'un pan : là où la falaise avance, son flanc prend la lumière
+      // (l'arête ondule et se perd par endroits : pas un trait vertical)
+      const ws = wx + Math.round(5 * fbm(wy / 14, wx / 50, 211, 2) * 2);
+      const st = cliffStep(ws), prev = cliffStep(ws - 1), next = cliffStep(ws + 2);
+      if ((st !== prev || st !== next) && (wx + wy) % 2 === 0 && valueNoise(wx / 3, wy / 9, 213) > 0.3) { row += 's'; continue; }
+      // Vires enneigées : des bandes qui suivent la roche, en biais, interrompues
+      const band = wy + 12 * fbm(wx / 70, 0, 145, 2) + 3 * fbm(wx / 9, wy / 30, 207, 2) + wx * 0.08;
+      const lane = Math.floor(band / 27), pos = band - lane * 27;
+      if (pos < 1.4 && valueNoise(wx / 14, lane * 3, 147) > 0.42) { row += 's'; continue; }
+      if (pos < 2.4 && valueNoise(wx / 14, lane * 3, 147) > 0.7) { row += 's'; continue; }
+      // Contreforts : des côtes verticales ; le flanc éclairé est tramé
+      // (la côte ondule en descendant : jamais une ligne droite)
+      const warp = wx + 7 * fbm(wy / 12, wx / 40, 209, 2) * 2;
+      const rib = fbm(warp / 11, 0, 171, 2), slope = fbm((warp + 1) / 11, 0, 171, 2) - rib;
+      const reach = valueNoise(wx / 7, wy / 34, 173);
+      if (slope > 0.012 && reach > 0.45 && (wx + wy) % 2 === 0) { row += 's'; continue; }
+      if (slope > 0.03 && reach > 0.6 && hash(wx, wy, 215) < 0.75) { row += 's'; continue; }
+      // Taches de neige collée, rares ; neige amassée au pied
+      if (fbm(wx / 18, wy / 12, 155, 2) > 0.27 && (wx + wy) % 2 === 0) { row += 's'; continue; }
+      if (fy[i] - wy < 2 && hash(wx, wy, 203) < 0.5) { row += 's'; continue; }
+      row += 'b';
+    }
+    rows.push(row);
+  }
+  // La grotte : une bouche noire, irrégulière, penchée, au pied du pan
+  const cf = cliffFoot(CAVE.x), put = (y, i, c) => { rows[y] = rows[y].slice(0, i) + c + rows[y].slice(i + 1); };
+  for (let k = 0; k <= CAVE.h; k++) {
+    const y = cf - k - CLIFF_TOP;
+    if (y < 0 || y >= H) continue;
+    const f = k / CAVE.h;
+    // Plus large en bas, voûte cabossée, le côté droit plus haut
+    const half = CAVE.w / 2 * Math.pow(Math.max(0, 1 - f * f * f), 0.6) * (0.85 + 0.35 * valueNoise(k / 2.5, 0, 205));
+    const cx = CAVE.x + 2 * f + Math.sin(k * 0.7) * 0.8;
+    for (let i = 0; i < W; i++) {
+      const dx = CLIFF.x0 + i - cx;
+      const lim = dx > 0 ? half * (1 + 0.15 * f) : half;
+      if (Math.abs(dx) <= lim && rows[y][i] !== '.') put(y, i, 'k');
+    }
+  }
+  // Glaçons au linteau, de longueurs inégales
+  for (let i = 0; i < W; i++) {
+    const wx = CLIFF.x0 + i;
+    if (Math.abs(wx - CAVE.x) > CAVE.w / 2 || hash(wx, 1, 159) > 0.45) continue;
+    const y = rows.findIndex((r, yy) => r[i] === 'k' && yy + CLIFF_TOP > cf - CAVE.h - 2);
+    if (y < 0) continue;
+    const len = 1 + Math.floor(hash(wx, 2, 161) * 4);
+    for (let k = 0; k < len && rows[y + k]?.[i] === 'k'; k++) put(y + k, i, 's');
+  }
+  return rows;
+}
+export const CLIFF_ART = drawCliff();
 function buildCliff() {
   const parts = [], SLICE = 20;
-  for (let x0 = CLIFF.x0; x0 < CLIFF.x1; x0 += SLICE) {
-    const w = Math.min(SLICE, CLIFF.x1 - x0);
-    const fy = Array.from({ length: w }, (_, i) => cliffFoot(x0 + i));
-    const ty = fy.map((f, i) => f - cliffHeight(x0 + i));
-    const bottom = Math.max(...fy), top0 = Math.min(...ty) - 3, H = bottom - top0 + 1;
-    const rows = [];
-    for (let y = 0; y < H; y++) {
-      let row = '';
-      const wy = top0 + y;
-      for (let i = 0; i < w; i++) {
-        const wx = x0 + i, depth = wy - ty[i];                     // 0 : le rebord
-        if (depth < 0 || wy > fy[i]) { row += '.'; continue; }
-        // La sente : un rebord de neige tassée, deux pixels, l'ombre du roc dessous ;
-        // usée par endroits, et une marche à chaque tournant
-        const lr = ledgeRows(wx);
-        if (lr.some(ly => wy === ly || (wy === ly - 1 && hash(wx, ly, 223) < 0.8))) { row += 's'; continue; }
-        if (lr.some(ly => wy === ly + 1)) { row += 'b'; continue; }
-        if (lr.some(ly => wy === ly + 2 && hash(wx, wy, 225) < 0.3)) { row += 's'; continue; }
-        // Au-dessus, la paroi creusée, plâtrée de neige (tramée, de plus en plus
-        // rare en montant) : le viking, sombre, s'y découpe
-        if (lr.some(ly => wy < ly - 1 && wy >= ly - 11 && hash(wx, wy, 227) < (wy >= ly - 6 ? 0.55 : 0.25) * (0.6 + 0.8 * valueNoise(wx / 5, wy / 3, 229)))) { row += 's'; continue; }
-        // Les extrémités s'effondrent en éboulis
-        const end = Math.min(wx - CLIFF.x0, CLIFF.x1 - wx);
-        if (end < 30 && depth < (30 - end) * 3.5 * (0.7 + 0.6 * hash(wx, 7, 141))) { row += '.'; continue; }
-        // Corniche de neige en haut, qui déborde en festons
-        const cornice = 2 + Math.round(2 * valueNoise(wx / 4, 0, 143));
-        if (depth < cornice) { row += 's'; continue; }
-        // L'arête d'un pan : là où la falaise avance, son flanc prend la lumière
-        // (l'arête ondule et se perd par endroits : pas un trait vertical)
-        const ws = wx + Math.round(5 * fbm(wy / 14, wx / 50, 211, 2) * 2);
-        const st = cliffStep(ws), prev = cliffStep(ws - 1), next = cliffStep(ws + 2);
-        if ((st !== prev || st !== next) && (wx + wy) % 2 === 0 && valueNoise(wx / 3, wy / 9, 213) > 0.3) { row += 's'; continue; }
-        // Vires enneigées : des bandes qui suivent la roche, en biais, interrompues
-        const band = wy + 12 * fbm(wx / 70, 0, 145, 2) + 3 * fbm(wx / 9, wy / 30, 207, 2) + wx * 0.08;
-        const lane = Math.floor(band / 27), pos = band - lane * 27;
-        if (pos < 1.4 && valueNoise(wx / 14, lane * 3, 147) > 0.42) { row += 's'; continue; }
-        if (pos < 2.4 && valueNoise(wx / 14, lane * 3, 147) > 0.7) { row += 's'; continue; }
-        // Contreforts : des côtes verticales ; le flanc éclairé est tramé
-        // (la côte ondule en descendant : jamais une ligne droite)
-        const warp = wx + 7 * fbm(wy / 12, wx / 40, 209, 2) * 2;
-        const rib = fbm(warp / 11, 0, 171, 2), slope = fbm((warp + 1) / 11, 0, 171, 2) - rib;
-        const reach = valueNoise(wx / 7, wy / 34, 173);
-        if (slope > 0.012 && reach > 0.45 && (wx + wy) % 2 === 0) { row += 's'; continue; }
-        if (slope > 0.03 && reach > 0.6 && hash(wx, wy, 215) < 0.75) { row += 's'; continue; }
-        // Taches de neige collée, rares ; neige amassée au pied
-        if (fbm(wx / 18, wy / 12, 155, 2) > 0.27 && (wx + wy) % 2 === 0) { row += 's'; continue; }
-        if (fy[i] - wy < 2 && hash(wx, wy, 203) < 0.5) { row += 's'; continue; }
-        row += 'b';
-      }
-      rows.push(row);
-    }
-    // La grotte : une bouche noire, irrégulière, penchée, au pied du pan
-    const cf = cliffFoot(CAVE.x);
-    if (CAVE.x + CAVE.w > x0 && CAVE.x - CAVE.w < x0 + w) {
-      for (let k = 0; k <= CAVE.h; k++) {
-        const wy = cf - k, y = wy - top0;
-        if (y < 0 || y >= H) continue;
-        const f = k / CAVE.h;
-        // Plus large en bas, voûte cabossée, le côté droit plus haut
-        const half = CAVE.w / 2 * Math.pow(Math.max(0, 1 - f * f * f), 0.6) * (0.85 + 0.35 * valueNoise(k / 2.5, 0, 205));
-        const cx = CAVE.x + 2 * f + Math.sin(k * 0.7) * 0.8;
-        for (let i = 0; i < w; i++) {
-          const dx = x0 + i - cx;
-          const lim = dx > 0 ? half * (1 + 0.15 * f) : half;
-          if (Math.abs(dx) <= lim && rows[y][i] !== '.') rows[y] = rows[y].slice(0, i) + 'k' + rows[y].slice(i + 1);
-        }
-      }
-      // Glaçons au linteau, de longueurs inégales
-      for (let i = 0; i < w; i++) {
-        const wx = x0 + i;
-        if (Math.abs(wx - CAVE.x) > CAVE.w / 2 || hash(wx, 1, 159) > 0.45) continue;
-        let y = rows.findIndex((r, yy) => r[i] === 'k' && yy + top0 > cf - CAVE.h - 2);
-        if (y < 0) continue;
-        const len = 1 + Math.floor(hash(wx, 2, 161) * 4);
-        for (let k = 0; k < len && rows[y + k]?.[i] === 'k'; k++) rows[y + k] = rows[y + k].slice(0, i) + 's' + rows[y + k].slice(i + 1);
-      }
-    }
-    parts.push({ type: 'cliff', x: x0, y: bottom, art: { rows, ax: 0 }, foot: H - 4 });
+  // (agrandie dans l'atelier par ses « + » : elle déborde d'autant à gauche et en haut)
+  const art = designRows('falaise', CLIFF_ART, { grow: true }), pad = padOf('falaise') || { l: 0, t: 0 };
+  const grown = art[0].length !== CLIFF_ART[0].length || art.length !== CLIFF_ART.length;
+  const X0 = CLIFF.x0 - (grown ? pad.l : 0), TOP = CLIFF_TOP - (grown ? pad.t : 0);
+  const W = art[0].length;
+  for (let x0 = 0; x0 < W; x0 += SLICE) {
+    const w = Math.min(SLICE, W - x0);
+    const cols = art.map(r => r.slice(x0, x0 + w));
+    const top = cols.findIndex(r => /[^.]/.test(r)), bottom = cols.findLastIndex(r => /[^.]/.test(r));
+    if (top < 0) continue;
+    const rows = cols.slice(top, bottom + 1);
+    parts.push({ type: 'cliff', x: X0 + x0, y: TOP + bottom, art: { rows, ax: 0 }, foot: Math.max(1, rows.length - 4) });
   }
   // Éboulis au pied
   const r = rng(SEED * 163);
@@ -409,11 +473,22 @@ export const CAVE_DOOR_OUT = (() => {
   return { x: CAVE.x, y: bottom + 2 };
 })();
 
+// L'éboulis (v1.65.0) : des blocs tombés de la falaise bouchent la grotte ;
+// on les brise à l'épée (game.js : on n'entre pas tant qu'il tient)
+export const CAVE_RUBBLE = (() => {
+  let seed = 777, art = null;
+  for (let k = 0; k < 300; k++) {
+    art = makeBoulder(rng(seed + k));
+    if (art.rows[0].length >= CAVE.w + 3 && art.rows.length >= 6) { seed += k; break; }
+  }
+  return { type: 'boulder', x: CAVE_DOOR_OUT.x, y: CAVE_DOOR_OUT.y + 1, seed, art, rubble: true };
+})();
+
 // ── Le champ des morts (d'après un champ de pierres levées du Nord) : des navires, cercles et
 // triangles de pierres levées, au nord de la piste, à une demi-minute de la
 // barque. Chaque pierre est un objet (triée, elle cache ou non le viking).
-const NECRO_AT = trail.find(p => p.x > LANDING.shore + 560) || trail[50];
-export const NECRO = { x: Math.round(NECRO_AT.x - NECRO_W / 2), y: Math.round(NECRO_AT.y - 38 - NECRO_H) };
+const NECRO_AT = trail.find(p => p.x > LAKE.x + 330) || trail[Math.floor(trail.length * 0.65)];
+export const NECRO = { x: Math.round(NECRO_AT.x - NECRO_W * 0.6), y: Math.round(NECRO_AT.y - 46 - NECRO_H) };
 // Le pas des morts (v1.54.1) : au creux du grand navire de pierres, la main
 // posée sur l'étrave, on reçoit le pouvoir d'aller d'un lieu vu à l'autre
 // (la carte, M). Rien d'aléatoire ici : l'île ne bouge pas.
@@ -427,10 +502,12 @@ const NECRO_PARTS = necropolisStones(SEED).map(([x, y, h], i) => ({
 // (au nord, au sortir de la forêt noire), l'arche en ruine (entre la maison
 // et la falaise). Les dessins viennent de assets/ (ruins.js) ; chaque point
 // est le milieu du pied du monument ──
-const ARCH_AT = trail.find(p => p.x > LANDING.shore + 1250) || trail[Math.floor(trail.length * 0.3)];
-export const ARCH = placed('arche', off(ARCH_AT, 58));
+// (v1.65.0 : l'arche est au bout de tout, sur le plateau, au-dessus de la
+// falaise ; la colonne près du lac, le socle dans le second bois, l'arche en
+// ruine entre ce bois et le bout des traces)
+export const ARCH = placed('arche', { x: 5240, y: 2190 });
 const ruinAt = (dx, d) => off(trail.find(p => p.x > LANDING.shore + dx) || trail.at(-1), d);
-export const RUINS = { colonne: placed('colonne', ruinAt(450, -90)), socle: placed('socle', ruinAt(3300, 90)), arche: placed('ruine', ruinAt(4100, -90)) };
+export const RUINS = { colonne: placed('colonne', ruinAt(2300, 80)), socle: placed('socle', ruinAt(3330, 90)), arche: placed('ruine', ruinAt(3760, -90)) };
 // Le ponton du lac : il part de la rive nord (le bout côté terre sur la
 // grève) et file en biais dans l'eau, sans toucher l'îlot ; on marche dessus
 export const PIER = { x: LAKE.x + 3, y: LAKE.y - 36 };
@@ -495,13 +572,13 @@ export const WOLF_DEN = placed('meute', { x: MOTH_LAIR.x - 30, y: MOTH_LAIR.y - 
 export const DEN_OPEN = Math.PI / 2;
 // Le cube blanc et le cube noir (cubes.js) : au nord du champ des morts, et
 // loin à l'est de la maison, vers la mer
-export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: HOUSE.x + 380, y: HOUSE.y + 230 }].map(c => placed(`cube-${c.kind}`, c));
+export const SNO7_CUBES = [{ kind: 'blanc', x: NECRO.x + 67, y: NECRO.y - 141 }, { kind: 'noir', x: 4920, y: 2930 }].map(c => placed(`cube-${c.kind}`, c));
 // (leur pied bloque le passage : le losange du sol, sous le cube ; vu de
 // trois quarts, il va de la pointe basse, en c.y, à la pointe haute, 29 plus haut)
-// Le mons (v1.60.0) : au creux des landes du sud, loin des traces, là où
-// aucun lieu ne mène ; son pied bloque (game.js : le dessin, la quête)
-export const MONS_AT = placed('mons', { x: 1180, y: 4020 });
-export const monsBlocked = (x, y) => Math.abs(x - MONS_AT.x) < 9 && y > MONS_AT.y - 3 && y < MONS_AT.y + 2;
+// Le mons (v1.60.0) : v1.65.0, il attend près de la lanterne, juste après la
+// grève, et marche devant Kári le long des traces (game.js, `updateMons`) ;
+// c'est ici qu'il apparaît
+export const MONS_AT = placed('mons', off(trail.find(p => p.x > LANDING.shore + 290) || trail[20], -26));
 export const cubeBlocked = (x, y) => SNO7_CUBES.some(c => {
   const d = Math.abs(x - c.x);
   return d <= 29 && y <= c.y + 1 - d * 0.5 && y >= c.y - 29 + d * 0.5;
@@ -705,13 +782,30 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
     }
   }
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  // Le ravin traverse-t-il ce morceau ?
+  const ravine = x0 < RAVINE.x + 120 && x0 + CHUNK > RAVINE.x - 120;
 
   yield;
   for (let y = 0; y < CHUNK; y++) {
     if (y % 32 === 31) yield;
+    const rMid = ravine ? ravineMid(y0 + y) : 0, rHalf = ravine ? ravineHalf(y0 + y) : 0;
     for (let x = 0; x < CHUNK; x++) {
       const wx = x0 + x, wy = y0 + y, i = (y * CHUNK + x) * 4;
       const c = uniform === 'land' ? -1 : uniform === 'sea' ? 1 : coast(wx, wy);
+      if (c < 0 && ravine) {
+        // Le ravin : le fond noir, un bord de neige qui déborde en lèvres
+        // rongées, la paroi d'en face qui prend un peu de lumière (tramée)
+        const d = wx - rMid, e = rHalf - Math.abs(d);
+        if (e > -1.5) {
+          const lip = valueNoise(wx / 2, wy / 3, 307);
+          let dark = true;
+          if (e < 0) dark = (wx + wy) % 2 === 0 && lip > 0.45;              // fissures au bord
+          else if (e < 1) dark = lip > 0.3;                                 // la lèvre, rongée
+          else if (d > 0 && e < 2.2) dark = (wx + wy) % 2 === 0;            // la paroi est, éclairée
+          else if (hash(wx, wy, 309) < 0.03) dark = false;                  // une neige qui tombe au fond
+          if (e >= 0 || dark) { set(i, dark ? 'b' : 's'); continue; }
+        }
+      }
       if (c < 0) {
         // Neige ; de rares grains sombres, en longues rides couchées par le vent
         let dark = false;
@@ -752,7 +846,7 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
   const r = rng(cx * 7919 + cy * 104729 + SEED + ISLAND * 31);
   const place = (w, h) => {
     const x = Math.floor(r() * (CHUNK - w)), y = Math.floor(r() * (CHUNK - h));
-    return coast(x0 + x, y0 + y + h) < -0.02 && coast(x0 + x + w, y0 + y) < -0.02 ? { x, y } : null;
+    return coast(x0 + x, y0 + y + h) < -0.02 && coast(x0 + x + w, y0 + y) < -0.02 && !nearRavine(x0 + x, y0 + y, w + 3) ? { x, y } : null;
   };
   const rocks = r() < 0.55 ? 1 + Math.floor(r() * 2) : 0;
   for (let k = 0; k < rocks; k++) {
@@ -765,12 +859,14 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
   // Les traces (et celles du compagnon, jusqu'à la maison)
   ctx.fillStyle = pal.b;
   for (const p of companionByChunk.get(`${cx},${cy}`) || []) {
+    if (nearRavine(p.x, p.y, 1)) continue;                 // (pas de pas dans le vide)
     const lx = p.x - x0, ly = p.y - y0;
     ctx.fillRect(lx, ly, 1, 1);
     if (!p.faint) ctx.fillRect(lx + Math.round(Math.cos(p.heading)), ly + Math.round(Math.sin(p.heading)), 1, 1);
   }
   const prints = trailByChunk.get(`${cx},${cy}`) || [];
   for (const p of prints) {
+    if (nearRavine(p.x, p.y, 1)) continue;
     const lx = p.x - x0, ly = p.y - y0;
     if (p.blood) {
       // Gouttes de sang : à côté du pas, parfois une traînée ; plus rares au loin
@@ -830,6 +926,7 @@ export function objectsInChunk(cx, cy) {
     Math.hypot(x - STATUE_BASE.x, y - STATUE_BASE.y) > 80 &&
     Math.hypot(x - STATUE2_BASE.x, y - STATUE2_BASE.y) > 80 &&
     Math.hypot(x - HOUSE.x, y - HOUSE.y) > 110 &&
+    !nearRavine(x, y, 4) && !(Math.abs(y - BRIDGE_TREE.y) < 7 && x > BRIDGE_TREE.x - 6 && x < BRIDGE_TREE.x + 46) &&
     !inCliff(x, y, 8) && Math.hypot(x - LEDGE.top.x, y - LEDGE.top.y) > 30 && Math.hypot(x - LEDGE.bottom.x, y - LEDGE.bottom.y) > 20 &&
     Math.hypot(x - MOTH_LAIR.x, y - MOTH_LAIR.y) > 55 && !inNecro(x, y, 12) && !inArch(x, y, 14) && Math.hypot(x - STATUE3_BASE.x, y - STATUE3_BASE.y) > 24;
 
@@ -869,7 +966,7 @@ export function objectsInChunk(cx, cy) {
     o.h = o.art.rows.length;
   }
   // La statue et ses éclats, dans le morceau où tombe leur pied
-  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS, ...MONUMENT_PARTS]) {
+  for (const o of [...STATUE_PARTS, ...STATUE2_PARTS, ...STATUE3_PARTS, ...CLIFF_PARTS, ...NECRO_PARTS, ...GROVE_PARTS, ...MONUMENT_PARTS, BRIDGE_TREE, CAVE_RUBBLE]) {
     // (un monument a toutes ses pièces dans le même morceau : il se charge d'un bloc)
     if (Math.floor((o.home?.x ?? o.x) / CHUNK) === cx && Math.floor((o.home?.y ?? o.y) / CHUNK) === cy) {
       list.push({ ...o, w: o.art.rows[0].length, h: o.art.rows.length });
