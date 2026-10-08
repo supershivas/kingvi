@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.68.0 — 2026-10-08
+- La pluie : six nouvelles ambiances (bruine, pluie froide, averse, orage de pluie, grésil, grêle). Traits fins penchés par le vent, éclaboussures et anneaux au sol, grains de grêle qui rebondissent, grésil mêlé de flocons ; l'orage de pluie a ses éclairs et son tonnerre
+- Le son de la pluie (sifflement et crépitement, plus doux sous les arbres, à peine entendu dedans) ; Réglages : « Toujours : pluie froide »… ; le labo (Ciel et nature, Son) les montre et les fait entendre
+- Le plan de l'ascension du mont King (étages, altitudes, températures, végétation, gameplay retenu) est noté dans DESIGN.md
+
 ## 1.67.0 — 2026-10-08
 - L'atelier : une pastille dans la barre des onglets, visible partout (dessins, carte, textes, nombres), dit ce qui a changé ici et n'est pas encore publié ; touchée, elle déplie la liste ; une ligne ouvre l'élément ; un seul bouton « Publier pour tous » envoie tout
 - L'éditeur de dessin, pensé pour l'iPad : une barre flottante en bas (outils, couleurs, taille, annuler) ; le dessin en plein écran ; les réglages dans un tiroir ; pincer à deux doigts pour zoomer, un tap à deux doigts annule, à trois rétablit, un appui long prend la couleur ; le Pencil dessine et le doigt déplace la vue (option « Le doigt dessine aussi ») ; les « + » d'agrandissement n'apparaissent qu'en mode « Agrandir » ; des interrupteurs à la place des petites cases

@@ -1,31 +1,31 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.67.0';
+import { startUpdateCheck } from '../app-update.js?v=1.68.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.67.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.67.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.67.0';
+} from './viking.js?v=1.68.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.68.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.68.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.67.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.67.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.67.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.67.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.67.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.67.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.67.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.67.0';
-import { createSea } from './sea.js?v=1.67.0';
-import { createTitleSea } from './titlesea.js?v=1.67.0';
-import { buildStatueDoor } from './statue.js?v=1.67.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.67.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.67.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.67.0';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.67.0';
-import { designRows, designsReady, loadDesigns, customDefs, customNames, refreshLocal } from './design-store.js?v=1.67.0';
-import { DESIGNS } from './designs.js?v=1.67.0';
+} from './world.js?v=1.68.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.68.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.68.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.68.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.68.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.68.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.68.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.68.0';
+import { createSea } from './sea.js?v=1.68.0';
+import { createTitleSea } from './titlesea.js?v=1.68.0';
+import { buildStatueDoor } from './statue.js?v=1.68.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.68.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.68.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.68.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.68.0';
+import { designRows, designsReady, loadDesigns, customDefs, customNames, refreshLocal } from './design-store.js?v=1.68.0';
+import { DESIGNS } from './designs.js?v=1.68.0';
 // (les dessins publiés et retouchés : le labo les montre ; on les modifie dans l'atelier)
 loadDesigns();
 // v1.67.0 : toute image du catalogue de l'atelier (la maison, la crypte, le
@@ -38,20 +38,20 @@ const live = rows => {
   const name = byRows.get(rows);
   return name ? designRows(name, rows, { grow: true }) : rows;
 };
-import * as PROPS from './props.js?v=1.67.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.67.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.67.0';
-import { audio, TRACKS } from './audio.js?v=1.67.0';
-import { DESCRIPTIONS } from './describe.js?v=1.67.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.67.0';
-import { RUIN_ART } from './ruins-art.js?v=1.67.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.67.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.67.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.67.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.67.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.67.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.67.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.67.0';
+import * as PROPS from './props.js?v=1.68.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.68.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.68.0';
+import { audio, TRACKS } from './audio.js?v=1.68.0';
+import { DESCRIPTIONS } from './describe.js?v=1.68.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.68.0';
+import { RUIN_ART } from './ruins-art.js?v=1.68.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.68.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.68.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.68.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.68.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.68.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.68.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.68.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -583,7 +583,7 @@ card('vent', {
 
 Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
   card('vent', {
-    title: p.label, tag: 'ABCDEFG'[k], about: p.about, wide: true, w: 240, h: 70,
+    title: p.label, tag: 'ABCDEFGHIJKLMNOP'[k], about: p.about, wide: true, w: 240, h: 70,
     // (l'orage se joue de nuit, pour voir l'éclair ouvrir le noir ; le tonnerre au clic)
     setup(s) { s.weather = createWeather(key); s.strikeNow = p.lightning > 0.05; s.weather.onStrike = near => setTimeout(() => audio.play('thunder', { near }), (1 - near) * 2600 + 120); },
     draw(ctx, pal, t, dt, s, v) {
@@ -1338,6 +1338,15 @@ card('corbeaux', {
     else audio.wind(0, 0);
     b.querySelector('span').textContent = windOn ? 'Couper le vent' : 'Vent (tempête)';
   });
+  // La pluie : chaque sorte, à écouter (un second clic la coupe)
+  let rainKind = null;
+  for (const [label, kind, lvl] of [['Bruine', 'pluie', 0.3], ['Pluie battante', 'pluie', 1], ['Grésil', 'gresil', 0.7], ['Grêle', 'grele', 0.9]]) {
+    add(label, 'cloud-rain', b => {
+      rainKind = rainKind === label ? null : label;
+      audio.rain(rainKind ? lvl : 0, kind, 0);
+      b.querySelector('span').textContent = rainKind ? `Couper : ${label.toLowerCase()}` : label;
+    });
+  }
   // L'humeur : le jeu la règle selon le lieu et le danger ; ici, à la main
   for (const [label, icon, m] of [
     ['Humeur : grève', 'sun', { energy: 0.4, dark: 0, muffled: 0, place: null }],

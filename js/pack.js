@@ -8,9 +8,9 @@
    sans mordre, à moins qu'on ne lève la lame sur eux.
 
    Comme foe.js, le module ne connaît la scène que par ce qu'on lui passe. */
-import { T } from './tuning.js?v=1.67.0';
-import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.67.0';
-import { paintFrames } from './viking.js?v=1.67.0';
+import { T } from './tuning.js?v=1.68.0';
+import { WOLF_ANIMS, wolfAnims, WOLF_W, WOLF_H, WOLF_GROUND } from './wolf.js?v=1.68.0';
+import { paintFrames } from './viking.js?v=1.68.0';
 
 // (leurs points de vie, leur nombre : T.loupPv, T.loups, tuning.js)
 const RING = { rx: 30, ry: 17 };      // ils tournent autour de lui, à distance

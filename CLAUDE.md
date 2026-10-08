@@ -764,7 +764,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `night` (0 → 1) et `dusk` (lueur de l'aube et du crépuscule) ; `torchLight`,
   le halo tramé de la torche (partagé jeu/labo).
 - `js/weather.js` — vent et neige, partagés jeu/labo. Ambiances Calme, Bise,
-  Rafales, Tempête, Orage de neige, Brouillard, Tourbillons ; **éclairs** (`lightning`, par seconde :
+  Rafales, Tempête, Orage de neige, Brouillard, Tourbillons, et (v1.68.0) la pluie : Bruine, Pluie froide, Averse, Orage de pluie, Grésil, Grêle (`precip`, `wet`, `splash` ; `weather.rain`, `weather.precip` ; `audio.rain`) ; **éclairs** (`lightning`, par seconde :
   rares dans la tempête, fréquents dans l'orage ; `strike(near)`, `flash` 1 → 0 qui
   ouvre la nuit et le noir de la vue, `bolt` le trait de la foudre, tonnerre
   `audio.play('thunder', { near })` après un délai) ; **brouillard** (`fog` :

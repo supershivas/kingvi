@@ -96,6 +96,9 @@ function buildWind() {
     body: layer(1, 'bandpass', 400, 0.7),
     air: layer(1.3, 'highpass', 3200, 0.5),
     whistles: [layer(0.7, 'bandpass', 1300, 14), layer(0.85, 'bandpass', 1900, 18)],
+    // la pluie : un sifflement fin qui ruisselle, et un crépitement plus grave
+    rainHiss: layer(1.5, 'highpass', 3600, 0.4),
+    rainPatter: layer(0.9, 'bandpass', 1500, 0.6),
     // (chacun ses phases : la même météo ne sonne jamais deux fois pareil)
     phase: Array.from({ length: 8 }, () => Math.random() * 100),
   };
@@ -371,6 +374,19 @@ export const audio = {
       w.filter.frequency.setTargetAtTime((1100 + i * 650) * (1 + 0.18 * Math.sin(t * 0.21 + ph[6 + i] * 2)) + 350 * gust, t, 0.4);
       w.pan.pan.setTargetAtTime((i ? 0.6 : -0.6) * Math.sin(t * 0.05 + i), t, 1);
     });
+  },
+
+  // La pluie : son poids (0 → 1), ce qui tombe ('pluie', 'gresil', 'grele'), et
+  // `muffled` (0 → 1) : sous un toit on n'entend que le crépitement, sous les arbres moins
+  rain(level, kind = 'pluie', muffled = 0) {
+    if (!ctx || !windLayers) return;
+    const t = ctx.currentTime, L = windLayers, k = Math.max(0, Math.min(1, level)) * (1 - 0.6 * Number(muffled));
+    const hard = kind === 'grele' ? 1 : kind === 'gresil' ? 0.5 : 0;     // (la grêle claque, plus sec et plus haut)
+    L.rainHiss.gain.gain.setTargetAtTime(0.09 * k * (1 - 0.7 * muffled), t, 0.5);
+    L.rainHiss.filter.frequency.setTargetAtTime(3400 + 1800 * hard, t, 0.5);
+    L.rainPatter.gain.gain.setTargetAtTime((0.05 + 0.08 * hard) * k * (muffled > 0.9 ? 1.6 : 1), t, 0.5);
+    L.rainPatter.filter.frequency.setTargetAtTime(1100 + 900 * hard + 500 * k, t, 0.6);
+    L.rainPatter.pan.pan.setTargetAtTime(0.3 * Math.sin(t * 0.07), t, 1.5);
   },
 
   // L'incendie : son grondement et ses crépitements, selon ce qu'on en entend (0 → 1)

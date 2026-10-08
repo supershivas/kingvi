@@ -1,9 +1,9 @@
 {
-  "version": "1.67.0",
+  "version": "1.68.0",
   "date": "2026-10-08",
   "changes": [
-    "L'atelier : une pastille, visible dans tous les onglets, liste ce qui n'est pas publié ; on publie tout d'un geste, et une ligne mène à l'élément",
-    "L'éditeur de dessin, refait pour l'iPad : barre d'outils flottante, pincer pour zoomer, tap à deux doigts pour annuler, le Pencil dessine et le doigt déplace, la lumière posée sur le dessin, image par image",
-    "Le labo montre les dessins tels qu'ils sont publiés (la maison, le temple, la crypte…)"
+    "La pluie arrive : bruine, pluie froide, averse, orage de pluie, grésil et grêle, avec leurs éclaboussures et leurs sons",
+    "Réglages : ces nouvelles météos s'ajoutent à « Toujours … » ; le labo les montre (Ciel et nature) et fait entendre la pluie (Son)",
+    "Premier pas de l'ascension du mont King : le plan est dans DESIGN.md"
   ]
 }

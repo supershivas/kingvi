@@ -1,4 +1,4 @@
-import { T } from './tuning.js?v=1.67.0';
+import { T } from './tuning.js?v=1.68.0';
 /* Vent et neige, partagés entre le jeu et le labo.
    La simulation ne dessine rien elle-même : `draw(rect)` appelle
    rect(x, y, w, h, couleur, opacité) pour chaque pixel ou trait, couleur
@@ -45,6 +45,43 @@ export const WEATHER_PRESETS = {
     base: 28, max: 75, sharp: 2, flakes: 1600, turb: 7, fall: 8, vortexRate: 0.8, drifts: 50,
   },
 };
+// v1.68.0 : la pluie, le grésil, la grêle. `precip` : ce qui tombe ('neige' par
+// défaut), `wet` : combien le sol est mouillé (0 → 1), `splash` : éclaboussures
+// par seconde et par écran. La phase de l'eau suit la température : au-dessus de
+// +1 °C la pluie, entre +1 et −1 °C le grésil, au-dessous la neige.
+Object.assign(WEATHER_PRESETS, {
+  bruine: {
+    label: 'Bruine',
+    about: 'Un crachin fin que le vent de mer rabat ; la vue se voile à peine.',
+    precip: 'pluie', base: 10, max: 30, sharp: 2, flakes: 700, turb: 4, fall: 95, vortexRate: 0, drifts: 0, fog: 0.35, wet: 0.45, splash: 14,
+  },
+  pluie: {
+    label: 'Pluie froide',
+    about: 'Des traits fins, penchés par le vent ; le sol les boit en anneaux.',
+    precip: 'pluie', base: 22, max: 65, sharp: 2, flakes: 1100, turb: 4, fall: 210, vortexRate: 0, drifts: 0, fog: 0.12, wet: 0.8, splash: 40,
+  },
+  averse: {
+    label: 'Averse',
+    about: 'Un rideau serré qui passe par vagues ; tout ruisselle.',
+    precip: 'pluie', base: 38, max: 100, sharp: 1.6, flakes: 1800, turb: 6, fall: 250, vortexRate: 0, drifts: 0, fog: 0.2, wet: 1, splash: 80,
+  },
+  'orage-pluie': {
+    label: 'Orage de pluie',
+    about: 'La pluie battante, le vent qui tourne, des éclairs qui ouvrent la nuit, le tonnerre qui roule.',
+    precip: 'pluie', base: 60, max: 160, sharp: 2, flakes: 2000, turb: 9, fall: 270, vortexRate: 0, drifts: 0, fog: 0.15, wet: 1, splash: 110, lightning: 1 / 9,
+  },
+  gresil: {
+    label: 'Grésil',
+    about: 'Pluie et flocons mêlés : ça blanchit en touchant le sol, sans tenir.',
+    precip: 'gresil', base: 30, max: 85, sharp: 2, flakes: 1300, turb: 6, fall: 130, vortexRate: 0, drifts: 12, wet: 0.6, splash: 22,
+  },
+  grele: {
+    label: 'Grêle',
+    about: 'Des grains durs qui rebondissent sur la neige et la pierre.',
+    precip: 'grele', base: 40, max: 115, sharp: 2, flakes: 650, turb: 3, fall: 270, vortexRate: 0, drifts: 0, wet: 0.5, splash: 45,
+  },
+});
+Object.defineProperty(WEATHER_PRESETS['orage-pluie'], 'lightning', { get: () => 1 / T.eclairOrage, enumerable: true });
 // (la fréquence des éclairs se règle dans l'atelier : tuning.js)
 Object.defineProperty(WEATHER_PRESETS.tempete, 'lightning', { get: () => 1 / T.eclairTempete, enumerable: true });
 Object.defineProperty(WEATHER_PRESETS.orage, 'lightning', { get: () => 1 / T.eclairOrage, enumerable: true });
@@ -69,7 +106,7 @@ export const WEATHER_CYCLE = [
 ];
 const BLEND = 18;
 const CYCLE_LENGTH = WEATHER_CYCLE.reduce((n, [, d]) => n + d, 0);
-const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate', 'drifts', 'lightning', 'fog'];
+const NUMERIC = ['base', 'max', 'sharp', 'flakes', 'turb', 'fall', 'vortexRate', 'drifts', 'lightning', 'fog', 'wet', 'splash'];
 
 // État du cycle à l'instant `seconds` : paramètres mêlés, phase en cours, suivante.
 export function cycleAt(seconds) {
@@ -83,6 +120,7 @@ export function cycleAt(seconds) {
   const a = WEATHER_PRESETS[key], b = WEATHER_PRESETS[next];
   const params = {};
   for (const n of NUMERIC) params[n] = (a[n] || 0) + ((b[n] || 0) - (a[n] || 0)) * ease;
+  params.precip = (ease > 0.5 ? b : a).precip || 'neige';
   return { params, phase: ease > 0.5 ? next : key, from: key, to: next, blend: ease, t, index: i };
 }
 
@@ -94,7 +132,7 @@ export const CYCLE_ABOUT = 'Le temps change de lui-même : calme, brouillard, bi
 export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
   const fixed = name => WEATHER_PRESETS[name] || null;
   let P = fixed(presetName) || cycleAt(Date.now() / 1000 * speed).params;
-  const flakes = [], drifts = [], vortices = [];
+  const flakes = [], drifts = [], vortices = [], splashes = [];
   let t = Math.random() * 100, t0 = null;
   let view = { x: 0, y: 0, width: 800, height: 440 };
 
@@ -103,7 +141,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     // L'éclair : `flash` (1 → 0, la nuit s'ouvre), `bolt` (le trait, un
     // instant), `fog` (0 → 1, la vue se referme). onStrike(near) : le jeu
     // fait gronder le tonnerre.
-    flash: 0, bolt: null, fog: 0, onStrike: null,
+    flash: 0, bolt: null, fog: 0, onStrike: null, wet: 0, rain: 0, precip: 'neige',
     strike(near = Math.random()) { strike(near); },
     setPreset(name) { w.preset = name; if (fixed(name)) { P = fixed(name); w.phase = name; } },
     update, draw,
@@ -133,6 +171,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     else { f.x = v.x + Math.random() * v.width; f.y = v.y + Math.random() * v.height; }
     f.z = Math.random();                 // proche (1) ou lointain (0)
     f.phase = Math.random() * 6.28;
+    f.k = Math.random();                 // (grésil : pluie ou flocon)
     f.vx = w.wind * (0.4 + 0.8 * f.z); f.vy = P.fall;
     return f;
   }
@@ -189,6 +228,9 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     view = v;
     t += dt;
     followCycle();
+    w.precip = P.precip || 'neige';
+    w.wet += ((P.wet || 0) - w.wet) * Math.min(1, dt * 0.15);          // (le sol met du temps à mouiller, et à sécher)
+    w.rain += (((w.precip === 'neige') ? 0 : Math.min(1, (P.flakes || 0) / 1800)) - w.rain) * Math.min(1, dt * 0.6);
     w.gust = gustAt(t);
     w.wind = P.base + (P.max - P.base) * w.gust;
 
@@ -222,8 +264,12 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     }
 
     for (const f of flakes) {
-      let tx = w.wind * (0.4 + 0.8 * f.z) + Math.sin(f.y * 0.05 + t * 1.3 + f.phase) * P.turb;
-      let ty = P.fall * (0.5 + f.z) + Math.cos(f.x * 0.04 + t * 1.1 + f.phase) * P.turb * 0.7;
+      const kind = kindOf(f);
+      // (la pluie tombe presque droit, penchée par le vent ; la neige flotte)
+      const slant = kind === 'neige' ? 1 : 0.55;
+      const fall = kind === 'neige' && w.precip === 'gresil' ? 12 : P.fall;
+      let tx = w.wind * (0.4 + 0.8 * f.z) * slant + Math.sin(f.y * 0.05 + t * 1.3 + f.phase) * P.turb * (kind === 'neige' ? 1 : 0.3);
+      let ty = fall * (kind === 'neige' ? 0.5 + f.z : 0.8 + 0.4 * f.z) + Math.cos(f.x * 0.04 + t * 1.1 + f.phase) * P.turb * 0.7 * (kind === 'neige' ? 1 : 0.2);
       for (const o of vortices) {
         const dx = f.x - o.x, dy = f.y - o.y, d = Math.hypot(dx, dy);
         if (d > o.r || d < 0.5) continue;
@@ -232,7 +278,7 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
         ty += (dx / d) * k * o.spin - (dy / d) * k * 0.25;
       }
       // Inertie : le flocon rejoint la vitesse voulue sans à-coups
-      const a = Math.min(1, dt * 4);
+      const a = Math.min(1, dt * (kind === 'neige' ? 4 : 9));
       f.vx += (tx - f.vx) * a;
       f.vy += (ty - f.vy) * a;
       f.x += f.vx * dt;
@@ -247,9 +293,46 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
       if (d.x - d.len > v.x + v.width) spawnDrift(d, false);
       else if (d.x < v.x - 120 || d.y < v.y - 20 || d.y > v.y + v.height + 20) spawnDrift(d, true);
     }
+
+    // Les éclaboussures : là où la pluie touche le sol, au hasard dans la vue
+    const per = (P.splash || 0) * area * w.density * ramp;
+    let n = per * dt; n = Math.floor(n) + (Math.random() < n % 1 ? 1 : 0);
+    if (w.precip === 'neige') n = 0;
+    for (let i = 0; i < n && splashes.length < 220; i++) {
+      splashes.push({ x: v.x + Math.random() * v.width, y: v.y + Math.random() * v.height, age: 0, hop: 1 + Math.random() * 2.5 });
+    }
+    for (let i = splashes.length - 1; i >= 0; i--) if ((splashes[i].age += dt) > 0.32) splashes.splice(i, 1);
+  }
+  // Ce qu'un flocon est : de la neige, de la pluie, un grain de grêle
+  function kindOf(f) {
+    const p = P.precip || 'neige';
+    if (p === 'gresil') return f.k < 0.55 ? 'pluie' : 'neige';
+    return p;
   }
 
+  // Une goutte : un trait fin couché dans le sens de sa chute, clair, avec
+  // une ombre sombre d'un pixel (visible sur la neige comme sur la nuit)
+  function drawDrop(f) {
+    const sp = Math.hypot(f.vx, f.vy) || 1, ux = f.vx / sp, uy = f.vy / sp;
+    const len = 2 + Math.round(f.z * 3 + Math.min(2, sp / 160));
+    const light = 0.55 + 0.4 * f.z;
+    for (let i = 0; i < len; i++) {
+      const px = Math.round(f.x - ux * i * 1.2), py = Math.round(f.y - uy * i * 1.2);
+      const fade = 1 - i / (len + 1);
+      rect2(px + 1, py, 1, 1, 'b', 0.6 * fade);
+      rect2(px, py, 1, 1, 's', light * fade);
+    }
+  }
+  // Un grain de grêle : court, dur, deux pixels de près
+  function drawHail(f) {
+    const size = f.z > 0.6 ? 2 : 1, x = Math.round(f.x), y = Math.round(f.y);
+    rect2(x + 1, y + 1, size, size, 'b', 0.4);
+    rect2(x, y, size, size, 's', 0.85);
+    rect2(Math.round(f.x - f.vx * 0.012), Math.round(f.y - f.vy * 0.012), 1, 1, 's', 0.4);
+  }
+  let rect2 = () => {};
   function draw(rect) {
+    rect2 = rect;
     // La foudre : un trait blanc pur (couleur 'w', la seule hors des trois du
     // jeu, voulue par Jérôme), cerné de nuit, qui se ramifie un peu
     if (w.bolt) {
@@ -276,6 +359,9 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
     }
     // Flocons : ombre, puis flocon ; traîné quand il file
     for (const f of flakes) {
+      const kind = kindOf(f);
+      if (kind === 'pluie') { drawDrop(f); continue; }
+      if (kind === 'grele') { drawHail(f); continue; }
       const sp = Math.hypot(f.vx, f.vy);
       const len = Math.max(1, Math.min(5, Math.round(sp / 40)));
       const size = f.z > 0.85 ? 2 : 1;
@@ -293,6 +379,19 @@ export function createWeather(presetName = 'cycle', { speed = 1 } = {}) {
           rect(px + 1, py + 1, size, size, 'b', shade * fade);
           rect(px, py, size, size, 's', light * fade);
         }
+      }
+    }
+    // Les éclaboussures : un anneau qui s'ouvre (pluie), un grain qui rebondit (grêle)
+    for (const sp of splashes) {
+      const k = sp.age / 0.32, x = Math.round(sp.x), y = Math.round(sp.y), a = 0.55 * (1 - k);
+      if (w.precip === 'grele') {
+        const h = Math.round(Math.sin(Math.PI * k) * sp.hop * 2);
+        rect(x, y - h, 1, 1, 's', 0.9 * (1 - k * 0.5));
+      } else if (k < 0.34) rect(x, y, 1, 1, 's', a + 0.2);
+      else {
+        const r = k < 0.67 ? 1 : 2;
+        rect(x - r, y, 1, 1, 's', a); rect(x + r, y, 1, 1, 's', a);
+        if (r === 1) rect(x, y - 1, 1, 1, 's', a * 0.6);
       }
     }
   }

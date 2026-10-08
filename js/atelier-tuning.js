@@ -2,8 +2,8 @@
    Chaque valeur s'enregistre en bougeant le curseur (`kingvi:tuning`) ; le jeu
    ouvert dans un autre onglet la prend aussitôt ; « Publier pour tous »
    l'envoie dans `assets/design/tuning.json`. */
-import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.67.0';
-import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.67.0';
+import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.68.0';
+import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.68.0';
 
 const fmt = (v, step) => (step < 1 ? v.toFixed(String(step).split('.')[1].length) : String(Math.round(v))).replace('.', ',');
 

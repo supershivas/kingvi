@@ -250,3 +250,34 @@ signalées, pas tranchées.
   d'ennemis, pas de combat à répétition. `[À VALIDER]`
 - **Pas de mort punitive.** On se réveille à la barque, le monde garde ce
   qu'on y a fait. `[À VALIDER]`
+
+
+## L'ascension du mont King (plan, v1.68.0 — décidé avec Jérôme)
+
+Le but devient le sommet. Le monde actuel reste tel quel : ce sont les premiers
+étages. On continue toujours vers le nord-est ; l'altitude est la distance
+parcourue le long de cet axe, et choisit végétation, météo, température.
+
+| # | Étage | Altitude | Température | Végétation |
+|---|---|---|---|---|
+| 1 | La grève | 0–100 m | +6 °C | oyats, varech, bois flotté, galets |
+| 2 | Les landes | 100–500 m | +3 → −1 | bruyère, ajoncs, fougères, bouleaux nains |
+| 3 | Le bois clair | 500–700 m | −1 → −3 | bouleaux, sorbiers à baies rouges, feuilles mortes |
+| 4 | La forêt noire | 700–1 300 m | −3 → −7 | sapins sans neige puis givrés |
+| 5 | Le haut-pays | 1 300–1 900 m | −8 → −12 | pins tordus, mélèzes, airelles |
+| 6 | La falaise et le plateau | 1 900–2 500 m | −13 → −17 | lichens, coussins |
+| 7 | Les éboulis | 2 500–3 100 m | −18 → −21 | pierriers |
+| 8 | Le glacier | 3 100–3 700 m | −22 → −27 | séracs, crevasses, givre |
+| 9 | L'arête | 3 700–4 200 m | −28 → −33 | corniches, perches givrées |
+| 10 | Le sommet | 4 300 m | −35 | une dalle |
+
+Eau : pluie au-dessus de +1 °C, grésil entre +1 et −1, neige au-dessous. Le
+temple de Sorne garde l'Aube comme première fin ; la vraie fin est au sommet.
+Gameplay retenu : le froid sans barre (givre, ralenti), des bivouacs (mort au
+dernier feu), l'abri contre la pluie, les sols (boue, glace, crevasse sondée),
+le vent qui pousse (arête seulement), des cairns facultatifs, le sommet visible
+dès le titre, les traces de ceux d'avant, l'air mince (doux). Refusés : la
+corde (équipement), le regard en arrière (zoom). Plus tard : « Froid doux ».
+Ordre : v1.68 pluie, v1.69 placeholders de végétation (37 types) et altitude,
+v1.70 végétation de l'existant, v1.71 froid et bivouacs, v1.72 prolongement
+nord-est, v1.73 vent, cairns, sommet visible, vraie fin.
