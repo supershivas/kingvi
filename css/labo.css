@@ -289,3 +289,56 @@ html.pxe-open { overflow: hidden; }
 .pxe-grow[data-grow="l"] { left: 4px; top: 50%; transform: translateY(-50%); }
 .pxe-grow[data-grow="r"] { right: 4px; top: 50%; transform: translateY(-50%); }
 @media (hover: hover) { .pxe-grow:hover { opacity: 1; background: var(--accent); border-color: var(--accent); color: #fff; } }
+
+/* ── L'éditeur, v1.67.0 (iPad) : le dessin en plein écran ; une barre
+   flottante en bas, à portée du pouce ; les réglages dans un tiroir ; les +
+   d'agrandissement seulement en mode « Agrandir » ── */
+.pxe-bar { flex-wrap: wrap; row-gap: 6px; }
+.pxe-titles { display: flex; flex-direction: column; min-width: 0; max-width: 34vw; }
+.pxe-titles .pxe-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pxe-titles .pxe-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pxe-spacer { flex: 1; }
+.pxe-mode { display: inline-flex; align-items: center; gap: 6px; padding: 0 12px; }
+.pxe-mode[hidden] { display: none; }
+.pxe-bar .pxe-mode.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (max-width: 900px) { .pxe-mode span { display: none; } .pxe-mode { padding: 0; justify-content: center; } }
+.pxe-body { position: relative; flex-direction: row; }
+.pxe-center { position: relative; }
+.pxe-stage { padding: 16px 16px 120px; }
+/* La barre flottante */
+.pxe-dock { position: absolute; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 5; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; width: max-content; max-width: calc(100% - 20px); padding: 8px 10px; background: rgba(255,255,255,.97); border: 1px solid #b4bfd0; border-radius: 18px; box-shadow: 0 8px 28px rgba(15,22,40,.28); }
+.pxe-dock[hidden] { display: none; }
+.pxe-dock > div { display: flex; align-items: center; gap: 4px; }
+.pxe-dock > div + div { padding-left: 8px; border-left: 1px solid #d4dbe7; }
+.pxe-dock .pxe-tools { flex-direction: row; flex-wrap: wrap; padding: 0; background: none; overflow: visible; }
+.pxe-dock .pxe-tools button { width: 44px; height: 44px; font-size: 1.15rem; }
+.pxe-dock .pxe-colors button { width: 40px; height: 40px; }
+.pxe-dock .pxe-size button { width: 44px; height: 44px; }
+.pxe-dock .pxe-size-n { min-width: 36px; }
+.pxe-dock .pxe-dens[hidden] { display: none; }
+.pxe-dock .pxe-dens button { min-width: 48px; min-height: 44px; border: 1px solid #b4bfd0; border-radius: 8px; background: #fff; font: inherit; font-size: .8rem; cursor: pointer; color: #1f2a44; }
+.pxe-dock .pxe-dens button.on { background: #1f2a44; color: #fff; }
+.pxe-undo button { width: 44px; height: 44px; border: 1px solid #b4bfd0; border-radius: 8px; background: #fff; font-size: 1.15rem; cursor: pointer; color: #1f2a44; }
+.pxe-undo button:disabled { opacity: .35; }
+/* « Dans le jeu » */
+.pxe-gamebar > button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px; border: 1px solid #b4bfd0; border-radius: 10px; background: #fff; font: inherit; font-size: .9rem; cursor: pointer; color: #1f2a44; }
+.pxe-gamebar > button.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pxe-gamebar > button:disabled { opacity: .4; }
+.pxe-gopt { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: .85rem; color: #1f2a44; }
+.pxe-gopt[hidden] { display: none; }
+.pxe-ghint { flex-basis: 100%; margin: 0; text-align: center; font-size: .78rem; color: #5b6784; }
+.pxe-ghint:empty { display: none; }
+.pxe.game .pxe-stage { box-shadow: inset 0 0 0 4px rgba(192,57,43,.5); }
+/* Le tiroir des réglages : par-dessus le dessin, à droite ; posé à côté sur un grand écran */
+.pxe-side { position: absolute; top: 0; right: 0; bottom: 0; z-index: 6; width: min(340px, 88vw); max-height: none; transform: translateX(calc(100% + 32px)); transition: transform .2s ease-out; box-shadow: -6px 0 24px rgba(15,22,40,.22); }
+.pxe.drawer-open .pxe-side { transform: none; }
+.pxe-side-head { display: flex; align-items: center; justify-content: space-between; }
+.pxe-side-head button { width: 44px; height: 44px; border: 1px solid #b4bfd0; border-radius: 8px; background: #fff; cursor: pointer; color: #1f2a44; }
+@media (min-width: 1400px) { .pxe.drawer-open .pxe-side { position: static; transform: none; box-shadow: none; } .pxe.drawer-open .pxe-side-head button { display: none; } }
+@media (max-width: 820px) { .pxe-body { flex-direction: row; } .pxe-side { width: min(340px, 92vw); max-height: none; } }
+/* Agrandir : les + n'apparaissent que dans ce mode, gros et rouges */
+.pxe .pxe-grow { display: none; }
+.pxe.growing .pxe-grow { display: grid; width: 48px; height: 48px; opacity: 1; background: var(--accent); border-color: var(--accent); color: #fff; font-size: 1.3rem; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+.pxe.growing .pxe-stage { box-shadow: inset 0 0 0 3px var(--accent); }
+.pxe-saved { max-width: 40vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pxe.growing .pxe-dock { display: none; }

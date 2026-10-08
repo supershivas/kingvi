@@ -538,6 +538,14 @@ est cachée et ne sort que pendant l'attaque.
   liens depuis les Réglages du jeu et l'en-tête du labo ; le labo montre et
   compare, l'atelier modifie ; ses boîtes de dialogue vont au `body` : rangées
   dans le labo, elles s'ouvraient cachées par `.lab-off` et figeaient la page ;
+  **ce qui n'est pas publié** (v1.67.0, `js/atelier-changes.js` : `listChanges`
+  compare chaque chose de ce navigateur au dépôt — dessins, assets créés, « Dans
+  le jeu », marges, images de plus, lieux, textes, nombres ; `mountChanges` : la
+  pastille de la barre des onglets, visible partout, sa liste, un seul « Publier
+  pour tous » ; une ligne mène à l'élément : `goTo` dans `atelier.js`, chaque
+  onglet rend `focus(clé)` ; les onglets n'ont plus leur propre bouton) ;
+  la liste des dessins à gauche, en tiroir sous 1000 px ou en portrait
+  (`tree-open`, `closeTree`), les derniers ouverts en tête (`kingvi:atelier-recent`) ;
   quatre onglets : **Nombres** (v1.63.0, `js/atelier-tuning.js`, `js/tuning.js` :
   `TUNING_DEFS` (clé, groupe, libellé, défaut, bornes, pas, unité), `T` que les
   modules lisent au moment de s'en servir — vitesse de Kári, course, points de
@@ -576,7 +584,20 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   se reprennent au lancement, cuits dans les morceaux de l'île). L'éditeur borne
   son zoom pour un si grand dessin (`ZMAX` : le canevas reste sous 16 millions
   de pixels, la limite de Safari sur iPad). Un **éditeur de pixels intégré**
-  (`openPixelEditor`, inspiré de pixel-studio : crayon, gomme, pot, ligne,
+  (`openPixelEditor`, v1.67.0 pensé pour l'iPad : en haut le titre, l'image, le
+  zoom, les modes « Agrandir » (les « + » des bords n'apparaissent qu'alors) et
+  « Dans le jeu », « Réglages » (un tiroir à droite, posé à côté sur un écran de
+  1400 px et plus) ; en bas une barre flottante `.pxe-dock` (outils, couleurs,
+  taille, trame, annuler) ; gestes : pincer à deux doigts zoome autour des
+  doigts (`zoomAt`), un tap à deux doigts annule, à trois rétablit, un appui
+  long (550 ms) prend la couleur ; le Pencil dessine, le doigt déplace la vue
+  dès qu'un Pencil s'est montré (`kingvi:pxe-pen`), sauf « Le doigt dessine
+  aussi » (`kingvi:pxe-finger`) ; **« Dans le jeu »** (option `game` : { get, set }
+  des `props`, `propsKey` / `gameProps` dans `atelier.js`) : la flamme, la zone,
+  l'ombre posées sur le dessin ; pour une animation, la flamme a une place par
+  image (`light.frames[i]`, null : celle de toutes ; « toutes les images
+  ensemble » la pose partout), et le jeu la lit sur l'image affichée
+  (`artAnims…shown`) ; crayon, gomme, pot, ligne,
   rectangle, ellipse, pipette, **trame** (pinceau tramé, trame de Bayer 4 × 4 comme
   le halo et les ombres du jeu, densité 25 / 50 / 75 %, accrochée aux pixels de
   l'image) et **dégradé tramé** (glisser un rectangle), taille des outils de 1 à
@@ -907,6 +928,14 @@ n'est jamais implémenté automatiquement.
   barque : accesseurs de `BOAT_FRAMES`). `world.js` n'est pas dans ce graphe
   (il vient avec `game.js`) : c'est ce qui permet `placed()`. Dans le labo et
   l'atelier, il se construit avant : l'atelier remet les placements par-dessus.
+
+- Le labo dessinait la maison, la crypte, le temple… avec les rangées du code :
+  il ne montrait pas les dessins publiés. v1.67.0 : `live(rows)` dans `labo.js`
+  reconnaît une image du catalogue à ses rangées d'origine (`DESIGNS`, même
+  tableau) et la remplace par `designRows` ; `drawRows` et `prerender` y passent
+  tous ; les cartes se refont quand les dessins arrivent (`designsReady`) ou
+  changent dans l'atelier (événement `storage`). Une nouvelle carte qui dessine
+  une image du catalogue doit lui passer le tableau d'origine, pas une copie.
 
 - Une boîte de dialogue (`<dialog>`) ne se range jamais dans les `.demos` du
   labo : la navigation en fait une variante cachée (`.lab-off`), elle s'ouvre

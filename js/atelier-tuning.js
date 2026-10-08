@@ -2,19 +2,17 @@
    Chaque valeur s'enregistre en bougeant le curseur (`kingvi:tuning`) ; le jeu
    ouvert dans un autre onglet la prend aussitôt ; « Publier pour tous »
    l'envoie dans `assets/design/tuning.json`. */
-import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.66.0';
-import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.66.0';
+import { readTuning, writeTuning, tuningDepotGet, tuningOverrides, designsReady } from './design-store.js?v=1.67.0';
+import { TUNING_DEFS, TUNING_GROUPS } from './tuning.js?v=1.67.0';
 
 const fmt = (v, step) => (step < 1 ? v.toFixed(String(step).split('.')[1].length) : String(Math.round(v))).replace('.', ',');
 
-export async function mountTuning(host, { onChange = () => {}, onPublish = null } = {}) {
+export async function mountTuning(host, { onChange = () => {} } = {}) {
   await designsReady;
   host.innerHTML = `
     <div class="at">
       <div class="at-bar">
-        <p class="design-note">Chaque nombre s'enregistre en bougeant le curseur ; le jeu ouvert dans un autre onglet le prend aussitôt (sauf le nombre de loups : au prochain lancement).</p>
-        <span class="dz-spacer"></span>
-        <button type="button" class="design-btn primary" data-publish-tuning><i class="ti ti-cloud-upload" aria-hidden="true"></i> Publier pour tous</button>
+        <p class="design-note">Chaque nombre s'enregistre en bougeant le curseur ; le jeu ouvert dans un autre onglet le prend aussitôt (sauf le nombre de loups : au prochain lancement). Pour publier : la pastille en haut à droite.</p>
       </div>
       <div class="tu-groups"></div>
     </div>`;
@@ -34,6 +32,7 @@ export async function mountTuning(host, { onChange = () => {}, onPublish = null 
       if (group !== gid) continue;
       const row = document.createElement('div');
       row.className = 'tu-row';
+      row.dataset.key = key;
       row.innerHTML = `
         <div class="tu-head"><b></b><span class="tu-val"></span><button type="button" class="design-btn quiet" data-reset>Défaut</button></div>
         <input type="range" min="${min}" max="${max}" step="${step}" aria-label="">
@@ -52,5 +51,12 @@ export async function mountTuning(host, { onChange = () => {}, onPublish = null 
     }
     wrap.append(sec);
   }
-  host.querySelector('[data-publish-tuning]').addEventListener('click', () => onPublish?.());
+  return {
+    focus(key) {
+      const row = wrap.querySelector(`.tu-row[data-key="${key}"]`);
+      if (!row) return;
+      row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      row.classList.add('flash'); setTimeout(() => row.classList.remove('flash'), 1600);
+    },
+  };
 }

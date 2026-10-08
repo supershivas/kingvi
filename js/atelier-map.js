@@ -4,33 +4,23 @@
    (`assets/design/placements.json`). Le jeu les lit en construisant l'île
    (`placed` dans world.js) : il faut le relancer pour voir le changement.
    Un repère ne se pose que sur la terre (ni la mer ni le lac). */
-import { designsReady, readPlacements, writePlacements, placementsDepot, placements, customDefs } from './design-store.js?v=1.66.0';
+import { designsReady, readPlacements, writePlacements, placementsDepot, placements, customDefs } from './design-store.js?v=1.67.0';
+import { PLACE_NAMES } from './atelier-changes.js?v=1.67.0';
 
 const PAL = { s: '#dfe6ee', b: '#1f2a44', r: '#c0392b' };
 
-export async function mountMap(host, { say = () => {}, onChange = () => {}, onPublish = null } = {}) {
+export async function mountMap(host, { say = () => {}, onChange = () => {} } = {}) {
   host.innerHTML = '<p class="design-note">Chargement de l\'île…</p>';
   await designsReady;
   // (le monde se construit ici, avec les placements déjà connus)
-  const W = await import('./world.js?v=1.66.0');
-  const M = await import('./map.js?v=1.66.0');
-  const PLACES = [
-    ['cube-blanc', 'Le cube blanc', W.SNO7_CUBES[0]],
-    ['cube-noir', 'Le cube noir', W.SNO7_CUBES[1]],
-    ['statue-ensevelie', 'Véla ensevelie', W.STATUE_BASE],
-    ['statue-debout', 'La grande Véla', W.STATUE2_BASE],
-    ['arche', 'L\'arche', W.ARCH],
-    ['colonne', 'La colonne couchée', W.RUINS.colonne],
-    ['socle', 'Le socle', W.RUINS.socle],
-    ['ruine', 'L\'arche en ruine', W.RUINS.arche],
-    ['bosquet', 'L\'arbre aux offrandes', W.GROVE_TREE],
-    ['guetteur', 'Le guetteur', W.WATCHER_AT],
-    ['louve', 'La louve blanche', W.HVIT_AT],
-    ['meute', 'La tanière des loups', W.WOLF_DEN],
-    ['sigrun', 'Sigrún dans la glace', W.SIGRUN_AT],
-    ['pas-des-morts', 'Le pas des morts', W.PASSAGE_AT],
-    ['mons', 'Le mons (là où il apparaît)', W.MONS_AT],
-  ];
+  const W = await import('./world.js?v=1.67.0');
+  const M = await import('./map.js?v=1.67.0');
+  const AT = {
+    'cube-blanc': W.SNO7_CUBES[0], 'cube-noir': W.SNO7_CUBES[1], 'statue-ensevelie': W.STATUE_BASE, 'statue-debout': W.STATUE2_BASE,
+    arche: W.ARCH, colonne: W.RUINS.colonne, socle: W.RUINS.socle, ruine: W.RUINS.arche, bosquet: W.GROVE_TREE, guetteur: W.WATCHER_AT,
+    louve: W.HVIT_AT, meute: W.WOLF_DEN, sigrun: W.SIGRUN_AT, 'pas-des-morts': W.PASSAGE_AT, mons: W.MONS_AT,
+  };
+  const PLACES = Object.entries(AT).map(([id, p]) => [id, PLACE_NAMES[id], p]);
   // (le monde a pu se construire avant que les placements publiés soient lus :
   // ceux-ci passent par-dessus)
   const known = placements();
@@ -50,12 +40,10 @@ export async function mountMap(host, { say = () => {}, onChange = () => {}, onPu
           <span class="dz-chip am-coords" role="status"></span>
           <select class="design-input am-asset" aria-label="Objet à poser"></select>
           <button type="button" class="design-btn" data-put><i class="ti ti-map-pin-plus" aria-hidden="true"></i> Poser un objet</button>
-          <span class="dz-spacer"></span>
-          <button type="button" class="design-btn primary" data-publish-map><i class="ti ti-cloud-upload" aria-hidden="true"></i> Publier pour tous</button>
         </div>
         <div class="am-scroll"><div class="am-board"><canvas></canvas></div></div>
       </div>
-      <aside class="am-list"><h3>Les lieux</h3><p class="design-note">Fais glisser un repère sur la carte. Relance le jeu pour voir le changement ; publie pour tout le monde.</p><ul></ul></aside>
+      <aside class="am-list"><h3>Les lieux</h3><p class="design-note">Fais glisser un repère sur la carte. Relance le jeu pour voir le changement ; pour publier : la pastille en haut à droite.</p><ul></ul></aside>
     </div>`;
   const board = host.querySelector('.am-board'), cv = board.querySelector('canvas');
   const coordsEl = host.querySelector('.am-coords'), list = host.querySelector('.am-list ul');
@@ -90,7 +78,6 @@ export async function mountMap(host, { say = () => {}, onChange = () => {}, onPu
     addMarker(id, label); layout(); store(id, { x, y }); select(id, true);
     say(`${def.label} posé. Fais-le glisser où tu veux.`);
   });
-  host.querySelector('[data-publish-map]').addEventListener('click', () => onPublish?.());
   host.querySelectorAll('[data-z]').forEach(b => { b.disabled = (+b.dataset.z < 0 && k <= 1) || (+b.dataset.z > 0 && k >= 6); });
   }
   function select(id, scroll = false) {
@@ -172,4 +159,6 @@ export async function mountMap(host, { say = () => {}, onChange = () => {}, onPu
   }
   host.querySelectorAll('[data-z]').forEach(b => b.addEventListener('click', () => { k = Math.max(1, Math.min(6, k + +b.dataset.z)); layout(); if (sel) select(sel, true); }));
   renderList(); layout();
+  // Aller à un lieu (depuis la liste des modifications)
+  return { focus: id => { if (markers.has(id)) select(id, true); } };
 }

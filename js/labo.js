@@ -1,46 +1,57 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.66.0';
+import { startUpdateCheck } from '../app-update.js?v=1.67.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.66.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.66.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.66.0';
+} from './viking.js?v=1.67.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.67.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.67.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.66.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.66.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.66.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.66.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.66.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.66.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.66.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.66.0';
-import { createSea } from './sea.js?v=1.66.0';
-import { createTitleSea } from './titlesea.js?v=1.66.0';
-import { buildStatueDoor } from './statue.js?v=1.66.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.66.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.66.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.66.0';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.66.0';
-import { designRows, designsReady, loadDesigns, customDefs, customNames } from './design-store.js?v=1.66.0';
+} from './world.js?v=1.67.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.67.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.67.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.67.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.67.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.67.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.67.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.67.0';
+import { createSea } from './sea.js?v=1.67.0';
+import { createTitleSea } from './titlesea.js?v=1.67.0';
+import { buildStatueDoor } from './statue.js?v=1.67.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.67.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.67.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.67.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.67.0';
+import { designRows, designsReady, loadDesigns, customDefs, customNames, refreshLocal } from './design-store.js?v=1.67.0';
+import { DESIGNS } from './designs.js?v=1.67.0';
 // (les dessins publiés et retouchés : le labo les montre ; on les modifie dans l'atelier)
 loadDesigns();
-import * as PROPS from './props.js?v=1.66.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.66.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.66.0';
-import { audio, TRACKS } from './audio.js?v=1.66.0';
-import { DESCRIPTIONS } from './describe.js?v=1.66.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.66.0';
-import { RUIN_ART } from './ruins-art.js?v=1.66.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.66.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.66.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.66.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.66.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.66.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.66.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.66.0';
+// v1.67.0 : toute image du catalogue de l'atelier (la maison, la crypte, le
+// temple, le coffre, la grotte…) est montrée telle qu'elle est publiée ou
+// retouchée dans ce navigateur, pas telle que le code la dessinait ; on la
+// reconnaît à ses rangées d'origine
+let byRows = null;
+const live = rows => {
+  byRows = byRows || new Map(DESIGNS.map(d => [d.rows, d.name]));
+  const name = byRows.get(rows);
+  return name ? designRows(name, rows, { grow: true }) : rows;
+};
+import * as PROPS from './props.js?v=1.67.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.67.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.67.0';
+import { audio, TRACKS } from './audio.js?v=1.67.0';
+import { DESCRIPTIONS } from './describe.js?v=1.67.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.67.0';
+import { RUIN_ART } from './ruins-art.js?v=1.67.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.67.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.67.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.67.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.67.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.67.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.67.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.67.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -56,6 +67,7 @@ const FRAMES = Object.fromEntries(vikingFrames().map(f => [f.name, f]));
 
 // ── Dessin ──
 function drawRows(ctx, pal, rows, x0, y0, flip = false) {
+  rows = live(rows);
   const w = rows[0].length;
   rows.forEach((row, y) => {
     for (let x = 0; x < w; x++) {
@@ -115,10 +127,20 @@ function card(section, { title, tag, about, w, h, wide = false, setup, draw, but
     el.append(b);
   }
   document.querySelector(`#${section} .demos`).append(el);
-  const demo = { el, views, draw, visible: true };
+  const demo = { el, views, draw, visible: true, setup };
   new IntersectionObserver(([e]) => { demo.visible = e.isIntersecting; }).observe(el);
   demos.push(demo);
 }
+
+// Les dessins publiés arrivent après la préparation des cartes, et l'atelier
+// peut en changer un dans un autre onglet : les cartes se refont
+const redo = () => { for (const d of demos) for (const v of d.views) { v.state = {}; d.setup?.(v.state, v); } };
+designsReady.then(redo);
+window.addEventListener('storage', e => {
+  if (e.key && !/^kingvi:(designs|design-extras|custom)/.test(e.key)) return;
+  refreshLocal();
+  redo();
+});
 
 let last = performance.now();
 function loop(now) {
@@ -589,6 +611,7 @@ Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
 
 // ══ Arbres ══
 function prerender(rows, pal) {
+  rows = live(rows);
   const c = document.createElement('canvas');
   c.width = rows[0].length; c.height = rows.length;
   drawRows(c.getContext('2d'), pal, rows, 0, 0);

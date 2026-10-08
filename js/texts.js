@@ -4,11 +4,11 @@
    story.js) : `applyTexts` y écrit les textes réécrits, sur place, après avoir
    remis ceux du code. main.js l'appelle avant de charger le jeu, et de
    nouveau quand l'atelier, dans un autre onglet, change un texte. */
-import { DESCRIPTIONS } from './describe.js?v=1.66.0';
-import { PEOPLE, SCENARIOS, speakerName } from './saga.js?v=1.66.0';
-import { RELICS } from './relics.js?v=1.66.0';
-import { CHAPTERS } from './chapters.js?v=1.66.0';
-import { PROLOGUE, ENDINGS, HINTS } from './story.js?v=1.66.0';
+import { DESCRIPTIONS } from './describe.js?v=1.67.0';
+import { PEOPLE, SCENARIOS, speakerName } from './saga.js?v=1.67.0';
+import { RELICS } from './relics.js?v=1.67.0';
+import { CHAPTERS } from './chapters.js?v=1.67.0';
+import { PROLOGUE, ENDINGS, HINTS } from './story.js?v=1.67.0';
 
 // Une entrée : { key, group, section, label, who, get, set } ; `original` : le texte du code
 function build() {

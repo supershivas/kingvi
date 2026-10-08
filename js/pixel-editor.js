@@ -18,8 +18,8 @@
    `order` : l'ordre de lecture (indices dans `frames`, avec répétitions) ;
    `onSave(name, rows)` est appelé pour chaque image modifiée, après chaque trait ;
    `onReset(name)` quand on revient au dessin d'origine. */
-import { gamePalette } from './design-store.js?v=1.66.0';
-import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.66.0';
+import { gamePalette } from './design-store.js?v=1.67.0';
+import { paintSheet, FRAME_W, FRAME_H } from './viking.js?v=1.67.0';
 
 const EMPTY = 0, SNOW = 1, NIGHT = 2, RED = 3, SHADE = 4;
 const CODE = { '.': EMPTY, s: SNOW, b: NIGHT, k: NIGHT, r: RED, h: SHADE };
@@ -53,77 +53,90 @@ function viking(pal) {
 function build() {
   const d = document.createElement('dialog');
   d.className = 'pxe';
+  // v1.67.0 (iPad) : en haut, le titre, l'image, le zoom, les modes et les
+  // réglages ; le dessin en plein écran ; en bas, une barre flottante à portée
+  // du pouce (outils, couleurs, taille, annuler) ; le reste dans un tiroir
   d.innerHTML = `
     <div class="pxe-bar">
-      <strong class="pxe-title"></strong>
-      <span class="pxe-sub"></span>
-      <span class="pxe-grow"></span>
+      <div class="pxe-titles"><strong class="pxe-title"></strong><span class="pxe-sub"></span></div>
       <span class="pxe-saved" role="status"></span>
       <span class="pxe-nav" hidden>
-        <button type="button" data-act="prevf" title="Image précédente ( , )"><i class="ti ti-chevron-left"></i></button>
+        <button type="button" data-act="prevf" title="Image précédente ( , )" aria-label="Image précédente"><i class="ti ti-chevron-left"></i></button>
         <span class="pxe-fnum"></span>
-        <button type="button" data-act="nextf" title="Image suivante ( . )"><i class="ti ti-chevron-right"></i></button>
+        <button type="button" data-act="nextf" title="Image suivante ( . )" aria-label="Image suivante"><i class="ti ti-chevron-right"></i></button>
       </span>
-      <button type="button" data-act="undo" title="Annuler (Ctrl+Z)"><i class="ti ti-arrow-back-up"></i></button>
-      <button type="button" data-act="redo" title="Rétablir (Ctrl+Y)"><i class="ti ti-arrow-forward-up"></i></button>
-      <button type="button" data-act="zoomout" title="Zoom arrière (−)"><i class="ti ti-zoom-out"></i></button>
+      <span class="pxe-spacer"></span>
+      <button type="button" data-act="zoomout" title="Zoom arrière (−) · pincer à deux doigts" aria-label="Zoom arrière"><i class="ti ti-zoom-out"></i></button>
       <span class="pxe-zoom"></span>
-      <button type="button" data-act="zoomin" title="Zoom avant (+)"><i class="ti ti-zoom-in"></i></button>
-      <button type="button" data-act="fit" title="Ajuster à l'écran (0)"><i class="ti ti-arrows-maximize"></i></button>
+      <button type="button" data-act="zoomin" title="Zoom avant (+) · écarter deux doigts" aria-label="Zoom avant"><i class="ti ti-zoom-in"></i></button>
+      <button type="button" data-act="fit" title="Ajuster à l'écran (0)" aria-label="Ajuster à l'écran"><i class="ti ti-arrows-maximize"></i></button>
+      <button type="button" data-act="grow-mode" class="pxe-mode" hidden title="Agrandir le canevas : des + apparaissent sur les quatre bords"><i class="ti ti-arrows-diagonal"></i><span>Agrandir</span></button>
+      <button type="button" data-act="game-mode" class="pxe-mode" hidden title="Dans le jeu : la lumière, la zone qui bloque, l'ombre, posées sur le dessin"><i class="ti ti-bulb"></i><span>Dans le jeu</span></button>
+      <button type="button" data-act="drawer" class="pxe-mode" title="Réglages : animation, symétries, grille, aperçu"><i class="ti ti-adjustments-horizontal"></i><span>Réglages</span></button>
       <button type="button" data-act="close" class="pxe-close">Fermer</button>
     </div>
     <div class="pxe-body">
-      <div class="pxe-tools"></div>
       <div class="pxe-center">
         <div class="pxe-stagewrap">
           <div class="pxe-stage"><canvas class="pxe-canvas"></canvas></div>
-          <button type="button" class="pxe-grow" data-grow="t" hidden title="Agrandir le canevas en haut (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
-          <button type="button" class="pxe-grow" data-grow="b" hidden title="Agrandir le canevas en bas (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
-          <button type="button" class="pxe-grow" data-grow="l" hidden title="Agrandir le canevas à gauche (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
-          <button type="button" class="pxe-grow" data-grow="r" hidden title="Agrandir le canevas à droite (Maj : 8 pixels)"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="t" title="Une rangée de plus en haut (Maj : 8)" aria-label="Agrandir en haut"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="b" title="Une rangée de plus en bas (Maj : 8)" aria-label="Agrandir en bas"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="l" title="Une colonne de plus à gauche (Maj : 8)" aria-label="Agrandir à gauche"><i class="ti ti-plus"></i></button>
+          <button type="button" class="pxe-grow" data-grow="r" title="Une colonne de plus à droite (Maj : 8)" aria-label="Agrandir à droite"><i class="ti ti-plus"></i></button>
+          <div class="pxe-dock" role="toolbar" aria-label="Outils">
+            <div class="pxe-tools"></div>
+            <div class="pxe-colors"></div>
+            <div class="pxe-size">
+              <button type="button" data-act="smaller" title="Plus petit ( [ )" aria-label="Outil plus petit">−</button>
+              <span class="pxe-size-n"></span>
+              <button type="button" data-act="bigger" title="Plus grand ( ] )" aria-label="Outil plus grand">+</button>
+            </div>
+            <div class="pxe-dens" hidden>${DENSITIES.map(([t], i) => `<button type="button" data-dens="${i}" title="Densité de la trame">${t}</button>`).join('')}</div>
+            <div class="pxe-undo">
+              <button type="button" data-act="undo" title="Annuler (Ctrl+Z) · tap à deux doigts" aria-label="Annuler"><i class="ti ti-arrow-back-up"></i></button>
+              <button type="button" data-act="redo" title="Rétablir (Ctrl+Y) · tap à trois doigts" aria-label="Rétablir"><i class="ti ti-arrow-forward-up"></i></button>
+            </div>
+          </div>
+          <div class="pxe-dock pxe-gamebar" hidden role="toolbar" aria-label="Dans le jeu">
+            <button type="button" data-g="light" title="Poser la flamme : touche le dessin"><i class="ti ti-flame"></i><span>Flamme</span></button>
+            <button type="button" data-g="box" title="Tracer la zone qui bloque : glisse sur le pied"><i class="ti ti-square-dashed"></i><span>Zone</span></button>
+            <label class="pxe-gopt"><input type="checkbox" data-gp="lit"> Éclaire</label>
+            <label class="pxe-gopt" data-g-lit><input type="checkbox" data-gp="big"> Grande portée</label>
+            <label class="pxe-gopt"><input type="checkbox" data-gp="block"> Bloque</label>
+            <label class="pxe-gopt"><input type="checkbox" data-gp="shadow"> Ombre</label>
+            <p class="pxe-ghint"></p>
+          </div>
         </div>
         <div class="pxe-frames" hidden></div>
       </div>
       <aside class="pxe-side">
+        <div class="pxe-side-head"><b>Réglages</b><button type="button" data-act="drawer" aria-label="Fermer les réglages"><i class="ti ti-x"></i></button></div>
         <div class="pxe-anim" hidden>
           <h4>Animation</h4>
           <label><input type="checkbox" data-opt="all"> Modifier toutes les images ensemble</label>
-          <p class="pxe-hint">Coché : chaque trait, chaque gomme, chaque couleur et chaque décalage se fait sur toutes les images à la fois. Décoché : sur l'image en cours seulement.</p>
+          <p class="pxe-hint">Chaque trait, chaque gomme, chaque décalage (et la flamme, dans le jeu) sur toutes les images à la fois.</p>
           <label><input type="checkbox" data-opt="onion"> Pelure d'oignon</label>
           <div class="pxe-onion-n">Images voisines :
             <button type="button" data-onion="1">1</button><button type="button" data-onion="2">2</button>
           </div>
           <p class="pxe-hint">Les images d'avant en rouge, celles d'après en bleu, en transparence.</p>
           <div class="pxe-nudge" title="Décaler le dessin d'un pixel (toutes les images si « ensemble » est coché)">
-            <button type="button" data-nudge="-1,0"><i class="ti ti-arrow-left"></i></button>
-            <button type="button" data-nudge="0,-1"><i class="ti ti-arrow-up"></i></button>
-            <button type="button" data-nudge="0,1"><i class="ti ti-arrow-down"></i></button>
-            <button type="button" data-nudge="1,0"><i class="ti ti-arrow-right"></i></button>
+            <button type="button" data-nudge="-1,0" aria-label="Décaler à gauche"><i class="ti ti-arrow-left"></i></button>
+            <button type="button" data-nudge="0,-1" aria-label="Décaler en haut"><i class="ti ti-arrow-up"></i></button>
+            <button type="button" data-nudge="0,1" aria-label="Décaler en bas"><i class="ti ti-arrow-down"></i></button>
+            <button type="button" data-nudge="1,0" aria-label="Décaler à droite"><i class="ti ti-arrow-right"></i></button>
             <span>Décaler</span>
           </div>
           <div class="pxe-play">
-            <button type="button" data-act="play" title="Lecture (P)"><i class="ti ti-player-play"></i></button>
-            <button type="button" data-act="slower" title="Plus lent">−</button>
+            <button type="button" data-act="play" title="Lecture (P)" aria-label="Lecture"><i class="ti ti-player-play"></i></button>
+            <button type="button" data-act="slower" title="Plus lent" aria-label="Plus lent">−</button>
             <span class="pxe-fps"></span>
-            <button type="button" data-act="faster" title="Plus vite">+</button>
+            <button type="button" data-act="faster" title="Plus vite" aria-label="Plus vite">+</button>
           </div>
         </div>
-        <h4>Couleur</h4>
-        <div class="pxe-colors"></div>
-        <h4>Taille de l'outil</h4>
-        <div class="pxe-size">
-          <button type="button" data-act="smaller" title="Plus petit ( [ )">−</button>
-          <span class="pxe-size-n"></span>
-          <button type="button" data-act="bigger" title="Plus grand ( ] )">+</button>
-        </div>
-        <div class="pxe-dens" hidden>
-          <div class="pxe-dens-set">
-            <h4>Densité de la trame</h4>
-            <div class="pxe-dens-btns">${DENSITIES.map(([t], i) => `<button type="button" data-dens="${i}">${t}</button>`).join('')}</div>
-          </div>
-          <p class="pxe-hint">La trame du jeu : des points régulièrement espacés. « Dégradé tramé » : glissez un rectangle, la trame s'éclaircit du début vers la fin du geste.</p>
-        </div>
-        <h4>Options</h4>
+        <h4>Dessiner</h4>
+        <label><input type="checkbox" data-opt="finger"> Le doigt dessine aussi</label>
+        <p class="pxe-hint">Éteint : le Pencil dessine, un doigt déplace la vue. Deux doigts : pincer pour zoomer ; un tap à deux doigts annule, à trois rétablit. Un appui long prend la couleur sous la pointe.</p>
         <label><input type="checkbox" data-opt="fill"> Formes pleines</label>
         <label><input type="checkbox" data-opt="mirrorH"> Symétrie gauche / droite</label>
         <label><input type="checkbox" data-opt="mirrorV"> Symétrie haut / bas</label>
@@ -141,7 +154,10 @@ function build() {
   return d;
 }
 
-export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null, onGrow = null }) {
+// `game` : ce que le dessin fait dans le jeu (la lumière, la zone qui bloque,
+// l'ombre), réglé sur le dessin : { get() → props, set(props) } ; la flamme
+// peut avoir une place par image (`light.frames`), pour une lanterne qui se balance
+export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSave, onReset, onClose = () => {}, onAddFrame = null, onRemoveFrame = null, onMoveFrame = null, onGrow = null, game = null }) {
   dlg?.remove();
   dlg = build();
   const pal = gamePalette();
@@ -159,8 +175,9 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const view = $('.pxe-canvas'), vctx = view.getContext('2d'), stage = $('.pxe-stage');
   // Agrandir le canevas d'un côté (d'un pixel ; Maj : de huit) : l'atelier
   // enregistre, agrandit toutes les images ensemble et rouvre l'éditeur
+  $('[data-act="grow-mode"]').hidden = !onGrow;
+  $('[data-act="game-mode"]').hidden = !game;
   for (const b of dlg.querySelectorAll('[data-grow]')) {
-    b.hidden = !onGrow;
     b.addEventListener('click', e => {
       const side = b.dataset.grow, n = e.shiftKey ? 8 : 1, at = fi, rows = toRows(grid);
       changed = true; dirty.add(fi);
@@ -183,7 +200,12 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   const snapAll = () => grids.map(g => g.slice());
   const restore = snapshot => snapshot.forEach((s, i) => grids[i].set(s));
   let hist = [], hp = -1;
-  const st = { tool: 'pencil', color: SNOW, size: 1, dens: 1, fill: false, mirrorH: false, mirrorV: false, grid: true, bg: 'mid', z: 4, all: false, onion: n > 1, onionN: 1 };
+  // (le doigt dessine-t-il ? Oui, jusqu'à ce qu'un Pencil se montre ; ou ce qu'on a choisi)
+  const pref = k => { try { return localStorage.getItem(k); } catch { return null; } };
+  const keep = (k, v) => { try { localStorage.setItem(k, v); } catch { /* rien */ } };
+  const fingerChoice = pref('kingvi:pxe-finger');
+  const st = { tool: 'pencil', color: SNOW, size: 1, dens: 1, fill: false, mirrorH: false, mirrorV: false, grid: true, bg: 'mid', z: 4, all: false, onion: n > 1, onionN: 1,
+    finger: fingerChoice != null ? fingerChoice === '1' : pref('kingvi:pxe-pen') !== '1', mode: 'draw', g: 'light', growing: false };
   let drag = null, saveTimer = 0, changed = false, spaceDown = false;
   let playing = false, pf = 0, pfps = fps, timer = 0;
 
@@ -229,8 +251,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     for (const b of dlg.querySelectorAll('[data-bg]')) b.classList.toggle('on', b.dataset.bg === st.bg);
     for (const b of dlg.querySelectorAll('[data-dens]')) b.classList.toggle('on', +b.dataset.dens === st.dens);
     for (const b of dlg.querySelectorAll('[data-onion]')) b.classList.toggle('on', +b.dataset.onion === st.onionN);
-    $('.pxe-dens').hidden = st.tool !== 'dither' && st.tool !== 'gradient';
-    $('.pxe-dens-set').hidden = st.tool !== 'dither';
+    $('.pxe-dens').hidden = st.tool !== 'dither';
     $('.pxe-size-n').textContent = `${st.size} px`;
     $('[data-act="smaller"]').disabled = st.size <= 1; $('[data-act="bigger"]').disabled = st.size >= 5;
     $('[data-act="undo"]').disabled = hp <= 0; $('[data-act="redo"]').disabled = hp >= hist.length - 1;
@@ -241,9 +262,34 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     $('.pxe-fps').textContent = `${pfps} im/s`;
     for (const i of dlg.querySelectorAll('[data-act="play"] i')) i.className = `ti ti-player-${playing ? 'pause' : 'play'}`;
     for (const b of dlg.querySelectorAll('[data-toggle]')) b.classList.toggle('on', !!st[b.dataset.toggle]);
-    $('[data-opt="all"]').checked = st.all; $('[data-opt="onion"]').checked = st.onion;
+    $('[data-opt="all"]').checked = st.all; $('[data-opt="onion"]').checked = st.onion; $('[data-opt="finger"]').checked = st.finger;
     $('.pxe-body').classList.toggle('all-frames', st.all && n > 1);
+    dlg.classList.toggle('growing', st.growing);
+    dlg.classList.toggle('game', st.mode === 'game');
+    $('[data-act="grow-mode"]').classList.toggle('on', st.growing);
+    $('[data-act="game-mode"]').classList.toggle('on', st.mode === 'game');
+    $('.pxe-dock:not(.pxe-gamebar)').hidden = st.mode === 'game';
+    $('.pxe-gamebar').hidden = st.mode !== 'game';
+    if (game && st.mode === 'game') syncGame();
   };
+  // La barre « Dans le jeu » : ce que fait le dessin, et l'outil (flamme ou zone)
+  function syncGame() {
+    const p = game.get() || {};
+    for (const b of dlg.querySelectorAll('[data-g]')) { b.classList.toggle('on', b.dataset.g === st.g); }
+    dlg.querySelector('[data-g="light"]').disabled = !p.light;
+    dlg.querySelector('[data-g="box"]').disabled = !p.box;
+    dlg.querySelector('[data-gp="lit"]').checked = !!p.light;
+    dlg.querySelector('[data-gp="big"]').checked = !!p.light?.big;
+    dlg.querySelector('[data-g-lit]').hidden = !p.light;
+    dlg.querySelector('[data-gp="block"]').checked = !!p.box;
+    dlg.querySelector('[data-gp="shadow"]').checked = !!p.shadow;
+    const own = n > 1 && !st.all && p.light?.frames?.[fi];
+    $('.pxe-ghint').textContent = !p.light && !p.box ? 'Allume « Éclaire » ou « Bloque », puis pose-les sur le dessin.'
+      : st.g === 'light' && p.light ? (n > 1 ? (st.all ? 'Touche le dessin : la flamme, au même endroit sur toutes les images.' : `Touche le dessin : la flamme de l'image ${fi + 1}${own ? '' : ' (pour l\'instant, celle de toutes les images)'}. Change d'image pour la suivre.`) : 'Touche le dessin, là où est la flamme.')
+      : st.g === 'box' && p.box ? 'Glisse sur le dessin pour tracer la zone qui bloque : le pied, pas toute la hauteur.' : '';
+  }
+  // La flamme de l'image `i` (sa place propre, ou celle de toutes les images)
+  const lightOf = (p, i) => p.light && (p.light.frames?.[i] || p.light);
 
   // ── Dessin ──
   const bgColor = () => ({ snow: hex(pal.s), night: hex(pal.b), mid: '#7f8aa3' })[st.bg];
@@ -284,9 +330,44 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
         }
       }
     }
+    if (game && st.mode === 'game' && !playing) drawGame();
     renderPreview();
     drawThumbs();
     sync();
+  }
+  // Par-dessus le dessin : la zone qui bloque (rouge pâle), la flamme de cette
+  // image (croix rouge) et, pâles, celles des autres images
+  function drawGame() {
+    const p = game.get() || {}, z = st.z;
+    if (p.box) {
+      const b = p.box;
+      vctx.fillStyle = 'rgba(192,57,43,.35)';
+      vctx.fillRect(b.x0 * z, b.y0 * z, (b.x1 - b.x0 + 1) * z, (b.y1 - b.y0 + 1) * z);
+      vctx.strokeStyle = 'rgba(192,57,43,.9)'; vctx.lineWidth = 2;
+      vctx.strokeRect(b.x0 * z + 1, b.y0 * z + 1, (b.x1 - b.x0 + 1) * z - 2, (b.y1 - b.y0 + 1) * z - 2);
+    }
+    if (!p.light) return;
+    const cross = (q, a) => {
+      vctx.fillStyle = `rgba(192,57,43,${a})`;
+      for (const [dx, dy] of [[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1], [-2, 0], [2, 0], [0, -2], [0, 2]]) vctx.fillRect((q.x + dx) * z, (q.y + dy) * z, z, z);
+    };
+    if (n > 1) for (let i = 0; i < n; i++) if (i !== fi) cross(lightOf(p, i), 0.22);
+    cross(lightOf(p, fi), 1);
+  }
+  // Poser la flamme (sur cette image, ou sur toutes), tracer la zone
+  function setGame(fn) { const p = { ...(game.get() || {}) }; fn(p); game.set(p); render(); }
+  function placeLight(q) {
+    setGame(p => {
+      if (!p.light) return;
+      if (n > 1 && !st.all) {
+        const fr = Array.from({ length: n }, (_, i) => p.light.frames?.[i] || null);
+        fr[fi] = { x: q.x, y: q.y };
+        p.light = { ...p.light, frames: fr };
+      } else {
+        const { frames: _drop, ...rest } = p.light;
+        p.light = { ...rest, x: q.x, y: q.y };
+      }
+    });
   }
   function renderPreview() {
     const g = grids[playing ? playOrder[pf % playOrder.length] : fi];
@@ -419,18 +500,34 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   snap();
 
   // ── Pointeur : souris, doigt, Apple Pencil ──
-  // Un doigt dessine ; deux doigts déplacent la vue (le trait commencé est annulé).
+  // Le Pencil (et la souris) dessine ; le doigt déplace la vue, sauf si « Le
+  // doigt dessine aussi ». Deux doigts : pincer pour zoomer, glisser pour
+  // déplacer (un trait commencé est annulé) ; un tap à deux doigts annule, à
+  // trois rétablit. Un appui long sans bouger prend la couleur sous la pointe.
   // Aucun menu de sélection ni loupe : on les coupe à la source.
   const cell = e => {
     const r = view.getBoundingClientRect();
     return { x: Math.floor((e.clientX - r.left) / st.z), y: Math.floor((e.clientY - r.top) / st.z) };
   };
+  const inside = q => ({ x: Math.max(0, Math.min(w - 1, q.x)), y: Math.max(0, Math.min(h - 1, q.y)) });
   const touches = new Map();
-  let panning = null;
+  let pinch = null, fingerPan = null, tap = null, longT = 0, longAt = null;
   const centroid = () => {
     const t = [...touches.values()];
     return { x: t.reduce((a, p) => a + p.x, 0) / t.length, y: t.reduce((a, p) => a + p.y, 0) / t.length };
   };
+  const spread = () => { const [a, b] = [...touches.values()]; return Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)); };
+  // Zoomer en gardant sous les doigts le même point du dessin
+  function zoomAt(z, cx, cy) {
+    z = Math.max(1, Math.min(ZMAX, z));
+    if (z === st.z) return;
+    const r = view.getBoundingClientRect(), px = (cx - r.left) / st.z, py = (cy - r.top) / st.z;
+    st.z = z; render();
+    const r2 = view.getBoundingClientRect();
+    stage.scrollLeft += r2.left + px * z - cx; stage.scrollTop += r2.top + py * z - cy;
+  }
+  const cancelLong = () => { clearTimeout(longT); longT = 0; longAt = null; };
+  const flashSaved = t => { $('.pxe-saved').textContent = t; };
   const paintAt = p => {
     if (st.tool === 'pencil' || st.tool === 'eraser' || st.tool === 'dither') {
       line(drag.last.x, drag.last.y, p.x, p.y, (x, y) => stamp(x, y, drag.c, st.tool === 'dither'));
@@ -439,19 +536,35 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   };
   stage.addEventListener('pointerdown', e => {
     e.preventDefault();
+    // (un Pencil s'est montré : désormais le doigt déplace, sauf choix contraire)
+    if (e.pointerType === 'pen' && pref('kingvi:pxe-pen') !== '1') { keep('kingvi:pxe-pen', '1'); if (fingerChoice == null) { st.finger = false; sync(); } }
     if (e.pointerType === 'touch') {
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (touches.size === 1) tap = { t: performance.now(), max: 1, moved: false, x: e.clientX, y: e.clientY };
+      else if (tap) tap.max = Math.max(tap.max, touches.size);
       if (touches.size >= 2) {
-        // le deuxième doigt : le trait du premier est annulé, on déplace la vue
-        if (drag && !drag.pan) { restore(drag.base); drag = null; render(); }
-        const c = centroid();
-        panning = { x: c.x, y: c.y, sl: stage.scrollLeft, st: stage.scrollTop };
+        cancelLong(); fingerPan = null;
+        if (drag && !drag.pan && !drag.game) { restore(drag.base); render(); }
+        drag = null;
+        pinch = { d: spread(), z: st.z, last: centroid() };
         return;
       }
+      if (!st.finger && st.mode === 'draw') { fingerPan = { x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop }; return; }
     }
     if (e.button === 1 || spaceDown) { drag = { pan: true, x: e.clientX, y: e.clientY, sl: stage.scrollLeft, st: stage.scrollTop }; stage.setPointerCapture(e.pointerId); return; }
     if (e.button > 2) return;
     const p = cell(e);
+    // « Dans le jeu » : la flamme suit la pointe ; la zone se trace en glissant
+    if (st.mode === 'game') {
+      if (!game) return;
+      const g = game.get() || {};
+      if ((st.g === 'light' && !g.light) || (st.g === 'box' && !g.box)) return;
+      stage.setPointerCapture(e.pointerId);
+      drag = { game: st.g, start: inside(p) };
+      if (st.g === 'light') placeLight(inside(p));
+      else setGame(q => { q.box = { x0: drag.start.x, y0: drag.start.y, x1: drag.start.x, y1: drag.start.y }; });
+      return;
+    }
     const erase = e.button === 2 || st.tool === 'eraser';
     const c = erase ? EMPTY : st.color;
     if (st.tool === 'picker') { if (p.x >= 0 && p.y >= 0 && p.x < w && p.y < h) { st.color = grid[p.y * w + p.x]; st.tool = 'pencil'; render(); } return; }
@@ -459,24 +572,56 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
     if (st.tool === 'bucket') { if (p.x >= 0 && p.y >= 0 && p.x < w && p.y < h) { flood(p.x, p.y, c); snap(); render(); save(); } return; }
     drag = { start: p, last: p, base: snapAll(), c };
     if (st.tool === 'pencil' || st.tool === 'eraser' || st.tool === 'dither') { stamp(p.x, p.y, c, st.tool === 'dither'); render(); }
+    // L'appui long : la pipette (le point posé est annulé)
+    longAt = { x: e.clientX, y: e.clientY };
+    longT = setTimeout(() => {
+      if (!drag || drag.pan || drag.game || p.x < 0 || p.y < 0 || p.x >= w || p.y >= h) return;
+      restore(drag.base); drag = null;
+      st.color = grid[p.y * w + p.x];
+      if (st.tool === 'eraser') st.tool = 'pencil';
+      render(); flashSaved('Couleur prise');
+    }, 550);
   });
   stage.addEventListener('pointermove', e => {
-    if (e.pointerType === 'touch' && touches.has(e.pointerId)) touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (panning) {
+    if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) > 10) tap.moved = true;
+    }
+    if (longAt && Math.hypot(e.clientX - longAt.x, e.clientY - longAt.y) > 6) cancelLong();
+    if (pinch && touches.size >= 2) {
       const c = centroid();
-      stage.scrollLeft = panning.sl - (c.x - panning.x); stage.scrollTop = panning.st - (c.y - panning.y);
+      zoomAt(Math.round(pinch.z * spread() / pinch.d), c.x, c.y);
+      stage.scrollLeft -= c.x - pinch.last.x; stage.scrollTop -= c.y - pinch.last.y;
+      pinch.last = c;
       return;
     }
+    if (fingerPan) { stage.scrollLeft = fingerPan.sl - (e.clientX - fingerPan.x); stage.scrollTop = fingerPan.st - (e.clientY - fingerPan.y); return; }
     if (!drag) return;
     if (drag.pan) { stage.scrollLeft = drag.sl - (e.clientX - drag.x); stage.scrollTop = drag.st - (e.clientY - drag.y); return; }
+    if (drag.game) {
+      const q = inside(cell(e)), a = drag.start;
+      if (drag.game === 'light') placeLight(q);
+      else setGame(g => { g.box = { x0: Math.min(a.x, q.x), y0: Math.min(a.y, q.y), x1: Math.max(a.x, q.x), y1: Math.max(a.y, q.y) }; });
+      return;
+    }
     paintAt(cell(e));
     render();
   });
   const end = e => {
-    if (e.pointerType === 'touch') { touches.delete(e.pointerId); if (touches.size < 2) panning = null; }
+    cancelLong();
+    if (e.pointerType === 'touch') {
+      touches.delete(e.pointerId);
+      if (touches.size < 2) pinch = null;
+      if (!touches.size) {
+        fingerPan = null;
+        // Un tap à deux doigts annule, à trois rétablit
+        if (tap && !tap.moved && performance.now() - tap.t < 400 && tap.max >= 2) undo(tap.max === 2 ? -1 : 1);
+        tap = null;
+      }
+    }
     if (!drag) return;
     const was = drag; drag = null;
-    if (was.pan) return;
+    if (was.pan || was.game) return;
     snap(); render(); save();
   };
   stage.addEventListener('pointerup', end);
@@ -503,6 +648,10 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   // ── Boutons et clavier ──
   dlg.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.act === 'drawer') { dlg.classList.toggle('drawer-open'); return; }
+    if (b.dataset.act === 'grow-mode') { st.growing = !st.growing; flashSaved(st.growing ? 'Touche un + pour une rangée de plus de ce côté (Maj : huit)' : ''); return render(); }
+    if (b.dataset.act === 'game-mode') { st.mode = st.mode === 'game' ? 'draw' : 'game'; if (playing) play(false); return render(); }
+    if (b.dataset.g) { st.g = b.dataset.g; return render(); }
     if (b.dataset.tool) st.tool = b.dataset.tool;
     else if (b.dataset.color) st.color = +b.dataset.color;
     else if (b.dataset.bg) st.bg = b.dataset.bg;
@@ -559,8 +708,25 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   });
   for (const inp of dlg.querySelectorAll('[data-opt]')) {
     inp.checked = !!st[inp.dataset.opt];
-    inp.addEventListener('change', () => { st[inp.dataset.opt] = inp.checked; render(); });
+    inp.addEventListener('change', () => {
+      st[inp.dataset.opt] = inp.checked;
+      if (inp.dataset.opt === 'finger') keep('kingvi:pxe-finger', inp.checked ? '1' : '0');
+      render();
+    });
   }
+  // « Dans le jeu » : allumer, éteindre (une flamme au milieu, une zone au pied pour commencer)
+  for (const inp of dlg.querySelectorAll('[data-gp]')) inp.addEventListener('change', () => {
+    const on = inp.checked, k = inp.dataset.gp;
+    setGame(p => {
+      if (k === 'lit') p.light = on ? (p.light || { x: Math.floor(w / 2), y: Math.floor(h / 2) }) : undefined;
+      if (k === 'big' && p.light) p.light = { ...p.light, big: on ? 1 : undefined };
+      if (k === 'block') p.box = on ? (p.box || { x0: Math.floor(w / 2) - 2, y0: h - 3, x1: Math.floor(w / 2) + 2, y1: h - 1 }) : undefined;
+      if (k === 'shadow') p.shadow = on || undefined;
+    });
+    if (on && k === 'lit') st.g = 'light';
+    if (on && k === 'block') st.g = 'box';
+    render();
+  });
   const onKey = e => {
     if (!dlg.open) return;
     if (e.code === 'Space') { spaceDown = e.type === 'keydown'; if (e.type === 'keydown') e.preventDefault(); return; }
@@ -597,6 +763,7 @@ export function openPixelEditor({ frames, index = 0, order = null, fps = 8, onSa
   }, { once: true });
 
   document.documentElement.classList.add('pxe-open');      // (la page derrière ne défile plus)
+  if (window.innerWidth >= 1400) dlg.classList.add('drawer-open');   // (sur un grand écran, les réglages restent ouverts)
   render();
   dlg.showModal();
   fit();                                                    // (la zone de travail n'a sa taille qu'une fois ouverte)

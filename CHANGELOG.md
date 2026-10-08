@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.67.0 — 2026-10-08
+- L'atelier : une pastille dans la barre des onglets, visible partout (dessins, carte, textes, nombres), dit ce qui a changé ici et n'est pas encore publié ; touchée, elle déplie la liste ; une ligne ouvre l'élément ; un seul bouton « Publier pour tous » envoie tout
+- L'éditeur de dessin, pensé pour l'iPad : une barre flottante en bas (outils, couleurs, taille, annuler) ; le dessin en plein écran ; les réglages dans un tiroir ; pincer à deux doigts pour zoomer, un tap à deux doigts annule, à trois rétablit, un appui long prend la couleur ; le Pencil dessine et le doigt déplace la vue (option « Le doigt dessine aussi ») ; les « + » d'agrandissement n'apparaissent qu'en mode « Agrandir » ; des interrupteurs à la place des petites cases
+- « Dans le jeu » dans l'éditeur : la flamme, la zone qui bloque et l'ombre se posent sur le dessin ; pour une animation, la flamme a une place par image, et dans le jeu la lumière suit (une lanterne qui se balance)
+- La liste des dessins : à gauche quand il y a la place, en tiroir sur l'iPad en hauteur, avec les derniers ouverts en tête
+- Le labo montre les dessins tels qu'ils sont publiés ou retouchés (la maison, le temple, la crypte, le coffre, la grotte…), et se met à jour quand l'atelier en change un
+
 ## 1.66.0 — 2026-10-08
 - L'épée part tout de suite : un coup dure un tiers de seconde au lieu de huit dixièmes
 - Trois clics rapides font un combo : un coup, un second avec un pas en avant, puis un tourniquet final (le coup tourbillonnant, plus vif) ; un clic pendant un coup n'est plus perdu, il part dès que le coup finit

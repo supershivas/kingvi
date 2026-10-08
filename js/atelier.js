@@ -12,13 +12,14 @@ import {
   DESIGNS, GROUPS, SEQUENCES, CUSTOM_KINDS, designRows, designSource, designsToText, rowsToPng, importDesign,
   setLocalDesign, applyLocal, loadDesigns, originalRows, refreshLocal, syncCustom, addCustom, removeCustom, customOf,
   setCustomFrames, customNames, setDesignFrames, growDesign, fixedFrames,
-} from './designs.js?v=1.66.0';
-import { openPixelEditor } from './pixel-editor.js?v=1.66.0';
-import { publish, pending, customChanged, placementsChanged, textsChanged, extrasChanged, tuningChanged, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.66.0';
-import { mountMap } from './atelier-map.js?v=1.66.0';
-import { mountTuning } from './atelier-tuning.js?v=1.66.0';
-import { mountTexts } from './atelier-texts.js?v=1.66.0';
-import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.66.0';
+} from './designs.js?v=1.67.0';
+import { openPixelEditor } from './pixel-editor.js?v=1.67.0';
+import { publish, getToken, setToken, TOKEN_URL, REPO } from './designs-publish.js?v=1.67.0';
+import { mountMap } from './atelier-map.js?v=1.67.0';
+import { mountTuning } from './atelier-tuning.js?v=1.67.0';
+import { mountTexts } from './atelier-texts.js?v=1.67.0';
+import { readOld, restoreOld, padRows, setExtra, readExtras, extrasDepotGet, propsOf } from './design-store.js?v=1.67.0';
+import { mountChanges, listChanges } from './atelier-changes.js?v=1.67.0';
 
 const host = document.getElementById('atelier-host');
 const rowsOf = name => designRows(name, originalRows(name));
@@ -55,9 +56,8 @@ function download(name, blob) {
 host.innerHTML = `
 <div class="dz">
   <div class="dz-bar">
-    <button type="button" class="design-btn primary" data-publish><i class="ti ti-cloud-upload" aria-hidden="true"></i> Publier pour tous</button>
+    <button type="button" class="design-btn dz-open-tree" data-tree aria-label="Les dessins"><i class="ti ti-folders" aria-hidden="true"></i> Les dessins</button>
     <button type="button" class="design-btn" data-new><i class="ti ti-plus" aria-hidden="true"></i> Nouvel asset</button>
-    <span class="dz-chip" data-chip role="status"></span>
     <span class="dz-spacer"></span>
     <details class="dz-menu">
       <summary class="design-btn" aria-label="Plus d'actions"><i class="ti ti-dots" aria-hidden="true"></i></summary>
@@ -74,11 +74,14 @@ host.innerHTML = `
   </div>
   <p class="design-note" role="status"></p>
   <div class="dz-body">
-    <section class="dz-main" aria-live="polite"></section>
-    <aside class="dz-tree">
+    <aside class="dz-tree" aria-label="Les dessins">
+      <div class="dz-tree-head"><b>Les dessins</b><button type="button" class="design-btn quiet" data-tree-close aria-label="Fermer la liste"><i class="ti ti-x" aria-hidden="true"></i></button></div>
       <input type="search" class="design-input dz-search" name="filtre-dessins" placeholder="Chercher…" aria-label="Chercher un asset" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore data-form-type="other">
+      <div class="dz-recent" hidden><span class="dz-recent-title">Derniers ouverts</span><div class="dz-recent-list"></div></div>
       <div class="dz-folders"></div>
     </aside>
+    <div class="dz-scrim" data-tree-close aria-hidden="true"></div>
+    <section class="dz-main" aria-live="polite"></section>
   </div>
 </div>
 
@@ -148,7 +151,7 @@ host.innerHTML = `
 // cachée, elles s'ouvraient invisibles et figeaient tout)
 for (const d of host.querySelectorAll('dialog')) document.body.append(d);
 const $ = sel => host.querySelector(sel) || document.body.querySelector(sel);
-const note = $('.design-note'), chip = $('[data-chip]');
+const note = $('.design-note');
 const say = t => { note.textContent = t; if (host.hidden) toastSay(t); };
 
 // ── Aide, clé, publication ──
@@ -162,12 +165,9 @@ $('[data-help]').addEventListener('click', () => helpDialog.showModal());
 $('[data-key-help]').addEventListener('click', () => { keyDialog.close(); helpDialog.showModal(); });
 
 const syncKey = () => { $('[data-forget]').hidden = !getToken(); status(); };
-function status() {
-  const unpub = pending().length + (customChanged() ? 1 : 0) + (placementsChanged() ? 1 : 0) + (textsChanged() ? 1 : 0) + (extrasChanged() ? 1 : 0) + (tuningChanged() ? 1 : 0);
-  chip.textContent = unpub ? `${unpub} à publier` : 'Tout est publié';
-  chip.classList.toggle('warn', unpub > 0);
-  chip.title = unpub ? 'Invisible sur les autres appareils tant que vous n\'avez pas publié.' : '';
-}
+// La pastille des modifications, dans la barre des onglets : visible partout
+let changes = null;
+function status() { changes?.refresh(); }
 const AUTO_KEY = 'kingvi:autopublish';
 const autoBox = $('[data-auto]');
 try { autoBox.checked = localStorage.getItem(AUTO_KEY) === '1'; } catch { /* rien */ }
@@ -177,29 +177,31 @@ autoBox.addEventListener('change', () => {
 });
 const afterEditing = () => {
   status();
-  if (autoBox.checked && (pending().length || customChanged())) { if (getToken()) runPublish(); else showToken(); }
+  if (autoBox.checked && listChanges().length) { if (getToken()) runPublish(); else showToken(); }
 };
-async function runPublish() {
-  if (!pending().length && !customChanged()) { say('Rien à publier : tout est déjà dans le jeu.'); return; }
-  const btn = $('[data-publish]');
-  btn.disabled = true;
+let publishing = false;
+async function runPublish(progress = t => say(t)) {
+  if (!listChanges().length) { progress('Rien à publier : tout est déjà dans le jeu.'); return; }
+  if (!getToken()) { showToken(); return; }
+  if (publishing) return;
+  publishing = true;
+  const tell = t => { progress(t); changes?.say(t); };
   try {
-    const done = await publish(t => say(t));
-    say(`Publié. Dans le jeu sur tous les appareils d'ici une à dix minutes ; rechargez la page sur l'autre appareil.${done ? '' : ''}`);
+    await publish(tell);
+    tell('Publié. Dans le jeu sur tous les appareils d\'ici une à dix minutes ; rechargez la page sur l\'autre appareil.');
   } catch (e) {
-    say(e.message);
+    tell(e.message);
     if (/jeton|Jeton/.test(e.message)) { setToken(''); syncKey(); showToken(); }
-  } finally { btn.disabled = false; status(); }
+  } finally { publishing = false; status(); }
 }
 // La clé d'abord (même sans rien à publier : sur un autre appareil, on la colle avant de dessiner)
 function showToken() { $('[data-menu]')?.removeAttribute('open'); keyDialog.showModal(); keyDialog.querySelector('input').focus(); }
-$('[data-publish]').addEventListener('click', () => { if (!getToken()) { showToken(); return; } runPublish(); });
 $('[data-key]').addEventListener('click', () => { $('.dz-menu').open = false; showToken(); });
 $('[data-save-token]').addEventListener('click', () => {
   const input = keyDialog.querySelector('input');
   if (!/^(github_pat_|ghp_)/.test(input.value.trim())) { say('Cette clé ne ressemble pas à un jeton GitHub (elle commence par github_pat_).'); return; }
   setToken(input.value); input.value = ''; keyDialog.close(); syncKey();
-  if (pending().length || customChanged()) runPublish(); else say('Clé enregistrée sur cet appareil.');
+  if (listChanges().length) runPublish(); else say('Clé enregistrée sur cet appareil.');
 });
 $('[data-forget]').addEventListener('click', () => { setToken(''); syncKey(); say('Clé oubliée.'); });
 $('[data-copy]').addEventListener('click', async () => {
@@ -304,7 +306,7 @@ function seqItem(sq) {
   b.type = 'button'; b.className = 'dz-item dz-seq'; b.dataset.name = key;
   b.innerHTML = '<span class="dz-thumb"><canvas></canvas></span><span class="dz-name"></span><span class="dz-dot" aria-hidden="true"></span>';
   b.querySelector('.dz-name').textContent = `${sq.label} · ${new Set(sq.names).size} images`;
-  b.addEventListener('click', () => { selectedSeq = sq; select(sq.names[0]); });
+  b.addEventListener('click', () => { selectedSeq = sq; select(sq.names[0]); closeTree(); });
   thumbs.set(key, b); b.seq = sq;
   drawTo(b.querySelector('canvas'), d, rowsOf(d.name), thumbK(d));
   b.classList.toggle('on', selectedSeq === sq && sq.names.includes(selected));
@@ -316,7 +318,7 @@ function item(d) {
   b.type = 'button'; b.className = 'dz-item'; b.dataset.name = d.name;
   b.innerHTML = '<span class="dz-thumb"><canvas></canvas></span><span class="dz-name"></span><span class="dz-dot" aria-hidden="true"></span>';
   b.querySelector('.dz-name').textContent = d.label;
-  b.addEventListener('click', () => select(d.name));
+  b.addEventListener('click', () => { select(d.name); closeTree(); });
   thumbs.set(d.name, b);
   drawTo(b.querySelector('canvas'), d, rowsOf(d.name), thumbK(d));
   b.classList.toggle('on', d.name === selected);
@@ -336,6 +338,34 @@ $('.dz-search').addEventListener('input', e => { filter = e.target.value.trim().
   box.addEventListener('focus', () => setTimeout(clear, 0));
 }
 
+// ── La liste en tiroir (iPad en portrait, téléphone) : le bouton « Les
+// dessins » l'ouvre ; choisir un dessin, toucher à côté ou la croix la ferme ──
+const dz = $('.dz');
+const closeTree = () => dz.classList.remove('tree-open');
+$('[data-tree]').addEventListener('click', () => dz.classList.add('tree-open'));
+for (const b of host.querySelectorAll('[data-tree-close]')) b.addEventListener('click', closeTree);
+
+// ── Les derniers ouverts, en tête de la liste (dans ce navigateur) ──
+const RECENT_KEY = 'kingvi:atelier-recent';
+const readRecent = () => { try { return JSON.parse(localStorage.getItem(RECENT_KEY)) || []; } catch { return []; } };
+function pushRecent(name) {
+  const list = [name, ...readRecent().filter(n => n !== name)].filter(n => byName(n)).slice(0, 8);
+  try { localStorage.setItem(RECENT_KEY, JSON.stringify(list)); } catch { /* rien */ }
+  drawRecent();
+}
+function drawRecent() {
+  const list = readRecent().filter(n => byName(n)), box = $('.dz-recent');
+  box.hidden = !list.length;
+  $('.dz-recent-list').replaceChildren(...list.map(nm => {
+    const d = byName(nm), b = document.createElement('button');
+    b.type = 'button'; b.className = 'dz-recent-item'; b.title = d.label;
+    b.innerHTML = '<canvas></canvas>';
+    drawTo(b.querySelector('canvas'), d, rowsOf(nm), Math.min(thumbK(d), 40 / Math.max(d.w, d.h)) * 1.2);
+    b.addEventListener('click', () => { select(nm); closeTree(); });
+    return b;
+  }));
+}
+
 // ── L'asset choisi ──
 const main = $('.dz-main');
 let anim = null;
@@ -351,6 +381,7 @@ function select(name) {
   for (const [n, b] of thumbs) b.classList.toggle('on', sq ? n === `seq:${sq.label}` : n === name);
   const g = byName(name)?.group, folder = foldersEl.querySelector(`details[data-group="${g}"]`);
   if (folder) folder.open = true;
+  if (byName(name)) pushRecent(name);
   showMain();
 }
 function showMain() {
@@ -377,6 +408,7 @@ function showMain() {
       <label class="dz-block">Ce qu'on en voit (clic droit)<input class="design-input" type="text" maxlength="160" data-p="desc" placeholder="Quelqu'un l'a posé là, il y a longtemps."></label>
       <p class="design-note" data-custom-note>Pour le poser sur l'île : onglet Carte, « Poser un objet ». Le jeu le prend à son lancement.</p>
       <p class="design-note" data-game-note>Vaut pour ce dessin là où le jeu le pose (le jeu ouvert le prend aussitôt).</p>
+      <p class="design-note">Aussi dans l'éditeur (« Dessiner », puis « Dans le jeu ») : pour une animation, la flamme peut suivre chaque image.</p>
     </section>
     </div>
     <div class="design-actions">
@@ -404,10 +436,28 @@ function showMain() {
     if (f) say(await take(d.name, await f.arrayBuffer()));
   });
   restOfMain(d, custom);
-  // (les poses du viking, du loup, des cerfs, les reliques, le titre : pas de « Dans le jeu »)
+  const pk = propsKey(d);
+  if (pk) playPanel(pk, custom ? custom.w : d.w, custom ? custom.h : d.h);
+}
+// La clé de « Dans le jeu » d'un dessin (null : il n'en a pas ; les poses du
+// viking, du loup, des cerfs, les reliques, le titre, la falaise, les rochers…)
+function propsKey(d) {
+  const custom = customOf(d.name);
+  if (custom) return `custom-${custom.id}`;
   const base = d.name.replace(/--\d+$/, '');
-  if (custom) playPanel(`custom-${custom.id}`, custom.w, custom.h);
-  else if (!fixedFrames(base) && !/^(viking|cape|loup|cerf|biche|relique|titre|ceinture|room|decor-roi)/.test(base)) playPanel(base, d.w, d.h);
+  return !fixedFrames(base) && !/^(viking|cape|loup|cerf|biche|relique|titre|ceinture|room|decor-roi|falaise|rocher-|souche|pont-tronc)/.test(base) ? base : null;
+}
+// Les mêmes réglages, pour l'éditeur (son calque « Dans le jeu ») : on n'y garde
+// que ce qui est posé (rien de vide)
+function gameProps(key) {
+  return {
+    get: () => ({ ...(propsOf(key) || {}) }),
+    set: p => {
+      const clean = Object.fromEntries(Object.entries(p).filter(([, v]) => v !== undefined && v !== '' && v !== false && v !== 0 && v !== null));
+      setExtra('props', key, Object.keys(clean).length ? clean : null);
+      status(); paintMain();
+    },
+  };
 }
 // Ce que fait un asset créé ici, une fois posé sur l'île : la lumière, le pied
 // qui bloque, l'ombre, ce qu'on en dit (`props` des extras, sous `custom-<id>`)
@@ -504,6 +554,7 @@ function openEditor(name) {
     onRemoveFrame: editable && count > (multi ? 2 : 1) ? reshape(-1) : null,
     onMoveFrame: editable && count > 1 ? (at, dir, rows) => reshape(0)(at, rows, dir) : null,
     onGrow: fixedFrames(d.name) ? null : grow,
+    game: propsKey(d) ? gameProps(propsKey(d)) : null,
     order: seq ? seq.names.map(nm => names.indexOf(nm)) : null,
     fps: seq?.fps || 8,
     // chaque trait : gardé ici, et le jeu ouvert ailleurs se redessine (événement « storage »)
@@ -603,24 +654,27 @@ loadDesigns().then(() => {
 });
 
 // ── Les onglets de l'atelier : les dessins, la carte (placer les lieux) ──
-let mapMounted = false, textsMounted = false, tuningMounted = false;
+// (chaque outil se monte la première fois qu'on l'ouvre ; il rend de quoi
+// aller à un de ses éléments : `focus(clé)`)
+const tools = {};
 function showTool() {
   const tool = location.hash === '#carte' ? 'carte' : location.hash === '#textes' ? 'textes' : location.hash === '#nombres' ? 'nombres' : 'dessins';
   for (const a of document.querySelectorAll('.atelier-tabs a')) a.classList.toggle('on', a.dataset.tool === tool);
   for (const p of document.querySelectorAll('[data-panel]')) p.hidden = p.dataset.panel !== tool;
-  if (tool === 'nombres' && !tuningMounted) {
-    tuningMounted = true;
-    mountTuning(document.getElementById('atelier-tuning'), { onChange: status, onPublish: () => $('[data-publish]').click() });
-  }
-  if (tool === 'textes' && !textsMounted) {
-    textsMounted = true;
-    mountTexts(document.getElementById('atelier-texts'), { onChange: status, onPublish: () => $('[data-publish]').click() });
-  }
-  if (tool === 'carte' && !mapMounted) {
-    mapMounted = true;
-    mountMap(document.getElementById('atelier-map'), { say: t => toastSay(t), onChange: status, onPublish: () => $('[data-publish]').click() });
-  }
+  if (tool === 'nombres' && !tools.nombres) tools.nombres = mountTuning(document.getElementById('atelier-tuning'), { onChange: status });
+  if (tool === 'textes' && !tools.textes) tools.textes = mountTexts(document.getElementById('atelier-texts'), { onChange: status });
+  if (tool === 'carte' && !tools.carte) tools.carte = mountMap(document.getElementById('atelier-map'), { say: t => toastSay(t), onChange: status });
+  return tool;
 }
+// Une ligne de la liste des modifications : son onglet, puis l'élément
+async function goTo(c) {
+  if (location.hash !== `#${c.tool}`) history.replaceState(null, '', `#${c.tool}`);
+  showTool();
+  if (c.tool === 'dessins') { if (byName(c.key)) { select(c.key); closeTree(); main.scrollIntoView({ block: 'start' }); } return; }
+  (await tools[c.tool])?.focus?.(c.key);
+}
+changes = mountChanges(document.querySelector('.atelier-tabs'), { go: goTo, publish: progress => runPublish(progress) });
+window.addEventListener('storage', () => status());
 function toastSay(t) {
   const el = document.getElementById('toast');
   el.textContent = t; el.hidden = false;

@@ -89,3 +89,56 @@
 /* L'aperçu et « Dans le jeu », côte à côte */
 .dz-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
 .dz-row .dz-play { margin-top: 0; flex: 1; min-width: 260px; }
+
+/* ── Ce qui a changé (v1.67.0) : la pastille de la barre des onglets, visible
+   partout, et sa liste ── */
+.atelier-tabs { align-items: center; }
+.chg-pill { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: rgba(255,255,255,.8); font: inherit; font-size: .85rem; cursor: pointer; white-space: nowrap; }
+.chg-pill.warn { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+.chg-panel { position: fixed; right: 12px; z-index: 50; width: min(420px, calc(100vw - 24px)); max-height: 70vh; display: flex; flex-direction: column; gap: 8px; padding: 12px; background: var(--card-bg, #fff); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-md); box-shadow: 0 12px 32px rgba(0,0,0,.22); }
+.chg-panel[hidden] { display: none; }
+.chg-head { display: flex; align-items: center; justify-content: space-between; }
+.chg-note, .chg-status { margin: 0; font-size: .78rem; color: var(--text-muted); }
+.chg-status:empty { display: none; }
+.chg-list { list-style: none; margin: 0; padding: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+.chg-item { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 4px 8px; border: 0; border-radius: 8px; background: none; font: inherit; text-align: left; cursor: pointer; color: inherit; }
+.chg-item:disabled { cursor: default; opacity: .7; }
+@media (hover: hover) { .chg-item:not(:disabled):hover { background: rgba(192,57,43,.08); } }
+.chg-kind { flex: none; font: .7rem var(--font-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--accent); min-width: 7.5em; }
+.chg-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .9rem; }
+.chg-empty { padding: 8px; font-size: .85rem; color: var(--text-muted); }
+.chg-publish { min-height: 44px; justify-content: center; }
+.at-row.flash, .tu-row.flash { animation: chg-flash 1.6s ease-out; }
+@keyframes chg-flash { from { background: rgba(192,57,43,.18); } to { background: transparent; } }
+
+/* ── La liste des dessins (F) : à gauche quand il y a la place (ordinateur,
+   iPad en paysage) ; sinon un tiroir qui glisse depuis la gauche ── */
+.atelier-page .dz-body { grid-template-columns: 320px minmax(0, 1fr); }
+.atelier-page .dz-tree { max-height: calc(100dvh - 170px); }
+.dz-tree-head { display: none; align-items: center; justify-content: space-between; }
+.dz-open-tree { display: none; }
+.dz-scrim { display: none; }
+.dz-recent { display: flex; flex-direction: column; gap: 4px; }
+.dz-recent[hidden] { display: none; }
+.dz-recent-title { font: .7rem var(--font-mono); text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); }
+.dz-recent-list { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.dz-recent-item { flex: none; width: 52px; height: 52px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border); border-radius: 8px; background: #7f8aa3; cursor: pointer; overflow: hidden; }
+.dz-recent-item canvas { display: block; image-rendering: pixelated; max-width: 46px; max-height: 46px; }
+@media (max-width: 1000px), (orientation: portrait) and (max-width: 1200px) {
+  .atelier-page .dz-body { grid-template-columns: 1fr; }
+  .dz-open-tree { display: inline-flex; }
+  .dz-tree-head { display: flex; }
+  .atelier-page .dz-tree { position: fixed; top: 0; bottom: 0; left: 0; z-index: 40; width: min(360px, 88vw); max-height: none; padding: max(12px, env(safe-area-inset-top)) 12px 12px; background: var(--bg, #f2f0eb); box-shadow: 4px 0 24px rgba(0,0,0,.25); transform: translateX(calc(-100% - 32px)); transition: transform .22s ease-out; }
+  .atelier-page .dz-folders { max-height: none; flex: 1; min-height: 0; }
+  .dz.tree-open .dz-tree { transform: none; }
+  .dz.tree-open .dz-scrim { display: block; position: fixed; inset: 0; z-index: 39; background: rgba(10,14,28,.35); }
+}
+
+/* ── Des interrupteurs plutôt que de petites cases (G) ── */
+.atelier-page input[type=checkbox], .pxe input[type=checkbox] { -webkit-appearance: none; appearance: none; flex: none; width: 44px; height: 26px; margin: 0; border-radius: 999px; background: #b4bfd0; position: relative; cursor: pointer; transition: background .15s; }
+.atelier-page input[type=checkbox]::after, .pxe input[type=checkbox]::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.atelier-page input[type=checkbox]:checked, .pxe input[type=checkbox]:checked { background: var(--accent); }
+.atelier-page input[type=checkbox]:checked::after, .pxe input[type=checkbox]:checked::after { transform: translateX(18px); }
+.dz-check, .pxe-side label { min-height: 44px; }
+.atelier-page .dz-tree > * { flex: none; }
+.atelier-page .dz-tree > .dz-folders { flex: 1 1 auto; min-height: 0; }
