@@ -1,5 +1,12 @@
 {
-  "pads": {},
+  "pads": {
+    "ceinture": {
+      "l": 2,
+      "r": 1,
+      "t": 2,
+      "b": 1
+    }
+  },
   "anims": {},
   "props": {
     "custom-une-lanterne": {
