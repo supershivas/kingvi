@@ -1,13 +1,13 @@
 /* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
-import { keyIs } from './keys.js?v=1.65.1';
-import { HINTS } from './story.js?v=1.65.1';
-import { T as TUNE } from './tuning.js?v=1.65.1';
+import { keyIs } from './keys.js?v=1.66.0';
+import { HINTS } from './story.js?v=1.66.0';
+import { T as TUNE } from './tuning.js?v=1.66.0';
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.65.1';
+} from './viking.js?v=1.66.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
@@ -15,13 +15,13 @@ import {
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT,
   PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER, inRavine, onBridge, BRIDGE_TREE, BRIDGE_LOG, RAVINE_CROSS, CAVE_RUBBLE,
-} from './world.js?v=1.65.1';
-import { ICE_FRAMES } from './sigrun.js?v=1.65.1';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.65.1';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.65.1';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.65.1';
-import { createGround } from './ground.js?v=1.65.1';
-import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.65.1';
+} from './world.js?v=1.66.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.66.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.66.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.66.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.66.0';
+import { createGround } from './ground.js?v=1.66.0';
+import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.66.0';
 
 // Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
 // (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
@@ -44,28 +44,28 @@ const GROWN = new Map();
     return base.call(this, x, y);
   };
 }
-import { chapterById } from './chapters.js?v=1.65.1';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.65.1';
-import { BUNDLE, WATCHER } from './grove.js?v=1.65.1';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.65.1';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.65.1';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.65.1';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.65.1';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.65.1';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.65.1';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.65.1';
-import { createFoe, drawPips } from './foe.js?v=1.65.1';
-import { createFauna } from './fauna.js?v=1.65.1';
-import { createWeather } from './weather.js?v=1.65.1';
-import { createTalk } from './dialogue.js?v=1.65.1';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.65.1';
-import { NECRO_W, NECRO_H } from './props.js?v=1.65.1';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.65.1';
-import { describe } from './describe.js?v=1.65.1';
-import { personSprite } from './people.js?v=1.65.1';
-import { createSea } from './sea.js?v=1.65.1';
-import { audio } from './audio.js?v=1.65.1';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.65.1';
+import { chapterById } from './chapters.js?v=1.66.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.66.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.66.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.66.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.66.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.66.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.66.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.66.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.66.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.66.0';
+import { createFoe, drawPips } from './foe.js?v=1.66.0';
+import { createFauna } from './fauna.js?v=1.66.0';
+import { createWeather } from './weather.js?v=1.66.0';
+import { createTalk } from './dialogue.js?v=1.66.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.66.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.66.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.66.0';
+import { describe } from './describe.js?v=1.66.0';
+import { personSprite } from './people.js?v=1.66.0';
+import { createSea } from './sea.js?v=1.66.0';
+import { audio } from './audio.js?v=1.66.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.66.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -379,12 +379,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         .setFlipX(this.flip);
       this.makeAnimations();
       this.player.on('animationupdate', (anim, frame) => this.onFrame(anim, frame));
-      this.player.on('animationcomplete', anim => {
-        if (anim.key.includes('attack')) {
-          this.attacking = false;
-          this.player.setFrame(`${this.facing}-idle`);
-        }
-      });
+      this.player.on('animationcomplete', anim => { if (anim.key.includes('attack')) this.endAttack(); });
       this.placePlayer();
 
       const cam = this.cameras.main;
@@ -887,14 +882,15 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
         });
       }
       for (const view of ATTACK_VIEWS) {
-        // Armé long (on sent la charge), coup très bref, impact tenu, retour
+        // v1.66.0 : vif. Armé bref, coup très bref, impact tenu un instant, retour
+        // (un tiers de seconde en tout, contre huit dixièmes avant)
         this.anims.create({
           key: `${view}-attack`,
           frames: [
-            { key: 'viking', frame: `${view}-attack-0`, duration: 260 },
-            { key: 'viking', frame: `${view}-attack-1`, duration: 55 },
-            { key: 'viking', frame: `${view}-attack-2`, duration: 320 },
-            { key: 'viking', frame: `${view}-attack-3`, duration: 160 },
+            { key: 'viking', frame: `${view}-attack-0`, duration: 80 },
+            { key: 'viking', frame: `${view}-attack-1`, duration: 45 },
+            { key: 'viking', frame: `${view}-attack-2`, duration: 130 },
+            { key: 'viking', frame: `${view}-attack-3`, duration: 80 },
           ],
           frameRate: 10, repeat: 0,
         });
@@ -1062,9 +1058,20 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       g.fillRect(x, y, Math.round(9 * this.stamina), 1);
     }
 
-    // ── Attaque : vers le pointeur, dans l'une des quatre directions ──
+    // ── Attaque : vers le pointeur, dans l'une des huit directions. Le combo
+    // (v1.66.0) : un clic pendant un coup est gardé et part dès qu'il finit ;
+    // trois coups enchaînés (chacun dans les `TUNE.combo` ms qui suivent le
+    // précédent), et le troisième est un tourniquet : le coup tourbillonnant ──
     attack(tx, ty) {
-      if (this.attacking) return;
+      if (this.whirling) return;
+      if (this.attacking) { this.queued = { tx, ty }; return; }
+      this.combo = this.clock - (this.swingEnd ?? -1e9) < TUNE.combo ? (this.combo || 0) + 1 : 1;
+      if (this.combo >= 3) {
+        this.combo = 0;
+        this.flip = tx < this.pos.x;
+        this.whirl(true);
+        return;
+      }
       // Trop essoufflé pour lever l'épée
       if (this.stamina < STAMINA.attack * 0.6) { this.staminaFlash = 0.6; return; }
       this.useStamina(STAMINA.attack);
@@ -1080,8 +1087,22 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       }
       this.player.setFlipX(this.flip);
       this.attacking = true;
-      this.player.anims.timeScale = 1;
+      // Le deuxième coup : un pas en avant, un peu plus vite
+      if (this.combo === 2) {
+        const l = Math.hypot(dx, dy) || 1, sx = dx / l * 2, sy = dy / l * 2;
+        if (!this.inside && walkable(this.pos.x + sx, this.pos.y + sy)) { this.pos.x += sx; this.pos.y += sy; }
+      }
+      this.player.anims.timeScale = this.combo === 2 ? 1.2 : 1;
       this.player.play(`${this.swingView}-attack`);
+    }
+    // La fin d'un coup : le clic gardé part aussitôt (le combo continue)
+    endAttack() {
+      this.attacking = false;
+      this.swingEnd = this.clock;
+      this.player.setFrame(`${this.facing}-idle`);
+      const q = this.queued;
+      this.queued = null;
+      if (q && !this.dead && !isPaused()) this.attack(q.tx, q.ty);
     }
 
     // Les secousses d'écran, au plus juste : rien pour la neige, le bois ou la
@@ -1119,8 +1140,10 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       }
     }
 
-    whirl() {
+    // `finale` : le tourniquet qui clôt le combo, plus vif que le tourbillon chargé
+    whirl(finale = false) {
       if (this.whirling || this.dead || this.rowing) return;
+      this.queued = null;
       if (this.stamina < STAMINA.whirl * 0.6) { this.staminaFlash = 0.6; return; }
       this.useStamina(STAMINA.whirl);
       this.whirling = true;
@@ -1133,7 +1156,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const cx = Math.round(this.pos.x), cy = Math.round(this.pos.y - (this.lift || 0)) - 3;
       const back = this.add.graphics().setPosition(cx, cy).setDepth(this.baseDepth() - 0.2);
       const front = this.add.graphics().setPosition(cx, cy).setDepth(this.baseDepth() + 0.6);
-      const steps = [...WHIRL_TURN, WHIRL_TURN[0]], STEP = 48;
+      const steps = [...WHIRL_TURN, WHIRL_TURN[0]], STEP = finale ? 34 : 48;
       steps.forEach(([view, flip], i) => this.time.delayedCall(i * STEP, () => {
         if (this.dead) return;
         this.flip = flip;
@@ -1154,6 +1177,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.time.delayedCall(steps.length * STEP + 140, () => {
         this.whirling = false;
         this.attacking = false;
+        this.swingEnd = -1e9;                            // (le combo repart de zéro)
         if (this.dead) return;
         this.facing = 'side';
         this.player.setFlipX(this.flip).setFrame('side-idle');
@@ -1445,10 +1469,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.player.anims.stop();
       this.player.setFrame(`${view}-attack-2`);
       if (walkable(this.pos.x - dir, this.pos.y)) this.pos.x -= dir;
-      this.time.delayedCall(170, () => {
-        this.attacking = false;
-        this.player.setFrame(`${this.facing}-idle`);
-      });
+      this.time.delayedCall(120, () => this.endAttack());
     }
 
     impact() {
@@ -1599,7 +1620,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
     // Nous tombons ; un temps, puis on se réveille près de la barque
     fall(dir) {
       this.dead = true;
-      this.attacking = false;
+      this.attacking = false; this.queued = null; this.combo = 0;
       this.player.stop();
       this.player.setTexture('fallen').setOrigin(0.5, 1).setFlipX(dir < 0).setAlpha(1);
       this.cape.setVisible(false);

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.66.0 — 2026-10-08
+- L'épée part tout de suite : un coup dure un tiers de seconde au lieu de huit dixièmes
+- Trois clics rapides font un combo : un coup, un second avec un pas en avant, puis un tourniquet final (le coup tourbillonnant, plus vif) ; un clic pendant un coup n'est plus perdu, il part dès que le coup finit
+- Le délai du combo se règle dans l'atelier (Nombres, « Combo à l'épée »)
+
 ## 1.65.1 — 2026-10-08
 - Le pont sur le ravin se lit mieux : l'arbre abattu devient un tronc couché, une croûte de neige claire dessus, des glaçons dessous (`pont-tronc`, à redessiner dans l'atelier)
 - SNO 7 n'est plus une île mais un continent : le prologue, la saga, les descriptions, la carte et ce que dit Kári

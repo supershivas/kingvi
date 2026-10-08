@@ -371,7 +371,12 @@ dans le jeu : boutons `.scrap`, réglages `.modal.stone` avec crans `.notches`).
 
 Commandes : ZQSD (touches physiques, donc WASD en QWERTY) ou flèches pour
 marcher, Maj pour courir, clic pour frapper vers le pointeur (huit directions :
-les diagonales se jouent de profil, lame en travers). Le bouton maintenu
+les diagonales se jouent de profil, lame en travers). **Le combo** (v1.66.0) : le coup est vif (un tiers de
+seconde, `makeAnimations`) ; un clic pendant un coup est gardé (`queued`) et
+part à sa fin (`endAttack`) ; trois coups enchaînés, chacun dans les
+`TUNE.combo` ms (420, atelier « Combo à l'épée ») du précédent (`combo`,
+`swingEnd`) : le deuxième avance de deux pixels, le troisième est le tourniquet
+(`whirl(true)`, plus vif que le tourbillon chargé). Le bouton maintenu
 `WHIRL_HOLD` secondes (2, à régler dans `game.js`) : un remous de neige
 grossit autour des pieds (`updateCharge`), puis le coup tourbillonnant, un
 tour complet lame sortie, qui trace un anneau épais et bosselé (`whirlArc`,

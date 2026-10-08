@@ -12,6 +12,7 @@ export const TUNING_DEFS = [
   ['kariPv', 'kari', 'Points de vie', 3, 1, 10, 1, 'coups', 'Combien de coups il encaisse (un de plus si Véla le garde).'],
   ['guerison', 'kari', 'Guérison hors combat', 25, 3, 120, 1, 's', 'Une blessure se referme toutes les … secondes, loin du combat.'],
   ['tourbillon', 'kari', 'Coup tourbillonnant', 2, 0.5, 5, 0.1, 's', 'Combien de temps tenir le bouton pour le coup tourbillonnant.'],
+  ['combo', 'kari', 'Combo à l\'épée', 420, 150, 1000, 10, 'ms', 'Le délai pour enchaîner le coup suivant : trois coups enchaînés, et le troisième est un tourniquet.'],
 
   ['autrePv', 'autre', 'Points de vie de l\'autre', 3, 1, 10, 1, 'coups', 'Combien de coups pour l\'abattre.'],
   ['autreVitesse', 'autre', 'Sa vitesse', 15, 5, 40, 1, 'px/s', 'À quelle allure il vient au contact.'],
