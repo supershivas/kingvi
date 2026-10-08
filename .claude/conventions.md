@@ -44,6 +44,8 @@ développer une fonctionnalité listée ci-dessous.
 - Parité visuelle stricte avec les autres apps primaires (même sidebar,
   mêmes composants).
 - Rubrique « Labo » (section 8 ter).
+- Rubrique « Atelier » (section 8 quater), pour une app dont le contenu se
+  modifie (dessins, niveaux, textes, données de jeu).
 
 ---
 
@@ -196,6 +198,18 @@ Pour toute app qui est un jeu :
   réglages et les modales gardent les tokens.
 - **Commandes.** Elles se jouent au pouce (zones de 44 px minimum) et aussi au
   clavier.
+- **Clavier.** Les déplacements lisent la touche physique (`event.code`) :
+  ZQSD en AZERTY et WASD en QWERTY marchent sans réglage, de même que les
+  flèches. Les commandes nommées par une lettre (M la carte, I l'inventaire,
+  E l'action…) lisent le caractère (`event.key`), pour que la touche écrite
+  M ouvre la carte quel que soit le clavier ; repli sur `event.code` si le
+  caractère n'est pas une lettre latine. Aucun raccourci avec Ctrl, Cmd ou
+  Alt, et aucun ne se répète quand on garde la touche enfoncée (`e.repeat`).
+- **Pas de recherche automatique du navigateur.** Firefox lance sa recherche
+  dans la page dès qu'on tape une lettre (ou `'` et `/`) : en jeu, hors des
+  champs de saisie, toute touche imprimable est retenue (`preventDefault` au
+  `keydown`), même si elle n'a pas d'effet. Espace et Entrée restent libres
+  sur un bouton ou un lien qui a le focus.
 - **Pause et sauvegarde.** Le jeu se met en pause quand une modale est ouverte.
   La progression est sauvegardée automatiquement (régulièrement et à la
   fermeture), pour ne rien perdre lors d'une mise à jour automatique.
@@ -240,13 +254,55 @@ défiler** : c'est un écran qui montre une variante à la fois.
   est marquée « retenue » (point d'accent sur sa lettre) et branchée dans
   l'app ; l'ancienne reste marquée « ancienne » ou est retirée.
 - **Données** : des données d'exemple en dur ; le labo ne lit ni n'écrit rien
-  dans Supabase ni dans le `localStorage` (hors outils propres au labo, comme
-  l'éditeur de dessins de Kingvi).
+  dans Supabase ni dans le `localStorage`. Ce qui modifie le contenu de l'app
+  n'est pas dans le labo : c'est l'Atelier (section 8 quater).
 - **Règles** : tokens et icônes au trait comme partout (sections 5 et 8) ; la page
   est protégée par la même authentification que l'app. Créer le labo ou adopter
   une variante change ce que je vois : incrémente la version (section 2).
 - Modèle de référence : `app/app/labo/page.tsx` dans `supershivas/source`
   (tableau `TOPICS` : ajouter un sujet ou une variante = ajouter une entrée).
+
+## 8 quater. Atelier
+
+Une app dont le contenu se modifie (dessins, placement d'objets, niveaux,
+textes, réglages de jeu) peut avoir un **Atelier**, sur ma demande. Le **Labo**
+**montre et compare** des variantes sans rien changer ; l'**Atelier**
+**modifie** le contenu que l'app lit. Ce n'est jamais un onglet du Labo :
+c'est une app à part.
+
+- **Accès** : une page dédiée (`atelier.html` pour une app statique,
+  `/atelier` pour Next.js), avec un lien « Atelier » (icône Tabler
+  `ti ti-brush`) dans les réglages, une icône pinceau dans l'en-tête du Labo,
+  et une icône fiole vers le Labo dans l'en-tête de l'Atelier. Jamais dans
+  l'en-tête de l'app.
+- **En-tête de l'atelier** : le titre de l'app (logo et nom, lien de retour)
+  suivi de « ATELIER » en police mono, majuscules espacées, dans un cadre
+  fin. Fond **sombre `#1C1C1E`**, texte blanc (le Labo est sur la couleur
+  d'accent) : on sait d'un coup d'œil où l'on est.
+- **Onglet du navigateur** : titre « Atelier — Nom de l'app », favicon de
+  l'atelier (`favicon-atelier.svg`, plus un PNG 32 px) = le favicon de l'app
+  avec la même pastille sombre que le Labo (`#1C1C1E`, liseré blanc), portant
+  un **pinceau** blanc (Tabler `brush`, au trait) au lieu de la fiole.
+- **Écran à hauteur fixe** (`100dvh`) : l'en-tête reste en place, seule la
+  zone de travail défile. Les boîtes de dialogue sont rattachées au `body`
+  (rangées dans un conteneur caché, elles s'ouvrent invisibles et bloquent la
+  page).
+- **Outils** : un outil par sorte de contenu (éditeur de pixels, carte où l'on
+  place les objets, éditeur de textes…), chacun dans un onglet ou un panneau
+  de l'Atelier.
+- **Données** : chaque modification est enregistrée tout de suite dans le
+  navigateur (rien ne se perd), puis **publiée** en un geste vers la source de
+  vérité de l'app : le dépôt pour une app statique (un commit sur `main` par
+  l'API de GitHub, avec un jeton personnel fin gardé dans ce navigateur et
+  jamais exporté), Supabase pour une app primaire. L'app lit le contenu
+  publié à son lancement ; ce qui n'est pas encore publié reste visible dans
+  ce navigateur et signalé (« 3 à publier »).
+- **Règles** : tokens et icônes au trait (sections 5 et 8), zones de 44 px,
+  même authentification que l'app. Créer l'atelier change ce que je vois :
+  incrémente la version (section 2).
+- Modèle de référence : `atelier.html` dans `supershivas/kingvi` (dessins,
+  animations, assets créés, placement des objets sur la carte, textes : chaque
+  texte sous une clé stable, réécrit sur place dans ses données au lancement).
 
 ## 9. Code
 
