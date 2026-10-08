@@ -6,6 +6,12 @@
       "t": 2,
       "b": 1
     },
+    "chest-closed": {
+      "l": 2,
+      "r": 2,
+      "t": 2,
+      "b": 0
+    },
     "pont-tronc": {
       "l": 1,
       "r": 3,
@@ -32,6 +38,14 @@
     }
   },
   "props": {
+    "chest-closed": {
+      "box": {
+        "x0": 6,
+        "y0": 7,
+        "x1": 15,
+        "y1": 7
+      }
+    },
     "cube-blanc": {
       "light": {
         "x": 29,
