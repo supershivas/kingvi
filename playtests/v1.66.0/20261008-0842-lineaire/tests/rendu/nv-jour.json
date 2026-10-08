@@ -1,0 +1,218 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "q": 1,
+  "heure": "jour",
+  "tag": "nv-jour"
+ },
+ "errors": [],
+ "log": {
+  "pont": false,
+  "apresPont": {
+   "pret": true,
+   "accueil": false,
+   "x": 1009.5,
+   "y": 3230,
+   "zone": "ravin",
+   "dedans": null,
+   "enBarque": false,
+   "pv": 3,
+   "pvMax": 3,
+   "endurance": 1,
+   "sente": null,
+   "incendie": null,
+   "megamoth": {
+    "etat": "absent",
+    "pv": 0,
+    "haut": 0,
+    "x": 0,
+    "y": 0
+   },
+   "ceinture": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "mort": false,
+   "attaque": false,
+   "court": false,
+   "ennemi": {
+    "pv": 3,
+    "etat": "wait",
+    "vivant": true,
+    "engage": false,
+    "x": 4650,
+    "y": 2695,
+    "distance": 3680
+   },
+   "meute": {
+    "etat": "idle",
+    "engagee": false,
+    "vivants": 3,
+    "morts": 0,
+    "loups": [
+     {
+      "etat": "hidden",
+      "x": 4802,
+      "y": 2304
+     },
+     {
+      "etat": "hidden",
+      "x": 4930,
+      "y": 2236
+     },
+     {
+      "etat": "hidden",
+      "x": 5031,
+      "y": 2315
+     }
+    ]
+   },
+   "vent": "calme",
+   "jour": "jour",
+   "nuit": 0,
+   "heureCycle": 460,
+   "torche": false,
+   "torcheSoufflee": false,
+   "chapitres": [
+    "ravin",
+    "greve"
+   ],
+   "compteur": {
+    "trees": 0,
+    "rocks": 0
+   },
+   "drapeaux": {
+    "foeDead": false,
+    "chestOpen": false,
+    "watcherGone": false,
+    "kingBowed": false,
+    "pont": false,
+    "eboulis": true
+   },
+   "distance": 4,
+   "tempsJeu": 41.9,
+   "fps": 24.7,
+   "vitesse": 1,
+   "graine": 7,
+   "zoom": 1,
+   "morceauxEnAttente": 0,
+   "derniereErreur": null
+  },
+  "mons": {
+   "x": 877,
+   "y": 3240,
+   "vu": true,
+   "ti": 26
+  },
+  "eboulis": true,
+  "final": {
+   "pret": true,
+   "accueil": false,
+   "x": 4475,
+   "y": 2776,
+   "zone": "plaine",
+   "dedans": null,
+   "enBarque": false,
+   "pv": 3,
+   "pvMax": 3,
+   "endurance": 1,
+   "sente": null,
+   "incendie": null,
+   "megamoth": {
+    "etat": "absent",
+    "pv": 0,
+    "haut": 0,
+    "x": 0,
+    "y": 0
+   },
+   "ceinture": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "mort": false,
+   "attaque": false,
+   "court": false,
+   "ennemi": {
+    "pv": 3,
+    "etat": "wait",
+    "vivant": true,
+    "engage": false,
+    "x": 4650,
+    "y": 2695,
+    "distance": 193
+   },
+   "meute": {
+    "etat": "idle",
+    "engagee": false,
+    "vivants": 3,
+    "morts": 0,
+    "loups": [
+     {
+      "etat": "hidden",
+      "x": 4802,
+      "y": 2304
+     },
+     {
+      "etat": "hidden",
+      "x": 4930,
+      "y": 2236
+     },
+     {
+      "etat": "hidden",
+      "x": 5031,
+      "y": 2315
+     }
+    ]
+   },
+   "vent": "calme",
+   "jour": "jour",
+   "nuit": 0,
+   "heureCycle": 484,
+   "torche": false,
+   "torcheSoufflee": false,
+   "chapitres": [
+    "ravin",
+    "greve",
+    "maison",
+    "morts",
+    "louve"
+   ],
+   "compteur": {
+    "trees": 0,
+    "rocks": 1
+   },
+   "drapeaux": {
+    "foeDead": false,
+    "chestOpen": false,
+    "watcherGone": false,
+    "kingBowed": false,
+    "pont": false,
+    "eboulis": false
+   },
+   "distance": 4,
+   "tempsJeu": 66,
+   "fps": 17.6,
+   "vitesse": 1,
+   "graine": 7,
+   "zoom": 1,
+   "morceauxEnAttente": 0,
+   "derniereErreur": null
+  }
+ }
+}

@@ -1,0 +1,168 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1280x800",
+  "dpr": 2,
+  "q": 2,
+  "lieux": [
+   "barque",
+   "ravin"
+  ],
+  "heure": null,
+  "meteo": "calme",
+  "tag": "d2-q2",
+  "attente": 3500,
+  "switchQ": null,
+  "extra": null
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "d2-q2-barque",
+   "lieu": "barque",
+   "fps": [
+    11.7,
+    11.7,
+    11.3,
+    11.3,
+    11,
+    11
+   ],
+   "m": {
+    "dpr": 2,
+    "canvas": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1280px"
+    },
+    "physPerPx": 5,
+    "physPerPxY": 5,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 5,
+    "px": "2.5px",
+    "line": "0.5px",
+    "sightRx": "418.9px",
+    "classes": "screen crt",
+    "viking": {
+     "x": 640,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 610,
+     "y": 3272,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 8.9,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "d2-q2-ravin",
+   "lieu": "ravin",
+   "fps": [
+    8.6,
+    9.5,
+    9.5,
+    9.6,
+    9.6,
+    9.9
+   ],
+   "m": {
+    "dpr": 2,
+    "canvas": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1280px"
+    },
+    "physPerPx": 5,
+    "physPerPxY": 5,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 512,
+     "h": 300,
+     "cssW": 1280,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 5,
+    "px": "2.5px",
+    "line": "0.5px",
+    "sightRx": "418.9px",
+    "classes": "screen crt",
+    "viking": {
+     "x": 640,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1001,
+     "y": 3230,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 9.4,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  }
+ ],
+ "derniereErreur": null
+}

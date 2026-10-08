@@ -1,0 +1,356 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1280x800",
+  "dpr": 1,
+  "q": 1,
+  "heure": "jour",
+  "meteo": "calme",
+  "tag": "jour165",
+  "steps": [
+   {
+    "tp": "apres-ravin",
+    "shot": "apres-ravin"
+   },
+   {
+    "tp": "foret-noire",
+    "shot": "foret-noire"
+   },
+   {
+    "tp": "freya-debout",
+    "shot": "sortie"
+   },
+   {
+    "tp": "falaise",
+    "shot": "falaise"
+   }
+  ]
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "jour165-apres-ravin",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1076,
+     "y": 3238,
+     "zone": "ravin",
+     "jour": "jour",
+     "nuit": 0,
+     "torche": false,
+     "fps": 10.6,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "jour165-foret-noire",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1213,
+     "y": 3265,
+     "zone": "noire",
+     "jour": "jour",
+     "nuit": 0,
+     "torche": false,
+     "fps": 11.6,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "jour165-sortie",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 2390,
+     "y": 2838,
+     "zone": "clairiere",
+     "jour": "jour",
+     "nuit": 0,
+     "torche": false,
+     "fps": 12.7,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "jour165-falaise",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 5232,
+     "y": 2595,
+     "zone": "falaise",
+     "jour": "jour",
+     "nuit": 0,
+     "torche": false,
+     "fps": 15.2,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  }
+ ],
+ "final": {
+  "pret": true,
+  "accueil": false,
+  "x": 5232,
+  "y": 2595,
+  "zone": "falaise",
+  "dedans": null,
+  "enBarque": false,
+  "pv": 3,
+  "pvMax": 3,
+  "endurance": 1,
+  "sente": null,
+  "incendie": null,
+  "megamoth": {
+   "etat": "absent",
+   "pv": 0,
+   "haut": 0,
+   "x": 0,
+   "y": 0
+  },
+  "ceinture": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "mort": false,
+  "attaque": false,
+  "court": false,
+  "ennemi": {
+   "pv": 3,
+   "etat": "wait",
+   "vivant": true,
+   "engage": false,
+   "x": 4650,
+   "y": 2695,
+   "distance": 591
+  },
+  "meute": {
+   "etat": "idle",
+   "engagee": false,
+   "vivants": 3,
+   "morts": 0,
+   "loups": [
+    {
+     "etat": "hidden",
+     "x": 4802,
+     "y": 2304
+    },
+    {
+     "etat": "hidden",
+     "x": 4930,
+     "y": 2236
+    },
+    {
+     "etat": "hidden",
+     "x": 5031,
+     "y": 2315
+    }
+   ]
+  },
+  "vent": "calme",
+  "jour": "jour",
+  "nuit": 0,
+  "heureCycle": 447,
+  "torche": false,
+  "torcheSoufflee": false,
+  "chapitres": [
+   "ravin",
+   "greve",
+   "noire",
+   "louve"
+  ],
+  "compteur": {
+   "trees": 0,
+   "rocks": 0
+  },
+  "drapeaux": {
+   "foeDead": false,
+   "chestOpen": false,
+   "watcherGone": false,
+   "kingBowed": false,
+   "pont": false,
+   "eboulis": true
+  },
+  "distance": 0,
+  "tempsJeu": 30.7,
+  "fps": 15.2,
+  "vitesse": 1,
+  "graine": 7,
+  "zoom": 1,
+  "morceauxEnAttente": 0,
+  "derniereErreur": null
+ }
+}

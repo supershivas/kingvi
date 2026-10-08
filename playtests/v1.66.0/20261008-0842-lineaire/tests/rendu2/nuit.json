@@ -1,0 +1,720 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1280x800",
+  "dpr": 1,
+  "q": 1,
+  "heure": "nuit",
+  "meteo": "calme",
+  "tag": "nuit",
+  "steps": [
+   {
+    "tp": "barque",
+    "shot": "barque"
+   },
+   {
+    "tp": "lanterne",
+    "wait": 5000,
+    "shot": "lanterne"
+   },
+   {
+    "tp": "ravin",
+    "shot": "ravin"
+   },
+   {
+    "fell": 1,
+    "waitMs": 3000,
+    "shot": "pont"
+   },
+   {
+    "tp": "apres-ravin",
+    "shot": "apres-ravin"
+   },
+   {
+    "tp": "foret-noire",
+    "shot": "foret-noire"
+   },
+   {
+    "tp": "freya-debout",
+    "shot": "lisiere"
+   },
+   {
+    "tp": "maison",
+    "shot": "maison"
+   },
+   {
+    "tp": "falaise",
+    "shot": "falaise"
+   },
+   {
+    "tp": "grotte",
+    "shot": "grotte"
+   }
+  ]
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "nuit-barque",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 610,
+     "y": 3272,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 11.9,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-lanterne",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 786,
+     "y": 3243,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 8.5,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-ravin",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1001,
+     "y": 3230,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 4.6,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-pont",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1005,
+     "y": 3230,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 8.4,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-apres-ravin",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1076,
+     "y": 3238,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 7,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-foret-noire",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1213,
+     "y": 3265,
+     "zone": "noire",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 6.3,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-lisiere",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 2390,
+     "y": 2838,
+     "zone": "clairiere",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 6.1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-maison",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 2579,
+     "y": 2980,
+     "zone": "maison",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 5.4,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-falaise",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 5232,
+     "y": 2595,
+     "zone": "falaise",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 7,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null,
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  },
+  {
+   "name": "nuit-grotte",
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "physPerPx": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "px": "3px",
+    "line": "1px",
+    "rx": "418.9px",
+    "ry": "344.1px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 502
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 400,
+     "y": 1176,
+     "zone": "interieur:grotte",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 7.4,
+     "morceaux": 0,
+     "err": null,
+     "dedans": "grotte",
+     "pv": 3,
+     "ennemi": "wait",
+     "engage": false
+    }
+   }
+  }
+ ],
+ "final": {
+  "pret": true,
+  "accueil": false,
+  "x": 400,
+  "y": 1176,
+  "zone": "interieur:grotte",
+  "dedans": "grotte",
+  "enBarque": false,
+  "pv": 3,
+  "pvMax": 3,
+  "endurance": 1,
+  "sente": null,
+  "incendie": null,
+  "megamoth": {
+   "etat": "absent",
+   "pv": 0,
+   "haut": 0,
+   "x": 0,
+   "y": 0
+  },
+  "ceinture": [
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null,
+   null
+  ],
+  "mort": false,
+  "attaque": false,
+  "court": false,
+  "ennemi": {
+   "pv": 3,
+   "etat": "wait",
+   "vivant": true,
+   "engage": false,
+   "x": 4650,
+   "y": 2695,
+   "distance": 4513
+  },
+  "meute": {
+   "etat": "idle",
+   "engagee": false,
+   "vivants": 3,
+   "morts": 0,
+   "loups": [
+    {
+     "etat": "hidden",
+     "x": 4802,
+     "y": 2304
+    },
+    {
+     "etat": "hidden",
+     "x": 4930,
+     "y": 2236
+    },
+    {
+     "etat": "hidden",
+     "x": 5031,
+     "y": 2315
+    }
+   ]
+  },
+  "vent": "calme",
+  "jour": "nuit",
+  "nuit": 1,
+  "heureCycle": 1127,
+  "torche": true,
+  "torcheSoufflee": false,
+  "chapitres": [
+   "greve",
+   "ravin",
+   "noire",
+   "louve",
+   "maison",
+   "roi"
+  ],
+  "compteur": {
+   "trees": 0,
+   "rocks": 0
+  },
+  "drapeaux": {
+   "foeDead": false,
+   "chestOpen": false,
+   "watcherGone": false,
+   "kingBowed": false,
+   "pont": false,
+   "eboulis": true
+  },
+  "distance": 0,
+  "tempsJeu": 109.5,
+  "fps": 7.4,
+  "vitesse": 1,
+  "graine": 7,
+  "zoom": 1,
+  "morceauxEnAttente": 0,
+  "derniereErreur": null
+ }
+}

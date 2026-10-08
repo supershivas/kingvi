@@ -1,0 +1,390 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1280x800",
+  "dpr": 1,
+  "q": 1,
+  "lieux": [
+   "barque",
+   "ravin",
+   "foret-noire",
+   "maison",
+   "falaise"
+  ],
+  "heure": null,
+  "meteo": null,
+  "tag": "fps165-q1",
+  "attente": 4000,
+  "switchQ": null,
+  "extra": null
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "fps165-q1-barque",
+   "lieu": "barque",
+   "fps": [
+    21.1,
+    21.1,
+    20.6,
+    20.6,
+    20.9,
+    20.9
+   ],
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281px"
+    },
+    "physPerPx": 3,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "3px",
+    "line": "1px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 610,
+     "y": 3272,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 19.4,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "fps165-q1-ravin",
+   "lieu": "ravin",
+   "fps": [
+    15.7,
+    16,
+    16,
+    16,
+    16,
+    17.3
+   ],
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281px"
+    },
+    "physPerPx": 3,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "3px",
+    "line": "1px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1001,
+     "y": 3230,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 18.7,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "fps165-q1-foret-noire",
+   "lieu": "foret-noire",
+   "fps": [
+    18.4,
+    18.3,
+    18.3,
+    18.2,
+    18.2,
+    17.4
+   ],
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281px"
+    },
+    "physPerPx": 3,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "3px",
+    "line": "1px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1213,
+     "y": 3265,
+     "zone": "noire",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 18.1,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "fps165-q1-maison",
+   "lieu": "maison",
+   "fps": [
+    19.6,
+    21.5,
+    21.5,
+    22.1,
+    21.8,
+    21.8
+   ],
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281px"
+    },
+    "physPerPx": 3,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "3px",
+    "line": "1px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 2579,
+     "y": 2980,
+     "zone": "maison",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 21.1,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "fps165-q1-falaise",
+   "lieu": "falaise",
+   "fps": [
+    18.8,
+    17.9,
+    17.9,
+    16.2,
+    15.6,
+    15.6
+   ],
+   "m": {
+    "dpr": 1,
+    "canvas": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281px"
+    },
+    "physPerPx": 3,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 250,
+     "cssW": 1281,
+     "cssH": 750
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "3px",
+    "line": "1px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 639,
+     "y": 427
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 5232,
+     "y": 2595,
+     "zone": "falaise",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 16,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  }
+ ],
+ "derniereErreur": null
+}

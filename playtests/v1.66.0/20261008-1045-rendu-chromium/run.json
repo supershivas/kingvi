@@ -1,0 +1,134 @@
+{
+  "runId": "20261008-1045-rendu-chromium",
+  "version": "1.66.0",
+  "date": "2026-10-08T10:48:50.857Z",
+  "dureeReelle": 165,
+  "options": {
+    "clavier": "azerty",
+    "qualite": 3,
+    "navigateur": "chromium",
+    "taille": "1280x800",
+    "dpr": 1,
+    "graine": 7,
+    "capture": 6,
+    "vitesse": 2,
+    "heure": null,
+    "meteo": null,
+    "from": "greve",
+    "to": "maison",
+    "lac": false,
+    "reel": false,
+    "etiquette": "rendu-chromium",
+    "visible": false
+  },
+  "navigateur": "chromium 141.0.7390.37",
+  "fps": {
+    "moyen": 5.3,
+    "min": 2.3,
+    "max": 36.1
+  },
+  "erreurs": [],
+  "derniereErreurDuJeu": null,
+  "etatFinal": {
+    "pret": true,
+    "accueil": false,
+    "x": 755.6,
+    "y": 765.8,
+    "zone": "interieur:maison",
+    "dedans": "maison",
+    "enBarque": false,
+    "pv": 3,
+    "pvMax": 3,
+    "endurance": 1,
+    "sente": null,
+    "incendie": null,
+    "megamoth": {
+      "etat": "absent",
+      "pv": 0,
+      "haut": 0,
+      "x": 0,
+      "y": 0
+    },
+    "ceinture": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "mort": false,
+    "attaque": false,
+    "court": false,
+    "ennemi": {
+      "pv": 3,
+      "etat": "wait",
+      "vivant": true,
+      "engage": false,
+      "x": 4650,
+      "y": 2695,
+      "distance": 4346
+    },
+    "meute": {
+      "etat": "idle",
+      "engagee": false,
+      "vivants": 3,
+      "morts": 0,
+      "loups": [
+        {
+          "etat": "hidden",
+          "x": 4802,
+          "y": 2304
+        },
+        {
+          "etat": "hidden",
+          "x": 4930,
+          "y": 2236
+        },
+        {
+          "etat": "hidden",
+          "x": 5031,
+          "y": 2315
+        }
+      ]
+    },
+    "vent": "tempete",
+    "jour": "nuit",
+    "nuit": 1,
+    "heureCycle": 1020,
+    "torche": true,
+    "torcheSoufflee": false,
+    "chapitres": [
+      "greve",
+      "ravin",
+      "noire",
+      "louve",
+      "maison"
+    ],
+    "compteur": {
+      "trees": 1,
+      "rocks": 0
+    },
+    "drapeaux": {
+      "foeDead": false,
+      "chestOpen": false,
+      "watcherGone": true,
+      "kingBowed": false,
+      "pont": true,
+      "eboulis": true
+    },
+    "distance": 1417,
+    "tempsJeu": 340.6,
+    "fps": 5,
+    "vitesse": 2,
+    "graine": 7,
+    "zoom": 1,
+    "morceauxEnAttente": 0,
+    "derniereErreur": null
+  },
+  "captures": 39
+}

@@ -1,0 +1,134 @@
+{
+  "runId": "20261008-1045-rendu-webkit",
+  "version": "1.66.0",
+  "date": "2026-10-08T10:49:52.808Z",
+  "dureeReelle": 181,
+  "options": {
+    "clavier": "azerty",
+    "qualite": 3,
+    "navigateur": "webkit",
+    "taille": "1280x800",
+    "dpr": 1,
+    "graine": 7,
+    "capture": 6,
+    "vitesse": 2,
+    "heure": null,
+    "meteo": null,
+    "from": "greve",
+    "to": "maison",
+    "lac": false,
+    "reel": false,
+    "etiquette": "rendu-webkit",
+    "visible": false
+  },
+  "navigateur": "webkit 26.0",
+  "fps": {
+    "moyen": 3.3,
+    "min": 1.4,
+    "max": 25.9
+  },
+  "erreurs": [],
+  "derniereErreurDuJeu": null,
+  "etatFinal": {
+    "pret": true,
+    "accueil": false,
+    "x": 2708,
+    "y": 3000.8,
+    "zone": "maison",
+    "dedans": null,
+    "enBarque": false,
+    "pv": 3,
+    "pvMax": 3,
+    "endurance": 1,
+    "sente": null,
+    "incendie": null,
+    "megamoth": {
+      "etat": "absent",
+      "pv": 0,
+      "haut": 0,
+      "x": 0,
+      "y": 0
+    },
+    "ceinture": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    "mort": false,
+    "attaque": false,
+    "court": false,
+    "ennemi": {
+      "pv": 3,
+      "etat": "wait",
+      "vivant": true,
+      "engage": false,
+      "x": 4650,
+      "y": 2695,
+      "distance": 1966
+    },
+    "meute": {
+      "etat": "idle",
+      "engagee": false,
+      "vivants": 3,
+      "morts": 0,
+      "loups": [
+        {
+          "etat": "hidden",
+          "x": 4802,
+          "y": 2304
+        },
+        {
+          "etat": "hidden",
+          "x": 4930,
+          "y": 2236
+        },
+        {
+          "etat": "hidden",
+          "x": 5031,
+          "y": 2315
+        }
+      ]
+    },
+    "vent": "tempete",
+    "jour": "nuit",
+    "nuit": 1,
+    "heureCycle": 1020,
+    "torche": true,
+    "torcheSoufflee": false,
+    "chapitres": [
+      "greve",
+      "ravin",
+      "noire",
+      "louve",
+      "maison"
+    ],
+    "compteur": {
+      "trees": 1,
+      "rocks": 0
+    },
+    "drapeaux": {
+      "foeDead": false,
+      "chestOpen": false,
+      "watcherGone": true,
+      "kingBowed": false,
+      "pont": true,
+      "eboulis": true
+    },
+    "distance": 1318,
+    "tempsJeu": 385,
+    "fps": 2.5,
+    "vitesse": 2,
+    "graine": 7,
+    "zoom": 1,
+    "morceauxEnAttente": 6,
+    "derniereErreur": null
+  },
+  "captures": 44
+}

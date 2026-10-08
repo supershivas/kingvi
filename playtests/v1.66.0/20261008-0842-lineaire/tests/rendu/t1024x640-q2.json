@@ -1,0 +1,94 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1024x640",
+  "dpr": 1.25,
+  "q": 2,
+  "lieux": [
+   "barque"
+  ],
+  "heure": null,
+  "meteo": "calme",
+  "tag": "t1024x640-q2",
+  "attente": 3500,
+  "switchQ": null,
+  "extra": null
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "t1024x640-q2-barque",
+   "lieu": "barque",
+   "fps": [
+    14.1,
+    12.1,
+    11.3,
+    11.3,
+    10.7,
+    9.6
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 427,
+     "h": 245,
+     "cssW": 1024.796875,
+     "cssH": 588,
+     "left": 0,
+     "top": 52,
+     "styleW": "1024.8px"
+    },
+    "physPerPx": 2.999990851873536,
+    "physPerPxY": 3,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1024,
+     "h": 588
+    },
+    "sight": {
+     "w": 427,
+     "h": 245,
+     "cssW": 1024.796875,
+     "cssH": 588,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 427,
+     "h": 245,
+     "cssW": 1024.796875,
+     "cssH": 588
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "329.3px",
+    "classes": "screen crt",
+    "viking": {
+     "x": 511.1984411592506,
+     "y": 347.199099824356
+    },
+    "center": {
+     "x": 512,
+     "y": 346
+    },
+    "state": {
+     "x": 610,
+     "y": 3272,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 9.2,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  }
+ ],
+ "derniereErreur": null
+}

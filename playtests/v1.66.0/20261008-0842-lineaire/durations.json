@@ -1,0 +1,182 @@
+{
+  "unite": "secondes de temps de jeu",
+  "parZone": {
+    "greve": 29.4,
+    "plaine": 88.1,
+    "ravin": 54.6,
+    "foret": 21.4,
+    "noire": 39.3,
+    "clairiere": 5.2,
+    "maison": 16.3,
+    "lac": 99.5,
+    "interieur:crypte": 7.3,
+    "morts": 18.7,
+    "autre": 35.7,
+    "falaise": 9.5,
+    "interieur:grotte": 8.7
+  },
+  "chapitresA": {
+    "Chapitre I — La grève": 399.1,
+    "Chapitre II — Le ravin": 29.8,
+    "Chapitre III — La forêt noire": 92.6,
+    "Chapitre IV — La louve blanche": 131.9,
+    "Chapitre V — La maison": 146,
+    "Chapitre VII — Le lac": 181.9,
+    "Chapitre VIII — La plaine des morts": 308.3,
+    "Chapitre IX — L'autre": 405.8,
+    "Chapitre X — La falaise": 415.8,
+    "Chapitre XI — Le roi sous la roche": 426.8
+  },
+  "tronconsSautes": [
+    {
+      "vers": "foret-noire",
+      "pixels": 42,
+      "secondesAPied": 2
+    },
+    {
+      "vers": "guetteur",
+      "pixels": 412,
+      "secondesAPied": 23
+    },
+    {
+      "vers": "freya-debout",
+      "pixels": 692,
+      "secondesAPied": 38
+    },
+    {
+      "vers": "crypte",
+      "pixels": 30,
+      "secondesAPied": 2
+    },
+    {
+      "vers": "morts",
+      "pixels": 214,
+      "secondesAPied": 12
+    },
+    {
+      "vers": "freya-ensevelie",
+      "pixels": 31,
+      "secondesAPied": 2
+    },
+    {
+      "vers": "viking",
+      "pixels": 575,
+      "secondesAPied": 32
+    },
+    {
+      "vers": "viking",
+      "pixels": 4672,
+      "secondesAPied": 260
+    },
+    {
+      "vers": "falaise",
+      "pixels": 31,
+      "secondesAPied": 2
+    }
+  ],
+  "pisteEntiere": {
+    "pixels": 4865,
+    "secondesAPied": 270,
+    "minutesAPied": 4.5
+  },
+  "etapes": [
+    {
+      "id": "greve",
+      "titre": "La grève et le mons",
+      "debut": 7.4,
+      "fin": 34.9,
+      "duree": 27.5
+    },
+    {
+      "id": "ravin",
+      "titre": "Le ravin : abattre l'arbre, passer sur le tronc",
+      "debut": 34.9,
+      "fin": 91.7,
+      "duree": 56.8
+    },
+    {
+      "id": "foret-noire",
+      "titre": "La forêt noire",
+      "debut": 91.7,
+      "fin": 119.3,
+      "duree": 27.6
+    },
+    {
+      "id": "guetteur",
+      "titre": "Le bosquet et le guetteur",
+      "debut": 119.3,
+      "fin": 130.2,
+      "duree": 10.9
+    },
+    {
+      "id": "freya-debout",
+      "titre": "Véla debout",
+      "debut": 130.2,
+      "fin": 151.1,
+      "duree": 20.9
+    },
+    {
+      "id": "maison",
+      "titre": "La maison, dehors et dedans",
+      "debut": 151.1,
+      "fin": 200.5,
+      "duree": 49.4
+    },
+    {
+      "id": "lac",
+      "titre": "Le lac, l'îlot, la crypte",
+      "debut": 200.5,
+      "fin": 307.4,
+      "duree": 106.9
+    },
+    {
+      "id": "morts",
+      "titre": "La plaine des morts",
+      "debut": 307.4,
+      "fin": 331.4,
+      "duree": 24
+    },
+    {
+      "id": "foret",
+      "titre": "Véla ensevelie",
+      "debut": 331.4,
+      "fin": 358.9,
+      "duree": 27.5
+    },
+    {
+      "id": "viking",
+      "titre": "L'autre viking : mort volontaire",
+      "debut": 358.9,
+      "fin": 381.7,
+      "duree": 22.8
+    },
+    {
+      "id": "reveil",
+      "titre": "Le réveil à la barque",
+      "debut": 381.7,
+      "fin": 387.3,
+      "duree": 5.6
+    },
+    {
+      "id": "victoire",
+      "titre": "Retour au bout des traces, et victoire",
+      "debut": 387.3,
+      "fin": 414.1,
+      "duree": 26.8
+    },
+    {
+      "id": "falaise",
+      "titre": "La falaise, l'éboulis et la grotte",
+      "debut": 414.1,
+      "fin": 429.3,
+      "duree": 15.2
+    },
+    {
+      "id": "roi",
+      "titre": "Le roi sous la roche",
+      "debut": 429.3,
+      "fin": 435.2,
+      "duree": 5.9
+    }
+  ]
+}

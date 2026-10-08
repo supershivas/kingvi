@@ -1,0 +1,390 @@
+{
+ "cfg": {
+  "nav": "chromium",
+  "taille": "1280x800",
+  "dpr": 1.25,
+  "q": 1,
+  "lieux": [
+   "barque",
+   "ravin",
+   "foret-noire",
+   "falaise",
+   "grotte"
+  ],
+  "heure": null,
+  "meteo": "calme",
+  "tag": "d125-q1",
+  "attente": 3500,
+  "switchQ": null,
+  "extra": null
+ },
+ "errors": [],
+ "res": [
+  {
+   "name": "d125-q1-barque",
+   "lieu": "barque",
+   "fps": [
+    15,
+    15,
+    14.2,
+    13.4,
+    13.4,
+    12.6
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281.6px"
+    },
+    "physPerPx": 2.999985369850187,
+    "physPerPxY": 2.999987479967949,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 640.796875,
+     "y": 426.39817415730334
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 610,
+     "y": 3272,
+     "zone": "greve",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 11.4,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "d125-q1-ravin",
+   "lieu": "ravin",
+   "fps": [
+    11.1,
+    10.3,
+    10.3,
+    10.2,
+    10.2,
+    9.4
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281.6px"
+    },
+    "physPerPx": 2.999985369850187,
+    "physPerPxY": 2.999987479967949,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 640.796875,
+     "y": 426.39817415730334
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1001,
+     "y": 3230,
+     "zone": "ravin",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 8.9,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "d125-q1-foret-noire",
+   "lieu": "foret-noire",
+   "fps": [
+    7.4,
+    7.4,
+    7.5,
+    7.5,
+    7.9,
+    7.9
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281.6px"
+    },
+    "physPerPx": 2.999985369850187,
+    "physPerPxY": 2.999987479967949,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 640.796875,
+     "y": 426.39817415730334
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 1213,
+     "y": 3265,
+     "zone": "noire",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 7.9,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "d125-q1-falaise",
+   "lieu": "falaise",
+   "fps": [
+    9.6,
+    9.6,
+    9.9,
+    9.9,
+    10.2,
+    10.2
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281.6px"
+    },
+    "physPerPx": 2.999985369850187,
+    "physPerPxY": 2.999987479967949,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 640.796875,
+     "y": 426.39817415730334
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 5232,
+     "y": 2595,
+     "zone": "falaise",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 9.8,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": null
+    }
+   }
+  },
+  {
+   "name": "d125-q1-grotte",
+   "lieu": "grotte",
+   "fps": [
+    8.1,
+    8.3,
+    8.3,
+    8.3,
+    8.9,
+    8.9
+   ],
+   "m": {
+    "dpr": 1.25,
+    "canvas": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52,
+     "styleW": "1281.6px"
+    },
+    "physPerPx": 2.999985369850187,
+    "physPerPxY": 2.999987479967949,
+    "screen": {
+     "left": 0,
+     "top": 52,
+     "w": 1280,
+     "h": 748
+    },
+    "sight": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875,
+     "left": 0,
+     "top": 52
+    },
+    "sky": {
+     "w": 534,
+     "h": 312,
+     "cssW": 1281.59375,
+     "cssH": 748.796875
+    },
+    "camZoom": 1,
+    "factor": 3,
+    "px": "2.4px",
+    "line": "0.8px",
+    "sightRx": "418.9px",
+    "classes": "screen",
+    "viking": {
+     "x": 640.796875,
+     "y": 486.3978815543071
+    },
+    "center": {
+     "x": 640,
+     "y": 426
+    },
+    "state": {
+     "x": 400,
+     "y": 1176,
+     "zone": "interieur:grotte",
+     "jour": "nuit",
+     "nuit": 1,
+     "torche": true,
+     "fps": 9.7,
+     "zoom": 1,
+     "morceaux": 0,
+     "err": null,
+     "dedans": "grotte"
+    }
+   }
+  }
+ ],
+ "derniereErreur": null
+}

@@ -1,0 +1,96 @@
+{
+  "unite": "secondes de temps de jeu",
+  "parZone": {
+    "greve": 41,
+    "ravin": 64.3,
+    "foret": 12.7,
+    "noire": 49.4,
+    "clairiere": 8.5,
+    "plaine": 14.7,
+    "maison": 16.1,
+    "interieur:maison": 14.2
+  },
+  "chapitresA": {
+    "Chapitre I — La grève": 16.7,
+    "Chapitre II — Le ravin": 45.4,
+    "Chapitre III — La forêt noire": 122.4,
+    "Chapitre IV — La louve blanche": 172,
+    "Chapitre V — La maison": 190.6
+  },
+  "tronconsSautes": [
+    {
+      "vers": "ravin",
+      "pixels": 234,
+      "secondesAPied": 13
+    },
+    {
+      "vers": "foret-noire",
+      "pixels": 42,
+      "secondesAPied": 2
+    },
+    {
+      "vers": "guetteur",
+      "pixels": 559,
+      "secondesAPied": 31
+    },
+    {
+      "vers": "freya-debout",
+      "pixels": 707,
+      "secondesAPied": 39
+    },
+    {
+      "vers": "maison",
+      "pixels": 93,
+      "secondesAPied": 5
+    }
+  ],
+  "pisteEntiere": {
+    "pixels": 4865,
+    "secondesAPied": 270,
+    "minutesAPied": 4.5
+  },
+  "etapes": [
+    {
+      "id": "greve",
+      "titre": "La grève et le mons",
+      "debut": 11.9,
+      "fin": 42.3,
+      "duree": 30.4
+    },
+    {
+      "id": "ravin",
+      "titre": "Le ravin : abattre l'arbre, passer sur le tronc",
+      "debut": 43,
+      "fin": 119.4,
+      "duree": 76.4
+    },
+    {
+      "id": "foret-noire",
+      "titre": "La forêt noire",
+      "debut": 119.4,
+      "fin": 148.5,
+      "duree": 29.1
+    },
+    {
+      "id": "guetteur",
+      "titre": "Le bosquet et le guetteur",
+      "debut": 148.5,
+      "fin": 169.1,
+      "duree": 20.6
+    },
+    {
+      "id": "freya-debout",
+      "titre": "Véla debout",
+      "debut": 169.1,
+      "fin": 188.1,
+      "duree": 19
+    },
+    {
+      "id": "maison",
+      "titre": "La maison, dehors et dedans",
+      "debut": 188.7,
+      "fin": 226.8,
+      "duree": 38.1
+    }
+  ]
+}
