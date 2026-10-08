@@ -43,7 +43,7 @@ export const ARCHIPEL = [
     lieux: [['Les toits sous la glace', 0.48, 0.5], ['La cloche', 0.6, 0.42], ['La digue', 0.3, 0.64], ['La colline sèche', 0.72, 0.62]],
   },
   {
-    n: 7, nom: 'l\'île du roi', joue: true,
+    n: 7, nom: 'le continent du roi', joue: true,
     about: 'Celle de Kingvi, où la nuit ne finit pas : sa vraie carte est plus haut.',
   },
   {

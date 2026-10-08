@@ -11,7 +11,7 @@
    Années : comptées en hivers avant aujourd'hui (−26 : il y a 26 hivers).
    Aujourd'hui, la nuit dure depuis 19 hivers. */
 
-import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.65.0';
+import { BIBLE_SNO4, FAMILIES_SNO4, PEOPLE_SNO4, PLACES_SNO4, SCENARIOS_SNO4, VOICES_SNO4 } from './saga-sno4.js?v=1.65.1';
 
 // ── La bible : les pages qu'on lit avant tout ──
 export const BIBLE = [
@@ -19,8 +19,8 @@ export const BIBLE = [
     id: 'intention',
     titre: 'Ce que raconte la saga',
     texte: [
-      `Kári revient sur l'île où il est né et qu'il ne connaît pas. Il a vingt-six hivers. On l'a mis à la mer dans un panier, le jour de sa naissance, parce qu'un devin avait lu dans un foie de bronze que « le fils de Kingvi rallumera le jour ». Son père, le roi Kingvi, ne voulait pas que le jour revienne.`,
-      `Car sur SNO 7 il fait nuit depuis dix-neuf hivers. Quand son plus jeune fils est mort, Kingvi a pris le marteau des Orsènes, le peuple d'avant, et il a planté le dernier clou de Sorne, la déesse du sort, à l'envers, dans le cœur de l'année. Le temps s'est arrêté sur l'île. Personne n'y vieillit plus vraiment, rien n'y pousse plus, et la tempête ne cesse pas. Le roi lui-même attend sur son trône, sous la roche, ni mort ni vivant.`,
+      `Kári revient sur le continent où il est né et qu'il ne connaît pas. Il a vingt-six hivers. On l'a mis à la mer dans un panier, le jour de sa naissance, parce qu'un devin avait lu dans un foie de bronze que « le fils de Kingvi rallumera le jour ». Son père, le roi Kingvi, ne voulait pas que le jour revienne.`,
+      `Car sur SNO 7 il fait nuit depuis dix-neuf hivers. Quand son plus jeune fils est mort, Kingvi a pris le marteau des Orsènes, le peuple d'avant, et il a planté le dernier clou de Sorne, la déesse du sort, à l'envers, dans le cœur de l'année. Le temps s'est arrêté sur le continent. Personne n'y vieillit plus vraiment, rien n'y pousse plus, et la tempête ne cesse pas. Le roi lui-même attend sur son trône, sous la roche, ni mort ni vivant.`,
       `Kári n'est pas venu seul. Eyvind, son frère de lait, l'homme sauvage qu'une louve blanche a élevé, a débarqué avant lui. Le cousin Thorgrim l'attendait sur la grève. Il l'a conduit jusqu'à la maison de la nourrice et l'a tué dans le noir, en le prenant pour Kári. Ce sont les deux pistes qui partent de la grève : une seule ressort, tachée de sang.`,
       `Le reste est la saga : ce que Kári fera du clou, de la couronne, de sa sœur changée en glace, de la nièce qu'il ne connaît pas, et de la peur de mourir qui a gelé son père.`,
     ],
@@ -31,7 +31,7 @@ export const BIBLE = [
     texte: [
       `Les personnages parlent. Ils parlent peu. Une rencontre, c'est trois à huit lignes, rarement plus. Une ligne fait douze mots au plus, et deux lignes à l'écran au plus.`,
       `Personne n'explique l'histoire. On parle comme on parle dans le froid : pour l'essentiel, de travers, avec des silences. Le paysage reste le premier narrateur. Une ligne doit ajouter ce que les traces ne peuvent pas dire (un nom, un regret, une menace), jamais répéter ce qu'on voit.`,
-      `Kári parle peu, et presque toujours en dernier. Les morts parlent : c'est la magie de l'île, où le temps arrêté retient les voix. Les dieux parlent encore moins que les morts. Les bêtes ne parlent pas, sauf la louve blanche, qui est une fylgja et pas une bête.`,
+      `Kári parle peu, et presque toujours en dernier. Les morts parlent : c'est la magie du continent, où le temps arrêté retient les voix. Les dieux parlent encore moins que les morts. Les bêtes ne parlent pas, sauf la louve blanche, qui est une fylgja et pas une bête.`,
       `Aucun choix de réplique. Le joueur répond par des gestes : frapper, épargner, partir, rester, prendre, laisser. Le texte avance seul, au rythme de la lecture (un clic l'accélère), et le monde ne s'arrête pas pendant qu'on parle, sauf dans les intérieurs.`,
       `Les lignes s'affichent dans un phylactère (propositions dans « Phylactères »). Langue : un français simple et sec, sans archaïsme de théâtre. Les noms nordiques gardent leurs accents (Kári, Ása, Sigrún), et les noms orsènes leur dureté (Larth, Ramtha, Thanchvil).`,
     ],
@@ -40,10 +40,10 @@ export const BIBLE = [
     id: 'monde',
     titre: 'Le monde : l\'Archipel des Neuf',
     texte: [
-      `SNO 7 est la septième des neuf îles de l'Archipel des Neuf, posé sur une mer qui gèle à moitié. On y compte les îles d'est en ouest, comme on comptait les mondes autour de l'Arbre.`,
+      `SNO 7 n'est pas une île : c'est le continent, la grande terre dont l'Archipel des Neuf n'est que la frange, sur une mer qui gèle à moitié. On compte les neuf terres d'est en ouest, comme on comptait les mondes autour de l'Arbre ; le continent est la septième.`,
       `SNO 3 est l'île des pêcheurs, où Kári a grandi, où Ingunn l'attend et où va naître leur enfant. SNO 8 est l'île de la Brasseuse : Sidrún y tient une taverne au bord du monde, et c'est la dernière île où l'on trouve de la bière. SNO 9 est l'île du Survivant, derrière les Eaux de la Mort, qu'aucun vivant n'a traversées sans le passeur. SNO 4 est l'île Carrefour, où se croisent les routes de la mer et celles des morts : un navire venu de Morne-Aurore s'y est pris dans la glace il y a cent dix hivers, avec ses esprits (le second monde de la saga). Les autres îles sont des noms dans les chansons d'Ásdís.`,
       `Sur SNO 7 vivent trois peuples, morts ou presque. Les Orsènes, venus du sud en suivant les oiseaux, ont bâti l'arche, le temple de Sorne et les Véla, qu'ils appelaient Ilé. Les gens de Hrólf, venus du nord avec trois navires, sont enterrés dans la plaine. Les géants du froid, enfin, sont la montagne, le glacier et la neige elle-même.`,
-      `L'île est plus grande que ce qu'on en a vu. Au nord de la plaine se trouve le hameau des Gunnar. Au-delà du plateau, une montagne est un géant qui dort. Sous le lac, une flotte est prise dans la glace. Derrière le trône, une fissure monte jusqu'à une racine trop grande pour l'écran.`,
+      `Le continent est plus grand que ce qu'on en a vu. Au nord de la plaine se trouve le hameau des Gunnar. Au-delà du plateau, une montagne est un géant qui dort. Sous le lac, une flotte est prise dans la glace. Derrière le trône, une fissure monte jusqu'à une racine trop grande pour l'écran.`,
     ],
   },
   {
@@ -54,7 +54,7 @@ export const BIBLE = [
       `Le seiðr, la magie de Véla et des völvas, voit et lie, au prix de soi. Hallveig y a laissé son visage. Le joueur en voit les effets : le guetteur qui s'efface, les pas qui s'arrêtent net, les rêves.`,
       `Le galdr, ce sont les runes chantées. Kári peut en apprendre trois, une par grande rencontre. Kenaz rallume la torche soufflée. Isa fige l'eau et la neige (marcher sur le lac, arrêter une avalanche de pierres). Ansuz fait parler un mort une fois de plus. Chaque rune chantée coûte une blessure, qui saigne comme un coup reçu.`,
       `La disciplina des Orsènes, c'est lire le sort dans un foie, dans la foudre, dans le vol des oiseaux. Elle ne change rien, elle annonce. Larth lit le foie des loups abattus, Tavé parle par énigmes, et le clou de Sorne fixe ce qui est lu.`,
-      `Et il y a la grande magie, celle qu'on ne fait qu'une fois : le clou planté à l'envers. Elle a arrêté le temps d'une île entière. La saga, c'est la question de l'arracher ou non.`,
+      `Et il y a la grande magie, celle qu'on ne fait qu'une fois : le clou planté à l'envers. Elle a arrêté le temps d'un continent entier. La saga, c'est la question de l'arracher ou non.`,
     ],
   },
   {
@@ -63,7 +63,7 @@ export const BIBLE = [
     texte: [
       `Sur chaque île de l'archipel, il y a deux cubes : un blanc et un noir, toujours loin l'un de l'autre. Ce sont les deux seules choses parfaitement droites du monde. Ni la pierre, ni la glace, ni les mains n'ont jamais rien fait d'aussi droit. Ils mesurent presque deux fois un homme. La neige ne tient pas dessus.`,
       `Personne ne sait qui les a posés. Les Orsènes les comptaient déjà parmi les choses d'avant, et n'y plantaient pas de clou. Les gens de Hrólf les ont contournés sans y toucher. Sur SNO 4, on dit que les esprits ne s'en approchent pas : ce qui est trop droit ne laisse pas de place pour passer.`,
-      `Le blanc est tiède. Qui le touche voit ses blessures se fermer sans rien sentir. Le noir ne renvoie aucun reflet, pas même le sien ; qui le touche voit l'île d'en haut, un instant, comme un oiseau ou comme un mort. Larth disait que le blanc garde ce qui a été et que le noir montre ce qui est ; il n'a jamais dit qui montrerait ce qui vient.`,
+      `Le blanc est tiède. Qui le touche voit ses blessures se fermer sans rien sentir. Le noir ne renvoie aucun reflet, pas même le sien ; qui le touche voit le continent d'en haut, un instant, comme un oiseau ou comme un mort. Larth disait que le blanc garde ce qui a été et que le noir montre ce qui est ; il n'a jamais dit qui montrerait ce qui vient.`,
     ],
   },
   {
@@ -79,7 +79,7 @@ export const BIBLE = [
     id: 'partie',
     titre: 'Une partie, une saga',
     texte: [
-      `Chaque partie a la même colonne vertébrale (la grève, la maison, l'autre, le roi). Elle tire ensuite, avec la graine de l'île, quatre scénarios parmi les « souvent » et un parmi les « rares », et une fin parmi quatre selon ce que Kári a fait.`,
+      `Chaque partie a la même colonne vertébrale (la grève, la maison, l'autre, le roi). Elle tire ensuite, avec la graine du continent, quatre scénarios parmi les « souvent » et un parmi les « rares », et une fin parmi quatre selon ce que Kári a fait.`,
       `Tavé, l'enfant au visage de vieillard, assis dans l'arche, annonce les scénarios tirés en trois énigmes. Le joueur entend la partie avant de la vivre, sans la comprendre.`,
       `Les fins sont l'Aube (arracher le clou), le Roi sous la roche (s'asseoir à la place du père), la Mer (brûler Eyvind sur l'eau et rentrer à SNO 3) et le Bout du monde (passer les Eaux de la Mort jusqu'au Survivant). Une fin vécue reste vraie dans les parties suivantes, d'une manière ou d'une autre. Si Kári s'est assis sur le trône, c'est lui qui attend sous la roche la fois suivante.`,
     ],
@@ -109,7 +109,7 @@ export const BIBLE = [
       ['−12', 'Thorbrand se perd dans la Chasse sauvage.'],
       ['−9', 'Thorgrim prend Sigrún de force pour avoir le sang du roi.'],
       ['−8', 'Naissance d\'Ása.'],
-      ['−7', 'Sigrún s\'enfuit et monte voler la torche de Vaïne pour rallumer le jour. Vaïne la fige dans la glace, la torche à la main. Les Gunnar quittent l\'île, Ása refuse de partir.'],
+      ['−7', 'Sigrún s\'enfuit et monte voler la torche de Vaïne pour rallumer le jour. Vaïne la fige dans la glace, la torche à la main. Les Gunnar quittent le continent, Ása refuse de partir.'],
       ['−5', 'Sur SNO 3, Kári se bat trois jours contre l\'homme sauvage Eyvind. Ils deviennent frères.'],
       ['−1', 'Kári épouse Ingunn.'],
       ['0', 'Le rêve envoyé par Hallveig appelle Kári. Eyvind part le premier. Thorgrim l\'attend sur la grève.'],
@@ -157,7 +157,7 @@ export const PEOPLE = [
     sprite: { corps: 'geant', tete: 'couronne', echelle: 3 },
     voix: 'Très bas, très doux, comme quelqu\'un qui a eu le temps de choisir chaque mot. Jamais en colère.',
     bio: [
-      `On disait de lui qu'il était fait pour deux tiers de neige et pour un tiers d'homme. Il était plus grand que tout le monde, plus fort, plus beau, et il le savait. Jeune, il a gouverné comme on chasse : vite, et pour lui. Il a pris les filles des autres, il a fait marcher les hommes jusqu'au glacier pour en ramener la glace la plus claire, il a fait bâtir sur l'île une salle plus haute que l'arche des Orsènes.`,
+      `On disait de lui qu'il était fait pour deux tiers de neige et pour un tiers d'homme. Il était plus grand que tout le monde, plus fort, plus beau, et il le savait. Jeune, il a gouverné comme on chasse : vite, et pour lui. Il a pris les filles des autres, il a fait marcher les hommes jusqu'au glacier pour en ramener la glace la plus claire, il a fait bâtir sur le continent une salle plus haute que l'arche des Orsènes.`,
       `Hallveig l'a changé, un temps. Puis Larth, son grand-père, a lu dans le foie de bronze que son fils « rallumerait le jour », et Kingvi a eu peur pour la première fois. Il a laissé Hallveig mettre leur fils nouveau-né à la mer sans la retenir. Il s'est dit que c'était pour protéger l'enfant. C'était pour se protéger de lui.`,
       `Quand Hjalti, le petit, est mort de la fièvre à six ans, Kingvi a passé sept jours et sept nuits près du corps, jusqu'à ce qu'il le voie changer. Alors il a eu peur de mourir comme on a peur du noir, sans pouvoir rien faire d'autre. Il est descendu au temple de Sorne, il a pris le marteau des Orsènes et il a planté le dernier clou à l'envers, la pointe vers l'année qui venait.`,
       `Le temps s'est arrêté sur SNO 7. La nuit est venue et n'est pas repartie. Kingvi s'est assis sur son trône, sous la roche, pour attendre que la peur passe. Elle n'est pas passée. Sa couronne est devenue trop lourde pour sa tête. Il est là depuis dix-neuf hivers et il aime toujours ceux qu'il a perdus.`,
@@ -174,7 +174,7 @@ export const PEOPLE = [
     bio: [
       `Elle est arrivée du nord en marchant sur la mer gelée, seule, avec un bâton de fer et un sac de plumes. Les gens de Hrólf ont voulu la renvoyer. Kingvi l'a regardée et l'a épousée la semaine suivante.`,
       `Elle a eu trois enfants. Elle a mis le deuxième à la mer pour le sauver du premier homme qu'elle aimait. Elle a vu mourir le troisième. Elle a vu l'aînée partir vers la falaise et ne pas revenir sous sa forme.`,
-      `Pour savoir où dérivait son fils, elle a fait le seiðr le plus long que la völva de l'île ait jamais fait, et Véla lui a pris son visage en paiement. Depuis, on ne la voit plus que de loin : quand on approche, il n'y a rien sous la capuche, alors elle s'efface. Elle suit les traces des autres et ne laisse les siennes qu'à moitié.`,
+      `Pour savoir où dérivait son fils, elle a fait le seiðr le plus long que la völva du continent ait jamais fait, et Véla lui a pris son visage en paiement. Depuis, on ne la voit plus que de loin : quand on approche, il n'y a rien sous la capuche, alors elle s'efface. Elle suit les traces des autres et ne laisse les siennes qu'à moitié.`,
       `C'est elle qui a envoyé le rêve qui a ramené Kári. Elle ne sait pas si elle a bien fait.`,
     ],
     lignes: ['Pas encore.', 'Tu as ses épaules.', 'Va.'],
@@ -201,7 +201,7 @@ export const PEOPLE = [
     sprite: { corps: 'vieille', tete: 'voile', objet: 'baton' },
     voix: 'Elle chante plus qu\'elle ne parle. Des phrases courtes avec un rythme.',
     bio: [
-      `Elle a quitté l'île à vingt ans pour chanter ailleurs ce qu'on y faisait. Elle n'est jamais revenue, mais elle sait tout : les oiseaux, les marins et les morts lui racontent.`,
+      `Elle a quitté le continent à vingt ans pour chanter ailleurs ce qu'on y faisait. Elle n'est jamais revenue, mais elle sait tout : les oiseaux, les marins et les morts lui racontent.`,
       `On la retrouve vieille à SNO 8, assise près du feu de Sidrún. Chaque soir, elle chante la saga de son neveu un peu plus loin que la veille, comme si elle la lisait dans les flammes. Les titres des chapitres qui s'inscrivent dans le ciel du jeu sont ses vers.`,
     ],
     lignes: ['Chapitre sept, l\'Autre. Je l\'ai chanté avant que tu le vives, petit.', 'Assieds-toi. Je n\'ai pas encore trouvé ta fin.'],
@@ -227,7 +227,7 @@ export const PEOPLE = [
     voix: 'Une voix prise dans la glace, qui ne parle que quand une flamme la fait fondre un peu. Calme, amère, tendre pour sa fille.',
     bio: [
       `L'aînée, celle qui aurait dû régner. Elle avait onze ans quand la nuit est tombée, et elle n'a jamais pardonné à son père. Elle a grandi dans le noir en apprenant à faire du feu avec n'importe quoi.`,
-      `Thorgrim l'a prise de force pour avoir le sang du roi et le droit au trône. Elle a eu Ása, et un an plus tard elle est partie. Elle est montée sur la falaise, là où passe Vaïne, la femme ailée qui vient chercher les morts avec sa torche, et elle a essayé de lui voler sa torche pour rallumer le jour sur l'île.`,
+      `Thorgrim l'a prise de force pour avoir le sang du roi et le droit au trône. Elle a eu Ása, et un an plus tard elle est partie. Elle est montée sur la falaise, là où passe Vaïne, la femme ailée qui vient chercher les morts avec sa torche, et elle a essayé de lui voler sa torche pour rallumer le jour sur le continent.`,
       `Vaïne l'a laissée prendre la torche, puis l'a figée : « Puisque tu veux la lumière, tiens-la. » Sigrún est debout sur le plateau, dans un bloc de glace claire, le bras levé, la torche éteinte au poing. Le vent a sculpté la glace autour d'elle.`,
       `Quand une flamme approche, la glace pleure et Sigrún peut parler un peu. Si Kári allume sa torche à la sienne, la glace fond d'un coup : Vaïne vient la prendre, enfin.`,
     ],
@@ -271,7 +271,7 @@ export const PEOPLE = [
     bio: [
       `Petit-fils de la neige par son père et du Survivant par sa mère, il est plus lourd et plus froid que tous. On l'a appelé « le bâtard du bâtard » jusqu'à ce qu'il soit assez grand pour qu'on arrête.`,
       `Il a deux raisons, et il ne sait plus laquelle est vraie. La couronne d'abord : la dernière lecture de Larth disait aussi que « celui qui arrachera le clou prendra la couronne ». Il a pris Sigrún de force pour avoir le sang du roi. Elle a refusé de toucher au clou pour lui, et elle est partie.`,
-      `La peur ensuite. Il croit que le jour réveillera Ísgrim, le géant de la montagne, son arrière-grand-père, et que le géant noiera l'île en se levant. Il garde la nuit comme on garde une porte.`,
+      `La peur ensuite. Il croit que le jour réveillera Ísgrim, le géant de la montagne, son arrière-grand-père, et que le géant noiera le continent en se levant. Il garde la nuit comme on garde une porte.`,
       `Quand il a appris par les corbeaux que le fils de Kingvi revenait, il a attendu sur la grève. Un homme est arrivé seul dans une barque mâtée. Thorgrim lui a dit : « Je suis ton cousin. Viens, la nourrice t'attend. » Dans la maison noire, il a frappé. En voyant le visage, il a su qu'il s'était trompé : c'était un sauvage aux dents de loup, pas un fils de roi. Il est sorti, il a marché vers l'est, et il attend le bon.`,
       `Il aime sa fille Ása, qui ne veut pas le voir.`,
     ],
@@ -330,9 +330,9 @@ export const PEOPLE = [
     sprite: { corps: 'enfant', tete: 'capuche', accent: 'echarpe' },
     voix: 'Vive, sérieuse, elle pose des questions qui n\'ont pas de réponse.',
     bio: [
-      `Elle a huit ans et n'a jamais vu le jour. Quand les Gunnar ont fui l'île, elle a refusé de monter dans la barque, parce que sa mère « allait revenir avec du feu ». Elle vit seule dans le hameau, dans le cellier de la grande maison, avec la louve blanche qui dort contre elle.`,
-      `Elle a appris à reconnaître les traces de tout ce qui marche sur l'île. Elle suit Kári de loin depuis la grève. Ses petits pas apparaissent à côté des siens quand il ne regarde pas.`,
-      `Elle porte une écharpe rouge que sa mère a teinte avec on ne sait quoi. C'est la seule chose de l'île qui ait cette couleur sans être du sang.`,
+      `Elle a huit ans et n'a jamais vu le jour. Quand les Gunnar ont fui le continent, elle a refusé de monter dans la barque, parce que sa mère « allait revenir avec du feu ». Elle vit seule dans le hameau, dans le cellier de la grande maison, avec la louve blanche qui dort contre elle.`,
+      `Elle a appris à reconnaître les traces de tout ce qui marche sur le continent. Elle suit Kári de loin depuis la grève. Ses petits pas apparaissent à côté des siens quand il ne regarde pas.`,
+      `Elle porte une écharpe rouge que sa mère a teinte avec on ne sait quoi. C'est la seule chose du continent qui ait cette couleur sans être du sang.`,
     ],
     lignes: ['Tu suis les traces, toi aussi ?', 'Ma mère cherche du feu. Tu en as ?', 'Il fera jour comment ?'],
   },
@@ -366,7 +366,7 @@ export const PEOPLE = [
     sprite: { corps: 'vieux', tete: 'bonnet', objet: 'baton' },
     voix: 'Mort, il ne parle qu\'à travers les pierres : des mots gravés qui apparaissent sous la neige.',
     bio: [
-      `Les Orsènes étaient sur l'île depuis des siècles quand il est né, mais ils n'étaient plus que quelques familles. Il a passé sa vie à relever ce que le gel faisait tomber : l'arche, le socle à degrés, le mur du temple où l'on plantait un clou par an.`,
+      `Les Orsènes étaient sur le continent depuis des siècles quand il est né, mais ils n'étaient plus que quelques familles. Il a passé sa vie à relever ce que le gel faisait tomber : l'arche, le socle à degrés, le mur du temple où l'on plantait un clou par an.`,
       `Il a compté les clous. Il en restait neuf avant le dernier siècle des Orsènes. Il ne l'a dit qu'à sa femme.`,
     ],
     lignes: ['ICI LE MUR DES ANS. UN CLOU PAR HIVER. NE PAS PLANTER À REBOURS.'],
@@ -453,7 +453,7 @@ export const PEOPLE = [
     voix: 'Une voix de vieil homme dans un corps d\'enfant. Il parle en énigmes et rit de ses propres énigmes.',
     bio: [
       `Né d'un sillon, adopté par Velia. Il a dicté aux Orsènes tout ce qu'ils savaient du ciel et des foies, en une seule journée, puis il s'est tu pendant cent ans.`,
-      `Il est assis sous l'arche, petit comme un enfant de cinq ans, avec un visage plus vieux que l'île. Il connaît la partie qui commence, et il la dit en trois énigmes à qui passe sous l'arche. Personne ne comprend avant de l'avoir vécue.`,
+      `Il est assis sous l'arche, petit comme un enfant de cinq ans, avec un visage plus vieux que le continent. Il connaît la partie qui commence, et il la dit en trois énigmes à qui passe sous l'arche. Personne ne comprend avant de l'avoir vécue.`,
     ],
     lignes: ['Trois choses t\'attendent. Une qui vole, une qui dort, une qui ment.', 'Je suis plus vieux que toi et plus petit que ta hache.'],
   },
@@ -579,7 +579,7 @@ export const PEOPLE = [
       `Il s'y ennuie. Il dit que l'éternité, c'est une très longue après-midi.`,
       `À qui vient lui demander de ne pas mourir, il fait passer une épreuve : rester éveillé six jours et sept nuits. Personne n'y est arrivé. Kingvi est venu, jeune, et s'est endormi le premier soir.`,
     ],
-    lignes: ['Tu veux ne pas mourir ? Commence par ne pas dormir. Six jours, sept nuits.', 'Ton père aussi s\'est endormi. Le premier soir.', 'Sous l\'eau du lac de ton île pousse une fleur de givre. Elle ne rend pas immortel. Elle rend jeune. Ce n\'est pas pareil.'],
+    lignes: ['Tu veux ne pas mourir ? Commence par ne pas dormir. Six jours, sept nuits.', 'Ton père aussi s\'est endormi. Le premier soir.', 'Sous l\'eau du lac de ton continent pousse une fleur de givre. Elle ne rend pas immortel. Elle rend jeune. Ce n\'est pas pareil.'],
   },
   {
     id: 'aldis', nom: 'Aldís', surnom: 'la Boulangère', famille: 'utnafi', gen: 1, sexe: 'f',
@@ -623,7 +623,7 @@ export const PEOPLE = [
     lieu: 'La chaîne du nord', magie: 'Il dort. Il parle en dormant. Si le jour revient, il se lèvera.',
     sprite: { corps: 'colosse', tete: 'cornes', echelle: 3 },
     voix: 'Un mot par minute. Ses phrases durent une nuit.',
-    bio: [`Il s'est couché au nord de l'île avant l'arrivée des Orsènes et ne s'est pas relevé. La neige l'a recouvert, les sapins ont poussé sur ses épaules. Chaque fois qu'il expire, la tempête se lève. Thorgrim croit qu'il noiera l'île en se levant. En vérité, il veut seulement aller voir la mer.`],
+    bio: [`Il s'est couché au nord du continent avant l'arrivée des Orsènes et ne s'est pas relevé. La neige l'a recouvert, les sapins ont poussé sur ses épaules. Chaque fois qu'il expire, la tempête se lève. Thorgrim croit qu'il noiera le continent en se levant. En vérité, il veut seulement aller voir la mer.`],
     lignes: ['… … la mer … … est-elle encore … … là ?'],
   },
   {
@@ -666,7 +666,7 @@ export const PEOPLE = [
     lieu: 'Dans chaque tempête', magie: 'Elle est la neige. Elle efface les traces.',
     sprite: { corps: 'femme', tete: 'tresses', blanc: true },
     voix: 'Un souffle. Elle demande toujours des nouvelles de Hrólf.',
-    bio: [`Elle tombe sur l'île depuis le premier hiver. Elle a aimé un seul mortel, Hrólf, et lui a donné un fils chaud dans un monde froid. C'est elle qui efface les pas en quarante secondes. Quand elle est triste, elle efface plus vite.`],
+    bio: [`Elle tombe sur le continent depuis le premier hiver. Elle a aimé un seul mortel, Hrólf, et lui a donné un fils chaud dans un monde froid. C'est elle qui efface les pas en quarante secondes. Quand elle est triste, elle efface plus vite.`],
     lignes: ['Tu sens comme lui. Le grand, avec la barbe. Où est-il ?', 'Je recouvre tout. C\'est ma façon d\'oublier.'],
   },
 
@@ -713,7 +713,7 @@ export const PEOPLE = [
     lieu: 'Le ciel des nuits de tempête', magie: 'Il emporte ceux qui courent.',
     sprite: { corps: 'geant', tete: 'capuche', objet: 'lance', echelle: 2 },
     voix: 'Amusé. Il connaît le nom de tout le monde.',
-    bio: [`Il passe certaines nuits de tempête avec sa troupe de morts à cheval. Ceux qui courent devant lui sont pris. Ceux qui restent immobiles reçoivent parfois un cadeau, ou un conseil. Les corbeaux de l'île sont ses yeux.`],
+    bio: [`Il passe certaines nuits de tempête avec sa troupe de morts à cheval. Ceux qui courent devant lui sont pris. Ceux qui restent immobiles reçoivent parfois un cadeau, ou un conseil. Les corbeaux du continent sont ses yeux.`],
     lignes: ['Cours, et tu es à moi.', 'Reste là, fils de Kingvi. Ton oncle te salue.'],
   },
   {
@@ -785,7 +785,7 @@ const VEUT = {
   },
   anaise: {
     voeu: 'Veut que sa sœur passe : il faut que le clou tombe, sur SNO 7.', fait: 'aube',
-    lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton île.', 'Il y a trois tracés dans la neige : Clède, Lazul, le Baron. Marche-les.'],
+    lignes: ['Je veux que ma sœur passe. Elle attend au carrefour.', 'Pour ça, il faut que ton père lâche son clou, sur ton continent.', 'Il y a trois tracés dans la neige : Clède, Lazul, le Baron. Marche-les.'],
     apres: { si: 'aube', lignes: ['Anisse est passée. Je l\'ai sentie partir. Merci.'] },
   },
   tijo: {
@@ -976,7 +976,7 @@ export const SCENARIOS = [
     id: 'pierre-famille', rarete: 'souvent', titre: 'La pierre de famille', lieu: 'maison', mythe: 'Nord',
     quand: 'Derrière la maison, une pierre levée.',
     recit: `Une pierre runique gravée de figures : un homme à barbe, une femme voilée, trois enfants, un trait barré. Quand Thorgrim tombe, une nouvelle entaille apparaît. Avec la rune Ansuz, la pierre parle avec la voix d'Ásdís, qui l'a gravée.`,
-    lignes: [['asdis', 'Hrólf prit l\'île. Ramtha prit Hrólf.'], ['asdis', 'Kingvi prit le temps.'], ['asdis', 'Et le temps prit les autres.'], ['asdis', 'J\'ai laissé de la place en bas. Pour toi, neveu.']],
+    lignes: [['asdis', 'Hrólf prit le continent. Ramtha prit Hrólf.'], ['asdis', 'Kingvi prit le temps.'], ['asdis', 'Et le temps prit les autres.'], ['asdis', 'J\'ai laissé de la place en bas. Pour toi, neveu.']],
   },
   {
     id: 'larth', rarete: 'souvent', titre: 'Le foie du loup', lieu: 'foret-noire', mythe: 'Orsène',
@@ -988,7 +988,7 @@ export const SCENARIOS = [
   {
     id: 'chasse', rarete: 'souvent', titre: 'La Chasse sauvage', lieu: 'plaine', mythe: 'Nord',
     quand: 'Une nuit de tempête, dans la plaine des morts.',
-    recit: `Un grondement, les corbeaux qui reviennent tous ensemble, et une troupe de cavaliers spectraux traverse la plaine en trente secondes. Qui court est emporté (il se réveille ailleurs sur l'île, pas à la barque). Qui reste immobile reçoit un mot. Yrsa et Thorbrand passent dans la troupe.`,
+    recit: `Un grondement, les corbeaux qui reviennent tous ensemble, et une troupe de cavaliers spectraux traverse la plaine en trente secondes. Qui court est emporté (il se réveille ailleurs sur le continent, pas à la barque). Qui reste immobile reçoit un mot. Yrsa et Thorbrand passent dans la troupe.`,
     lignes: [['chasseur', 'Cours, et tu es à moi.'], ['yrsa', 'Ne cours pas, cousin ! Ils n\'aiment que ceux qui courent !'], ['thorbrand', 'Je chevauche à droite du Chasseur, maintenant. Comme toujours.'], ['chasseur', 'Reste là, fils de Kingvi. Ton oncle te salue.'], ['chasseur', 'Le jour, si tu le rallumes, nous n\'aurons plus où courir. Pense à nous.']],
   },
   {
@@ -1050,7 +1050,7 @@ export const SCENARIOS = [
   {
     id: 'pas-autre-vie', rarete: 'souvent', titre: 'Les pas de l\'autre vie', lieu: 'partout', mythe: 'Nord',
     quand: 'Après une mort.',
-    recit: `Les traces de la vie précédente de Kári restent sur l'île, grises, à côté du fil. À l'endroit où il est mort, une ombre de lui-même est debout. Avec Ansuz, elle parle.`,
+    recit: `Les traces de la vie précédente de Kári restent sur le continent, grises, à côté du fil. À l'endroit où il est mort, une ombre de lui-même est debout. Avec Ansuz, elle parle.`,
     lignes: [['ombre', 'Pas par là.'], ['ombre', 'Je suis mort par là.'], ['ombre', 'Il frappe à droite d\'abord.'], ['kari', 'Et toi ?'], ['ombre', 'Moi, je t\'attends ici. Ne te presse pas.']],
   },
   {

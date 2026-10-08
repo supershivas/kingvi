@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.65.1 — 2026-10-08
+- Le pont sur le ravin se lit mieux : l'arbre abattu devient un tronc couché, une croûte de neige claire dessus, des glaçons dessous (`pont-tronc`, à redessiner dans l'atelier)
+- SNO 7 n'est plus une île mais un continent : le prologue, la saga, les descriptions, la carte et ce que dit Kári
+
 ## 1.65.0 — 2026-10-08
 - L'île est refaite en une seule aventure, d'ouest en est : la grève, un ravin qu'on passe sur un arbre qu'on abat en travers, la forêt noire aussitôt après, la louve blanche, la maison, le lac, la plaine des morts, l'autre au bout des traces, la falaise (sa grotte bouchée par un éboulis à briser), et l'arche sur le plateau, tout au bout
 - Le mons apparaît dès la lanterne, près de la grève, et marche devant Kári le long des traces ; il montre l'arbre à abattre, attend au pied de la falaise, et s'en va voir la mer quand on lui rend son œil

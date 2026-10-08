@@ -6,7 +6,7 @@ techniques sont dans `CLAUDE.md` ; ici, l'intention.
 
 ## Intention
 
-Un viking accoste sur une île enneigée et suit des traces dans la neige.
+Un viking accoste sur une terre enneigée, SNO 7, un continent (pas une île : la grande terre dont l'Archipel des Neuf n'est que la frange), et suit des traces dans la neige.
 Personne ne lui dit pourquoi, ni où aller : les traces sont le seul fil.
 Elles racontent une histoire que le joueur reconstitue en marchant : ils
 étaient deux à débarquer, deux pistes côte à côte jusqu'à une maison, une

@@ -9,9 +9,9 @@
    Rien de géométrique : tout est tordu par le bruit.
    Couleurs : s neige, b bleu nuit, r le rouge (la forge). */
 
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.65.0';
-import { makeGroveTree } from './grove.js?v=1.65.0';
-import { CUBE_WHITE, CUBE_BLACK, CUBE_FOOT } from './cubes.js?v=1.65.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.65.1';
+import { makeGroveTree } from './grove.js?v=1.65.1';
+import { CUBE_WHITE, CUBE_BLACK, CUBE_FOOT } from './cubes.js?v=1.65.1';
 
 // Le cube blanc et le cube noir (cubes.js) : au nord-est de la source, et près du fromager
 export const SNO4_CUBES = [{ kind: 'blanc', x: 598, y: 138 }, { kind: 'noir', x: 775, y: 316 }];

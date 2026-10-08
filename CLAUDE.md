@@ -4,8 +4,10 @@
 
 ## Description
 
-Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une île
-enneigée et suit des traces dans la neige. Très peu d'éléments, écran en trois
+Jeu contemplatif en pixel art : un viking armé d'une épée accoste sur une terre
+enneigée et suit des traces dans la neige. **SNO 7 n'est pas une île mais un
+continent** (Jérôme, v1.65.1 : la grande terre dont l'Archipel des Neuf n'est que
+la frange ; tous les textes le disent, le code garde ses noms, `ISLAND`, `isLand`…). Très peu d'éléments, écran en trois
 couleurs (neige bleutée, bleu nuit, et le rouge de l'accent pour le sang et les
 repères du labo). **Aucun pixel noir** : ce qui était noir (rochers, coques,
 traits des dessins, fond autour des intérieurs) est en bleu nuit (`--game-black`
@@ -562,7 +564,7 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   entière** (`falaise`, 1020 × 208, `CLIFF_ART` : le jeu la découpe en
   tranches de 20 px triées à leur pied, `buildCliff` ; on peut l'agrandir par
   les « + », elle déborde alors à gauche et en haut ; la sente et la grotte
-  restent où le code les attend), **huit morceaux de rocher** (`rocher-1` …
+  restent où le code les attend), **le tronc du pont** (`pont-tronc`, `BRIDGE_LOG` : l'arbre du ravin, une fois couché, fait place à ce dessin, neige claire dessus), **huit morceaux de rocher** (`rocher-1` …
   `rocher-8`, `ROCK_PIECES` : chaque rocher de l'île en adosse ou empile deux à
   quatre, `makeBoulder`, cuit à la volée dans la planche du morceau) et **la
   souche** ; **arbres et statues restent générés** ; la falaise et les rochers

@@ -3,8 +3,8 @@
    les réécrire (texts.js). */
 
 export const PROLOGUE = [
-  'Sur SNO 7, septième île de l\'Archipel des Neuf, il fait nuit depuis dix-neuf hivers.',
-  'Un rêve t\'a rappelé sur l\'île où tu es né. Eyvind, ton frère de lait, est parti avant toi.',
+  'Sur SNO 7, le continent au bout de l\'Archipel des Neuf, il fait nuit depuis dix-neuf hivers.',
+  'Un rêve t\'a rappelé sur le continent où tu es né. Eyvind, ton frère de lait, est parti avant toi.',
   'Sur la grève, deux pistes s\'en vont dans la neige.',
 ];
 

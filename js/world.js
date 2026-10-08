@@ -1,10 +1,10 @@
-import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.65.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.65.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.65.0';
-import { makeGroveTree } from './grove.js?v=1.65.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.65.0';
+import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.65.1';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.65.1';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.65.1';
+import { makeGroveTree } from './grove.js?v=1.65.1';
+import { monumentParts, monumentSize } from './ruins.js?v=1.65.1';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed, designRows, padOf } from './design-store.js?v=1.65.0';
+import { placed, designRows, padOf } from './design-store.js?v=1.65.1';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -249,6 +249,22 @@ export const BRIDGE_TREE = (() => {
     if (art.rows.length >= need) { seed += k; break; }
   }
   return { type: 'tree', x, y, seed, big: true, bridge: true, art };
+})();
+// Le tronc couché, tel qu'on le voit (v1.65.1 : un dessin à lui, `pont-tronc`
+// dans l'atelier) : une croûte de neige sur le dessus, claire sur le noir du
+// ravin, l'écorce dessous, la coupe claire au pied, quelques glaçons pendus
+export const BRIDGE_LOG = (() => {
+  const L = BRIDGE_TREE.art.rows.length, g = Array.from({ length: 5 }, () => Array(L).fill('.'));
+  for (let x = 0; x < L; x++) {
+    const tip = x > L - 4;                                   // (la cime, plus fine)
+    if (x > 0 && x < L - 2 && hash(x, 1, 311) > 0.2) g[0][x] = 's';
+    g[1][x] = tip ? (x < L - 1 ? 'b' : '.') : (x * 7 + 3) % 11 === 0 ? 'b' : 's';
+    g[2][x] = tip && x === L - 1 ? '.' : 'b';
+    g[3][x] = tip ? '.' : hash(x, 3, 317) < 0.15 ? '.' : 'b';
+    if (x > 2 && x < L - 4 && (x * 5 + 1) % 7 === 0 && g[3][x] === 'b') g[4][x] = 's';
+  }
+  g[1][0] = 's'; g[2][0] = 's';                                // la coupe, bois clair
+  return g.map(r => r.join(''));
 })();
 // Le tronc couché : de son pied jusqu'à sa cime, vers l'est, sur quatre rangées
 export const onBridge = (x, y) => x >= BRIDGE_TREE.x + 1 && x <= BRIDGE_TREE.x + BRIDGE_TREE.art.rows.length - 2 && y >= BRIDGE_TREE.y - 1.5 && y <= BRIDGE_TREE.y + 2.5;

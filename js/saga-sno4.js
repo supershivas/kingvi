@@ -16,7 +16,7 @@ export const BIBLE_SNO4 = [
       `SNO 4 est l'île où se croisent toutes les routes de l'Archipel des Neuf, celles de la mer et celles des morts. Ses gens l'appellent l'île Carrefour. Il y fait aussi froid que partout ailleurs : la banquise l'enserre neuf mois sur douze, le vent ne tombe pas, et la neige est grise de la cendre des forges.`,
       `Il y a cent dix hivers, un trois-mâts venu du sud, La Délivrance, a été poussé par une tempête à travers le brouillard jusqu'ici, et pris dans la glace. À son bord voyageaient des femmes et des hommes libres, partis de Morne-Aurore, une île chaude du sud, pour chercher une terre. Ils ont survécu au froid avec ce qu'ils avaient emporté : leurs esprits. Le prêtre Dieubon Jean-Louis a planté le grand mât du navire dans la glace, et il est devenu le Pilier de la tonnelle, par où les esprits descendent.`,
       `Les esprits ont suivi leurs serviteurs à travers les eaux. Ils se sont habitués au froid. On trace leurs signes à la cendre sur la neige. Le rhum de canne gèle dans les bouteilles, et on le réchauffe dans la bouche avant de le cracher en offrande. Baron Cendre garde un cimetière de neige, aux croix couvertes de givre.`,
-      `Depuis dix-neuf hivers, quelque chose ne va plus. Sur SNO 7, l'île voisine, un roi a cloué le temps, et personne n'y meurt vraiment. Les âmes qui devraient passer s'entassent au grand carrefour de SNO 4, dans la neige, et attendent. Les routes des morts sont bouchées. Baron Cendre n'a pas creusé une seule tombe depuis, et il enrage, à sa manière : en riant de plus en plus fort.`,
+      `Depuis dix-neuf hivers, quelque chose ne va plus. Sur SNO 7, le continent voisin, un roi a cloué le temps, et personne n'y meurt vraiment. Les âmes qui devraient passer s'entassent au grand carrefour de SNO 4, dans la neige, et attendent. Les routes des morts sont bouchées. Baron Cendre n'a pas creusé une seule tombe depuis, et il enrage, à sa manière : en riant de plus en plus fort.`,
     ],
   },
   {
@@ -657,7 +657,7 @@ export const SCENARIOS_SNO4 = [
     id: 'kari-carrefour', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le carrefour des morts', lieu: 'kalfou', mythe: 'Esprits, Nord',
     quand: 'Au grand carrefour, parmi les âmes.',
     recit: `Des centaines d'âmes pâles, debout dans la neige. Au milieu, une grande silhouette à l'œil rouge. Parmi les âmes, un homme aux dents de loup : Eyvind. Et une jeune fille qui ressemble à Anaïse.`,
-    lignes: [['kalfou', 'Le fils du roi. Enfin.'], ['kalfou', 'Les morts attendent chez moi. Trente viennent de ton île.'], ['eyvind', 'Kári ! Tu as mis le temps, frère.'], ['eyvind', 'On attend tous, ici. Ton père nous bouche la route.'], ['anisse', 'Il est gentil, ton frère. Il nous raconte des histoires de loups.'], ['kari', 'Je vais arracher le clou.'], ['kalfou', 'Alors je rouvrirai. Pas avant.']],
+    lignes: [['kalfou', 'Le fils du roi. Enfin.'], ['kalfou', 'Les morts attendent chez moi. Trente viennent de ton continent.'], ['eyvind', 'Kári ! Tu as mis le temps, frère.'], ['eyvind', 'On attend tous, ici. Ton père nous bouche la route.'], ['anisse', 'Il est gentil, ton frère. Il nous raconte des histoires de loups.'], ['kari', 'Je vais arracher le clou.'], ['kalfou', 'Alors je rouvrirai. Pas avant.']],
   },
   {
     id: 'kari-cimetiere', ile: 'SNO 4', hero: 'kari', rarete: 'trame', titre: 'Le Baron et le viking', lieu: 'cimetiere', mythe: 'Esprits',
