@@ -1,4 +1,4 @@
-import { T } from './tuning.js?v=1.68.0';
+import { T } from './tuning.js?v=1.69.0';
 /* Vent et neige, partagés entre le jeu et le labo.
    La simulation ne dessine rien elle-même : `draw(rect)` appelle
    rect(x, y, w, h, couleur, opacité) pour chaque pixel ou trait, couleur

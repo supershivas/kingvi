@@ -747,6 +747,15 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   quatre temps de vol, à terre ; dossier « Le megamoth »), `createMoth`
   (repos, éveil, orbite autour de la flamme, plongée, recul, retour au nid,
   chute) ; l'ombre au sol tramée, accrochée au monde.
+- `js/altitude.js`, `js/vegetation.js` — **l'ascension du mont King** (v1.69.0,
+  plan dans `DESIGN.md`) : `altitudeOf(progression)` par repères (`ANCHORS`),
+  `ETAGES` (nom, altitudes, températures, météos), `etageAt`, `temperatureAt`,
+  `precipAt` (pluie > +1 °C, grésil, neige), `snowCover` ; `altitudeAt(x, y)` dans
+  `world.js` (axe nord-est depuis la grève, bruit sans `rng`). `vegetation.js` :
+  38 types × variantes (`veg-<id>-<n>`, 96 dessins placeholders par familles :
+  touffe, buisson, arbre rond, conifère, tordu, au sol, tas, glace, fente,
+  perche, dalle), dossier « La végétation » de l'atelier ; pas encore posés dans
+  le jeu. Labo : « L'ascension du mont King », « La végétation, étage par étage ».
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
   Le fond derrière le titre : `CHAPTER_STYLE` (G, sobre : pas de fond, dans

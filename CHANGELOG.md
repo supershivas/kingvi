@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.69.0 — 2026-10-08
+- L'altitude (`js/altitude.js`, `altitudeAt` dans `world.js`) : le long de l'axe nord-est, 0 m à la grève, 4 300 m au sommet du mont King, avec des limites d'étage tordues par du bruit ; dix étages (grève, landes, bois clair, forêt noire, haut-pays, falaise et plateau, éboulis, glacier, arête, sommet), leur température, la phase de l'eau (pluie, grésil, neige) et la neige au sol. Le monde existant tombe dans les bons étages (la maison à 1 330 m, le pied de la falaise à 1 900 m, l'arche à 2 200 m)
+- La végétation, en placeholders (`js/vegetation.js`) : 38 types et 96 dessins, un dossier « La végétation » dans l'atelier, à redessiner à la main ; ils ne sont pas encore posés dans le jeu (v1.70.0)
+- Le labo : « L'ascension du mont King » (les dix étages) et « La végétation, étage par étage »
+
 ## 1.68.0 — 2026-10-08
 - La pluie : six nouvelles ambiances (bruine, pluie froide, averse, orage de pluie, grésil, grêle). Traits fins penchés par le vent, éclaboussures et anneaux au sol, grains de grêle qui rebondissent, grésil mêlé de flocons ; l'orage de pluie a ses éclairs et son tonnerre
 - Le son de la pluie (sifflement et crépitement, plus doux sous les arbres, à peine entendu dedans) ; Réglages : « Toujours : pluie froide »… ; le labo (Ciel et nature, Son) les montre et les fait entendre

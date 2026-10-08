@@ -3,7 +3,7 @@
    s bancs, bordés clairs et neige posée. Dessinée à 46 × 18 pixels, elle est
    réduite (BOAT_SCALE) : la barque ne doit pas écraser le viking. */
 
-import { designRows } from './design-store.js?v=1.68.0';
+import { designRows } from './design-store.js?v=1.69.0';
 
 const BOAT_RAW = [
   '................ssssssss..s....................',

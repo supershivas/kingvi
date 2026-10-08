@@ -1,9 +1,9 @@
 {
-  "version": "1.68.0",
+  "version": "1.69.0",
   "date": "2026-10-08",
   "changes": [
-    "La pluie arrive : bruine, pluie froide, averse, orage de pluie, grésil et grêle, avec leurs éclaboussures et leurs sons",
-    "Réglages : ces nouvelles météos s'ajoutent à « Toujours … » ; le labo les montre (Ciel et nature) et fait entendre la pluie (Son)",
-    "Premier pas de l'ascension du mont King : le plan est dans DESIGN.md"
+    "L'ascension du mont King : le monde a maintenant une altitude (de 0 m à la grève jusqu'à 4 300 m au sommet), dix étages, une température et ce qui tombe (pluie, grésil, neige)",
+    "L'atelier : un nouveau dossier « La végétation » de 96 dessins provisoires (38 types, du varech de la grève aux aiguilles de givre du glacier), à redessiner",
+    "Le labo : deux cartes, « Les dix étages » et la végétation étage par étage"
   ]
 }

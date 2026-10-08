@@ -1,10 +1,11 @@
-import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.68.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.68.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.68.0';
-import { makeGroveTree } from './grove.js?v=1.68.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.68.0';
+import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.69.0';
+import { altitudeOf, progressOf } from './altitude.js?v=1.69.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.69.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.69.0';
+import { makeGroveTree } from './grove.js?v=1.69.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.69.0';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed, designRows, padOf } from './design-store.js?v=1.68.0';
+import { placed, designRows, padOf } from './design-store.js?v=1.69.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -104,6 +105,10 @@ export function landing() {
 }
 
 const LANDING = landing();
+// L'altitude, en mètres (v1.69.0, l'ascension du mont King) : le long de l'axe
+// nord-est depuis la grève, la progression déformée par un bruit lent (les
+// limites d'étage ne sont jamais droites). Sans `rng` : ne déplace rien.
+export const altitudeAt = (x, y) => altitudeOf(progressOf(x - LANDING.shore, LANDING.y - y) + 160 * fbm(x / 700, y / 700, 91, 3));
 const smoothstep = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
 // Distance au rivage d'accostage, déformée par un bruit lent : c'est elle qui

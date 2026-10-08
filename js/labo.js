@@ -1,31 +1,33 @@
 /* Labo : toutes les animations, chacune sur fond blanc et sur fond noir (négatif).
    Rendu en canvas 2D, avec les mêmes modules que le jeu (sprites, météo, arbres). */
-import { startUpdateCheck } from '../app-update.js?v=1.68.0';
+import { startUpdateCheck } from '../app-update.js?v=1.69.0';
 import {
   vikingFrames, capeGrid, smearPixels, whirlArc, blastRing, IMPACT, CX, GROUND, CAPE_LEVELS, CAPE_PHASES,
-} from './viking.js?v=1.68.0';
-import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.68.0';
-import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.68.0';
+} from './viking.js?v=1.69.0';
+import { createWeather, WEATHER_PRESETS, WEATHER_CYCLE, CYCLE_ABOUT } from './weather.js?v=1.69.0';
+import { makeTree, makeFir, makeDeadTree, makeBoulder, makeCairn, boulderHits, chipBoulder } from './trees.js?v=1.69.0';
 import {
   HOUSE_ART, HOUSE_H, rng, WORLD, WORLD_VERSION, coast, trail, landing, forestDensity, deepForest,
   HOUSE, STATUE_BASE, STATUE2_BASE, CROWS,
-} from './world.js?v=1.68.0';
-import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.68.0';
-import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.68.0';
-import { buildStatue, buildStatueUpright } from './statue.js?v=1.68.0';
-import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.68.0';
-import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.68.0';
-import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.68.0';
-import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.68.0';
-import { createSea } from './sea.js?v=1.68.0';
-import { createTitleSea } from './titlesea.js?v=1.68.0';
-import { buildStatueDoor } from './statue.js?v=1.68.0';
-import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.68.0';
-import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.68.0';
-import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.68.0';
-import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.68.0';
-import { designRows, designsReady, loadDesigns, customDefs, customNames, refreshLocal } from './design-store.js?v=1.68.0';
-import { DESIGNS } from './designs.js?v=1.68.0';
+} from './world.js?v=1.69.0';
+import { WOLF_ANIMS, WOLF_W, WOLF_GROUND } from './wolf.js?v=1.69.0';
+import { STAG_ANIMS, DOE_ANIMS, DEER_W, DEER_GROUND } from './deer.js?v=1.69.0';
+import { buildStatue, buildStatueUpright } from './statue.js?v=1.69.0';
+import { BOAT_FRAMES, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_EDGE } from './boat.js?v=1.69.0';
+import { ROOM, ROOM_ENTRY, CORPSE } from './interior.js?v=1.69.0';
+import { makeIceberg, LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq } from './trees.js?v=1.69.0';
+import { daylightAt, DAY_CYCLE, DAY_LABELS, DAY_LENGTH, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.69.0';
+import { createSea } from './sea.js?v=1.69.0';
+import { createTitleSea } from './titlesea.js?v=1.69.0';
+import { buildStatueDoor } from './statue.js?v=1.69.0';
+import { CRYPT, CHEST, CHEST_FRAMES, CRYPT_ENTRY } from './crypt.js?v=1.69.0';
+import { ROWBOAT_FRAMES, BOAT2 } from './boat.js?v=1.69.0';
+import { CLIFF_PARTS, CAVE, CLIFF, LAKE, ARCH, RUINS, LEDGE, ledgeAt, cliffFoot, cliffHeight, FALLING_STONE, MOTH_LAIR, snowDepth, NECRO as NECRO_AREA, GROVE_TREE, WATCHER_AT, WOLF_DEN, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES } from './world.js?v=1.69.0';
+import { FIRE, FIRE_FRAMES, burnHouse } from './fire.js?v=1.69.0';
+import { designRows, designsReady, loadDesigns, customDefs, customNames, refreshLocal } from './design-store.js?v=1.69.0';
+import { DESIGNS } from './designs.js?v=1.69.0';
+import { ETAGES, SUMMIT, temperatureAt, precipAt, snowCover } from './altitude.js?v=1.69.0';
+import { VEGETATION } from './vegetation.js?v=1.69.0';
 // (les dessins publiés et retouchés : le labo les montre ; on les modifie dans l'atelier)
 loadDesigns();
 // v1.67.0 : toute image du catalogue de l'atelier (la maison, la crypte, le
@@ -38,20 +40,20 @@ const live = rows => {
   const name = byRows.get(rows);
   return name ? designRows(name, rows, { grow: true }) : rows;
 };
-import * as PROPS from './props.js?v=1.68.0';
-import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.68.0';
-import { PLACES_SNO4 } from './saga-sno4.js?v=1.68.0';
-import { audio, TRACKS } from './audio.js?v=1.68.0';
-import { DESCRIPTIONS } from './describe.js?v=1.68.0';
-import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.68.0';
-import { RUIN_ART } from './ruins-art.js?v=1.68.0';
-import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.68.0';
-import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.68.0';
-import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.68.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.68.0';
-import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.68.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.68.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.68.0';
+import * as PROPS from './props.js?v=1.69.0';
+import { paintSno4, SNO4_W, SNO4_H, SNO4_PROPS, SNO4_BOAT, VEVE, sno4Walkable } from './sno4.js?v=1.69.0';
+import { PLACES_SNO4 } from './saga-sno4.js?v=1.69.0';
+import { audio, TRACKS } from './audio.js?v=1.69.0';
+import { DESCRIPTIONS } from './describe.js?v=1.69.0';
+import { monumentParts, makeOutlinedRock } from './ruins.js?v=1.69.0';
+import { RUIN_ART } from './ruins-art.js?v=1.69.0';
+import { CHAPTERS, CHAPTER_STYLES, CHAPTER_STYLE, showChapter } from './chapters.js?v=1.69.0';
+import { makeGroveTree, BUNDLE, WATCHER } from './grove.js?v=1.69.0';
+import { TEMPLE, NAIL, NAIL_ART, TEMPLE_ENTRY, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.69.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.69.0';
+import { ARCHIPEL, paintIsland, islandLand } from './islands.js?v=1.69.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.69.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT } from './cave.js?v=1.69.0';
 
 const css = getComputedStyle(document.documentElement);
 const SNOW = css.getPropertyValue('--game-snow').trim();
@@ -607,6 +609,59 @@ Object.entries(WEATHER_PRESETS).forEach(([key, p], k) => {
     },
     button: p.lightning > 0.05 ? 'Un éclair tout près' : undefined,
   });
+});
+
+
+// ══ L'ascension du mont King (v1.69.0) ══
+// Le profil de la montagne : chaque étage, son altitude, sa température, ce qui tombe, ce qui pousse.
+card('ascension', {
+  title: 'Les dix étages', tag: 'A', wide: true, w: 320, h: 214,
+  about: 'On monte toujours vers le nord-est. La neige vient avec l\'altitude (plaques vers 350 m, partout dès 750 m) ; pluie au-dessus de +1 °C, grésil de +1 à −1, neige en dessous. L\'Aube du temple reste la première fin ; la vraie est au sommet.',
+  draw(ctx, pal) {
+    const top = 6, rowH = 20;
+    ctx.font = '7px monospace'; ctx.textBaseline = 'middle';
+    ETAGES.slice().reverse().forEach((e, i) => {
+      const y = top + i * rowH, mid = (e.from + e.to) / 2, t = temperatureAt(mid), snow = snowCover(mid);
+      // la montagne : un profil qui s'étrécit vers le haut, la neige en tramé
+      const w = Math.round(14 + 110 * (1 - (e.from / SUMMIT) * 0.9)), x0 = Math.round(170 - w / 2);
+      ctx.globalAlpha = 1; ctx.fillStyle = pal.b; ctx.fillRect(x0, y + 2, w, rowH - 4);
+      ctx.fillStyle = pal.s;
+      for (let k = 0; k < w; k += 2) for (let m = 0; m < rowH - 4; m += 2) if (((k + m) / 2) % 2 === 0 ? snow > 0.5 : snow > 0.9) ctx.fillRect(x0 + k, y + 2 + m, 1, 1);
+      ctx.fillStyle = pal.b; ctx.textAlign = 'right';
+      ctx.fillText(e.nom, 100, y + 6);
+      ctx.fillText(`${e.from}–${e.to} m`, 100, y + 14);
+      ctx.textAlign = 'left';
+      const kind = precipAt(t);
+      ctx.fillText(`${Math.round(e.temp[0])} → ${Math.round(e.temp[1])} °C`, 244, y + 6);
+      ctx.fillText(kind === 'pluie' ? 'pluie' : kind === 'gresil' ? 'grésil' : 'neige', 244, y + 14);
+    });
+    ctx.textAlign = 'left';
+  },
+});
+
+// La végétation : chaque type, ses variantes côte à côte, un étage par rangée
+card('vegetation', {
+  title: 'Les 38 types (placeholders)', tag: 'A', wide: true, w: 360, h: 420,
+  about: 'Des silhouettes provisoires, à redessiner dans l\'atelier (groupe « La végétation »). À l\'échelle du viking, qui fait 9 pixels.',
+  draw(ctx, pal) {
+    ctx.font = '6px monospace'; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+    const etages = [...new Set(VEGETATION.map(v => v.etage))];
+    let y = 4;
+    for (const id of etages) {
+      const items = VEGETATION.filter(v => v.etage === id), e = ETAGES.find(x => x.id === id);
+      ctx.fillStyle = pal.r; ctx.globalAlpha = 1; ctx.fillText((e?.nom || id).toUpperCase(), 4, y);
+      y += 8;
+      let x = 4, rowTop = y, tall = 0;
+      for (const v of items) {
+        const w = v.variants.reduce((n, q) => n + q.rows[0].length + 3, 0), h = Math.max(...v.variants.map(q => q.rows.length));
+        if (x + w > 356) { x = 4; rowTop += tall + 4; tall = 0; }
+        let vx = x;
+        for (const q of v.variants) { drawRows(ctx, pal, q.rows, vx, rowTop + h - q.rows.length); vx += q.rows[0].length + 3; }
+        tall = Math.max(tall, h); x += w + 5;
+      }
+      y = rowTop + tall + 8;
+    }
+  },
 });
 
 // ══ Arbres ══
@@ -1881,7 +1936,7 @@ startUpdateCheck({ onUpdated: v => toast(`Mis à jour en v${v}`) });
     'saga-phylacteres': 'message-circle', carte: 'map', chapitres: 'bookmark', son: 'volume', barque: 'sailboat', accostage: 'anchor',
     nuit: 'moon', viking: 'walk', cape: 'wind', attaques: 'sword', vent: 'snowflake', arbres: 'tree', rochers: 'mountain', maison: 'home',
     interieur: 'door', mer: 'ripple', arche: 'building-arch', ruines: 'building-castle', statue: 'user', lac: 'droplet', necropole: 'grave', 'pas-des-morts': 'route', descriptions: 'eye',
-    bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', mons: 'ghost-2', cerfs: 'deer', dessins: 'brush',
+    ascension: 'mountain', vegetation: 'plant-2', bosquet: 'trees', incendie: 'flame', falaise: 'stairs', corbeaux: 'feather', loups: 'paw', mons: 'ghost-2', cerfs: 'deer', dessins: 'brush',
     'ui-boutons': 'click', 'ui-reglages': 'adjustments', cubes: 'cube',
   };
   const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';

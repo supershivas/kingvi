@@ -12,26 +12,27 @@
    positions, les portes, les obstacles en dépendent). Les couleurs sont
    ramenées aux trois du jeu (neige, bleu nuit, rouge) ; l'ombre portée du
    viking (bleu nuit translucide) est permise pour ses poses. */
-import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.68.0';
-import { HOUSE_ART, FALLING_STONE, CLIFF_ART, BRIDGE_LOG } from './world.js?v=1.68.0';
-import { ROCK_PIECES, STUMP } from './trees.js?v=1.68.0';
-import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.68.0';
-import { ROOM, CORPSE } from './interior.js?v=1.68.0';
-import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.68.0';
-import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.68.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.68.0';
-import { RUIN_ART } from './ruins-art.js?v=1.68.0';
-import { vikingFrames, capeFrames } from './viking.js?v=1.68.0';
-import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.68.0';
-import { STAG_RAW, DOE_RAW } from './deer.js?v=1.68.0';
-import { RELICS, BELT } from './relics.js?v=1.68.0';
-import { TITLE_ART } from './title-art.js?v=1.68.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.68.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.68.0';
-import { TEMPLE, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.68.0';
-import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs, designExtras, padRows, setExtra } from './design-store.js?v=1.68.0';
+import { BOAT_FRAMES, BOAT2, ROWBOAT_FRAMES } from './boat.js?v=1.69.0';
+import { HOUSE_ART, FALLING_STONE, CLIFF_ART, BRIDGE_LOG } from './world.js?v=1.69.0';
+import { ROCK_PIECES, STUMP } from './trees.js?v=1.69.0';
+import { VEGETATION_IMAGES } from './vegetation.js?v=1.69.0';
+import { FIRE_FRAMES, HOUSE_BURNING, HOUSE_RUIN } from './fire.js?v=1.69.0';
+import { ROOM, CORPSE } from './interior.js?v=1.69.0';
+import { CRYPT, CHEST_FRAMES } from './crypt.js?v=1.69.0';
+import { CAVE_ROOM, THRONE_FRAMES } from './cave.js?v=1.69.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.69.0';
+import { RUIN_ART } from './ruins-art.js?v=1.69.0';
+import { vikingFrames, capeFrames } from './viking.js?v=1.69.0';
+import { WOLF_POSES_RAW, WOLF_LABELS } from './wolf.js?v=1.69.0';
+import { STAG_RAW, DOE_RAW } from './deer.js?v=1.69.0';
+import { RELICS, BELT } from './relics.js?v=1.69.0';
+import { TITLE_ART } from './title-art.js?v=1.69.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.69.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.69.0';
+import { TEMPLE, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS } from './temple.js?v=1.69.0';
+import { gridToRows, decodePng, imageToRows, gamePalette, customDefs, customNames, readCustom, writeCustom, customDepotDefs, designExtras, padRows, setExtra } from './design-store.js?v=1.69.0';
 
-export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot, customNames } from './design-store.js?v=1.68.0';
+export { designRows, designGrid, designSource, setLocalDesign, applyLocal, readLocal, refreshLocal, loadDesigns, markSent, LOCAL_KEY, gamePalette, customDefs, customDepotDefs, readCustom, setCustomDepot, customNames } from './design-store.js?v=1.69.0';
 
 export const GROUPS = [
   { id: 'titre', title: 'Le titre et la ceinture', about: 'Le nom du jeu sur l\'écran d\'accueil (la gothique sous la neige), et la ceinture où pendent les reliques dans l\'inventaire. Neige et bleu nuit ; la taille reste celle de l\'original.' },
@@ -40,6 +41,7 @@ export const GROUPS = [
   { id: 'reliques', title: 'Reliques', about: 'Ce qu\'on ramasse en chemin et qui va dans l\'inventaire (touche I). Placeholders à redessiner : 10 × 10 pixels.' },
   { id: 'reliques-sol', title: 'Reliques sur l\'île', about: 'Les mêmes reliques vues à terre dans le jeu : de 1 à 4 pixels, 4 × 4 au plus. Celles de l\'inventaire sont dans « Reliques ».' },
   { id: 'roches', title: 'La falaise, les rochers, la souche', about: 'La falaise entière, d\'un seul dessin (le jeu la découpe en tranches ; garder la sente en lacets et la bouche de la grotte où elles sont : on y monte et on y entre aux mêmes endroits). Les huit morceaux de rocher : le jeu en prend deux à quatre, les adosse ou les empile, et cuit chaque rocher à la volée. La souche qui reste d\'un arbre abattu, et le tronc couché qui fait le pont sur le ravin.' },
+  { id: 'vegetation', title: 'La végétation', about: 'L\'ascension du mont King : un changement net à chaque étage, de la grève (oyats, varech) aux landes (bruyère, ajoncs), au bois clair (bouleaux, sorbiers), à la forêt noire (sapins nus ou givrés), au haut-pays (pins tordus, mélèzes), puis lichens, pierriers, glace, perches givrées et la dalle du sommet. Des placeholders : redessine-les à ta main (à l\'échelle du viking, 9 pixels) ; chaque type a plusieurs variantes. Pas encore posés dans le jeu.' },
   { id: 'incendie', title: 'L\'incendie', about: 'Placeholders : la maison qui brûle, sa ruine, et les quatre temps d\'une flamme (posée sur le toit, dans la pièce, dans la ruine).' },
   { id: 'ruines', title: 'Ruines et arches', about: 'L\'arche, la colonne couchée, le socle, l\'arche en ruine et le ponton du lac. Le dessin donne aussi la zone bloquée ; l\'endroit où l\'on monte (socle, ponton) reste celui d\'origine.' },
   { id: 'viking', title: 'Le viking : poses', about: 'Chaque image de la marche et des coups, de profil, de face, de dos et en diagonale. Une ombre au sol est possible (4e couleur).' },
@@ -103,6 +105,7 @@ export const DESIGNS = [
   ...ROCK_PIECES.map((rows, i) => entry(`rocher-${i + 1}`, `Un morceau de rocher (${i + 1})`, rows, 'roches')),
   entry('souche', 'La souche d\'un arbre abattu', STUMP, 'roches'),
   entry('pont-tronc', 'Le tronc couché sur le ravin (le pont)', BRIDGE_LOG, 'roches'),
+  ...VEGETATION_IMAGES.map(v => entry(v.name, v.label, v.rows, 'vegetation')),
   ...RELICS.map(r => entry(`relique-${r.id}`, r.name, r.rows, 'reliques')),
   ...RELICS.map(r => entry(`relique-${r.id}-sol`, `${r.name}, à terre`, r.ground, 'reliques-sol')),
   ...[
