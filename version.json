@@ -1,9 +1,9 @@
 {
-  "version": "1.69.0",
+  "version": "1.70.0",
   "date": "2026-10-08",
   "changes": [
-    "L'ascension du mont King : le monde a maintenant une altitude (de 0 m à la grève jusqu'à 4 300 m au sommet), dix étages, une température et ce qui tombe (pluie, grésil, neige)",
-    "L'atelier : un nouveau dossier « La végétation » de 96 dessins provisoires (38 types, du varech de la grève aux aiguilles de givre du glacier), à redessiner",
-    "Le labo : deux cartes, « Les dix étages » et la végétation étage par étage"
+    "La grève n'a plus de neige : le sol est de la terre noire, la neige gagne avec l'altitude (plaques vers 350 m, partout dès 750 m)",
+    "La végétation change d'étage en étage : bouleaux nains puis bouleaux et sorbiers, sapins sans neige puis givrés, pins tordus et mélèzes, plantes au sol (bruyère, feuilles mortes, herbe jaune, lichens…)",
+    "Le temps suit l'altitude : bruine et pluie en bas, grésil puis neige plus haut (Réglages : « Selon l'altitude », choisi par défaut)"
   ]
 }

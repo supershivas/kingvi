@@ -1,11 +1,12 @@
-import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.69.0';
-import { altitudeOf, progressOf } from './altitude.js?v=1.69.0';
-import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.69.0';
-import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.69.0';
-import { makeGroveTree } from './grove.js?v=1.69.0';
-import { monumentParts, monumentSize } from './ruins.js?v=1.69.0';
+import { makeTree, makeFir, makeBoulder, makeCairn, makeIceberg } from './trees.js?v=1.70.0';
+import { altitudeOf, progressOf, etageAt, snowCover } from './altitude.js?v=1.70.0';
+import { VEGETATION } from './vegetation.js?v=1.70.0';
+import { buildStatue, buildStatueUpright, buildStatueDoor } from './statue.js?v=1.70.0';
+import { necropolisStones, stoneArt, NECRO_W, NECRO_H } from './props.js?v=1.70.0';
+import { makeGroveTree } from './grove.js?v=1.70.0';
+import { monumentParts, monumentSize } from './ruins.js?v=1.70.0';
 // (les lieux déplacés dans l'atelier, sur la carte : `placed(id, d'ici)`)
-import { placed, designRows, padOf } from './design-store.js?v=1.69.0';
+import { placed, designRows, padOf } from './design-store.js?v=1.70.0';
 
 /* L'île : relief de la côte, traces à suivre, rochers, arbres puis forêt.
    Tout est déterministe (graine fixe) : l'île est la même à chaque partie.
@@ -803,6 +804,14 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
     }
   }
   const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5];
+  // La neige au sol selon l'altitude (v1.70.0) : en bas la terre nue (sombre,
+  // tramée, des graviers clairs), la neige gagne jusqu'à 750 m. Calculée sur
+  // une grille de 4 pixels ; rien à faire dans un morceau déjà tout enneigé.
+  let cover = null;
+  if (uniform !== 'sea' && corners.some(([x, y]) => altitudeAt(x0 + x, y0 + y) < 800)) {
+    cover = new Float32Array((CHUNK / 4 + 1) ** 2);
+    for (let j = 0; j <= CHUNK / 4; j++) for (let i = 0; i <= CHUNK / 4; i++) cover[j * (CHUNK / 4 + 1) + i] = snowCover(altitudeAt(x0 + i * 4, y0 + j * 4));
+  }
   // Le ravin traverse-t-il ce morceau ?
   const ravine = x0 < RAVINE.x + 120 && x0 + CHUNK > RAVINE.x - 120;
 
@@ -849,6 +858,10 @@ export function* paintChunkSteps(ctx, cx, cy, pal) {
         if (deep && lane < 2) {
           const k = deep[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)] * (lane ? 0.45 : 1);
           if (k > 0 && (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 < k * 1.15) dark = true;
+        }
+        if (cover) {
+          const k = cover[(y >> 2) * (CHUNK / 4 + 1) + (x >> 2)];
+          if (k < 1 && 0.6 * (BAYER[(y & 3) * 4 + (x & 3)] + 0.5) / 16 + 0.4 * hash(wx, wy, 15) < 0.86 * (1 - k)) dark = true;
         }
         set(i, dark ? 'b' : 's');
       } else {
@@ -936,6 +949,42 @@ function nearTrail(x, y, dist) {
 
 const objectCache = new Map();
 
+// ── Ce qui pousse à chaque étage (v1.70.0) ──
+// [type, poids] et densité par cellule de 16 px ; les types sont ceux de
+// vegetation.js (dessinables dans l'atelier, groupe « La végétation »)
+const PLANTS = {
+  greve:   { density: 0.3,  types: [['oyats', 5], ['varech', 2], ['bois-flotte', 1], ['galets', 3]] },
+  landes:  { density: 0.42, types: [['bruyere', 5], ['ajonc', 2], ['fougere', 2], ['herbe-couchee', 4], ['linaigrette', 1], ['genevrier', 2]] },
+  bois:    { density: 0.34, types: [['buisson-nu', 3], ['feuilles-mortes', 5], ['souche-moussue', 1], ['herbe-couchee', 2]] },
+  noire:   { density: 0.1,  types: [['branches', 1]] },
+  haut:    { density: 0.32, types: [['herbe-jaune', 5], ['airelles', 3], ['genevrier', 1]] },
+  plateau: { density: 0.2,  types: [['lichen', 4], ['coussin', 4], ['fleur', 1]] },
+};
+const VEG_BY_ID = Object.fromEntries(VEGETATION.map(v => [v.id, v]));
+// Un dessin de la végétation : une variante au hasard, telle qu'elle est dessinée (ou redessinée)
+function vegArt(id, r) {
+  const v = VEG_BY_ID[id], q = v.variants[Math.floor(r() * v.variants.length)];
+  const rows = designRows(q.name, q.rows, { grow: true });
+  return { rows, ax: Math.floor(rows[0].length / 2), veg: id };
+}
+const plantArt = (o, r) => vegArt(o.plant, r);
+// Un arbre selon l'altitude : bouleaux nains, bouleaux et sorbiers, sapins nus
+// puis givrés, pins et mélèzes (au-dessus de 1 950 m, plus d'arbres)
+function treeArt(o, r) {
+  const alt = altitudeAt(o.x, o.y);
+  if (alt < 500) return vegArt('bouleau-nain', r);
+  if (alt < 700) return vegArt(r() < 0.7 ? 'bouleau' : 'sorbier', r);
+  if (alt < 1300) {
+    // (un sapin sur six est un dessin de l'atelier : sans neige en bas, givré plus haut)
+    if (r() < 0.17) return vegArt(alt < 1000 ? 'sapin-nu' : 'sapin-givre', r);
+    const art = makeTree(r, { big: o.big }), keep = Math.max(0, Math.min(1, (alt - 700) / 600));
+    // la neige sur les branches vient avec l'altitude
+    art.rows = art.rows.map((row, y) => [...row].map((c, x) => (c === 's' && hash(o.x + x, o.y + y, 421) > keep ? 'b' : c)).join(''));
+    return art;
+  }
+  return vegArt(r() < 0.62 ? 'pin-tordu' : 'meleze', r);
+}
+
 export function objectsInChunk(cx, cy) {
   const key = `${cx},${cy}`;
   if (objectCache.has(key)) return objectCache.get(key);
@@ -966,10 +1015,11 @@ export function objectsInChunk(cx, cy) {
       const d = forestDensity(x, y);
       if (r() < d && free(x, y, 8)) {
         list.push({ type: 'tree', x, y, seed: Math.floor(r() * 1e9), big: d > 0.2 });
+        if (altitudeAt(x, y) > 1950) list.at(-1).drop = true;
         // Au cœur de la forêt noire, un second arbre serré contre le premier
         if (d > 0.8 && r() < 0.6) {
           const x2 = x + Math.floor(r() * 9) - 4, y2 = y + Math.floor(r() * 7) - 3;
-          if (free(x2, y2, 7)) list.push({ type: 'tree', x: x2, y: y2, seed: Math.floor(r() * 1e9), big: true });
+          if (free(x2, y2, 7)) { list.push({ type: 'tree', x: x2, y: y2, seed: Math.floor(r() * 1e9), big: true }); if (altitudeAt(x2, y2) > 1950) list.at(-1).drop = true; }
         }
         continue;
       }
@@ -978,10 +1028,29 @@ export function objectsInChunk(cx, cy) {
       else if (r() < 0.004 && free(x, y, 10)) list.push({ type: 'cairn', x, y, seed: Math.floor(r() * 1e9) });
     }
   }
+  // Les plantes au sol (v1.70.0) : un tirage à part (`hash` propre), pour que
+  // les arbres et les rochers ne bougent pas d'un pixel
+  for (let gy = 0; gy < CHUNK; gy += CELL) {
+    for (let gx = 0; gx < CHUNK; gx += CELL) {
+      const r = rng(hash(x0 + gx, y0 + gy, 4101) * 4294967296);
+      const x = x0 + gx + Math.floor(r() * CELL), y = y0 + gy + Math.floor(r() * CELL);
+      if (coast(x, y) > -0.03) continue;
+      const et = etageAt(altitudeAt(x, y)), table = PLANTS[et.id];
+      if (!table) continue;
+      const deep = deepForest(x, y) > 0.3;
+      if (r() >= (deep ? 0.12 : table.density) || !free(x, y, 3)) continue;
+      let pick = r() * table.types.reduce((n, t) => n + t[1], 0), id = table.types[0][0];
+      for (const [tid, wgt] of table.types) { if ((pick -= wgt) <= 0) { id = tid; break; } }
+      if (deep && id !== 'branches') id = 'branches';
+      if (list.some(o => Math.abs(o.x - x) < 5 && Math.abs(o.y - y) < 4)) continue;
+      list.push({ type: 'plant', plant: id, x, y, seed: Math.floor(r() * 1e9), foot: 0, noShadow: true });
+    }
+  }
+  for (let i = list.length - 1; i >= 0; i--) if (list[i].drop) list.splice(i, 1);
   for (const o of list) {
     if (o.art) continue;
     const r = rng(o.seed);
-    o.art = o.type === 'tree' ? makeTree(r, { big: o.big }) : o.type === 'boulder' ? makeBoulder(r)
+    o.art = o.type === 'plant' ? plantArt(o, r) : o.type === 'tree' ? treeArt(o, r) : o.type === 'boulder' ? makeBoulder(r)
       : o.type === 'iceberg' ? makeIceberg(r) : makeCairn(r);
     o.w = o.art.rows[0].length;
     o.h = o.art.rows.length;

@@ -2,11 +2,11 @@
    pastille dans la barre des onglets, visible partout (dessins, carte, textes,
    nombres) ; on la touche, la liste s'ouvre ; une ligne mène à l'élément, et
    « Publier pour tous » envoie tout d'un coup (designs-publish.js). */
-import { DESIGNS, customDefs, customDepotDefs } from './designs.js?v=1.69.0';
-import { pending } from './designs-publish.js?v=1.69.0';
-import { readPlacements, placementsDepot, readTexts, textsDepot, readTuning, tuningDepotGet, readExtras, extrasDepotGet } from './design-store.js?v=1.69.0';
-import { textEntries } from './texts.js?v=1.69.0';
-import { TUNING_DEFS } from './tuning.js?v=1.69.0';
+import { DESIGNS, customDefs, customDepotDefs } from './designs.js?v=1.70.0';
+import { pending } from './designs-publish.js?v=1.70.0';
+import { readPlacements, placementsDepot, readTexts, textsDepot, readTuning, tuningDepotGet, readExtras, extrasDepotGet } from './design-store.js?v=1.70.0';
+import { textEntries } from './texts.js?v=1.70.0';
+import { TUNING_DEFS } from './tuning.js?v=1.70.0';
 
 // Les lieux qu'on déplace sur la carte (atelier-map.js), et leur nom
 export const PLACE_NAMES = {

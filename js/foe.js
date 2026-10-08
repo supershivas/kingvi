@@ -5,8 +5,8 @@
 
    Le module ne connaît la scène que par ce qu'on lui passe : le sprite
    partagé du viking (animations globales), et quelques fonctions. */
-import { T } from './tuning.js?v=1.69.0';
-import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.69.0';
+import { T } from './tuning.js?v=1.70.0';
+import { CX, GROUND, ORIGIN_X, ORIGIN_Y, IMPACT } from './viking.js?v=1.70.0';
 
 // (ses points de vie : T.autrePv, tuning.js)
 const REACH = { min: 7, max: 14, dy: 4 };

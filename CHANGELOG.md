@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.70.0 — 2026-10-08
+- Le sol suit l'altitude : en bas de la terre noire à graviers clairs (tramée), la neige gagne peu à peu, plaques vers 350 m, partout dès 750 m ; la grève n'est plus enneigée
+- Les arbres suivent l'étage : bouleaux nains (landes), bouleaux et sorbiers (bois clair), sapins sans neige puis givrés (forêt noire, dont un sur six est le dessin de l'atelier), pins tordus et mélèzes (haut-pays), plus d'arbres au-dessus de 1 950 m ; des plantes au sol, non bloquantes, par étage (oyats, bruyère, feuilles mortes, herbe jaune, lichens…). Ce sont les placeholders de la v1.69.0 : tout ce qu'on redessine dans l'atelier apparaît dans le jeu
+- Le temps selon l'altitude : bruine et pluie à la grève et dans les landes, grésil à la limite des neiges, neige et tempêtes plus haut ; nouveau réglage « Selon l'altitude », par défaut
+- Les arbres, rochers et lieux ne bougent pas d'un pixel (les plantes ont leur propre tirage) ; les anciennes sauvegardes restent valides
+
 ## 1.69.0 — 2026-10-08
 - L'altitude (`js/altitude.js`, `altitudeAt` dans `world.js`) : le long de l'axe nord-est, 0 m à la grève, 4 300 m au sommet du mont King, avec des limites d'étage tordues par du bruit ; dix étages (grève, landes, bois clair, forêt noire, haut-pays, falaise et plateau, éboulis, glacier, arête, sommet), leur température, la phase de l'eau (pluie, grésil, neige) et la neige au sol. Le monde existant tombe dans les bons étages (la maison à 1 330 m, le pied de la falaise à 1 900 m, l'arche à 2 200 m)
 - La végétation, en placeholders (`js/vegetation.js`) : 38 types et 96 dessins, un dossier « La végétation » dans l'atelier, à redessiner à la main ; ils ne sont pas encore posés dans le jeu (v1.70.0)

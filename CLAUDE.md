@@ -754,8 +754,14 @@ l'incendie, du megamoth, de la pierre qui tombe, de la ceinture et des reliques 
   `world.js` (axe nord-est depuis la grève, bruit sans `rng`). `vegetation.js` :
   38 types × variantes (`veg-<id>-<n>`, 96 dessins placeholders par familles :
   touffe, buisson, arbre rond, conifère, tordu, au sol, tas, glace, fente,
-  perche, dalle), dossier « La végétation » de l'atelier ; pas encore posés dans
-  le jeu. Labo : « L'ascension du mont King », « La végétation, étage par étage ».
+  perche, dalle), dossier « La végétation » de l'atelier ; **posés dans le jeu**
+  (v1.70.0, `world.js` : `PLANTS` par étage, `plantArt`, `treeArt`, objets de
+  type `plant` : non bloquants, sans ombre, ni coup ni vue ; tirage à part, `hash`
+  4101, pour que les arbres et les rochers ne bougent pas ; le sol sans neige
+  en bas, `snowCover` dans `paintChunkSteps` ; arbres abattus de la même façon
+  sous 1 950 m, au-dessus `drop`). Le temps suit l'altitude : réglage « Selon
+  l'altitude » (`prefs.wind = 'altitude'`, `skyAt`, `updateSky` toutes les 2 s,
+  une ambiance de l'étage de la bonne phase, tournant toutes les 100 s). Labo : « L'ascension du mont King », « La végétation, étage par étage ».
 - `js/chapters.js` — les chapitres (`CHAPTERS` : numéro, nom) et leur
   affichage (`showChapter`, partagé jeu/labo) ; quand : `checkChapters`.
   Le fond derrière le titre : `CHAPTER_STYLE` (G, sobre : pas de fond, dans

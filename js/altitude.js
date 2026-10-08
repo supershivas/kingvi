@@ -9,9 +9,9 @@
 // Les étages : de l'altitude `from` à `to` (m), la température qu'on y sent
 // (°C, d'en bas à en haut ; la nuit, un peu plus bas), ce qui y tombe et ce qui y pousse.
 export const ETAGES = [
-  { id: 'greve',    nom: 'La grève',               from: 0,    to: 100,  temp: [6, 3],     meteo: ['bruine', 'pluie', 'brouillard'] },
-  { id: 'landes',   nom: 'Les landes',             from: 100,  to: 500,  temp: [3, -1],    meteo: ['pluie', 'orage-pluie', 'bise', 'gresil'] },
-  { id: 'bois',     nom: 'Le bois clair',          from: 500,  to: 700,  temp: [-1, -3],   meteo: ['averse', 'gresil', 'calme'] },
+  { id: 'greve',    nom: 'La grève',               from: 0,    to: 100,  temp: [6, 3],     meteo: ['bruine', 'pluie'] },
+  { id: 'landes',   nom: 'Les landes',             from: 100,  to: 500,  temp: [3, -1],    meteo: ['pluie', 'averse', 'orage-pluie', 'gresil'] },
+  { id: 'bois',     nom: 'Le bois clair',          from: 500,  to: 700,  temp: [-1, -3],   meteo: ['averse', 'gresil', 'bise', 'calme'] },
   { id: 'noire',    nom: 'La forêt noire',         from: 700,  to: 1300, temp: [-3, -7],   meteo: ['calme', 'bise', 'brouillard'] },
   { id: 'haut',     nom: 'Le haut-pays',           from: 1300, to: 1900, temp: [-8, -12],  meteo: ['grele', 'bise', 'rafales'] },
   { id: 'plateau',  nom: 'La falaise et le plateau', from: 1900, to: 2500, temp: [-13, -17], meteo: ['orage', 'tempete', 'rafales'] },
@@ -63,4 +63,14 @@ export const precipAt = temp => (temp > 1 ? 'pluie' : temp > -1 ? 'gresil' : 'ne
 export function snowCover(alt) {
   const t = Math.max(0, Math.min(1, (alt - 350) / 400));
   return t * t * (3 - 2 * t);
+}
+
+// Le temps d'une altitude : une ambiance de l'étage dont l'eau est de la bonne
+// phase (pluie, grésil, neige) ; `turn` (un entier qui avance de lui-même)
+// fait changer d'ambiance de temps en temps. `presets` : WEATHER_PRESETS.
+export function skyAt(alt, turn, presets, { night = true } = {}) {
+  const phase = precipAt(temperatureAt(alt, { night }));
+  const class_ = n => { const p = presets[n]?.precip; return p === 'pluie' ? 'pluie' : p === 'gresil' ? 'gresil' : 'neige'; };
+  const list = etageAt(alt).meteo.filter(n => class_(n) === phase);
+  return list.length ? list[Math.abs(turn) % list.length] : phase === 'pluie' ? 'pluie' : phase === 'gresil' ? 'gresil' : 'bise';
 }

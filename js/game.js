@@ -1,27 +1,27 @@
 /* La scène Phaser : sol par morceaux, arbres et rochers, viking et sa cape,
    empreintes, maison. Le vent et la neige sont dessinés sur un calque à part
    (canvas 2D au-dessus du jeu), avec la même simulation que le labo. */
-import { keyIs } from './keys.js?v=1.69.0';
-import { HINTS } from './story.js?v=1.69.0';
-import { T as TUNE } from './tuning.js?v=1.69.0';
+import { keyIs } from './keys.js?v=1.70.0';
+import { HINTS } from './story.js?v=1.70.0';
+import { T as TUNE } from './tuning.js?v=1.70.0';
 import {
   paintSheet, paintFrames, capeFrames, smearPixels, whirlArc, blastRing, IMPACT, ATTACK_VIEWS,
   FRAME_W, FRAME_H, CX, GROUND, ORIGIN_X, ORIGIN_Y, CAPE_W, CAPE_H, CAPE_PHASES,
-} from './viking.js?v=1.69.0';
+} from './viking.js?v=1.70.0';
 import {
   WORLD, WORLD_VERSION, ISLAND, CHUNK, isLand, landing, objectsInChunk, blocked,
   HOUSE, HOUSE_ART, HOUSE_DOOR_OUT, houseBlocked, houseFrontY, coast, trail,
   LAKE, inLake, STATUE3_DOOR_OUT, deepForest, GROVE_TREE, GROVE_HOOKS, WATCHER_AT, WOLF_DEN, DEN_OPEN, CAVE_DOOR_OUT, NECRO, CLIFF, forestDensity,
   deckLift, PIER_MOOR, LEDGE, ledgeAt, MOTH_LAIR, cliffFoot, cliffHeight, FALLING_STONE, ARCH, STATUE_BASE, snowDepth,
   GLADE, HVIT_AT, TEMPLE_DOOR_OUT, SIGRUN_AT, SNO7_CUBES, cubeBlocked, MONS_AT,
-  PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER, inRavine, onBridge, BRIDGE_TREE, BRIDGE_LOG, RAVINE_CROSS, CAVE_RUBBLE,
-} from './world.js?v=1.69.0';
-import { ICE_FRAMES } from './sigrun.js?v=1.69.0';
-import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.69.0';
-import { createPack, makeWhiteWolf } from './pack.js?v=1.69.0';
-import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.69.0';
-import { createGround } from './ground.js?v=1.69.0';
-import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.69.0';
+  altitudeAt, PASSAGE_AT, STATUE2_BASE, STATUE3_BASE, RUINS, PIER, inRavine, onBridge, BRIDGE_TREE, BRIDGE_LOG, RAVINE_CROSS, CAVE_RUBBLE,
+} from './world.js?v=1.70.0';
+import { ICE_FRAMES } from './sigrun.js?v=1.70.0';
+import { CUBE_WHITE, CUBE_BLACK } from './cubes.js?v=1.70.0';
+import { createPack, makeWhiteWolf } from './pack.js?v=1.70.0';
+import { TEMPLE, TEMPLE_W, TEMPLE_H, TEMPLE_ENTRY, NAIL, NAIL_ART, TEMPLE_SLAB, TEMPLE_STAIRS, templeWalkable, atTempleDoor, nearNail } from './temple.js?v=1.70.0';
+import { createGround } from './ground.js?v=1.70.0';
+import { designRows, designFrames, padOf, animOf, propsOf, placements, refreshLocal, customDefs, customNames, EXTRAS_KEY as EXTRAS_STORAGE_KEY, LOCAL_KEY as DESIGNS_STORAGE_KEY } from './design-store.js?v=1.70.0';
 
 // Les objets posés dans l'atelier (onglet Carte) : leur pied bloque s'il le faut
 // (`props.box` : la zone tracée sur le dessin dans l'atelier, en pixels du dessin)
@@ -44,28 +44,29 @@ const GROWN = new Map();
     return base.call(this, x, y);
   };
 }
-import { chapterById } from './chapters.js?v=1.69.0';
-import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.69.0';
-import { BUNDLE, WATCHER } from './grove.js?v=1.69.0';
-import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.69.0';
-import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.69.0';
-import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.69.0';
-import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.69.0';
-import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.69.0';
-import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.69.0';
-import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.69.0';
-import { createFoe, drawPips } from './foe.js?v=1.69.0';
-import { createFauna } from './fauna.js?v=1.69.0';
-import { createWeather } from './weather.js?v=1.69.0';
-import { createTalk } from './dialogue.js?v=1.69.0';
-import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.69.0';
-import { NECRO_W, NECRO_H } from './props.js?v=1.69.0';
-import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.69.0';
-import { describe } from './describe.js?v=1.69.0';
-import { personSprite } from './people.js?v=1.69.0';
-import { createSea } from './sea.js?v=1.69.0';
-import { audio } from './audio.js?v=1.69.0';
-import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.69.0';
+import { chapterById } from './chapters.js?v=1.70.0';
+import { CAVE_ROOM, CAVE_W, CAVE_H, CAVE_ENTRY, THRONE, THRONE_FRAMES, THRONE_FOOT, caveWalkable, atCaveDoor, nearThrone } from './cave.js?v=1.70.0';
+import { BUNDLE, WATCHER } from './grove.js?v=1.70.0';
+import { BOAT_FRAMES, rollBoat, BOAT_W, BOAT_H, BOAT_WATERLINE, BOAT_BOW, BOAT_EDGE, ROWBOAT_FRAMES, BOAT2, BOAT2_KEEL } from './boat.js?v=1.70.0';
+import { CRYPT, CRYPT_W, CRYPT_H, CRYPT_ENTRY, CHEST, CHEST_FRAMES, cryptWalkable, atCryptDoor, nearChest } from './crypt.js?v=1.70.0';
+import { daylightAt, torchLight, castShadow, castShadowBase, artBase } from './daylight.js?v=1.70.0';
+import { ROOM, ROOM_W, ROOM_H, ROOM_ENTRY, roomWalkable, atRoomDoor, CORPSE, floorPoint } from './interior.js?v=1.70.0';
+import { RELICS, RELIC_GROUND_SIZE, BELT_SLOTS, relicDesign, relicGround, relicById } from './relics.js?v=1.70.0';
+import { FIRE, FIRE_FRAMES, FIRE_W, FIRE_H, HOUSE_BURNING, HOUSE_RUIN, burnHouse, ROOF_FLAMES, RUIN_FLAMES, ROOM_FLAMES, PYRE, nearPyre } from './fire.js?v=1.70.0';
+import { createMoth, MOTH_FRAMES, mothKey } from './moth.js?v=1.70.0';
+import { createFoe, drawPips } from './foe.js?v=1.70.0';
+import { createFauna } from './fauna.js?v=1.70.0';
+import { createWeather, WEATHER_PRESETS } from './weather.js?v=1.70.0';
+import { skyAt } from './altitude.js?v=1.70.0';
+import { createTalk } from './dialogue.js?v=1.70.0';
+import { SNO4_W, SNO4_H, SNO4_AT, SNO4_BOAT, SNO4_ENTRY, SNO4_PROPS, SNO4_CUBES, SNO4_SOULS, CLOTILDE_PATH, paintSno4, sno4Walkable, nearSno4Boat, VEVE, VEVE_NODE, VEVE_TIME } from './sno4.js?v=1.70.0';
+import { NECRO_W, NECRO_H } from './props.js?v=1.70.0';
+import { SCENARIOS, PERSON, speakerName } from './saga.js?v=1.70.0';
+import { describe } from './describe.js?v=1.70.0';
+import { personSprite } from './people.js?v=1.70.0';
+import { createSea } from './sea.js?v=1.70.0';
+import { audio } from './audio.js?v=1.70.0';
+import { LEANS, LEAN_PAD, leanRows, treeWind, treeLean, treeFreq, boulderHits, chipBoulder, stumpRows } from './trees.js?v=1.70.0';
 
 const Phaser = window.Phaser;
 // La trame 4 × 4 (fumée de l'incendie), accrochée au monde
@@ -175,6 +176,13 @@ const canvasSize = (w, h, factor, dpr) => ({ width: Math.max(1, Math.ceil(w * dp
 const boatRects = [];
 const inBoat = (x, y) => boatRects.some(b => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
 // Le mons marche si loin devant Kári (en pas de la piste)
+// Ce que dit le clic droit sur une plante, selon l'étage où elle pousse (describe.js)
+const PLANT_KIND = {
+  oyats: 'plante-greve', varech: 'plante-greve', 'bois-flotte': 'plante-greve', galets: 'plante-greve',
+  bruyere: 'plante-landes', ajonc: 'plante-landes', fougere: 'plante-landes', 'herbe-couchee': 'plante-landes', linaigrette: 'plante-landes', genevrier: 'plante-landes',
+  'buisson-nu': 'plante-bois', 'feuilles-mortes': 'plante-bois', 'souche-moussue': 'plante-bois',
+  branches: 'plante-noire', 'herbe-jaune': 'plante-haut', airelles: 'plante-haut', lichen: 'plante-plateau', coussin: 'plante-plateau', fleur: 'plante-plateau',
+};
 const MONS_LEAD = 12;
 // La barque de la grève vers SNO 4 (v1.65.0 : retirée ; le code reste)
 const VOYAGE_TO_SNO4 = false;
@@ -245,7 +253,9 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
   const fit = fitScreen(rect.width, rect.height);
   if (save.world !== WORLD_VERSION || (save.island || 0) !== ISLAND) save = { steps: save.steps };
 
-  const weather = createWeather(wind);
+  // (« Selon l'altitude » : l'ambiance est choisie en jeu, `updateSky`)
+  let skyMode = wind;
+  const weather = createWeather(wind === 'altitude' ? 'bise' : wind);
   // Le tonnerre suit l'éclair, d'autant plus tard qu'il est loin
   weather.onStrike = near => {
     setTimeout(() => audio.play('thunder', { near }), (1 - near) * 2600 + 120);
@@ -1271,7 +1281,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       let cliff = null;
       for (let j = 0; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx + i, cy + j)) {
-          if (o.type === 'iceberg' || o.fallen || o.broken) continue;
+          if (o.type === 'iceberg' || o.type === 'plant' || o.fallen || o.broken) continue;
           if (o.type === 'tree' || o.type === 'grove') {
             if (Math.abs(x - o.x) <= 3 && y >= o.y - 5 && y <= o.y + 3) return { o, kind: 'tree' };
             continue;
@@ -1783,6 +1793,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       if (this.windSound <= 0) {
         this.windSound = 200;
         audio.wind(weather.wind, weather.gust, roofed(this.inside) ? 1 : this.inside ? 0 : deepForest(this.pos.x, this.pos.y) * 0.7);
+        this.skyTick = (this.skyTick || 0) + 1; if (this.skyTick % 10 === 1) this.updateSky();
         audio.rain(weather.rain, weather.precip, roofed(this.inside) ? 1 : this.inside ? 0 : deepForest(this.pos.x, this.pos.y) * 0.5);
         audio.fire(this.fireHeard());
         audio.setMood(this.musicMood());
@@ -1876,7 +1887,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const cx0 = Math.floor(px / CHUNK), cy0 = Math.floor(py / CHUNK);
       for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
         for (const o of objectsInChunk(cx0 + i, cy0 + j)) {
-          if (o.fallen || o.broken || o.type === 'iceberg' || o.type === 'rubble' || o.type === 'arch-vault') continue;
+          if (o.fallen || o.broken || o.type === 'iceberg' || o.type === 'plant' || o.type === 'rubble' || o.type === 'arch-vault') continue;
           let x0, x1, up, c;
           if (o.type === 'tree') { x0 = o.x - 3; x1 = o.x + 3; up = 6; c = 0.35; }
           else {
@@ -2604,7 +2615,8 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       const key = im.texture.key, o = im.obj, seed = o ? ((o.x * 31 + o.y * 17) >>> 0) : undefined;
       if (o) {
         const near = (list) => list.reduce((a, b) => Math.hypot(o.x - a[1].x, o.y - a[1].y) <= Math.hypot(o.x - b[1].x, o.y - b[1].y) ? a : b)[0];
-        if (o.type === 'tree') return { kind: o.fallen ? 'tree-fallen' : deepForest(o.x, o.y) > 0.5 ? 'tree-dark' : o.big ? 'tree' : 'tree-small', seed };
+        if (o.type === 'plant') return { kind: PLANT_KIND[o.plant] || 'plante', seed };
+        if (o.type === 'tree') return { kind: o.fallen ? 'tree-fallen' : o.art?.veg ? (/bouleau|sorbier/.test(o.art.veg) ? 'bouleau' : /pin|meleze/.test(o.art.veg) ? 'pin' : 'tree') : o.fallen ? 'tree-fallen' : deepForest(o.x, o.y) > 0.5 ? 'tree-dark' : o.big ? 'tree' : 'tree-small', seed };
         if (o.type === 'statue') return { kind: near([['statue-ensevelie', STATUE_BASE], ['statue-debout', STATUE2_BASE], ['statue-ilot', STATUE3_BASE]]), seed };
         if (o.type === 'ruin' || o.type === 'arch-vault') return { kind: near([['arche', ARCH], ['colonne', RUINS.colonne], ['socle', RUINS.socle], ['ruine', RUINS.arche], ['pont', PIER]]), seed };
         if (o.type === 'stone') return { kind: o.x >= NECRO.x - 4 && o.x <= NECRO.x + NECRO_W + 4 && o.y >= NECRO.y - 4 && o.y <= NECRO.y + NECRO_H + 8 ? 'necro' : 'stone', seed };
@@ -3688,6 +3700,15 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       this.persist();
     }
 
+    // Le temps qui suit l'altitude (v1.70.0) : l'ambiance de l'étage, de la bonne
+    // phase de l'eau ; elle tourne toutes les cent secondes. Dedans, on garde la même.
+    updateSky() {
+      if (skyMode !== 'altitude' || this.inside) return;
+      const alt = altitudeAt(this.pos.x, this.pos.y);
+      const name = skyAt(alt, Math.floor(Date.now() / 100000), WEATHER_PRESETS);
+      if (weather.preset !== name) weather.setPreset(name);
+    }
+
     drawSky(dt) {
       // L'éclair : le noir autour de la vue s'efface un instant
       if (sightCanvas) sightCanvas.style.opacity = roofed(this.inside) || weather.flash < 0.01 ? '' : (1 - 0.8 * weather.flash).toFixed(2);
@@ -4221,7 +4242,7 @@ export function createGame({ onEnding = () => {}, onAction = () => {}, onVoyage 
       [b[from], b[to]] = [b[to], b[from]];
       sc.persist();
     },
-    setWind: name => weather.setPreset(name),
+    setWind: name => { skyMode = name; weather.setPreset(name === 'altitude' ? weather.preset : name); },
     // La touche d'action (E), aussi au doigt (main.js : le bouton « E · … »)
     act: () => game.scene.getScene('island')?.act(),
     wishes: () => game.scene.getScene('island')?.wishes() || [],

@@ -1,14 +1,14 @@
-import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.69.0';
-import { loadDesigns, designRows, refreshLocal, textOverrides, TEXTS_KEY, tuningOverrides, TUNING_KEY, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.69.0';
-import { TITLE_ART } from './title-art.js?v=1.69.0';
-import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.69.0';
-import { keyIs, stopTypeahead } from './keys.js?v=1.69.0';
-import { showChapter } from './chapters.js?v=1.69.0';
-import { createTitleSea } from './titlesea.js?v=1.69.0';
-import { audio, TRACKS } from './audio.js?v=1.69.0';
-import { PROLOGUE, ENDINGS } from './story.js?v=1.69.0';
-import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.69.0';
-import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.69.0';
+import { startUpdateCheck, loadVersion, loadChangelog } from '../app-update.js?v=1.70.0';
+import { loadDesigns, designRows, refreshLocal, textOverrides, TEXTS_KEY, tuningOverrides, TUNING_KEY, LOCAL_KEY as DESIGNS_KEY } from './design-store.js?v=1.70.0';
+import { TITLE_ART } from './title-art.js?v=1.70.0';
+import { BELT, BELT_LEFT, BELT_SLOTS } from './relics.js?v=1.70.0';
+import { keyIs, stopTypeahead } from './keys.js?v=1.70.0';
+import { showChapter } from './chapters.js?v=1.70.0';
+import { createTitleSea } from './titlesea.js?v=1.70.0';
+import { audio, TRACKS } from './audio.js?v=1.70.0';
+import { PROLOGUE, ENDINGS } from './story.js?v=1.70.0';
+import { WEATHER_PRESETS, CYCLE_LABEL, CYCLE_ABOUT } from './weather.js?v=1.70.0';
+import { DAY_CYCLE, DAY_LABELS, DAY_LENGTH, daylightAt } from './daylight.js?v=1.70.0';
 
 // Le mode debug du playtest (?debug=1, js/debug.js) : une sauvegarde à part,
 // et les réglages ne sont jamais écrits (la vraie partie reste intacte)
@@ -36,18 +36,18 @@ await loadDesigns();
 // Les textes réécrits dans l'atelier (texts.js) : écrits dans leurs données
 // avant que le jeu ne les lise ; de nouveau quand l'atelier en change un
 {
-  const { applyTexts } = await import('./texts.js?v=1.69.0');
+  const { applyTexts } = await import('./texts.js?v=1.70.0');
   applyTexts(textOverrides());
   window.addEventListener('storage', e => { if (e.key === TEXTS_KEY || e.key === null) applyTexts(textOverrides()); });
 }
 // Les nombres du jeu réglés dans l'atelier (tuning.js) : de même
 {
-  const { applyTuning } = await import('./tuning.js?v=1.69.0');
+  const { applyTuning } = await import('./tuning.js?v=1.70.0');
   applyTuning(tuningOverrides());
   window.addEventListener('storage', e => { if (e.key === TUNING_KEY || e.key === null) applyTuning(tuningOverrides()); });
 }
-const { createGame } = await import('./game.js?v=1.69.0');
-const debug = DEBUG ? await import('./debug.js?v=1.69.0') : null;
+const { createGame } = await import('./game.js?v=1.70.0');
+const debug = DEBUG ? await import('./debug.js?v=1.70.0') : null;
 const SAVE_KEY = DEBUG ? debug.DEBUG_SAVE_KEY : 'kingvi:save';
 const PREFS_KEY = 'kingvi:prefs';
 const $ = id => document.getElementById(id);
@@ -82,6 +82,9 @@ const dayClock = () => prefs.dayNight ? MIDNIGHT : Date.now() / 1000 + (prefs.da
 if (!prefs.windCycle) { prefs.wind = 'cycle'; prefs.windCycle = true; write(PREFS_KEY, prefs); }
 // La nuit et la tempête deviennent le temps par défaut : une fois, pour tous
 if (!prefs.nightStorm) { prefs.wind = 'tempete'; prefs.dayNight = true; prefs.nightStorm = true; write(PREFS_KEY, prefs); }
+// L'ascension du mont King (v1.70.0) : le temps suit l'altitude (pluie en bas,
+// neige plus haut), une fois, pour tous
+if (!prefs.ascension) { prefs.wind = 'altitude'; prefs.ascension = true; write(PREFS_KEY, prefs); }
 // La qualité de l'image (1 → 4) remplace les cases CRT et flou : on la
 // déduit des anciennes cases, une fois
 if (prefs.quality == null) { prefs.quality = prefs.crt === false && prefs.tilt === false ? 1 : prefs.crt === false || prefs.tilt === false ? 2 : 3; write(PREFS_KEY, prefs); }
@@ -93,7 +96,7 @@ let save = read(SAVE_KEY, {});
 // ── La bulle de neige des phylactères, sous un élément d'interface (le cadre
 // de la touche E, les consignes) : dessinée en pixels du jeu, à sa taille ──
 async function snowBox(el, seed) {
-  const { brokenBox } = await import('./dialogue.js?v=1.69.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.70.0');
   const canvas = el.querySelector('.snow-bg');
   if (!canvas || el.hidden) return;
   const unit = parseFloat(getComputedStyle($('screen')).getPropertyValue('--ui-px')) || 3;
@@ -115,7 +118,7 @@ window.addEventListener('resize', () => setTimeout(() => {
 // ── Les messages du jeu : une bulle de neige comme les phylactères ──
 let noteTimer, noteSeed = 7;
 async function note(title, text) {
-  const { brokenBox } = await import('./dialogue.js?v=1.69.0');
+  const { brokenBox } = await import('./dialogue.js?v=1.70.0');
   const el = $('note'), box = el.querySelector('.note-text'), canvas = el.querySelector('.note-bubble');
   box.innerHTML = '';
   const b = document.createElement('b'); b.textContent = title;
@@ -352,7 +355,7 @@ async function toggleMap(force) {
   if (!open) { mapDialog.close(); return; }
   if (!$('title').hidden || irisBusy || settings.open || inventory.open) return;
   mapDialog.showModal();
-  mapModule = mapModule || await import('./map.js?v=1.69.0');
+  mapModule = mapModule || await import('./map.js?v=1.70.0');
   const data = game.mapData();
   if (!data || !mapDialog.open) return;
   const view = $('map-view'), t0 = performance.now();
@@ -750,12 +753,16 @@ $('opt-quality').addEventListener('input', e => {
 
 // Vent : les ambiances à comparer (voir aussi le labo)
 const windSelect = $('opt-wind');
-for (const [key, label] of [['cycle', CYCLE_LABEL], ...Object.entries(WEATHER_PRESETS).map(([k, p]) => [k, `Toujours : ${p.label.toLowerCase()}`])]) {
+for (const [key, label] of [['altitude', 'Selon l\'altitude'], ['cycle', CYCLE_LABEL], ...Object.entries(WEATHER_PRESETS).map(([k, p]) => [k, `Toujours : ${p.label.toLowerCase()}`])]) {
   const o = document.createElement('option');
   o.value = key; o.textContent = label;
   windSelect.append(o);
 }
 function describeWind() {
+  if (prefs.wind === 'altitude') {
+    const now = WEATHER_PRESETS[game.windPhase()]?.label;
+    return `Le temps suit l'altitude : bruine et pluie en bas, grésil puis neige à mesure qu'on monte, tempêtes près du sommet.${now ? ` En ce moment : ${now.toLowerCase()}.` : ''}`;
+  }
   if (prefs.wind !== 'cycle') return WEATHER_PRESETS[prefs.wind]?.about || '';
   const now = WEATHER_PRESETS[game.windPhase()]?.label;
   return now ? `${CYCLE_ABOUT} En ce moment : ${now.toLowerCase()}.` : CYCLE_ABOUT;

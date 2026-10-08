@@ -281,3 +281,7 @@ corde (équipement), le regard en arrière (zoom). Plus tard : « Froid doux ».
 Ordre : v1.68 pluie, v1.69 placeholders de végétation (37 types) et altitude,
 v1.70 végétation de l'existant, v1.71 froid et bivouacs, v1.72 prolongement
 nord-est, v1.73 vent, cairns, sommet visible, vraie fin.
+
+*v1.70.0 : fait — le sol sans neige en bas, la végétation par étage (placeholders
+de la v1.69.0), le temps selon l'altitude. Reste : froid et bivouacs (v1.71), le
+prolongement nord-est (v1.72), vent, cairns, sommet visible, vraie fin (v1.73).*
